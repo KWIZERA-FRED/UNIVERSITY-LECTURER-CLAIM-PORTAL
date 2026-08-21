@@ -1,0 +1,882 @@
+﻿@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.IndexModel
+
+@{
+    ViewData["Title"] = "Dean Dashboard";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Dean Dashboard</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+
+            * {
+                box-sizing: border-box;
+            }
+
+            :root {
+                --primary: #0f2b4a;
+                --primary-light: #1a3f64;
+                --accent: #2a7f5e;
+                --accent-light: #e1f0e8;
+                --bg: #f0f4fa;
+                --card: #ffffff;
+                --border: #dce4ed;
+                --text: #1a2634;
+                --text-muted: #4d6278;
+                --radius: 16px;
+                --shadow: 0 12px 30px -10px rgba(0,20,40,0.12);
+            }
+
+            body {
+                margin: 0;
+                font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                background: var(--bg);
+                color: var(--text);
+            }
+
+            .dean-app {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* HEADER */
+
+            .app-header {
+                height: 70px;
+                background: var(--primary);
+                color: white;
+                padding: 0.9rem 2rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 3px solid var(--accent);
+            }
+
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+                font-weight: 600;
+                font-size: 1.2rem;
+            }
+
+                .brand i {
+                    color: #7bc9a0;
+                    font-size: 1.4rem;
+                }
+
+            .user-area {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .role-badge {
+                background: rgba(255,255,255,0.1);
+                padding: 0.35rem 1rem;
+                border-radius: 40px;
+                font-size: 0.8rem;
+            }
+
+            .logout {
+                color: white;
+                text-decoration: none;
+                font-size: 0.85rem;
+                padding: 0.4rem 0.9rem;
+                border: 1px solid rgba(255,255,255,0.25);
+                border-radius: 30px;
+            }
+
+                .logout:hover {
+                    background: rgba(255,255,255,0.1);
+                }
+
+            /* BODY */
+
+            .app-body {
+                display: flex;
+                flex: 1;
+            }
+
+            /* SIDEBAR */
+
+            .sidebar {
+                width: 230px;
+                background: white;
+                border-right: 1px solid var(--border);
+                padding: 1.2rem 0;
+                flex-shrink: 0;
+                min-height: calc(100vh - 70px);
+            }
+
+            .sidebar-title {
+                padding: 0 1.8rem 0.8rem;
+                font-size: 0.7rem;
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+                color: var(--text-muted);
+                font-weight: 700;
+            }
+
+            .sidebar a {
+                display: block;
+                width: 100%;
+                text-decoration: none;
+                padding: 0.7rem 1.8rem;
+                color: var(--text);
+                font-size: 0.9rem;
+                font-weight: 500;
+                border-left: 3px solid transparent;
+                transition: 0.2s ease;
+            }
+
+                .sidebar a i {
+                    width: 1.6rem;
+                    color: var(--text-muted);
+                }
+
+                .sidebar a:hover {
+                    background: var(--bg);
+                }
+
+                .sidebar a.active {
+                    background: var(--accent-light);
+                    border-left-color: var(--accent);
+                    color: var(--primary);
+                    font-weight: 600;
+                }
+
+                    .sidebar a.active i {
+                        color: var(--accent);
+                    }
+
+            /* MAIN */
+
+            .main {
+                flex: 1;
+                padding: 1.8rem 2rem 2rem;
+                overflow-x: auto;
+            }
+
+            .page-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+            }
+
+                .page-header h1 {
+                    margin: 0;
+                    color: var(--primary);
+                    font-size: 1.6rem;
+                }
+
+                .page-header p {
+                    margin-top: 0.3rem;
+                    color: var(--text-muted);
+                    font-size: 0.85rem;
+                }
+
+            /* STAT CARDS */
+
+            .stat-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .stat-card {
+                background: white;
+                padding: 1rem 1.2rem;
+                border-radius: var(--radius);
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow);
+            }
+
+                .stat-card .number {
+                    font-size: 2rem;
+                    font-weight: 700;
+                    color: var(--primary);
+                    line-height: 1.2;
+                }
+
+                .stat-card .label {
+                    font-size: 0.75rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.4px;
+                    color: var(--text-muted);
+                    margin-top: 0.3rem;
+                }
+
+                .stat-card .icon {
+                    color: var(--accent);
+                    margin-bottom: 0.5rem;
+                }
+
+            /* CARDS */
+
+            .card {
+                background: white;
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 1.2rem 1.5rem;
+                margin-bottom: 1.5rem;
+                box-shadow: var(--shadow);
+            }
+
+                .card h3 {
+                    font-size: 1rem;
+                    margin-bottom: 0.8rem;
+                    color: var(--primary);
+                }
+
+                    .card h3 i {
+                        color: var(--accent);
+                        margin-right: 0.4rem;
+                    }
+
+            /* TABLE */
+
+            .table-wrap {
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.85rem;
+            }
+
+            th {
+                background: var(--primary);
+                color: white;
+                font-weight: 600;
+                padding: 0.65rem 0.8rem;
+                text-align: left;
+            }
+
+            td {
+                padding: 0.65rem 0.8rem;
+                border-bottom: 1px solid var(--border);
+                vertical-align: middle;
+            }
+
+            tr:hover td {
+                background: #f8fafc;
+            }
+
+            /* STATUS */
+
+            .badge {
+                display: inline-block;
+                padding: 0.15rem 0.8rem;
+                border-radius: 30px;
+                font-size: 0.7rem;
+                font-weight: 600;
+            }
+
+            .badge-pending {
+                background: #fff3cd;
+                color: #856404;
+            }
+
+            .badge-review {
+                background: #dbeafe;
+                color: #1a4b7a;
+            }
+
+            /* BUTTONS */
+
+            .action-btn {
+                background: var(--accent);
+                color: white;
+                border: none;
+                padding: 0.4rem 1rem;
+                border-radius: 40px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                cursor: pointer;
+                text-decoration: none;
+                display: inline-block;
+            }
+
+                .action-btn:hover {
+                    background: #1d6a4d;
+                }
+
+            /* QUICK ACTIONS */
+
+            .quick-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+
+            .quick-action {
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 1rem;
+                text-decoration: none;
+                color: var(--text);
+                transition: 0.2s ease;
+                background: white;
+            }
+
+                .quick-action:hover {
+                    border-color: var(--accent);
+                    background: var(--accent-light);
+                }
+
+                .quick-action i {
+                    color: var(--accent);
+                    font-size: 1.3rem;
+                    margin-bottom: 0.5rem;
+                }
+
+                .quick-action strong {
+                    display: block;
+                    color: var(--primary);
+                    font-size: 0.9rem;
+                }
+
+                .quick-action span {
+                    display: block;
+                    color: var(--text-muted);
+                    font-size: 0.75rem;
+                    margin-top: 0.2rem;
+                }
+
+            /* RESPONSIVE */
+
+            @@media (max-width: 900px) {
+
+                .stat-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .quick-actions {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            @@media (max-width: 700px) {
+
+                .app-body {
+                    flex-direction: column;
+                }
+
+                .sidebar {
+                    width: 100%;
+                    min-height: auto;
+                    border-right: none;
+                    border-bottom: 1px solid var(--border);
+                }
+
+                .stat-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .quick-actions {
+                    grid-template-columns: 1fr;
+                }
+
+                .app-header {
+                    padding: 0.8rem 1rem;
+                }
+
+                .main {
+                    padding: 1.2rem;
+                }
+            }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="dean-app">
+
+        <!-- HEADER -->
+
+        <header class="app-header">
+
+            <div class="brand">
+
+                <i class="fas fa-university"></i>
+
+                <span>
+                    UNILAK · Staff Engagement
+                </span>
+
+            </div>
+
+            <div class="user-area">
+
+                <span class="role-badge">
+
+                    <i class="fas fa-user-tie"></i>
+
+                    Dean
+
+                </span>
+
+                <a href="/Login" class="logout">
+                    Logout
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <div class="app-body">
+
+            <!-- SIDEBAR -->
+
+            <aside class="sidebar">
+
+                <div class="sidebar-title">
+                    Dean Portal
+                </div>
+
+                <a href="/DEAN" class="active">
+
+                    <i class="fas fa-th-large"></i>
+
+                    Dashboard
+
+                </a>
+
+                <a href="/DEAN/Contracts">
+
+                    <i class="fas fa-file-signature"></i>
+
+                    Contracts
+
+                </a>
+
+                <a href="/DEAN/Claims">
+
+                    <i class="fas fa-coins"></i>
+
+                    Claims
+
+                </a>
+
+            </aside>
+
+
+            <!-- MAIN -->
+
+            <main class="main">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h1>
+                            Dean Dashboard
+                        </h1>
+
+                        <p>
+                            Review and approve academic staff contracts and payment claims.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- STATISTICS -->
+
+                <div class="stat-grid">
+
+                    <div class="stat-card">
+
+                        <div class="icon">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+
+                        <div class="number">
+                            8
+                        </div>
+
+                        <div class="label">
+                            Contracts to Sign
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+
+                        <div class="number">
+                            15
+                        </div>
+
+                        <div class="label">
+                            Active Contracts
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+
+                        <div class="number">
+                            5
+                        </div>
+
+                        <div class="label">
+                            Claims to Sign
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+
+                        <div class="number">
+                            27
+                        </div>
+
+                        <div class="label">
+                            Completed Approvals
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CONTRACTS -->
+
+                <div class="card">
+
+                    <h3>
+
+                        <i class="fas fa-file-signature"></i>
+
+                        Contracts Awaiting Your Signature
+
+                    </h3>
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Contract ID</th>
+                                    <th>Lecturer</th>
+                                    <th>Department</th>
+                                    <th>Course</th>
+                                    <th>Hours</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+
+                                    <td>
+                                        <strong>C001</strong>
+                                    </td>
+
+                                    <td>
+                                        Jean Uwase
+                                    </td>
+
+                                    <td>
+                                        Computer Science
+                                    </td>
+
+                                    <td>
+                                        Software Engineering
+                                    </td>
+
+                                    <td>
+                                        45h
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge badge-pending">
+                                            Pending Signature
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <a href="/DEAN/Contracts"
+                                           class="action-btn">
+
+                                            Review
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        <strong>C004</strong>
+                                    </td>
+
+                                    <td>
+                                        Eric Mugisha
+                                    </td>
+
+                                    <td>
+                                        Business
+                                    </td>
+
+                                    <td>
+                                        Database Systems
+                                    </td>
+
+                                    <td>
+                                        60h
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge badge-pending">
+                                            Pending Signature
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <a href="/DEAN/Contracts"
+                                           class="action-btn">
+
+                                            Review
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        <strong>C009</strong>
+                                    </td>
+
+                                    <td>
+                                        Marie Niyonzima
+                                    </td>
+
+                                    <td>
+                                        Education
+                                    </td>
+
+                                    <td>
+                                        Web Development
+                                    </td>
+
+                                    <td>
+                                        30h
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge badge-pending">
+                                            Pending Signature
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <a href="/DEAN/Contracts"
+                                           class="action-btn">
+
+                                            Review
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CLAIMS -->
+
+                <div class="card">
+
+                    <h3>
+
+                        <i class="fas fa-coins"></i>
+
+                        Claims Awaiting Your Signature
+
+                    </h3>
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Claim ID</th>
+                                    <th>Lecturer</th>
+                                    <th>Contract</th>
+                                    <th>Hours</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+
+                                    <td>
+                                        <strong>CL001</strong>
+                                    </td>
+
+                                    <td>
+                                        Jean Uwase
+                                    </td>
+
+                                    <td>
+                                        C001
+                                    </td>
+
+                                    <td>
+                                        45h
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge badge-review">
+                                            Awaiting Signature
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <a href="/DEAN/Claims"
+                                           class="action-btn">
+
+                                            Review
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        <strong>CL002</strong>
+                                    </td>
+
+                                    <td>
+                                        Eric Mugisha
+                                    </td>
+
+                                    <td>
+                                        C004
+                                    </td>
+
+                                    <td>
+                                        60h
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge badge-review">
+                                            Awaiting Signature
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <a href="/DEAN/Claims"
+                                           class="action-btn">
+
+                                            Review
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
