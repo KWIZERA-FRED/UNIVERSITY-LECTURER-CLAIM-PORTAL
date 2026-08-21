@@ -1,0 +1,400 @@
+﻿@page
+@model LoginModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>UNILAK · Login</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            :root {
+                --primary: #0f2b4a;
+                --primary-light: #1a3f64;
+                --accent: #2a7f5e;
+                --accent-light: #e1f0e8;
+                --bg: #f0f4fa;
+                --card: #ffffff;
+                --border: #dce4ed;
+                --text: #1a2634;
+                --text-muted: #4d6278;
+                --radius: 16px;
+                --shadow: 0 12px 30px -10px rgba(0,20,40,0.12);
+            }
+
+            html,
+            body {
+                width: 100%;
+                min-height: 100%;
+            }
+
+            body {
+                font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                background: var(--bg);
+                color: var(--text);
+            }
+
+            .login-page {
+                min-height: 100vh;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Header */
+
+            .login-header {
+                background: var(--primary);
+                color: white;
+                padding: 0.9rem 2rem;
+                display: flex;
+                align-items: center;
+                border-bottom: 3px solid var(--accent);
+            }
+
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+                font-size: 1.2rem;
+                font-weight: 600;
+            }
+
+                .brand i {
+                    color: #7bc9a0;
+                    font-size: 1.4rem;
+                }
+
+            .brand-subtitle {
+                font-size: 0.75rem;
+                font-weight: 400;
+                opacity: 0.7;
+                margin-left: 0.2rem;
+            }
+
+            /* Main */
+
+            .login-main {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+            }
+
+            .login-card {
+                width: 100%;
+                max-width: 420px;
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 2rem 2.2rem;
+                box-shadow: var(--shadow);
+            }
+
+            .login-title {
+                text-align: center;
+                margin-bottom: 1.8rem;
+            }
+
+            .login-icon {
+                width: 58px;
+                height: 58px;
+                margin: 0 auto 1rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--accent-light);
+                border-radius: 50%;
+            }
+
+                .login-icon i {
+                    color: var(--accent);
+                    font-size: 1.4rem;
+                }
+
+            .login-title h1 {
+                color: var(--primary);
+                font-size: 1.5rem;
+                margin-bottom: 0.4rem;
+            }
+
+            .login-title p {
+                color: var(--text-muted);
+                font-size: 0.8rem;
+            }
+
+            /* Form */
+
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+                .form-group label {
+                    display: block;
+                    color: var(--text-muted);
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    margin-bottom: 0.3rem;
+                }
+
+            .input-wrapper {
+                position: relative;
+            }
+
+                .input-wrapper i {
+                    position: absolute;
+                    left: 0.85rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: var(--text-muted);
+                    font-size: 0.8rem;
+                }
+
+                .input-wrapper input {
+                    width: 100%;
+                    padding: 0.65rem 0.8rem 0.65rem 2.4rem;
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    background: white;
+                    color: var(--text);
+                    font-family: inherit;
+                    font-size: 0.85rem;
+                }
+
+                    .input-wrapper input:focus {
+                        outline: none;
+                        border-color: var(--accent);
+                        box-shadow: 0 0 0 3px rgba(42,127,94,0.08);
+                    }
+
+            /* Button */
+
+            .login-button {
+                width: 100%;
+                margin-top: 0.6rem;
+                padding: 0.7rem 1rem;
+                border: none;
+                border-radius: 40px;
+                background: var(--accent);
+                color: white;
+                font-family: inherit;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                transition: 0.2s ease;
+            }
+
+                .login-button:hover {
+                    background: #1d6a4d;
+                }
+
+            /* Error */
+
+            .error-message {
+                background: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f1bfc4;
+                border-radius: 8px;
+                padding: 0.6rem 0.8rem;
+                margin-bottom: 1rem;
+                font-size: 0.8rem;
+            }
+
+            /* Back */
+
+            .back-link {
+                display: block;
+                text-align: center;
+                margin-top: 1.3rem;
+                color: var(--text-muted);
+                text-decoration: none;
+                font-size: 0.75rem;
+            }
+
+                .back-link:hover {
+                    color: var(--accent);
+                }
+
+            /* Footer */
+
+            .login-footer {
+                text-align: center;
+                padding: 1rem;
+                color: var(--text-muted);
+                font-size: 0.7rem;
+            }
+
+            @@media (max-width: 600px) {
+
+                .login-header {
+                    padding: 0.8rem 1rem;
+                }
+
+                .brand {
+                    font-size: 1rem;
+                }
+
+                .brand-subtitle {
+                    display: none;
+                }
+
+                .login-main {
+                    padding: 1rem;
+                }
+
+                .login-card {
+                    padding: 1.6rem;
+                }
+            }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="login-page">
+
+        <header class="login-header">
+
+            <div class="brand">
+
+                <i class="fas fa-university"></i>
+
+                <span>
+                    UNILAK · Staff Engagement
+                </span>
+
+                <span class="brand-subtitle">
+                    Claims & Contracts
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <main class="login-main">
+
+            <div class="login-card">
+
+                <div class="login-title">
+
+                    <div class="login-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+
+                    <h1>Sign In</h1>
+
+                    <p>
+                        Access the Staff Engagement & Claims System
+                    </p>
+
+                </div>
+
+
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="error-message">
+
+                        <i class="fas fa-exclamation-circle"></i>
+
+                        @Model.ErrorMessage
+
+                    </div>
+                }
+
+
+                <form method="post">
+
+                    <div class="form-group">
+
+                        <label asp-for="Username">
+                            Username
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fas fa-user"></i>
+
+                            <input asp-for="Username"
+                                   placeholder="Enter your username" />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label asp-for="Password">
+                            Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fas fa-lock"></i>
+
+                            <input asp-for="Password"
+                                   type="password"
+                                   placeholder="Enter your password" />
+
+                        </div>
+
+                    </div>
+
+
+                    <button type="submit" class="login-button">
+
+                        <i class="fas fa-sign-in-alt"></i>
+
+                        Sign In
+
+                    </button>
+
+                </form>
+
+
+                <a href="/" class="back-link">
+
+                    <i class="fas fa-arrow-left"></i>
+
+                    Back to Home
+
+                </a>
+
+            </div>
+
+        </main>
+
+
+        <footer class="login-footer">
+
+            UNILAK · Staff Engagement & Claims System
+
+        </footer>
+
+    </div>
+
+</body>
+</html>

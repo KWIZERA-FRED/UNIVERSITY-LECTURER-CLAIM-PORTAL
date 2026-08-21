@@ -1,10 +1,88 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    Layout = null;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UNILAK Staff Engagement</title>
+
+    <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: Arial, sans-serif;
+            }
+
+            .landing {
+                height: 100vh;
+                background: linear-gradient(rgba(15, 43, 74, 0.75), rgba(15, 43, 74, 0.75)), url('/images/unilak-campus.jpg');
+                background-size: cover;
+                background-position: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                color: white;
+            }
+
+            .content {
+                max-width: 700px;
+                padding: 30px;
+            }
+
+            h1 {
+                font-size: 48px;
+                margin-bottom: 20px;
+            }
+
+            p {
+                font-size: 18px;
+                margin-bottom: 30px;
+            }
+
+            .login-button {
+                display: inline-block;
+                padding: 14px 35px;
+                background: #2a7f5e;
+                color: white;
+                text-decoration: none;
+                border-radius: 30px;
+                font-size: 18px;
+            }
+
+                .login-button:hover {
+                    background: #1d6a4d;
+                }
+    </style>
+</head>
+
+<body>
+
+    <div class="landing">
+
+        <div class="content">
+
+            <h1>UNILAK Staff Engagement & Claims</h1>
+
+            <p>
+                A digital platform for managing academic staff engagements,
+                contracts, attendance and payment claims.
+            </p>
+
+            <a href="/Login" class="login-button">
+                Login
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
