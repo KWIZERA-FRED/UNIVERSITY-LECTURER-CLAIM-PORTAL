@@ -43,6 +43,10 @@ public class LoginModel : PageModel
         {
             return RedirectToPage("/ManagementDashboard");
         }
+        if (Username == "Reem" && Password == "1234")
+        {
+            return RedirectToPage("/Lecturer/Part/Index");
+        }
 
         ErrorMessage = "Invalid username or password.";
         return Page();
