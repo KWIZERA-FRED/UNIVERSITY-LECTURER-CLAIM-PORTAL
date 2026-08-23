@@ -1,0 +1,1182 @@
+﻿@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.RegisterUserModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Register New User";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - UNILAK Portal</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            :root {
+                --primary: #174c3c;
+                --primary-light: #236b55;
+                --accent: #2a7f5e;
+                --accent-light: #e1f0e8;
+                --bg: #f5f8f6;
+                --card: #ffffff;
+                --border: #dce7e1;
+                --text: #1d2b25;
+                --text-muted: #61746b;
+                --danger: #c94b4b;
+                --radius: 16px;
+                --shadow: 0 12px 30px rgba(28, 76, 60, 0.08);
+            }
+
+            html,
+            body {
+                width: 100%;
+                min-height: 100%;
+            }
+
+            body {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                background: var(--bg);
+                color: var(--text);
+            }
+
+            /* =========================================
+                       PAGE
+                    ========================================= */
+
+            .page {
+                min-height: 100vh;
+            }
+
+            /* =========================================
+                       HEADER
+                    ========================================= */
+
+            .top-header {
+                height: 76px;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 2.5rem;
+                background: rgba(255,255,255,0.92);
+                border-bottom: 1px solid rgba(220,231,225,0.9);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                backdrop-filter: blur(12px);
+            }
+
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .logo {
+                width: 42px;
+                height: 42px;
+                object-fit: contain;
+            }
+
+            .brand {
+                font-size: 1.05rem;
+                font-weight: 700;
+                color: var(--primary);
+            }
+
+                .brand span {
+                    font-weight: 400;
+                    color: var(--text-muted);
+                }
+
+            .header-right {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .header-user {
+                display: flex;
+                align-items: center;
+                gap: 0.7rem;
+            }
+
+            .user-avatar {
+                width: 38px;
+                height: 38px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                background: var(--accent-light);
+                color: var(--accent);
+                font-size: 0.9rem;
+            }
+
+            .user-info {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .user-name {
+                font-size: 0.78rem;
+                font-weight: 700;
+            }
+
+            .user-role {
+                font-size: 0.68rem;
+                color: var(--text-muted);
+            }
+
+            /* =========================================
+                       LAYOUT
+                    ========================================= */
+
+            .layout {
+                display: flex;
+                min-height: calc(100vh - 76px);
+            }
+
+            /* =========================================
+                       SIDEBAR
+                    ========================================= */
+
+            .sidebar {
+                width: 250px;
+                flex-shrink: 0;
+                background: #ffffff;
+                border-right: 1px solid var(--border);
+                padding: 1.5rem 1rem;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .sidebar-title {
+                padding: 0 0.8rem;
+                margin-bottom: 0.8rem;
+                font-size: 0.68rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: #8a9b92;
+            }
+
+            .sidebar-menu {
+                list-style: none;
+            }
+
+                .sidebar-menu li {
+                    margin-bottom: 4px;
+                }
+
+            .sidebar-link {
+                display: flex;
+                align-items: center;
+                gap: 0.8rem;
+                padding: 0.75rem 0.85rem;
+                border-radius: 10px;
+                text-decoration: none;
+                color: var(--text-muted);
+                font-size: 0.78rem;
+                font-weight: 500;
+                transition: 0.2s ease;
+            }
+
+                .sidebar-link i {
+                    width: 18px;
+                    text-align: center;
+                    font-size: 0.95rem;
+                }
+
+                .sidebar-link:hover {
+                    background: var(--accent-light);
+                    color: var(--accent);
+                }
+
+                .sidebar-link.active {
+                    background: var(--accent-light);
+                    color: var(--accent);
+                    font-weight: 700;
+                }
+
+            .sidebar-divider {
+                height: 1px;
+                background: var(--border);
+                margin: 1rem 0;
+            }
+
+            .logout {
+                margin-top: auto;
+            }
+
+                .logout a {
+                    color: #b05a5a;
+                }
+
+                    .logout a:hover {
+                        background: #fcecec;
+                        color: #b83f3f;
+                    }
+
+            /* =========================================
+                       MAIN
+                    ========================================= */
+
+            .main {
+                flex: 1;
+                padding: 2.2rem 2.5rem;
+                min-width: 0;
+            }
+
+            .page-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 1.8rem;
+            }
+
+            .page-title h1 {
+                color: var(--primary);
+                font-size: 1.55rem;
+                font-weight: 700;
+                margin-bottom: 0.35rem;
+            }
+
+            .page-title p {
+                color: var(--text-muted);
+                font-size: 0.78rem;
+            }
+
+            .back-button {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.45rem;
+                padding: 0.65rem 0.9rem;
+                border: 1px solid var(--border);
+                border-radius: 9px;
+                background: white;
+                color: var(--text-muted);
+                text-decoration: none;
+                font-size: 0.75rem;
+                font-weight: 600;
+                transition: 0.2s ease;
+            }
+
+                .back-button:hover {
+                    color: var(--accent);
+                    border-color: var(--accent);
+                }
+
+            /* =========================================
+                       FORM CARD
+                    ========================================= */
+
+            .form-card {
+                max-width: 900px;
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                padding: 2rem;
+            }
+
+            .form-card-header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding-bottom: 1.4rem;
+                margin-bottom: 1.5rem;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .form-icon {
+                width: 48px;
+                height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 12px;
+                background: var(--accent-light);
+                color: var(--accent);
+                font-size: 1.2rem;
+            }
+
+            .form-card-header h2 {
+                color: var(--primary);
+                font-size: 1rem;
+                font-weight: 700;
+                margin-bottom: 0.25rem;
+            }
+
+            .form-card-header p {
+                color: var(--text-muted);
+                font-size: 0.72rem;
+            }
+
+            /* =========================================
+                       FORM
+                    ========================================= */
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.2rem 1.5rem;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+
+                .form-group.full {
+                    grid-column: 1 / -1;
+                }
+
+                .form-group label {
+                    margin-bottom: 0.45rem;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    color: var(--text);
+                }
+
+            .required {
+                color: var(--accent);
+            }
+
+            .input-wrapper {
+                position: relative;
+            }
+
+                .input-wrapper i {
+                    position: absolute;
+                    left: 0.9rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #82948b;
+                    font-size: 0.9rem;
+                    pointer-events: none;
+                }
+
+            .form-control,
+            .form-select {
+                width: 100%;
+                padding: 0.78rem 0.9rem 0.78rem 2.5rem;
+                border: 1px solid var(--border);
+                border-radius: 9px;
+                background: #ffffff;
+                color: var(--text);
+                font-family: inherit;
+                font-size: 0.78rem;
+                transition: 0.2s ease;
+            }
+
+            .form-select {
+                cursor: pointer;
+            }
+
+                .form-control:focus,
+                .form-select:focus {
+                    outline: none;
+                    border-color: var(--accent);
+                    box-shadow: 0 0 0 3px rgba(42,127,94,0.09);
+                }
+
+            /* =========================================
+                       SIGNATURE
+                    ========================================= */
+
+            .signature-section {
+                grid-column: 1 / -1;
+                margin-top: 0.3rem;
+            }
+
+            .signature-label {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 0.5rem;
+            }
+
+                .signature-label span:first-child {
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                }
+
+            .signature-help {
+                color: var(--text-muted);
+                font-size: 0.68rem;
+            }
+
+            .signature-container {
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                background: #fafcfb;
+                overflow: hidden;
+            }
+
+            #signaturePad {
+                width: 100%;
+                height: 180px;
+                display: block;
+                background: white;
+                cursor: crosshair;
+            }
+
+            .signature-footer {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0.6rem 0.8rem;
+                border-top: 1px solid var(--border);
+                background: #fafcfb;
+            }
+
+            .signature-status {
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+                color: var(--text-muted);
+                font-size: 0.68rem;
+            }
+
+                .signature-status i {
+                    color: var(--accent);
+                }
+
+            .clear-signature {
+                border: none;
+                background: transparent;
+                color: #a45c5c;
+                font-family: inherit;
+                font-size: 0.68rem;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+                .clear-signature:hover {
+                    color: #c43f3f;
+                }
+
+            /* =========================================
+                       INFO BOX
+                    ========================================= */
+
+            .info-box {
+                grid-column: 1 / -1;
+                display: flex;
+                align-items: flex-start;
+                gap: 0.7rem;
+                padding: 0.9rem 1rem;
+                background: var(--accent-light);
+                border: 1px solid #cfe3d8;
+                border-radius: 10px;
+                color: #376653;
+                font-size: 0.7rem;
+                line-height: 1.5;
+            }
+
+                .info-box i {
+                    margin-top: 2px;
+                }
+
+            /* =========================================
+                       ACTIONS
+                    ========================================= */
+
+            .form-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 0.7rem;
+                margin-top: 1.7rem;
+                padding-top: 1.4rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .cancel-button {
+                padding: 0.75rem 1.1rem;
+                border: 1px solid var(--border);
+                border-radius: 30px;
+                background: white;
+                color: var(--text-muted);
+                text-decoration: none;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+
+                .cancel-button:hover {
+                    border-color: #bccbc3;
+                }
+
+            .submit-button {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.75rem 1.3rem;
+                border: none;
+                border-radius: 30px;
+                background: var(--accent);
+                color: white;
+                font-family: inherit;
+                font-size: 0.75rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: 0.2s ease;
+            }
+
+                .submit-button:hover {
+                    background: #1d6a4d;
+                    transform: translateY(-1px);
+                }
+
+            /* =========================================
+                       RESPONSIVE
+                    ========================================= */
+
+            @@media (max-width: 850px) {
+
+                .sidebar {
+                    width: 210px;
+                }
+
+                .main {
+                    padding: 1.5rem;
+                }
+
+                .top-header {
+                    padding: 0 1.3rem;
+                }
+            }
+
+            @@media (max-width: 700px) {
+
+                .sidebar {
+                    display: none;
+                }
+
+                .main {
+                    padding: 1.2rem;
+                }
+
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .form-group.full,
+                .signature-section,
+                .info-box {
+                    grid-column: 1;
+                }
+
+                .page-header {
+                    align-items: flex-start;
+                    gap: 1rem;
+                }
+
+                .user-info {
+                    display: none;
+                }
+            }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="page">
+
+        <!-- =========================================
+         HEADER
+    ========================================= -->
+
+        <header class="top-header">
+
+            <div class="header-left">
+
+                <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                     class="logo"
+                     alt="UNILAK Logo" />
+
+                <div class="brand">
+                    UNILAK <span>Staff Portal</span>
+                </div>
+
+            </div>
+
+            <div class="header-right">
+
+                <div class="header-user">
+
+                    <div class="user-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+
+                    <div class="user-info">
+                        <span class="user-name">HOD</span>
+                        <span class="user-role">Head of Department</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================================
+         LAYOUT
+    ========================================= -->
+
+        <div class="layout">
+
+
+            <!-- =====================================
+             SIDEBAR
+        ====================================== -->
+
+            <aside class="sidebar">
+
+                <div class="sidebar-title">
+                    Management
+                </div>
+
+                <ul class="sidebar-menu">
+
+                    <li>
+                        <a href="/HOD/Index" class="sidebar-link">
+                            <i class="bi bi-grid-1x2-fill"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/HOD/Lecturers" class="sidebar-link">
+                            <i class="bi bi-people-fill"></i>
+                            <span>Manage Lecturers</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/HOD/RegisterUser" class="sidebar-link active">
+                            <i class="bi bi-person-plus-fill"></i>
+                            <span>Register New User</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/HOD/AssignCourse" class="sidebar-link">
+                            <i class="bi bi-journal-plus"></i>
+                            <span>Assign Course</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/HOD/Contracts" class="sidebar-link">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                            <span>Contracts</span>
+                        </a>
+                    </li>
+
+                </ul>
+
+
+                <div class="sidebar-divider"></div>
+
+
+                <div class="sidebar-title">
+                    Account
+                </div>
+
+                <ul class="sidebar-menu">
+
+                    <li>
+                        <a href="/Login" class="sidebar-link logout">
+                            <i class="bi bi-box-arrow-left"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+
+                </ul>
+
+            </aside>
+
+
+            <!-- =====================================
+             MAIN CONTENT
+        ====================================== -->
+
+            <main class="main">
+
+
+                <div class="page-header">
+
+                    <div class="page-title">
+
+                        <h1>Register New User</h1>
+
+                        <p>
+                            Create a new staff portal account and capture their signature.
+                        </p>
+
+                    </div>
+
+                    <a href="/HOD/Index" class="back-button">
+                        <i class="bi bi-arrow-left"></i>
+                        Back
+                    </a>
+
+                </div>
+
+
+                <!-- =================================
+                 FORM
+            ================================== -->
+
+                <div class="form-card">
+
+
+                    <div class="form-card-header">
+
+                        <div class="form-icon">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </div>
+
+                        <div>
+                            <h2>User Registration</h2>
+
+                            <p>
+                                Enter the staff member's information below.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <form method="post" id="registerForm">
+
+
+                        <div class="form-grid">
+
+
+                            <!-- NAME -->
+
+                            <div class="form-group">
+
+                                <label>
+                                    Full Name <span class="required">*</span>
+                                </label>
+
+                                <div class="input-wrapper">
+
+                                    <i class="bi bi-person"></i>
+
+                                    <input type="text"
+                                           name="Name"
+                                           class="form-control"
+                                           placeholder="Enter full name"
+                                           required />
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- EMAIL -->
+
+                            <div class="form-group">
+
+                                <label>
+                                    Email Address <span class="required">*</span>
+                                </label>
+
+                                <div class="input-wrapper">
+
+                                    <i class="bi bi-envelope"></i>
+
+                                    <input type="email"
+                                           name="Email"
+                                           class="form-control"
+                                           placeholder="Enter email address"
+                                           required />
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- RANK -->
+
+                            <div class="form-group">
+
+                                <label>
+                                    Academic Rank <span class="required">*</span>
+                                </label>
+
+                                <div class="input-wrapper">
+
+                                    <i class="bi bi-mortarboard"></i>
+
+                                    <select name="Rank"
+                                            class="form-select"
+                                            required>
+
+                                        <option value="">
+                                            Select academic rank
+                                        </option>
+
+                                        <option value="Assistant Lecturer">
+                                            Assistant Lecturer
+                                        </option>
+
+                                        <option value="Lecturer">
+                                            Lecturer
+                                        </option>
+
+                                        <option value="Senior Lecturer">
+                                            Senior Lecturer
+                                        </option>
+
+                                        <option value="Assistant Professor">
+                                            Assistant Professor
+                                        </option>
+
+                                        <option value="Associate Professor">
+                                            Associate Professor
+                                        </option>
+
+                                        <option value="Professor">
+                                            Professor
+                                        </option>
+
+                                        <option value="Senior Professor">
+                                            Senior Professor
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- ROLE -->
+
+                            <div class="form-group">
+
+                                <label>
+                                    System Role <span class="required">*</span>
+                                </label>
+
+                                <div class="input-wrapper">
+
+                                    <i class="bi bi-shield-check"></i>
+
+                                    <select name="Role"
+                                            class="form-select"
+                                            required>
+
+                                        <option value="">
+                                            Select system role
+                                        </option>
+
+                                        <option value="Lecturer">
+                                            Lecturer
+                                        </option>
+
+                                        <option value="HOD">
+                                            Head of Department
+                                        </option>
+
+                                        <option value="Dean">
+                                            Dean
+                                        </option>
+
+                                        <option value="Secondary User">
+                                            Secondary User
+                                        </option>
+
+                                        <option value="Management">
+                                            Management
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- SIGNATURE -->
+
+                            <div class="signature-section">
+
+                                <div class="signature-label">
+
+                                    <span>
+                                        Digital Signature <span class="required">*</span>
+                                    </span>
+
+                                    <span class="signature-help">
+                                        Sign inside the box below
+                                    </span>
+
+                                </div>
+
+
+                                <div class="signature-container">
+
+                                    <canvas id="signaturePad"></canvas>
+
+
+                                    <div class="signature-footer">
+
+                                        <div class="signature-status">
+
+                                            <i class="bi bi-pen"></i>
+
+                                            <span>
+                                                Signature will be securely saved with the account
+                                            </span>
+
+                                        </div>
+
+                                        <button type="button"
+                                                class="clear-signature"
+                                                id="clearSignature">
+
+                                            Clear Signature
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- INFORMATION -->
+
+                            <div class="info-box">
+
+                                <i class="bi bi-info-circle-fill"></i>
+
+                                <span>
+                                    After registration, the system will automatically generate
+                                    the user's username and password. Their login credentials
+                                    will then be sent to the email address provided above.
+                                </span>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <!-- ACTIONS -->
+
+                        <div class="form-actions">
+
+                            <a href="/HOD/Index"
+                               class="cancel-button">
+
+                                Cancel
+
+                            </a>
+
+
+                            <button type="submit"
+                                    class="submit-button">
+
+                                <i class="bi bi-person-check-fill"></i>
+
+                                Create User
+
+                            </button>
+
+                        </div>
+
+
+                        <!-- SIGNATURE DATA -->
+
+                        <input type="hidden"
+                               name="SignatureData"
+                               id="signatureData" />
+
+                    </form>
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+     SIGNATURE PAD
+========================================= -->
+
+    <script>
+
+            const canvas = document.getElementById("signaturePad");
+            const ctx = canvas.getContext("2d");
+
+            let drawing = false;
+            let hasSignature = false;
+
+            function resizeCanvas() {
+
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+                const rect = canvas.getBoundingClientRect();
+
+                canvas.width = rect.width * ratio;
+                canvas.height = rect.height * ratio;
+
+                ctx.scale(ratio, ratio);
+
+                ctx.lineWidth = 2;
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.strokeStyle = "#174c3c";
+            }
+
+            resizeCanvas();
+
+            window.addEventListener("resize", resizeCanvas);
+
+
+            function getPosition(e) {
+
+                const rect = canvas.getBoundingClientRect();
+
+                if (e.touches) {
+
+                    return {
+                        x: e.touches[0].clientX - rect.left,
+                        y: e.touches[0].clientY - rect.top
+                    };
+
+                }
+
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+            }
+
+
+            function startDrawing(e) {
+
+                e.preventDefault();
+
+                drawing = true;
+                hasSignature = true;
+
+                const position = getPosition(e);
+
+                ctx.beginPath();
+                ctx.moveTo(position.x, position.y);
+            }
+
+
+            function draw(e) {
+
+                if (!drawing)
+                    return;
+
+                e.preventDefault();
+
+                const position = getPosition(e);
+
+                ctx.lineTo(position.x, position.y);
+                ctx.stroke();
+            }
+
+
+            function stopDrawing() {
+
+                if (!drawing)
+                    return;
+
+                drawing = false;
+
+                document.getElementById("signatureData").value =
+                    canvas.toDataURL("image/png");
+            }
+
+
+            canvas.addEventListener("mousedown", startDrawing);
+            canvas.addEventListener("mousemove", draw);
+            canvas.addEventListener("mouseup", stopDrawing);
+            canvas.addEventListener("mouseleave", stopDrawing);
+
+
+            canvas.addEventListener("touchstart", startDrawing, {
+                passive: false
+            });
+
+            canvas.addEventListener("touchmove", draw, {
+                passive: false
+            });
+
+            canvas.addEventListener("touchend", stopDrawing);
+
+
+            document.getElementById("clearSignature")
+                .addEventListener("click", function() {
+
+                    ctx.clearRect(
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height
+                    );
+
+                    document.getElementById("signatureData").value = "";
+
+                    hasSignature = false;
+                });
+
+
+            document.getElementById("registerForm")
+                .addEventListener("submit", function(e) {
+
+                    if (!hasSignature) {
+
+                        e.preventDefault();
+
+                        alert("Please provide the user's digital signature.");
+
+                        return;
+                    }
+
+                    document.getElementById("signatureData").value =
+                        canvas.toDataURL("image/png");
+                });
+
+    </script>
+
+</body>
+</html>
