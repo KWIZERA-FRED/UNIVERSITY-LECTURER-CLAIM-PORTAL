@@ -1,5 +1,12 @@
 var builder = WebApplication.CreateBuilder(args);
 
+// Disable reloadOnChange to prevent Linux inotify limit crashes on Render
+builder.Configuration.Sources.Clear();
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
+    .AddEnvironmentVariables();
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 
