@@ -2,11 +2,11 @@ using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 {
-    public class Management : AdminAccount
+    public class Dean : AdminAccount
     {
-        public override ApprovalRole Role => ApprovalRole.Management;
+        public override ApprovalRole Role => ApprovalRole.Dean;
 
-        public Management(int id, string userName, string email)
+        public Dean(int id, string userName, string email)
             : base(id, userName, email) { }
     }
 }
