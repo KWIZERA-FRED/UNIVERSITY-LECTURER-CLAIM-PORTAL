@@ -15,14 +15,14 @@
 
     <title>@ViewData["Title"] - UNILAK Portal</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet">
+          rel="stylesheet" />
 
     <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
     <style>
 
@@ -59,17 +59,17 @@
                 color: var(--text);
             }
 
-            /* =========================================
+            /* =========================
                        PAGE
-                    ========================================= */
+                    ========================= */
 
             .page {
                 min-height: 100vh;
             }
 
-            /* =========================================
+            /* =========================
                        HEADER
-                    ========================================= */
+                    ========================= */
 
             .top-header {
                 height: 76px;
@@ -78,8 +78,8 @@
                 align-items: center;
                 justify-content: space-between;
                 padding: 0 2.5rem;
-                background: rgba(255,255,255,0.92);
-                border-bottom: 1px solid rgba(220,231,225,0.9);
+                background: rgba(255, 255, 255, 0.96);
+                border-bottom: 1px solid rgba(220, 231, 225, 0.9);
                 position: sticky;
                 top: 0;
                 z-index: 100;
@@ -148,18 +148,18 @@
                 color: var(--text-muted);
             }
 
-            /* =========================================
+            /* =========================
                        LAYOUT
-                    ========================================= */
+                    ========================= */
 
             .layout {
                 display: flex;
                 min-height: calc(100vh - 76px);
             }
 
-            /* =========================================
+            /* =========================
                        SIDEBAR
-                    ========================================= */
+                    ========================= */
 
             .sidebar {
                 width: 250px;
@@ -238,9 +238,9 @@
                         color: #b83f3f;
                     }
 
-            /* =========================================
+            /* =========================
                        MAIN
-                    ========================================= */
+                    ========================= */
 
             .main {
                 flex: 1;
@@ -287,9 +287,9 @@
                     border-color: var(--accent);
                 }
 
-            /* =========================================
+            /* =========================
                        FORM CARD
-                    ========================================= */
+                    ========================= */
 
             .form-card {
                 max-width: 900px;
@@ -333,9 +333,9 @@
                 font-size: 0.72rem;
             }
 
-            /* =========================================
+            /* =========================
                        FORM
-                    ========================================= */
+                    ========================= */
 
             .form-grid {
                 display: grid;
@@ -375,6 +375,7 @@
                     color: #82948b;
                     font-size: 0.9rem;
                     pointer-events: none;
+                    z-index: 2;
                 }
 
             .form-control,
@@ -398,12 +399,12 @@
                 .form-select:focus {
                     outline: none;
                     border-color: var(--accent);
-                    box-shadow: 0 0 0 3px rgba(42,127,94,0.09);
+                    box-shadow: 0 0 0 3px rgba(42, 127, 94, 0.09);
                 }
 
-            /* =========================================
+            /* =========================
                        SIGNATURE
-                    ========================================= */
+                    ========================= */
 
             .signature-section {
                 grid-column: 1 / -1;
@@ -417,7 +418,7 @@
                 margin-bottom: 0.5rem;
             }
 
-                .signature-label span:first-child {
+                .signature-label > span:first-child {
                     font-size: 0.75rem;
                     font-weight: 600;
                 }
@@ -440,6 +441,7 @@
                 display: block;
                 background: white;
                 cursor: crosshair;
+                touch-action: none;
             }
 
             .signature-footer {
@@ -477,9 +479,9 @@
                     color: #c43f3f;
                 }
 
-            /* =========================================
+            /* =========================
                        INFO BOX
-                    ========================================= */
+                    ========================= */
 
             .info-box {
                 grid-column: 1 / -1;
@@ -499,9 +501,9 @@
                     margin-top: 2px;
                 }
 
-            /* =========================================
+            /* =========================
                        ACTIONS
-                    ========================================= */
+                    ========================= */
 
             .form-actions {
                 display: flex;
@@ -513,6 +515,9 @@
             }
 
             .cancel-button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
                 padding: 0.75rem 1.1rem;
                 border: 1px solid var(--border);
                 border-radius: 30px;
@@ -548,9 +553,9 @@
                     transform: translateY(-1px);
                 }
 
-            /* =========================================
+            /* =========================
                        RESPONSIVE
-                    ========================================= */
+                    ========================= */
 
             @@media (max-width: 850px) {
 
@@ -604,9 +609,7 @@
 
     <div class="page">
 
-        <!-- =========================================
-         HEADER
-    ========================================= -->
+        <!-- HEADER -->
 
         <header class="top-header">
 
@@ -642,21 +645,16 @@
         </header>
 
 
-        <!-- =========================================
-         LAYOUT
-    ========================================= -->
+        <!-- LAYOUT -->
 
         <div class="layout">
 
-
-            <!-- =====================================
-             SIDEBAR
-        ====================================== -->
+            <!-- SIDEBAR -->
 
             <aside class="sidebar">
 
                 <div class="sidebar-title">
-                    Management
+                    HOD Management
                 </div>
 
                 <ul class="sidebar-menu">
@@ -698,9 +696,7 @@
 
                 </ul>
 
-
                 <div class="sidebar-divider"></div>
-
 
                 <div class="sidebar-title">
                     Account
@@ -720,12 +716,9 @@
             </aside>
 
 
-            <!-- =====================================
-             MAIN CONTENT
-        ====================================== -->
+            <!-- MAIN CONTENT -->
 
             <main class="main">
-
 
                 <div class="page-header">
 
@@ -747,12 +740,9 @@
                 </div>
 
 
-                <!-- =================================
-                 FORM
-            ================================== -->
+                <!-- FORM CARD -->
 
                 <div class="form-card">
-
 
                     <div class="form-card-header">
 
@@ -761,11 +751,13 @@
                         </div>
 
                         <div>
+
                             <h2>User Registration</h2>
 
                             <p>
                                 Enter the staff member's information below.
                             </p>
+
                         </div>
 
                     </div>
@@ -773,9 +765,7 @@
 
                     <form method="post" id="registerForm">
 
-
                         <div class="form-grid">
-
 
                             <!-- NAME -->
 
@@ -932,7 +922,8 @@
                                 <div class="signature-label">
 
                                     <span>
-                                        Digital Signature <span class="required">*</span>
+                                        Digital Signature
+                                        <span class="required">*</span>
                                     </span>
 
                                     <span class="signature-help">
@@ -945,7 +936,6 @@
                                 <div class="signature-container">
 
                                     <canvas id="signaturePad"></canvas>
-
 
                                     <div class="signature-footer">
 
@@ -988,7 +978,6 @@
 
                             </div>
 
-
                         </div>
 
 
@@ -1002,7 +991,6 @@
                                 Cancel
 
                             </a>
-
 
                             <button type="submit"
                                     class="submit-button">
@@ -1033,9 +1021,7 @@
     </div>
 
 
-    <!-- =========================================
-     SIGNATURE PAD
-========================================= -->
+    <!-- SIGNATURE PAD -->
 
     <script>
 
@@ -1047,19 +1033,41 @@
 
             function resizeCanvas() {
 
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-
                 const rect = canvas.getBoundingClientRect();
+                const ratio = window.devicePixelRatio || 1;
+
+                const existingSignature = hasSignature
+                    ? canvas.toDataURL("image/png")
+                    : null;
 
                 canvas.width = rect.width * ratio;
                 canvas.height = rect.height * ratio;
 
-                ctx.scale(ratio, ratio);
+                ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
                 ctx.lineWidth = 2;
                 ctx.lineCap = "round";
                 ctx.lineJoin = "round";
                 ctx.strokeStyle = "#174c3c";
+
+                if (existingSignature) {
+
+                    const image = new Image();
+
+                    image.onload = function() {
+
+                        ctx.drawImage(
+                            image,
+                            0,
+                            0,
+                            rect.width,
+                            rect.height
+                        );
+
+                    };
+
+                    image.src = existingSignature;
+                }
             }
 
             resizeCanvas();
@@ -1071,7 +1079,7 @@
 
                 const rect = canvas.getBoundingClientRect();
 
-                if (e.touches) {
+                if (e.touches && e.touches.length > 0) {
 
                     return {
                         x: e.touches[0].clientX - rect.left,
@@ -1103,8 +1111,9 @@
 
             function draw(e) {
 
-                if (!drawing)
+                if (!drawing) {
                     return;
+                }
 
                 e.preventDefault();
 
@@ -1117,8 +1126,9 @@
 
             function stopDrawing() {
 
-                if (!drawing)
+                if (!drawing) {
                     return;
+                }
 
                 drawing = false;
 
@@ -1147,16 +1157,20 @@
             document.getElementById("clearSignature")
                 .addEventListener("click", function() {
 
+                    const rect = canvas.getBoundingClientRect();
+                    const ratio = window.devicePixelRatio || 1;
+
                     ctx.clearRect(
                         0,
                         0,
-                        canvas.width,
-                        canvas.height
+                        rect.width,
+                        rect.height
                     );
+
+                    hasSignature = false;
 
                     document.getElementById("signatureData").value = "";
 
-                    hasSignature = false;
                 });
 
 
@@ -1174,9 +1188,11 @@
 
                     document.getElementById("signatureData").value =
                         canvas.toDataURL("image/png");
+
                 });
 
     </script>
 
 </body>
+
 </html>
