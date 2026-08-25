@@ -1,6 +1,6 @@
 using System;
 
-namespace SystemModels
+namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 {
     public class Hod
     {
@@ -18,7 +18,7 @@ namespace SystemModels
         public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
         public DateTime? UpdatedAtUtc { get; set; }
 
-        public byte[]? RowVersion { get; set; }
+        public byte[]? RowVersion { get; set; } //for optimistic concurrency control in case Different HODs try to update the same record at the same time
 
         public Hod(int id, string userName, string email)
         {
