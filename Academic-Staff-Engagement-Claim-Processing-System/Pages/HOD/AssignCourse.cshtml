@@ -1,0 +1,853 @@
+﻿@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.AssignCourseModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Assign Course";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Assign Course | UNILAK Staff Portal</title>
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            :root {
+                --primary: #174d3b;
+                --primary-light: #236b51;
+                --accent: #2a7f5e;
+                --accent-light: #e1f0e8;
+                --bg: #f5f8f6;
+                --card: #ffffff;
+                --border: #dce7e1;
+                --text: #1a2b24;
+                --text-muted: #60736a;
+                --danger-bg: #f8d7da;
+                --danger-text: #721c24;
+                --danger-border: #f1bfc4;
+                --radius: 16px;
+                --shadow: 0 10px 30px rgba(23, 77, 59, 0.08);
+            }
+
+            body {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                min-height: 100vh;
+            }
+
+            .top-header {
+                height: 72px;
+                background: rgba(255,255,255,.96);
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 30px;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .header-logo {
+                width: 42px;
+                height: 42px;
+                object-fit: contain;
+            }
+
+            .header-title {
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--primary);
+            }
+
+            .header-subtitle {
+                font-size: 11px;
+                color: var(--text-muted);
+                margin-top: 2px;
+            }
+
+            .header-user {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .user-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
+                background: var(--accent-light);
+                color: var(--accent);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .user-text {
+                font-size: 12px;
+            }
+
+            .user-name {
+                font-weight: 700;
+            }
+
+            .user-role {
+                color: var(--text-muted);
+                font-size: 10px;
+            }
+
+            .layout {
+                display: flex;
+                min-height: calc(100vh - 72px);
+            }
+
+            .sidebar {
+                width: 245px;
+                background: white;
+                border-right: 1px solid var(--border);
+                padding: 25px 15px;
+                flex-shrink: 0;
+            }
+
+            .sidebar-title {
+                font-size: 10px;
+                font-weight: 700;
+                color: #94a59d;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                padding: 0 12px;
+                margin-bottom: 10px;
+            }
+
+            .menu {
+                list-style: none;
+            }
+
+                .menu li {
+                    margin-bottom: 5px;
+                }
+
+                .menu a {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 12px;
+                    border-radius: 10px;
+                    text-decoration: none;
+                    color: var(--text-muted);
+                    font-size: 12px;
+                    font-weight: 600;
+                    transition: .2s;
+                }
+
+                    .menu a:hover {
+                        background: var(--accent-light);
+                        color: var(--accent);
+                    }
+
+                    .menu a.active {
+                        background: var(--accent-light);
+                        color: var(--accent);
+                    }
+
+                .menu i {
+                    font-size: 15px;
+                }
+
+            .content {
+                flex: 1;
+                padding: 32px;
+                max-width: 1200px;
+            }
+
+            .page-header {
+                margin-bottom: 25px;
+            }
+
+                .page-header h1 {
+                    color: var(--primary);
+                    font-size: 25px;
+                    font-weight: 800;
+                }
+
+                .page-header p {
+                    color: var(--text-muted);
+                    font-size: 12px;
+                    margin-top: 5px;
+                }
+
+            .form-card {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                padding: 28px;
+            }
+
+            .section-title {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: var(--primary);
+                font-size: 14px;
+                font-weight: 700;
+                margin-bottom: 22px;
+            }
+
+                .section-title i {
+                    color: var(--accent);
+                }
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+
+            label {
+                font-size: 11px;
+                font-weight: 700;
+                margin-bottom: 7px;
+            }
+
+            select,
+            input {
+                width: 100%;
+                padding: 12px 13px;
+                border: 1px solid var(--border);
+                border-radius: 9px;
+                background: white;
+                font-family: inherit;
+                font-size: 12px;
+                color: var(--text);
+            }
+
+                select:focus,
+                input:focus {
+                    outline: none;
+                    border-color: var(--accent);
+                    box-shadow: 0 0 0 3px rgba(42,127,94,.10);
+                }
+
+            .readonly {
+                background: #f5f8f6;
+                cursor: not-allowed;
+            }
+
+            .rate-box {
+                background: var(--accent-light);
+                border: 1px solid #cde3d8;
+                border-radius: 10px;
+                padding: 14px;
+            }
+
+            .rate-label {
+                font-size: 10px;
+                color: var(--text-muted);
+            }
+
+            .rate-value {
+                font-size: 20px;
+                font-weight: 800;
+                color: var(--accent);
+                margin-top: 4px;
+            }
+
+            .info-box {
+                margin-top: 25px;
+                padding: 15px;
+                background: #f8fbf9;
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+                .info-box i {
+                    color: var(--accent);
+                    font-size: 16px;
+                    margin-top: 1px;
+                }
+
+                .info-box p {
+                    font-size: 11px;
+                    color: var(--text-muted);
+                    line-height: 1.6;
+                }
+
+            .error-message {
+                background: var(--danger-bg);
+                color: var(--danger-text);
+                border: 1px solid var(--danger-border);
+                padding: 12px;
+                border-radius: 9px;
+                font-size: 11px;
+                margin-bottom: 20px;
+            }
+
+            .actions {
+                display: flex;
+                justify-content: flex-end;
+                margin-top: 25px;
+            }
+
+            .generate-button {
+                border: none;
+                border-radius: 30px;
+                padding: 13px 23px;
+                background: var(--accent);
+                color: white;
+                font-family: inherit;
+                font-size: 12px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: .2s;
+            }
+
+                .generate-button:hover {
+                    background: #216b4f;
+                    transform: translateY(-1px);
+                }
+
+            @@media(max-width: 800px) {
+
+                .sidebar {
+                    width: 70px;
+                }
+
+                .sidebar-title,
+                .menu span {
+                    display: none;
+                }
+
+                .menu a {
+                    justify-content: center;
+                }
+
+                .content {
+                    padding: 20px;
+                }
+
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+    </style>
+
+</head>
+
+<body>
+
+    <header class="top-header">
+
+        <div class="header-left">
+
+            <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                 class="header-logo"
+                 alt="UNILAK">
+
+            <div>
+
+                <div class="header-title">
+                    UNILAK Staff Portal
+                </div>
+
+                <div class="header-subtitle">
+                    Academic Staff Engagement & Claim Processing
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="header-user">
+
+            <div class="user-icon">
+                <i class="bi bi-person"></i>
+            </div>
+
+            <div class="user-text">
+
+                <div class="user-name">
+                    HOD
+                </div>
+
+                <div class="user-role">
+                    Head of Department
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <div class="layout">
+
+        <aside class="sidebar">
+
+            <div class="sidebar-title">
+                HOD Management
+            </div>
+
+            <ul class="menu">
+
+                <li>
+                    <a href="/HOD">
+                        <i class="bi bi-grid"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/HOD/Management">
+                        <i class="bi bi-people"></i>
+                        <span>Manage Lecturers</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/HOD/RegisterUser">
+                        <i class="bi bi-person-plus"></i>
+                        <span>Register User</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/HOD/AssignCourse"
+                       class="active">
+                        <i class="bi bi-book"></i>
+                        <span>Assign Course</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/HOD/Contracts">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Contracts</span>
+                    </a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+
+        <main class="content">
+
+            <div class="page-header">
+
+                <h1>
+                    Assign Course
+                </h1>
+
+                <p>
+                    Assign an IT course to a lecturer and generate their academic engagement contract.
+                </p>
+
+            </div>
+
+
+            <div class="form-card">
+
+                <div class="section-title">
+
+                    <i class="bi bi-journal-bookmark-fill"></i>
+
+                    Course Assignment Details
+
+                </div>
+
+
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="error-message">
+
+                        <i class="bi bi-exclamation-circle"></i>
+
+                        @Model.ErrorMessage
+
+                    </div>
+                }
+
+
+                <form method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="courseSelect">
+                                Course
+                            </label>
+
+                            <select asp-for="SelectedCourse"
+                                    id="courseSelect">
+
+                                <option value="">
+                                    Select IT course
+                                </option>
+
+                                @foreach (var course in Model.Courses)
+                                {
+                                    <option value="@course.Code">
+                                        @course.Code - @course.Name
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="lecturerSelect">
+                                Lecturer
+                            </label>
+
+                            <select asp-for="SelectedLecturer"
+                                    id="lecturerSelect">
+
+                                <option value="">
+                                    Select lecturer
+                                </option>
+
+                                @foreach (var lecturer in Model.Lecturers)
+                                {
+                                    <option value="@lecturer.Id">
+                                        @lecturer.Name
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="rank">
+                                Lecturer Rank
+                            </label>
+
+                            <input id="rank"
+                                   class="readonly"
+                                   readonly
+                                   placeholder="Automatically displayed" />
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="governmentId">
+                                Government ID
+                            </label>
+
+                            <input id="governmentId"
+                                   class="readonly"
+                                   readonly
+                                   placeholder="Automatically displayed" />
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="Session">
+                                Session
+                            </label>
+
+                            <select asp-for="Session"
+                                    id="Session">
+
+                                <option value="">
+                                    Select session
+                                </option>
+
+                                <option value="Day">
+                                    Day
+                                </option>
+
+                                <option value="Evening">
+                                    Evening
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="AcademicYear">
+                                Academic Year
+                            </label>
+
+                            <select asp-for="AcademicYear"
+                                    id="AcademicYear">
+
+                                <option value="">
+                                    Select academic year
+                                </option>
+
+                                <option value="2025/2026">
+                                    2025/2026
+                                </option>
+
+                                <option value="2026/2027">
+                                    2026/2027
+                                </option>
+
+                                <option value="2027/2028">
+                                    2027/2028
+                                </option>
+
+                                <option value="2028/2029">
+                                    2028/2029
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="Campus">
+                                Campus
+                            </label>
+
+                            <select asp-for="Campus"
+                                    id="Campus">
+
+                                <option value="">
+                                    Select campus
+                                </option>
+
+                                <option value="Kigali">
+                                    Kigali
+                                </option>
+
+                                <option value="Rwamagana">
+                                    Rwamagana
+                                </option>
+
+                                <option value="Nyanza">
+                                    Nyanza
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="Hours">
+                                Number of Hours
+                            </label>
+
+                            <input asp-for="Hours"
+                                   id="Hours"
+                                   type="number"
+                                   min="1"
+                                   placeholder="Enter number of hours" />
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Rate Per Hour
+                            </label>
+
+                            <div class="rate-box">
+
+                                <div class="rate-label">
+                                    Rate determined by lecturer rank
+                                </div>
+
+                                <div class="rate-value"
+                                     id="rateDisplay">
+
+                                    RWF 0
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-box">
+
+                        <i class="bi bi-info-circle-fill"></i>
+
+                        <p>
+                            The selected lecturer's rank and government ID will automatically
+                            be included in the contract. The hourly rate is determined by the
+                            lecturer's academic rank.
+                        </p>
+
+                    </div>
+
+
+                    <div class="actions">
+
+                        <button type="submit"
+                                class="generate-button">
+
+                            <i class="bi bi-file-earmark-text"></i>
+
+                            Generate Contract
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <script>
+
+            const lecturerSelect =
+                document.getElementById("lecturerSelect");
+
+            const rankInput =
+                document.getElementById("rank");
+
+            const governmentIdInput =
+                document.getElementById("governmentId");
+
+            const rateDisplay =
+                document.getElementById("rateDisplay");
+
+
+            const lecturerData = {
+
+                "L001": {
+                    rank: "Assistant Lecturer",
+                    governmentId: "1198780012345678",
+                    rate: 5000
+                },
+
+                "L002": {
+                    rank: "Lecturer",
+                    governmentId: "1198780023456789",
+                    rate: 7000
+                },
+
+                "L003": {
+                    rank: "Senior Lecturer",
+                    governmentId: "1198780034567890",
+                    rate: 9000
+                },
+
+                "L004": {
+                    rank: "Associate Professor",
+                    governmentId: "1198780045678901",
+                    rate: 11000
+                },
+
+                "L005": {
+                    rank: "Professor",
+                    governmentId: "1198780056789012",
+                    rate: 13000
+                }
+
+            };
+
+
+            function updateLecturer() {
+
+                const id = lecturerSelect.value;
+
+                const lecturer = lecturerData[id];
+
+                if (!lecturer) {
+
+                    rankInput.value = "";
+                    governmentIdInput.value = "";
+                    rateDisplay.textContent = "RWF 0";
+
+                    return;
+                }
+
+                rankInput.value = lecturer.rank;
+
+                governmentIdInput.value =
+                    lecturer.governmentId;
+
+                rateDisplay.textContent =
+                    "RWF " + lecturer.rate.toLocaleString();
+            }
+
+
+            lecturerSelect.addEventListener(
+                "change",
+                updateLecturer
+            );
+
+    </script>
+
+</body>
+
+</html>
