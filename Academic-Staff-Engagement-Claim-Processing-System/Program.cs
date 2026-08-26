@@ -4,8 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuration
-// Disable reloadOnChange to prevent Linux inotify limit crashes on Render
+// ============================================================
+// CONFIGURATION
+// ============================================================
+
+// Disable reloadOnChange to prevent Linux inotify limit crashes
+// on Render.
 builder.Configuration.Sources.Clear();
 
 builder.Configuration
@@ -25,8 +29,15 @@ builder.Configuration
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")
+        builder.Configuration.GetConnectionString(
+            "DefaultConnection")
     ));
+
+// ============================================================
+// DATA PROTECTION
+// ============================================================
+
+builder.Services.AddDataProtection();
 
 // ============================================================
 // RAZOR PAGES
@@ -35,10 +46,31 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddRazorPages();
 
 // ============================================================
-// EMAIL SERVICE
+// SESSION
+// ============================================================
+
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(8);
+
+    options.Cookie.HttpOnly = true;
+
+    options.Cookie.IsEssential = true;
+
+    options.Cookie.Name = ".StaffPortal.Session";
+});
+
+// ============================================================
+// SERVICES
 // ============================================================
 
 builder.Services.AddScoped<EmailService>();
+
+// ============================================================
+// BUILD APPLICATION
+// ============================================================
 
 var app = builder.Build();
 
@@ -49,6 +81,7 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
+
     app.UseHsts();
 }
 
@@ -58,6 +91,13 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// ============================================================
+// SESSION
+// IMPORTANT: Session must be before MapRazorPages()
+// ============================================================
+
+app.UseSession();
 
 app.UseAuthorization();
 
