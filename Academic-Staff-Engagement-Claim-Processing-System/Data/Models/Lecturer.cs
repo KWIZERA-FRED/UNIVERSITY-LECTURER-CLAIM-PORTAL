@@ -1,8 +1,9 @@
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using System.Diagnostics.Contracts;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 {
@@ -12,7 +13,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         public int Id { get; private set; }
 
         [Required]
-        public UserRole Type { get; set; } = UserRole.Lecturer;
+        public UserRole Type { get; set; } = UserRole.PartTimeLecturer;
 
         [Required]
         [MaxLength(100)]
@@ -35,30 +36,45 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 
         public LecturerRank? Rank { get; set; }
 
-        // --- Signature, captured once by the HOD at account creation ---
+        // Signature
         public string? SignatureFilePath { get; private set; }
+
         public string? SignatureFileHash { get; private set; }
-        public SignatureStatus SignatureStatus { get; set; } = SignatureStatus.NotCaptured;
+
+        public SignatureStatus SignatureStatus { get; set; }
+            = SignatureStatus.NotCaptured;
+
         public DateTime? SignatureCapturedAtUtc { get; set; }
 
         [ForeignKey(nameof(SignatureCapturedByHod))]
         public int? SignatureCapturedByHodId { get; set; }
+
         public Hod? SignatureCapturedByHod { get; set; }
 
+        // Account status
         public bool IsActive { get; set; } = true;
 
         public int FailedLoginAttempts { get; set; } = 0;
+
         public DateTime? LockoutEndUtc { get; set; }
+
         public DateTime? LastLoginUtc { get; set; }
 
-        public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
+        // Audit fields
+        public DateTime CreatedAtUtc { get; private set; }
+            = DateTime.UtcNow;
+
         public DateTime? UpdatedAtUtc { get; set; }
 
         [Timestamp]
         public byte[]? RowVersion { get; set; }
 
-        public ICollection<CourseAssignment> CourseAssignments { get; set; } = new List<CourseAssignment>();
-        public ICollection<Contract> Contracts { get; set; } = new List<Contract>();
+        // Relationships
+        public ICollection<CourseAssignment> CourseAssignments { get; set; }
+            = new List<CourseAssignment>();
+
+        public ICollection<Contract> Contracts { get; set; }
+            = new List<Contract>();
 
         public Lecturer(int id, string userName, string email)
         {
@@ -70,7 +86,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         public void SetPasswordHash(string newHash)
         {
             if (string.IsNullOrWhiteSpace(newHash))
-                throw new ArgumentException("Password hash cannot be empty.", nameof(newHash));
+                throw new ArgumentException(
+                    "Password hash cannot be empty.",
+                    nameof(newHash));
 
             PasswordHash = newHash;
             UpdatedAtUtc = DateTime.UtcNow;
@@ -79,19 +97,29 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         public void SetGovernmentIdEncrypted(string cipherText)
         {
             if (string.IsNullOrWhiteSpace(cipherText))
-                throw new ArgumentException("Encrypted government ID cannot be empty.", nameof(cipherText));
+                throw new ArgumentException(
+                    "Encrypted government ID cannot be empty.",
+                    nameof(cipherText));
 
             GovernmentIdEncrypted = cipherText;
             UpdatedAtUtc = DateTime.UtcNow;
         }
 
-        public void CaptureSignature(string filePath, string fileHash, int capturedByHodId)
+        public void CaptureSignature(
+            string filePath,
+            string fileHash,
+            int capturedByHodId)
         {
             if (SignatureStatus != SignatureStatus.NotCaptured)
-                throw new InvalidOperationException("A signature has already been captured for this lecturer.");
+                throw new InvalidOperationException(
+                    "A signature has already been captured for this lecturer.");
 
-            if (string.IsNullOrWhiteSpace(filePath) || string.IsNullOrWhiteSpace(fileHash))
-                throw new ArgumentException("Signature file path and hash are required.");
+            if (string.IsNullOrWhiteSpace(filePath) ||
+                string.IsNullOrWhiteSpace(fileHash))
+            {
+                throw new ArgumentException(
+                    "Signature file path and hash are required.");
+            }
 
             SignatureFilePath = filePath;
             SignatureFileHash = fileHash;
