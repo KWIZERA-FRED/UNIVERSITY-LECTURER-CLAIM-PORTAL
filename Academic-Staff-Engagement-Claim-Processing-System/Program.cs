@@ -1,5 +1,6 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,6 +41,32 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDataProtection();
 
 // ============================================================
+// AUTHENTICATION
+// ============================================================
+
+builder.Services
+    .AddAuthentication(
+        CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login";
+
+        options.AccessDeniedPath =
+            "/AccessDenied";
+
+        options.ExpireTimeSpan =
+            TimeSpan.FromHours(8);
+
+        options.SlidingExpiration = true;
+    });
+
+// ============================================================
+// AUTHORIZATION
+// ============================================================
+
+builder.Services.AddAuthorization();
+
+// ============================================================
 // RAZOR PAGES
 // ============================================================
 
@@ -53,13 +80,17 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromHours(8);
+    options.IdleTimeout =
+        TimeSpan.FromHours(8);
 
-    options.Cookie.HttpOnly = true;
+    options.Cookie.HttpOnly =
+        true;
 
-    options.Cookie.IsEssential = true;
+    options.Cookie.IsEssential =
+        true;
 
-    options.Cookie.Name = ".StaffPortal.Session";
+    options.Cookie.Name =
+        ".StaffPortal.Session";
 });
 
 // ============================================================
@@ -94,12 +125,26 @@ app.UseRouting();
 
 // ============================================================
 // SESSION
-// IMPORTANT: Session must be before MapRazorPages()
 // ============================================================
 
 app.UseSession();
 
+// ============================================================
+// AUTHENTICATION
+// Must run before Authorization
+// ============================================================
+
+app.UseAuthentication();
+
+// ============================================================
+// AUTHORIZATION
+// ============================================================
+
 app.UseAuthorization();
+
+// ============================================================
+// RAZOR PAGES
+// ============================================================
 
 app.MapRazorPages();
 

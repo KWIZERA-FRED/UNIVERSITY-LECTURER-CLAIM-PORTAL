@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
@@ -9,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 
 using LecturerModel =
-    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
+Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 {
@@ -18,11 +19,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         private readonly ApplicationDbContext _context;
         private readonly EmailService _emailService;
         private readonly IWebHostEnvironment _environment;
-
-        public RegisterUserModel(
-            ApplicationDbContext context,
-            EmailService emailService,
-            IWebHostEnvironment environment)
+    public RegisterUserModel(
+        ApplicationDbContext context,
+        EmailService emailService,
+        IWebHostEnvironment environment)
         {
             _context = context;
             _emailService = emailService;
@@ -66,49 +66,72 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         // GET
         // ============================================================
 
-        public void OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
+            bool anyHodExists =
+                await _context.Hods.AnyAsync();
+
+            // Before the first real HOD exists, the temporary
+            // Malaz/1234 account is allowed to access this page.
+            if (anyHodExists && !User.IsInRole("HOD"))
+            {
+                return Forbid();
+            }
+
+            return Page();
         }
 
         // ============================================================
         // POST
         // ============================================================
 
-        bool anyHodExists = await _context.Hods.AnyAsync();
-
-        if (anyHodExists && !User.IsInRole("HOD"))
-        {
-            return Forbid();
-        }
-
-
         public async Task<IActionResult> OnPostAsync()
         {
+            // --------------------------------------------------------
+            // HOD AUTHORIZATION
+            // --------------------------------------------------------
+
+            bool anyHodExists =
+                await _context.Hods.AnyAsync();
+
+            if (anyHodExists && !User.IsInRole("HOD"))
+            {
+                return Forbid();
+            }
+
             // --------------------------------------------------------
             // BASIC VALIDATION
             // --------------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(Name))
             {
-                ErrorMessage = "Please enter the user's full name.";
+                ErrorMessage =
+                    "Please enter the user's full name.";
+
                 return Page();
             }
 
             if (string.IsNullOrWhiteSpace(Email))
             {
-                ErrorMessage = "Please enter the user's email address.";
+                ErrorMessage =
+                    "Please enter the user's email address.";
+
                 return Page();
             }
 
             if (string.IsNullOrWhiteSpace(Role))
             {
-                ErrorMessage = "Please select the user's system role.";
+                ErrorMessage =
+                    "Please select the user's system role.";
+
                 return Page();
             }
 
             if (string.IsNullOrWhiteSpace(SignatureData))
             {
-                ErrorMessage = "Please provide the user's digital signature.";
+                ErrorMessage =
+                    "Please provide the user's digital signature.";
+
                 return Page();
             }
 
@@ -116,22 +139,40 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             // CLEAN INPUT
             // --------------------------------------------------------
 
-            string name = Name.Trim();
-            string email = Email.Trim().ToLowerInvariant();
-            string role = Role.Trim();
+            string name =
+                Name.Trim();
 
-            string rank = Rank?.Trim() ?? string.Empty;
-            string department = Department?.Trim() ?? string.Empty;
-            string governmentId = GovernmentId?.Trim() ?? string.Empty;
+            string email =
+                Email.Trim().ToLowerInvariant();
+
+            string role =
+                Role.Trim();
+
+            string rank =
+                Rank?.Trim() ?? string.Empty;
+
+            string department =
+                Department?.Trim() ?? string.Empty;
+
+            string governmentId =
+                GovernmentId?.Trim() ?? string.Empty;
 
             // --------------------------------------------------------
             // VALIDATE ROLE
             // --------------------------------------------------------
 
-            if (!role.Equals("Lecturer", StringComparison.OrdinalIgnoreCase) &&
-                !role.Equals("HOD", StringComparison.OrdinalIgnoreCase) &&
-                !role.Equals("Dean", StringComparison.OrdinalIgnoreCase) &&
-                !role.Equals("Management", StringComparison.OrdinalIgnoreCase))
+            if (!role.Equals(
+                    "Lecturer",
+                    StringComparison.OrdinalIgnoreCase) &&
+                !role.Equals(
+                    "HOD",
+                    StringComparison.OrdinalIgnoreCase) &&
+                !role.Equals(
+                    "Dean",
+                    StringComparison.OrdinalIgnoreCase) &&
+                !role.Equals(
+                    "Management",
+                    StringComparison.OrdinalIgnoreCase))
             {
                 ErrorMessage =
                     "Invalid system role selected. Please select Lecturer, HOD, Dean, or Management.";
@@ -143,7 +184,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             // LECTURER VALIDATION
             // --------------------------------------------------------
 
-            if (role.Equals("Lecturer", StringComparison.OrdinalIgnoreCase))
+            if (role.Equals(
+                    "Lecturer",
+                    StringComparison.OrdinalIgnoreCase))
             {
                 if (string.IsNullOrWhiteSpace(governmentId))
                 {
@@ -177,7 +220,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             // HOD VALIDATION
             // --------------------------------------------------------
 
-            if (role.Equals("HOD", StringComparison.OrdinalIgnoreCase))
+            if (role.Equals(
+                    "HOD",
+                    StringComparison.OrdinalIgnoreCase))
             {
                 if (string.IsNullOrWhiteSpace(department))
                 {
@@ -200,13 +245,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
             bool adminUsernameExists =
                 await _context.AdminAccounts
-                    .AnyAsync(a => a.UserName == username);
+                    .AnyAsync(a =>
+                        a.UserName == username);
 
             bool lecturerUsernameExists =
                 await _context.Lecturers
-                    .AnyAsync(l => l.UserName == username);
+                    .AnyAsync(l =>
+                        l.UserName == username);
 
-            if (adminUsernameExists || lecturerUsernameExists)
+            if (adminUsernameExists ||
+                lecturerUsernameExists)
             {
                 ErrorMessage =
                     $"The username '{username}' already exists. Please use a different name.";
@@ -220,13 +268,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
             bool adminEmailExists =
                 await _context.AdminAccounts
-                    .AnyAsync(a => a.Email == email);
+                    .AnyAsync(a =>
+                        a.Email == email);
 
             bool lecturerEmailExists =
                 await _context.Lecturers
-                    .AnyAsync(l => l.Email == email);
+                    .AnyAsync(l =>
+                        l.Email == email);
 
-            if (adminEmailExists || lecturerEmailExists)
+            if (adminEmailExists ||
+                lecturerEmailExists)
             {
                 ErrorMessage =
                     $"An account with the email address '{email}' already exists.";
@@ -238,7 +289,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             // GENERATE PASSWORD
             // --------------------------------------------------------
 
-            string password = GeneratePassword();
+            string password =
+                GeneratePassword();
 
             // --------------------------------------------------------
             // SAVE SIGNATURE
@@ -323,9 +375,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
                     // ------------------------------------------------
                     // FIND REGISTERING HOD
-                    //
-                    // Current prototype uses the HOD account
-                    // "Malaz" as the registering HOD.
                     // ------------------------------------------------
 
                     var registeringHod =
@@ -335,8 +384,27 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
                     if (registeringHod == null)
                     {
+                        // If the real HOD account has already been
+                        // created with a different username, use the
+                        // currently logged-in HOD instead.
+
+                        int.TryParse(
+      User.FindFirst("UserId")?.Value,
+      out int currentHodId);
+
+                        if (currentHodId > 0)
+                        {
+                            registeringHod =
+                                await _context.Hods
+                                    .FirstOrDefaultAsync(
+                                        h => h.Id == currentHodId);
+                        }
+                    }
+
+                    if (registeringHod == null)
+                    {
                         ErrorMessage =
-                            "The registering HOD account 'Malaz' could not be found in the database.";
+                            "A registering HOD account could not be found.";
 
                         return Page();
                     }
@@ -354,7 +422,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                     lecturer.Rank =
                         lecturerRank;
 
-                    // New lecturer accounts are part-time
                     lecturer.Type =
                         UserRole.PartTimeLecturer;
 
@@ -375,12 +442,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
                     // ------------------------------------------------
                     // GOVERNMENT ID
-                    //
-                    // For the current prototype, we store the
-                    // Government ID directly in the existing
-                    // GovernmentIdEncrypted column.
-                    //
-                    // No database migration is required.
                     // ------------------------------------------------
 
                     lecturer.SetGovernmentIdEncrypted(
@@ -448,8 +509,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                         signatureFilePath,
                         signatureHash);
 
-                    _context.Hods.Add(
-                        hod);
+                    _context.Hods.Add(hod);
 
                     await _context.SaveChangesAsync();
 
@@ -492,8 +552,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                         signatureFilePath,
                         signatureHash);
 
-                    _context.Deans.Add(
-                        dean);
+                    _context.Deans.Add(dean);
 
                     await _context.SaveChangesAsync();
 
@@ -710,9 +769,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         // HASH SIGNATURE
         // ============================================================
 
-        private static async Task<string>
-            CalculateFileHashAsync(
-                string filePath)
+        private static async Task<string> CalculateFileHashAsync(
+            string filePath)
         {
             await using var stream =
                 new FileStream(
@@ -825,4 +883,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             SignatureData = string.Empty;
         }
     }
+
+
 }
