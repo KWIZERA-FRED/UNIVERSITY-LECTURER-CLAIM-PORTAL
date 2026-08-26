@@ -1,13 +1,15 @@
+using System.Security.Claims;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-using LecturerModel =
-    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
+using LecturerModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
 {
@@ -20,10 +22,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             _context = context;
         }
 
-        // ============================================================
-        // LOGIN FIELDS
-        // ============================================================
-
         [BindProperty]
         public string Username { get; set; } = string.Empty;
 
@@ -32,360 +30,259 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
 
         public string? ErrorMessage { get; set; }
 
-        // ============================================================
-        // GET
-        // ============================================================
-
         public void OnGet()
         {
         }
 
-        // ============================================================
-        // POST
-        // ============================================================
-
         public async Task<IActionResult> OnPostAsync()
         {
-            if (string.IsNullOrWhiteSpace(Username) ||
-                string.IsNullOrWhiteSpace(Password))
+            if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
             {
-                ErrorMessage =
-                    "Please enter your username and password.";
-
+                ErrorMessage = "Please enter your username and password.";
                 return Page();
             }
 
             string username = Username.Trim();
 
             // ========================================================
-            // 1. CHECK LECTURER ACCOUNTS
+            // 1. LECTURER
             // ========================================================
 
-            var lecturer = await _context.Lecturers
-                .FirstOrDefaultAsync(l =>
-                    l.UserName == username);
+            var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserName == username);
 
             if (lecturer != null)
             {
-                // ----------------------------------------------------
-                // ACCOUNT ACTIVE?
-                // ----------------------------------------------------
-
                 if (!lecturer.IsActive)
                 {
-                    ErrorMessage =
-                        "This account has been deactivated. Please contact the administrator.";
-
+                    ErrorMessage = "This account has been deactivated. Please contact the administrator.";
                     return Page();
                 }
 
-                // ----------------------------------------------------
-                // ACCOUNT LOCKED?
-                // ----------------------------------------------------
-
-                if (lecturer.LockoutEndUtc.HasValue &&
-                    lecturer.LockoutEndUtc.Value > DateTime.UtcNow)
+                if (lecturer.LockoutEndUtc.HasValue && lecturer.LockoutEndUtc.Value > DateTime.UtcNow)
                 {
-                    ErrorMessage =
-                        "This account is temporarily locked. Please try again later.";
-
+                    ErrorMessage = "This account is temporarily locked. Please try again later.";
                     return Page();
                 }
 
-                // ----------------------------------------------------
-                // VERIFY PASSWORD
-                // ----------------------------------------------------
+                var hasher = new PasswordHasher<LecturerModel>();
+                var result = hasher.VerifyHashedPassword(lecturer, lecturer.PasswordHash, Password);
 
-                var passwordHasher =
-                    new PasswordHasher<LecturerModel>();
-
-                var passwordResult =
-                    passwordHasher.VerifyHashedPassword(
-                        lecturer,
-                        lecturer.PasswordHash,
-                        Password);
-
-                if (passwordResult ==
-                        PasswordVerificationResult.Success ||
-                    passwordResult ==
-                        PasswordVerificationResult.SuccessRehashNeeded)
+                if (result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded)
                 {
-                    // ------------------------------------------------
-                    // RESET LOGIN SECURITY VALUES
-                    // ------------------------------------------------
-
                     lecturer.FailedLoginAttempts = 0;
                     lecturer.LockoutEndUtc = null;
                     lecturer.LastLoginUtc = DateTime.UtcNow;
                     lecturer.UpdatedAtUtc = DateTime.UtcNow;
-
                     await _context.SaveChangesAsync();
 
-                    // ------------------------------------------------
-                    // SESSION
-                    // ------------------------------------------------
-
-                    HttpContext.Session.SetString(
-                        "Username",
-                        lecturer.UserName);
-
-                    HttpContext.Session.SetString(
-                        "Role",
-                        "Lecturer");
-
-                    HttpContext.Session.SetString(
-                        "LecturerId",
-                        lecturer.Id.ToString());
-
-                    // ------------------------------------------------
-                    // FIRST LOGIN
-                    // ------------------------------------------------
+                    await SignInAsync(lecturer.UserName, "Lecturer", lecturer.Id);
 
                     if (lecturer.MustChangePassword)
-                    {
-                        return RedirectToPage(
-                            "/ChangePassword",
-                            new
-                            {
-                                username = lecturer.UserName
-                            });
-                    }
+                        return RedirectToPage("/ChangePassword", new { username = lecturer.UserName });
 
-                    // ------------------------------------------------
-                    // PART-TIME LECTURER
-                    // ------------------------------------------------
-
-                    if (lecturer.Type ==
-                        UserRole.PartTimeLecturer)
-                    {
-                        return RedirectToPage(
-                            "/Lecturer/Part/Index");
-                    }
-
-                    // ------------------------------------------------
-                    // FULL-TIME LECTURER
-                    // ------------------------------------------------
-
-                    return RedirectToPage(
-                        "/Lecturer/Index");
+                    return lecturer.Type == UserRole.PartTimeLecturer
+                        ? RedirectToPage("/Lecturer/Part/Index")
+                        : RedirectToPage("/Lecturer/Index");
                 }
-
-                // ----------------------------------------------------
-                // WRONG PASSWORD
-                // ----------------------------------------------------
 
                 lecturer.FailedLoginAttempts++;
-
                 if (lecturer.FailedLoginAttempts >= 5)
                 {
-                    lecturer.LockoutEndUtc =
-                        DateTime.UtcNow.AddMinutes(15);
-
+                    lecturer.LockoutEndUtc = DateTime.UtcNow.AddMinutes(15);
                     lecturer.FailedLoginAttempts = 0;
                 }
-
                 lecturer.UpdatedAtUtc = DateTime.UtcNow;
-
                 await _context.SaveChangesAsync();
 
-                ErrorMessage =
-                    "Invalid username or password.";
-
+                ErrorMessage = "Invalid username or password.";
                 return Page();
             }
 
             // ========================================================
-            // 2. CHECK HOD ACCOUNTS
+            // 2. HOD
             // ========================================================
 
-            var hod = await _context.Hods
-                .FirstOrDefaultAsync(h =>
-                    h.UserName == username);
+            var hod = await _context.Hods.FirstOrDefaultAsync(h => h.UserName == username);
 
             if (hod != null)
             {
                 if (!hod.IsActive)
                 {
-                    ErrorMessage =
-                        "This account has been deactivated. Please contact the administrator.";
-
+                    ErrorMessage = "This account has been deactivated. Please contact the administrator.";
                     return Page();
                 }
 
-                var passwordHasher =
-                    new PasswordHasher<AdminAccount>();
+                if (hod.LockoutEndUtc.HasValue && hod.LockoutEndUtc.Value > DateTime.UtcNow)
+                {
+                    ErrorMessage = "This account is temporarily locked. Please try again later.";
+                    return Page();
+                }
 
-                var passwordResult =
-                    passwordHasher.VerifyHashedPassword(
-                        hod,
-                        hod.PasswordHash,
-                        Password);
+                var hasher = new PasswordHasher<AdminAccount>();
+                var result = hasher.VerifyHashedPassword(hod, hod.PasswordHash, Password);
 
-                if (passwordResult ==
-                        PasswordVerificationResult.Success ||
-                    passwordResult ==
-                        PasswordVerificationResult.SuccessRehashNeeded)
+                if (result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded)
                 {
                     hod.FailedLoginAttempts = 0;
                     hod.LockoutEndUtc = null;
                     hod.LastLoginUtc = DateTime.UtcNow;
                     hod.UpdatedAtUtc = DateTime.UtcNow;
-
                     await _context.SaveChangesAsync();
 
-                    HttpContext.Session.SetString(
-                        "Username",
-                        hod.UserName);
-
-                    HttpContext.Session.SetString(
-                        "Role",
-                        "HOD");
-
-                    HttpContext.Session.SetString(
-                        "UserId",
-                        hod.Id.ToString());
-
-                    return RedirectToPage(
-                        "/HOD/Index");
+                    await SignInAsync(hod.UserName, "HOD", hod.Id);
+                    return RedirectToPage("/HOD/Index");
                 }
 
-                ErrorMessage =
-                    "Invalid username or password.";
+                hod.FailedLoginAttempts++;
+                if (hod.FailedLoginAttempts >= 5)
+                {
+                    hod.LockoutEndUtc = DateTime.UtcNow.AddMinutes(15);
+                    hod.FailedLoginAttempts = 0;
+                }
+                hod.UpdatedAtUtc = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
 
+                ErrorMessage = "Invalid username or password.";
                 return Page();
             }
 
             // ========================================================
-            // 3. CHECK DEAN ACCOUNTS
+            // 3. DEAN
             // ========================================================
 
-            var dean = await _context.Deans
-                .FirstOrDefaultAsync(d =>
-                    d.UserName == username);
+            var dean = await _context.Deans.FirstOrDefaultAsync(d => d.UserName == username);
 
             if (dean != null)
             {
                 if (!dean.IsActive)
                 {
-                    ErrorMessage =
-                        "This account has been deactivated. Please contact the administrator.";
-
+                    ErrorMessage = "This account has been deactivated. Please contact the administrator.";
                     return Page();
                 }
 
-                var passwordHasher =
-                    new PasswordHasher<AdminAccount>();
+                if (dean.LockoutEndUtc.HasValue && dean.LockoutEndUtc.Value > DateTime.UtcNow)
+                {
+                    ErrorMessage = "This account is temporarily locked. Please try again later.";
+                    return Page();
+                }
 
-                var passwordResult =
-                    passwordHasher.VerifyHashedPassword(
-                        dean,
-                        dean.PasswordHash,
-                        Password);
+                var hasher = new PasswordHasher<AdminAccount>();
+                var result = hasher.VerifyHashedPassword(dean, dean.PasswordHash, Password);
 
-                if (passwordResult ==
-                        PasswordVerificationResult.Success ||
-                    passwordResult ==
-                        PasswordVerificationResult.SuccessRehashNeeded)
+                if (result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded)
                 {
                     dean.FailedLoginAttempts = 0;
                     dean.LockoutEndUtc = null;
                     dean.LastLoginUtc = DateTime.UtcNow;
                     dean.UpdatedAtUtc = DateTime.UtcNow;
-
                     await _context.SaveChangesAsync();
 
-                    HttpContext.Session.SetString(
-                        "Username",
-                        dean.UserName);
-
-                    HttpContext.Session.SetString(
-                        "Role",
-                        "Dean");
-
-                    HttpContext.Session.SetString(
-                        "UserId",
-                        dean.Id.ToString());
-
-                    return RedirectToPage(
-                        "/DEAN/Index");
+                    await SignInAsync(dean.UserName, "Dean", dean.Id);
+                    return RedirectToPage("/DEAN/Index");
                 }
 
-                ErrorMessage =
-                    "Invalid username or password.";
+                dean.FailedLoginAttempts++;
+                if (dean.FailedLoginAttempts >= 5)
+                {
+                    dean.LockoutEndUtc = DateTime.UtcNow.AddMinutes(15);
+                    dean.FailedLoginAttempts = 0;
+                }
+                dean.UpdatedAtUtc = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
 
+                ErrorMessage = "Invalid username or password.";
                 return Page();
             }
 
             // ========================================================
-            // 4. CHECK MANAGEMENT ACCOUNTS
+            // 4. MANAGEMENT
             // ========================================================
 
-            var management =
-                await _context.ManagementAccounts
-                    .FirstOrDefaultAsync(m =>
-                        m.UserName == username);
+            var management = await _context.ManagementAccounts.FirstOrDefaultAsync(m => m.UserName == username);
 
             if (management != null)
             {
                 if (!management.IsActive)
                 {
-                    ErrorMessage =
-                        "This account has been deactivated. Please contact the administrator.";
-
+                    ErrorMessage = "This account has been deactivated. Please contact the administrator.";
                     return Page();
                 }
 
-                var passwordHasher =
-                    new PasswordHasher<AdminAccount>();
+                if (management.LockoutEndUtc.HasValue && management.LockoutEndUtc.Value > DateTime.UtcNow)
+                {
+                    ErrorMessage = "This account is temporarily locked. Please try again later.";
+                    return Page();
+                }
 
-                var passwordResult =
-                    passwordHasher.VerifyHashedPassword(
-                        management,
-                        management.PasswordHash,
-                        Password);
+                var hasher = new PasswordHasher<AdminAccount>();
+                var result = hasher.VerifyHashedPassword(management, management.PasswordHash, Password);
 
-                if (passwordResult ==
-                        PasswordVerificationResult.Success ||
-                    passwordResult ==
-                        PasswordVerificationResult.SuccessRehashNeeded)
+                if (result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded)
                 {
                     management.FailedLoginAttempts = 0;
                     management.LockoutEndUtc = null;
                     management.LastLoginUtc = DateTime.UtcNow;
                     management.UpdatedAtUtc = DateTime.UtcNow;
-
                     await _context.SaveChangesAsync();
 
-                    HttpContext.Session.SetString(
-                        "Username",
-                        management.UserName);
-
-                    HttpContext.Session.SetString(
-                        "Role",
-                        "Management");
-
-                    HttpContext.Session.SetString(
-                        "UserId",
-                        management.Id.ToString());
-
-                    return RedirectToPage(
-                        "/ManagementDashboard");
+                    await SignInAsync(management.UserName, "Management", management.Id);
+                    return RedirectToPage("/ManagementDashboard");
                 }
 
-                ErrorMessage =
-                    "Invalid username or password.";
+                management.FailedLoginAttempts++;
+                if (management.FailedLoginAttempts >= 5)
+                {
+                    management.LockoutEndUtc = DateTime.UtcNow.AddMinutes(15);
+                    management.FailedLoginAttempts = 0;
+                }
+                management.UpdatedAtUtc = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
 
+                ErrorMessage = "Invalid username or password.";
                 return Page();
             }
 
             // ========================================================
+<<<<<<< HEAD
             // INVALID LOGIN
             // ========================================================
 
             ErrorMessage =
                 "Invalid username or password.";
 
+=======
+            // NO MATCH
+            // ========================================================
+
+            ErrorMessage = "Invalid username or password.";
+>>>>>>> cc560ac753fd5b307f26fa3af4c533512c572404
             return Page();
+        }
+
+        // ============================================================
+        // COOKIE SIGN-IN
+        // ============================================================
+
+        private async Task SignInAsync(string username, string role, int userId)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, username),
+                new Claim(ClaimTypes.Role, role),
+                new Claim("UserId", userId.ToString())
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties
+                {
+                    IsPersistent = false, // don't survive browser close — re-auth each session
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+                });
         }
     }
 }
