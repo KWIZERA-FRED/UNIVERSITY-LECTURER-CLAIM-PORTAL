@@ -74,6 +74,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         // POST
         // ============================================================
 
+        bool anyHodExists = await _context.Hods.AnyAsync();
+
+        if (anyHodExists && !User.IsInRole("HOD"))
+        {
+            return Forbid();
+        }
+
+
         public async Task<IActionResult> OnPostAsync()
         {
             // --------------------------------------------------------
