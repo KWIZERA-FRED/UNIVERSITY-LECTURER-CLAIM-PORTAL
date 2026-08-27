@@ -10,6 +10,10 @@ RUN dotnet publish "Academic-Staff-Engagement-Claim-Processing-System.csproj" -c
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
+
+# Prevent inotify instance exhaustion on Linux hosts
+ENV DOTNET_USE_POLLING_FILE_WATCHER=false
+
 COPY --from=build /app/publish .
 
 EXPOSE 8080
