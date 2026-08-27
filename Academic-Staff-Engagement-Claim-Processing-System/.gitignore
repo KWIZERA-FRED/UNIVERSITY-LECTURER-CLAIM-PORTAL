@@ -1,0 +1,38 @@
+﻿# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio Code
+.vscode/
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+packages/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets — never commit these
+appsettings.json
+appsettings.*.json
+!appsettings.json.example
+
+# Data Protection keys — real key material, never commit
+keys/
+
+# User-uploaded content (signatures, etc.) — should not live in source control
+wwwroot/uploads/

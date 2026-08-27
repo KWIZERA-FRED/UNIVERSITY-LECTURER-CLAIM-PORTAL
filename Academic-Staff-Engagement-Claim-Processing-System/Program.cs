@@ -1,6 +1,7 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,8 +22,14 @@ builder.Configuration
     .AddJsonFile(
         $"appsettings.{builder.Environment.EnvironmentName}.json",
         optional: true,
-        reloadOnChange: false)
-    .AddEnvironmentVariables();
+        reloadOnChange: false);
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
+builder.Configuration.AddEnvironmentVariables();
 
 // ============================================================
 // DATABASE
@@ -38,7 +45,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // DATA PROTECTION
 // ============================================================
 
-builder.Services.AddDataProtection();
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(
+        builder.Configuration["DataProtection:KeyPath"] ?? "keys"))
+    .SetApplicationName("UnilakStaffClaimPortal");
+
+builder.Services.AddSingleton<GovernmentIdProtector>();
 
 // ============================================================
 // AUTHENTICATION
