@@ -76,13 +76,37 @@ builder.Services
 // AUTHORIZATION
 // ============================================================
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("HOD", policy => policy.RequireRole("HOD"));
+    options.AddPolicy("Dean", policy => policy.RequireRole("Dean"));
+    options.AddPolicy("Lecturer", policy => policy.RequireRole("Lecturer"));
+});
 
 // ============================================================
 // RAZOR PAGES
 // ============================================================
 
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(options =>
+{
+    // Folder-level role requirements
+    options.Conventions.AuthorizeFolder("/HOD", "HOD");
+    options.Conventions.AuthorizeFolder("/DEAN", "Dean");
+    options.Conventions.AuthorizeFolder("/Lecturer", "Lecturer");
+    options.Conventions.AuthorizeFolder("/Shared"); // any authenticated role, no specific one
+
+    // RegisterUser has its own bootstrap-aware check in code (allows the
+    // very first HOD to self-register when none exist yet) — so it must
+    // opt OUT of the blanket /HOD folder policy, or nobody could ever
+    // reach it to create that first account.
+    options.Conventions.AllowAnonymousToPage("/HOD/RegisterUser");
+
+    // Public pages — no login required
+    options.Conventions.AllowAnonymousToPage("/Login");
+    options.Conventions.AllowAnonymousToPage("/Index");
+    options.Conventions.AllowAnonymousToPage("/Privacy");
+    options.Conventions.AllowAnonymousToPage("/Error");
+});
 
 // ============================================================
 // SESSION
