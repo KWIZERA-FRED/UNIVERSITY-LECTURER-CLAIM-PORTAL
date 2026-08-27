@@ -1,0 +1,785 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ViewModel
+
+@{
+    ViewData["Title"] = "View Lecturer";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>View Lecturer · UNILAK Portal</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #0f172a;
+            --green: #059669;
+            --green-dark: #047857;
+            --green-light: #ecfdf5;
+            --background: #f8fafc;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --muted: #64748b;
+            --danger: #dc2626;
+        }
+
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            z-index: 1000;
+            background: rgba(10, 25, 47, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .navbar-container {
+            max-width: 1280px;
+            height: 100%;
+            margin: auto;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-logo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+
+        .navbar-brand {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .navbar-brand span {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 14px;
+            color: #cbd5e1;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 100px;
+            font-size: 13px;
+        }
+
+        .role-badge i {
+            color: #34d399;
+        }
+
+        .logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 17px;
+            color: white;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .app-body {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            min-height: calc(100vh - 80px);
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 28px 0;
+        }
+
+        .sidebar-title {
+            padding: 0 24px 12px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: var(--green);
+            background: var(--green-light);
+        }
+
+        .sidebar-link i {
+            width: 20px;
+            font-size: 17px;
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 42px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-label {
+            display: inline-block;
+            margin-bottom: 8px;
+            color: var(--green);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .page-header h1 {
+            color: var(--navy);
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .page-header p {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .content-card {
+            max-width: 1000px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(15,23,42,0.06);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-title-icon {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: var(--green);
+            background: var(--green-light);
+            font-size: 18px;
+        }
+
+        .card-title h2 {
+            color: var(--navy);
+            font-size: 17px;
+        }
+
+        .card-title p {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .card-body {
+            padding: 28px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 30px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .avatar {
+            width: 72px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--green-light);
+            color: var(--green);
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .profile h2 {
+            color: var(--navy);
+            font-size: 22px;
+        }
+
+        .profile p {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 3px;
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 5px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status.active {
+            color: #047857;
+            background: #ecfdf5;
+        }
+
+        .status.inactive {
+            color: #b91c1c;
+            background: #fef2f2;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .detail {
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fafbfc;
+        }
+
+        .detail-label {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: var(--navy);
+            font-size: 14px;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .rank {
+            display: inline-block;
+            padding: 5px 10px;
+            color: #047857;
+            background: #ecfdf5;
+            border-radius: 100px;
+            font-size: 11px;
+        }
+
+        .actions {
+            margin-top: 28px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 18px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--green-dark);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #475569;
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+        }
+
+        .not-found {
+            padding: 50px;
+            text-align: center;
+        }
+
+        .not-found i {
+            font-size: 42px;
+            color: #cbd5e1;
+        }
+
+        @@media (max-width: 700px) {
+
+            .app-body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-height: auto;
+            }
+
+            .sidebar-menu {
+                flex-direction: row;
+                overflow-x: auto;
+            }
+
+            .main {
+                padding: 24px 16px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .role-badge {
+                display: none;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <nav class="navbar">
+
+        <div class="navbar-container">
+
+            <div class="navbar-left">
+
+                <a href="/HOD">
+                    <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                         alt="UNILAK Logo"
+                         class="navbar-logo">
+                </a>
+
+                <a href="/HOD" class="navbar-brand">
+                    UNILAK <span>Portal</span>
+                </a>
+
+            </div>
+
+            <div class="user-area">
+
+                <span class="role-badge">
+                    <i class="bi bi-person-badge-fill"></i>
+                    Head of Department
+                </span>
+
+                <a href="/Login" class="logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+                </a>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <div class="app-body">
+
+        <aside class="sidebar">
+
+            <div class="sidebar-title">
+                HOD Administration
+            </div>
+
+            <nav class="sidebar-menu">
+
+                <a href="/HOD" class="sidebar-link">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    Dashboard
+                </a>
+
+                <a href="/HOD/Staff" class="sidebar-link active">
+                    <i class="bi bi-people-fill"></i>
+                    Staff Management
+                </a>
+
+                <a href="/HOD/RegisterUser" class="sidebar-link">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Register User
+                </a>
+
+                <a href="/HOD/AssignCourse" class="sidebar-link">
+                    <i class="bi bi-journal-plus"></i>
+                    Assign Course
+                </a>
+
+            </nav>
+
+        </aside>
+
+        <main class="main">
+
+            <div class="page-header">
+
+                <span class="page-label">
+                    Staff Management
+                </span>
+
+                <h1>Lecturer Details</h1>
+
+                <p>
+                    View the lecturer's information stored in the database.
+                </p>
+
+            </div>
+
+            <section class="content-card">
+
+                @if (Model.Lecturer == null)
+                {
+                    <div class="not-found">
+
+                        <i class="bi bi-person-x"></i>
+
+                        <h2>Lecturer Not Found</h2>
+
+                        <p>
+                            The requested lecturer could not be found.
+                        </p>
+
+                        <br />
+
+                        <a href="/HOD/Staff" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i>
+                            Back to Staff
+                        </a>
+
+                    </div>
+                }
+                else
+                {
+                    var initials = string.IsNullOrWhiteSpace(Model.Lecturer.UserName)
+                        ? "?"
+                        : string.Concat(
+                            Model.Lecturer.UserName
+                                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                .Take(2)
+                                .Select(x => x[0])
+                        ).ToUpper();
+
+                    <div class="card-header">
+
+                        <div class="card-title">
+
+                            <div class="card-title-icon">
+                                <i class="bi bi-person-vcard-fill"></i>
+                            </div>
+
+                            <div>
+                                <h2>Lecturer Information</h2>
+                                <p>Database record</p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="profile">
+
+                            <div class="avatar">
+                                @initials
+                            </div>
+
+                            <div>
+
+                                <h2>@Model.Lecturer.UserName</h2>
+
+                                <p>
+                                    @Model.Lecturer.Email
+                                </p>
+
+                                @if (Model.Lecturer.IsActive)
+                                {
+                                    <span class="status active">
+                                        Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status inactive">
+                                        Inactive
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                        <div class="details-grid">
+
+                            <div class="detail">
+
+                                <div class="detail-label">
+                                    Lecturer ID
+                                </div>
+
+                                <div class="detail-value">
+                                    @Model.Lecturer.Id
+                                </div>
+
+                            </div>
+
+                            <div class="detail">
+
+                                <div class="detail-label">
+                                    Username
+                                </div>
+
+                                <div class="detail-value">
+                                    @Model.Lecturer.UserName
+                                </div>
+
+                            </div>
+
+                            <div class="detail">
+
+                                <div class="detail-label">
+                                    Email
+                                </div>
+
+                                <div class="detail-value">
+                                    @Model.Lecturer.Email
+                                </div>
+
+                            </div>
+
+                            <div class="detail">
+
+                                <div class="detail-label">
+                                    Phone Number
+                                </div>
+
+                                <div class="detail-value">
+                                    @(string.IsNullOrWhiteSpace(Model.Lecturer.PhoneNumber)
+                                        ? "Not provided"
+                                        : Model.Lecturer.PhoneNumber)
+                                </div>
+
+                            </div>
+
+                            <div class="detail">
+
+                                <div class="detail-label">
+                                    Lecturer Type
+                                </div>
+
+                                <div class="detail-value">
+                                    @Model.Lecturer.Type
+                                </div>
+
+                            </div>
+
+                            <div class="detail">
+
+                                <div class="detail-label">
+                                    Academic Rank
+                                </div>
+
+                                <div class="detail-value">
+
+                                    @if (Model.Lecturer.Rank.HasValue)
+                                    {
+                                        <span class="rank">
+                                            @Model.Lecturer.Rank.Value
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>Not assigned</span>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                            <div class="detail">
+
+                                <div class="detail-label">
+                                    Signature Status
+                                </div>
+
+                                <div class="detail-value">
+                                    @Model.Lecturer.SignatureStatus
+                                </div>
+
+                            </div>
+
+                            <div class="detail">
+
+                                <div class="detail-label">
+                                    Account Created
+                                </div>
+
+                                <div class="detail-value">
+                                    @Model.Lecturer.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                                </div>
+
+                            </div>
+
+                            <div class="detail">
+
+                                <div class="detail-label">
+                                    Last Login
+                                </div>
+
+                                <div class="detail-value">
+                                    @(Model.Lecturer.LastLoginUtc.HasValue
+                                        ? Model.Lecturer.LastLoginUtc.Value.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                                        : "Never logged in")
+                                </div>
+
+                            </div>
+
+                            <div class="detail">
+
+                                <div class="detail-label">
+                                    Failed Login Attempts
+                                </div>
+
+                                <div class="detail-value">
+                                    @Model.Lecturer.FailedLoginAttempts
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="actions">
+
+                            <a href="/HOD/Edit?id=@Model.Lecturer.Id"
+                               class="btn btn-primary">
+
+                                <i class="bi bi-pencil-fill"></i>
+                                Edit Lecturer
+
+                            </a>
+
+                            <a href="/HOD/Staff"
+                               class="btn btn-secondary">
+
+                                <i class="bi bi-arrow-left"></i>
+                                Back to Staff
+
+                            </a>
+
+                        </div>
+
+                    </div>
+                }
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+</html>

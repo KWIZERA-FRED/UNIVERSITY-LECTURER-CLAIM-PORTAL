@@ -1,0 +1,707 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.EditModel
+
+@{
+    ViewData["Title"] = "Edit Lecturer";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Edit Lecturer · UNILAK Portal</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #0f172a;
+            --green: #059669;
+            --green-dark: #047857;
+            --green-light: #ecfdf5;
+            --background: #f8fafc;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --muted: #64748b;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+        }
+
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            z-index: 1000;
+            background: rgba(10, 25, 47, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .navbar-container {
+            max-width: 1280px;
+            height: 100%;
+            margin: auto;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-logo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+
+        .navbar-brand {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .navbar-brand span {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 14px;
+            color: #cbd5e1;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 100px;
+            font-size: 13px;
+        }
+
+        .role-badge i {
+            color: #34d399;
+        }
+
+        .logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 17px;
+            color: white;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .app-body {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            min-height: calc(100vh - 80px);
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 28px 0;
+        }
+
+        .sidebar-title {
+            padding: 0 24px 12px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: var(--green);
+            background: var(--green-light);
+        }
+
+        .sidebar-link i {
+            width: 20px;
+            font-size: 17px;
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 42px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-label {
+            display: inline-block;
+            margin-bottom: 8px;
+            color: var(--green);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .page-header h1 {
+            color: var(--navy);
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .page-header p {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .content-card {
+            max-width: 900px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(15,23,42,0.06);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-title-icon {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: var(--green);
+            background: var(--green-light);
+            font-size: 18px;
+        }
+
+        .card-header h2 {
+            color: var(--navy);
+            font-size: 17px;
+        }
+
+        .card-header p {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .card-body {
+            padding: 28px;
+        }
+
+        .info-box {
+            padding: 14px 16px;
+            margin-bottom: 24px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .info-box strong {
+            color: var(--navy);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            margin-bottom: 7px;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: white;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(5,150,105,0.08);
+        }
+
+        input[readonly] {
+            background: #f8fafc;
+            color: var(--muted);
+        }
+
+        .validation {
+            margin-top: 5px;
+            color: var(--danger);
+            font-size: 11px;
+        }
+
+        .validation-summary {
+            padding: 14px 16px;
+            margin-bottom: 22px;
+            border-radius: 9px;
+            color: #b91c1c;
+            background: var(--danger-light);
+            border: 1px solid #fecaca;
+            font-size: 12px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 28px;
+        }
+
+        .checkbox-wrapper input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--green);
+        }
+
+        .checkbox-wrapper label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 18px;
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            border: none;
+            background: var(--green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--green-dark);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #475569;
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+        }
+
+        @@media (max-width: 700px) {
+
+            .app-body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-height: auto;
+            }
+
+            .sidebar-menu {
+                flex-direction: row;
+                overflow-x: auto;
+            }
+
+            .main {
+                padding: 24px 16px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .role-badge {
+                display: none;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <nav class="navbar">
+
+        <div class="navbar-container">
+
+            <div class="navbar-left">
+
+                <a href="/HOD">
+
+                    <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                         alt="UNILAK Logo"
+                         class="navbar-logo">
+
+                </a>
+
+                <a href="/HOD" class="navbar-brand">
+                    UNILAK <span>Portal</span>
+                </a>
+
+            </div>
+
+            <div class="user-area">
+
+                <span class="role-badge">
+                    <i class="bi bi-person-badge-fill"></i>
+                    Head of Department
+                </span>
+
+                <a href="/Login" class="logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+                </a>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <div class="app-body">
+
+        <aside class="sidebar">
+
+            <div class="sidebar-title">
+                HOD Administration
+            </div>
+
+            <nav class="sidebar-menu">
+
+                <a href="/HOD" class="sidebar-link">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    Dashboard
+                </a>
+
+                <a href="/HOD/Staff" class="sidebar-link active">
+                    <i class="bi bi-people-fill"></i>
+                    Staff Management
+                </a>
+
+                <a href="/HOD/RegisterUser" class="sidebar-link">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Register User
+                </a>
+
+                <a href="/HOD/AssignCourse" class="sidebar-link">
+                    <i class="bi bi-journal-plus"></i>
+                    Assign Course
+                </a>
+
+            </nav>
+
+        </aside>
+
+        <main class="main">
+
+            <div class="page-header">
+
+                <span class="page-label">
+                    Staff Management
+                </span>
+
+                <h1>Edit Lecturer</h1>
+
+                <p>
+                    Update the lecturer's account information.
+                </p>
+
+            </div>
+
+            <section class="content-card">
+
+                <div class="card-header">
+
+                    <div class="card-title-icon">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
+
+                    <div>
+                        <h2>Lecturer Information</h2>
+                        <p>Changes will be saved directly to the database.</p>
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div asp-validation-summary="All"
+                         class="validation-summary">
+                    </div>
+
+                    <div class="info-box">
+
+                        <strong>Lecturer ID:</strong>
+                        @Model.LecturerId
+
+                        <br />
+
+                        Password, government ID, signature information and audit
+                        fields are protected and are not editable from this page.
+
+                    </div>
+
+                    <form method="post">
+
+                        <input type="hidden"
+                               asp-for="LecturerId" />
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label asp-for="UserName">
+                                    Username
+                                </label>
+
+                                <input asp-for="UserName"
+                                       autocomplete="off" />
+
+                                <span asp-validation-for="UserName"
+                                      class="validation">
+                                </span>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label asp-for="Email">
+                                    Email Address
+                                </label>
+
+                                <input asp-for="Email"
+                                       type="email" />
+
+                                <span asp-validation-for="Email"
+                                      class="validation">
+                                </span>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label asp-for="PhoneNumber">
+                                    Phone Number
+                                </label>
+
+                                <input asp-for="PhoneNumber"
+                                       type="tel" />
+
+                                <span asp-validation-for="PhoneNumber"
+                                      class="validation">
+                                </span>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label asp-for="Type">
+                                    Lecturer Type
+                                </label>
+
+                                <select asp-for="Type"
+                                        asp-items="Html.GetEnumSelectList<Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums.UserRole>()">
+                                </select>
+
+                                <span asp-validation-for="Type"
+                                      class="validation">
+                                </span>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label asp-for="Rank">
+                                    Academic Rank
+                                </label>
+
+                                <select asp-for="Rank">
+
+                                    <option value="">
+                                        -- Select Rank --
+                                    </option>
+
+                                    @foreach (var rank in Enum.GetValues<Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums.LecturerRank>())
+                                    {
+                                        <option value="@rank">
+                                            @rank
+                                        </option>
+                                    }
+
+                                </select>
+
+                                <span asp-validation-for="Rank"
+                                      class="validation">
+                                </span>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <div class="checkbox-wrapper">
+
+                                    <input asp-for="IsActive" />
+
+                                    <label asp-for="IsActive">
+                                        Lecturer Account Is Active
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="actions">
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+
+                                <i class="bi bi-check-lg"></i>
+                                Save Changes
+
+                            </button>
+
+                            <a href="/HOD/View?id=@Model.LecturerId"
+                               class="btn btn-secondary">
+
+                                <i class="bi bi-x-lg"></i>
+                                Cancel
+
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+</html>
