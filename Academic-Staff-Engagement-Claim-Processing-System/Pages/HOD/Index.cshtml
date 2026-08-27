@@ -1,6 +1,6 @@
 ﻿@page
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.IndexModel
-
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 @{
     Layout = null;
     ViewData["Title"] = "HOD Dashboard";
@@ -17,779 +17,743 @@
 
     <title>@ViewData["Title"] · UNILAK ASECPS</title>
 
-    <!-- GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
           rel="stylesheet">
 
-    <!-- BOOTSTRAP ICONS -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
 
-            /* =========================================================
-                       RESET
-                    ========================================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Plus Jakarta Sans", "Poppins", sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* =========================================================
+           TOP HEADER
+        ========================================================== */
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            z-index: 1000;
+            background: rgba(10, 25, 47, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-container {
+            height: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-logo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            transition: transform 0.3s ease;
+        }
+
+        .logo-link:hover .navbar-logo {
+            transform: scale(1.05);
+        }
+
+        .navbar-brand {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .navbar-brand span {
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .role {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .role i {
+            color: #34d399;
+        }
+
+        .logout-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ffffff;
+            color: #0f172a;
+            border-color: #ffffff;
+        }
+
+        /* =========================================================
+           APP
+        ========================================================== */
+
+        .app {
+            min-height: 100vh;
+            padding-top: 80px;
+            display: flex;
+        }
+
+        /* =========================================================
+           SIDEBAR
+        ========================================================== */
+
+        .sidebar {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            bottom: 0;
+            width: 245px;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            padding: 32px 16px;
+            overflow-y: auto;
+            z-index: 900;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .sidebar-link {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link i {
+            width: 20px;
+            color: #94a3b8;
+            font-size: 17px;
+            transition: color 0.2s ease;
+        }
+
+        .sidebar-link:hover {
+            color: #0f172a;
+            background: #f8fafc;
+        }
+
+        .sidebar-link:hover i {
+            color: #059669;
+        }
+
+        .sidebar-link.active {
+            color: #059669;
+            background: #ecfdf5;
+            font-weight: 600;
+        }
+
+        .sidebar-link.active i {
+            color: #059669;
+        }
+
+        .sidebar-link.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 3px;
+            height: 24px;
+            transform: translateY(-50%);
+            border-radius: 0 4px 4px 0;
+            background: #059669;
+        }
+
+        /* =========================================================
+           MAIN
+        ========================================================== */
+
+        .main {
+            width: calc(100% - 245px);
+            margin-left: 245px;
+            min-height: calc(100vh - 80px);
+            padding: 48px 40px 70px;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* =========================================================
+           PAGE HEADER
+        ========================================================== */
+
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .page-label {
+            display: inline-block;
+            margin-bottom: 10px;
+            color: #059669;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .page-header h1 {
+            color: #0f172a;
+            font-size: clamp(28px, 4vw, 38px);
+            font-weight: 700;
+            letter-spacing: -0.8px;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        /* =========================================================
+           STATISTICS
+        ========================================================== */
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            padding: 26px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #cbd5e1;
+            box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.08);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            border-radius: 12px;
+            color: #059669;
+            background: #ecfdf5;
+            font-size: 22px;
+        }
+
+        .stat-number {
+            color: #0f172a;
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* =========================================================
+           CARDS
+        ========================================================== */
+
+        .card {
+            margin-bottom: 28px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.06);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 24px 28px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            color: #059669;
+            background: #ecfdf5;
+            font-size: 19px;
+        }
+
+        .card-title h2 {
+            color: #0f172a;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .card-title p {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        /* =========================================================
+           TABLE
+        ========================================================== */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: #f8fafc;
+        }
+
+        th {
+            padding: 14px 20px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 17px 20px;
+            color: #475569;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .id {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .lecturer {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .course {
+            color: #64748b;
+        }
+
+        /* =========================================================
+           BADGES
+        ========================================================== */
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 11px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .badge-pending {
+            color: #92400e;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+        }
+
+        .badge-review {
+            color: #1d4ed8;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+
+        .badge-approved {
+            color: #047857;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+        }
+
+        .badge-rejected {
+            color: #b91c1c;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+        .badge-paid {
+            color: #6d28d9;
+            background: #f5f3ff;
+            border: 1px solid #ddd6fe;
+        }
+
+        /* =========================================================
+           BUTTONS
+        ========================================================== */
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            color: #ffffff;
+            background: #059669;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: #047857;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(5, 150, 105, 0.25);
+        }
+
+        .action-btn.outline {
+            color: #059669;
+            background: #ffffff;
+            border: 1px solid #a7f3d0;
+        }
+
+        .action-btn.outline:hover {
+            color: #ffffff;
+            background: #059669;
+            border-color: #059669;
+        }
+
+        /* =========================================================
+           EMPTY STATE
+        ========================================================== */
+
+        .empty-state {
+            padding: 35px 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================== */
+
+        .footer {
+            margin-left: 245px;
+            padding: 30px 40px;
+            color: #94a3b8;
+            background: #020617;
+            border-top: 1px solid #1e293b;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-logo {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+        }
+
+        .footer-brand h3 {
+            color: #f8fafc;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .footer-brand p {
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .footer-right {
+            color: #64748b;
+            font-size: 11px;
+            text-align: right;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================== */
+
+        @@media (max-width: 1100px) {
+
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
+        }
 
-            html {
-                scroll-behavior: smooth;
-            }
-
-            body {
-                font-family: "Plus Jakarta Sans", "Poppins", sans-serif;
-                background: #f8fafc;
-                color: #1e293b;
-                line-height: 1.6;
-                -webkit-font-smoothing: antialiased;
-            }
-
-            a {
-                text-decoration: none;
-            }
-
-
-            /* =========================================================
-                       TOP GLASS HEADER
-                    ========================================================= */
+        @@media (max-width: 800px) {
 
             .navbar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 80px;
-                z-index: 1000;
-                background: rgba(10, 25, 47, 0.75);
-                backdrop-filter: blur(16px);
-                -webkit-backdrop-filter: blur(16px);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                height: 70px;
+            }
+
+            .app {
+                padding-top: 70px;
+            }
+
+            .sidebar {
+                top: 70px;
+                width: 210px;
+            }
+
+            .main {
+                width: calc(100% - 210px);
+                margin-left: 210px;
+                padding: 35px 25px 60px;
+            }
+
+            .footer {
+                margin-left: 210px;
             }
 
             .navbar-container {
-                height: 100%;
-                max-width: 1280px;
-                margin: 0 auto;
-                padding: 0 32px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-
-            .navbar-left {
-                display: flex;
-                align-items: center;
-                gap: 12px;
+                padding: 0 20px;
             }
 
             .navbar-logo {
-                width: 48px;
-                height: 48px;
-                object-fit: contain;
-                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-                transition: transform 0.3s ease;
-            }
-
-            .logo-link:hover .navbar-logo {
-                transform: scale(1.05);
+                width: 42px;
+                height: 42px;
             }
 
             .navbar-brand {
-                color: #ffffff;
-                font-size: 20px;
-                font-weight: 700;
-                letter-spacing: -0.3px;
-            }
-
-                .navbar-brand span {
-                    color: #64748b;
-                    font-weight: 400;
-                }
-
-            .navbar-right {
-                display: flex;
-                align-items: center;
-                gap: 20px;
+                font-size: 17px;
             }
 
             .role {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                color: #cbd5e1;
-                font-size: 13px;
-                font-weight: 500;
+                display: none;
+            }
+        }
+
+        @@media (max-width: 650px) {
+
+            .navbar-brand {
+                display: none;
             }
 
-                .role i {
-                    color: #34d399;
-                }
-
-            .logout-btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                padding: 9px 18px;
-                border-radius: 8px;
-                background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                color: #ffffff;
-                font-size: 13px;
-                font-weight: 600;
-                transition: all 0.2s ease;
+            .navbar-right {
+                margin-left: auto;
             }
-
-                .logout-btn:hover {
-                    background: #ffffff;
-                    color: #0f172a;
-                    border-color: #ffffff;
-                }
-
-
-            /* =========================================================
-                       APP LAYOUT
-                    ========================================================= */
-
-            .app {
-                min-height: 100vh;
-                padding-top: 80px;
-                display: flex;
-            }
-
-
-            /* =========================================================
-                       SIDEBAR
-                    ========================================================= */
 
             .sidebar {
-                position: fixed;
-                top: 80px;
-                left: 0;
-                bottom: 0;
-                width: 245px;
-                background: #ffffff;
-                border-right: 1px solid #e2e8f0;
-                padding: 32px 16px;
-                overflow-y: auto;
-                z-index: 900;
+                position: relative;
+                top: auto;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+                padding: 15px;
             }
 
-            .sidebar-heading {
-                padding: 0 14px;
-                margin-bottom: 14px;
-                color: #94a3b8;
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 1.5px;
-                text-transform: uppercase;
+            .app {
+                display: block;
             }
 
             .sidebar-menu {
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .sidebar-link {
-                position: relative;
-                display: flex;
-                align-items: center;
-                gap: 13px;
-                padding: 12px 14px;
-                border-radius: 10px;
-                color: #64748b;
-                font-size: 14px;
-                font-weight: 500;
-                transition: all 0.2s ease;
-            }
-
-                .sidebar-link i {
-                    width: 20px;
-                    color: #94a3b8;
-                    font-size: 17px;
-                    transition: color 0.2s ease;
-                }
-
-                .sidebar-link:hover {
-                    color: #0f172a;
-                    background: #f8fafc;
-                }
-
-                    .sidebar-link:hover i {
-                        color: #059669;
-                    }
-
-                .sidebar-link.active {
-                    color: #059669;
-                    background: #ecfdf5;
-                    font-weight: 600;
-                }
-
-                    .sidebar-link.active i {
-                        color: #059669;
-                    }
-
-                    .sidebar-link.active::before {
-                        content: "";
-                        position: absolute;
-                        left: 0;
-                        top: 50%;
-                        width: 3px;
-                        height: 24px;
-                        transform: translateY(-50%);
-                        border-radius: 0 4px 4px 0;
-                        background: #059669;
-                    }
-
-            .sidebar-divider {
-                height: 1px;
-                margin: 25px 12px;
-                background: #e2e8f0;
-            }
-
-            .sidebar-footer {
-                padding: 0 14px;
-                color: #94a3b8;
-                font-size: 11px;
-                line-height: 1.5;
-            }
-
-                .sidebar-footer strong {
-                    display: block;
-                    color: #475569;
-                    font-size: 12px;
-                    margin-bottom: 3px;
-                }
-
-
-            /* =========================================================
-                       MAIN CONTENT
-                    ========================================================= */
-
-            .main {
-                width: calc(100% - 245px);
-                margin-left: 245px;
-                min-height: calc(100vh - 80px);
-                padding: 48px 40px 70px;
-            }
-
-            .main-container {
-                max-width: 1200px;
-                margin: 0 auto;
-            }
-
-
-            /* =========================================================
-                       PAGE HEADER
-                    ========================================================= */
-
-            .page-header {
-                display: flex;
-                align-items: flex-end;
-                justify-content: space-between;
-                gap: 20px;
-                margin-bottom: 40px;
-            }
-
-            .page-label {
-                display: inline-block;
-                margin-bottom: 10px;
-                color: #059669;
-                font-size: 12px;
-                font-weight: 700;
-                letter-spacing: 2px;
-            }
-
-            .page-header h1 {
-                color: #0f172a;
-                font-size: clamp(28px, 4vw, 38px);
-                font-weight: 700;
-                letter-spacing: -0.8px;
-                margin-bottom: 8px;
-            }
-
-            .page-header p {
-                color: #64748b;
-                font-size: 15px;
-            }
-
-            .role-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                padding: 9px 15px;
-                border-radius: 100px;
-                color: #059669;
-                background: #ecfdf5;
-                border: 1px solid #a7f3d0;
-                font-size: 12px;
-                font-weight: 600;
-                white-space: nowrap;
-            }
-
-
-            /* =========================================================
-                       STATISTICS
-                    ========================================================= */
-
-            .stat-grid {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 20px;
-                margin-bottom: 32px;
-            }
-
-            .stat-card {
-                padding: 26px;
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 16px;
-                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            }
-
-                .stat-card:hover {
-                    transform: translateY(-5px);
-                    border-color: #cbd5e1;
-                    box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.08);
-                }
-
-            .stat-icon {
-                width: 50px;
-                height: 50px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-bottom: 18px;
-                border-radius: 12px;
-                color: #059669;
-                background: #ecfdf5;
-                font-size: 22px;
-            }
-
-            .stat-number {
-                color: #0f172a;
-                font-size: 30px;
-                font-weight: 800;
-                line-height: 1.2;
-                margin-bottom: 5px;
-            }
-
-            .stat-label {
-                color: #64748b;
-                font-size: 11px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.8px;
-            }
-
-
-            /* =========================================================
-                       CARDS
-                    ========================================================= */
-
-            .card {
-                margin-bottom: 28px;
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 16px;
-                overflow: hidden;
-                transition: all 0.3s ease;
-            }
-
-                .card:hover {
-                    box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.06);
-                }
-
-            .card-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 20px;
-                padding: 24px 28px;
-                border-bottom: 1px solid #e2e8f0;
-            }
-
-            .card-title {
-                display: flex;
-                align-items: center;
-                gap: 13px;
-            }
-
-            .card-icon {
-                width: 44px;
-                height: 44px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 12px;
-                color: #059669;
-                background: #ecfdf5;
-                font-size: 19px;
-            }
-
-            .card-title h2 {
-                color: #0f172a;
-                font-size: 17px;
-                font-weight: 700;
-            }
-
-            .card-title p {
-                color: #64748b;
-                font-size: 12px;
-                margin-top: 2px;
-            }
-
-
-            /* =========================================================
-                       TABLE
-                    ========================================================= */
-
-            .table-wrapper {
-                width: 100%;
+                flex-direction: row;
                 overflow-x: auto;
             }
 
-            table {
+            .sidebar-link {
+                flex-shrink: 0;
+            }
+
+            .main {
                 width: 100%;
-                border-collapse: collapse;
-                font-size: 14px;
+                margin-left: 0;
+                padding: 30px 15px 50px;
             }
-
-            thead {
-                background: #f8fafc;
-            }
-
-            th {
-                padding: 14px 20px;
-                color: #64748b;
-                font-size: 11px;
-                font-weight: 700;
-                text-align: left;
-                text-transform: uppercase;
-                letter-spacing: 0.6px;
-                border-bottom: 1px solid #e2e8f0;
-                white-space: nowrap;
-            }
-
-            td {
-                padding: 17px 20px;
-                color: #475569;
-                border-bottom: 1px solid #f1f5f9;
-                vertical-align: middle;
-            }
-
-            tbody tr {
-                transition: background 0.2s ease;
-            }
-
-                tbody tr:hover {
-                    background: #f8fafc;
-                }
-
-                tbody tr:last-child td {
-                    border-bottom: none;
-                }
-
-            .id {
-                color: #0f172a;
-                font-weight: 700;
-            }
-
-            .lecturer {
-                color: #0f172a;
-                font-weight: 600;
-            }
-
-            .course {
-                color: #64748b;
-            }
-
-
-            /* =========================================================
-                       BADGES
-                    ========================================================= */
-
-            .badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                padding: 6px 11px;
-                border-radius: 100px;
-                font-size: 11px;
-                font-weight: 700;
-                white-space: nowrap;
-            }
-
-            .badge-pending {
-                color: #92400e;
-                background: #fffbeb;
-                border: 1px solid #fde68a;
-            }
-
-            .badge-review {
-                color: #1d4ed8;
-                background: #eff6ff;
-                border: 1px solid #bfdbfe;
-            }
-
-
-            /* =========================================================
-                       BUTTONS
-                    ========================================================= */
-
-            .action-btn {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: 7px;
-                padding: 8px 15px;
-                border-radius: 8px;
-                color: #ffffff;
-                background: #059669;
-                font-size: 12px;
-                font-weight: 600;
-                transition: all 0.2s ease;
-            }
-
-                .action-btn:hover {
-                    background: #047857;
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 14px rgba(5, 150, 105, 0.25);
-                }
-
-                .action-btn.outline {
-                    color: #059669;
-                    background: #ffffff;
-                    border: 1px solid #a7f3d0;
-                }
-
-                    .action-btn.outline:hover {
-                        color: #ffffff;
-                        background: #059669;
-                        border-color: #059669;
-                    }
-
-
-            /* =========================================================
-                       FOOTER
-                    ========================================================= */
 
             .footer {
-                margin-left: 245px;
-                padding: 30px 40px;
-                color: #94a3b8;
-                background: #020617;
-                border-top: 1px solid #1e293b;
+                margin-left: 0;
+                padding: 25px 15px;
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
             }
 
             .footer-content {
-                max-width: 1200px;
-                margin: 0 auto;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 24px;
-            }
-
-            .footer-brand {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
-
-            .footer-logo {
-                width: 38px;
-                height: 38px;
-                object-fit: contain;
-            }
-
-            .footer-brand h3 {
-                color: #f8fafc;
-                font-size: 14px;
-                font-weight: 600;
-            }
-
-            .footer-brand p {
-                color: #64748b;
-                font-size: 11px;
+                flex-direction: column;
+                text-align: center;
             }
 
             .footer-right {
-                color: #64748b;
-                font-size: 11px;
-                text-align: right;
+                text-align: center;
+            }
+        }
+
+        @@media (max-width: 480px) {
+
+            .stat-grid {
+                grid-template-columns: 1fr;
             }
 
-
-            /* =========================================================
-                       RESPONSIVE
-                    ========================================================= */
-
-            @@media (max-width: 1100px) {
-
-                .stat-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                }
+            .logout-btn span {
+                display: none;
             }
 
-
-            @@media (max-width: 800px) {
-
-                .navbar {
-                    height: 70px;
-                }
-
-                .app {
-                    padding-top: 70px;
-                }
-
-                .sidebar {
-                    top: 70px;
-                    width: 210px;
-                }
-
-                .main {
-                    width: calc(100% - 210px);
-                    margin-left: 210px;
-                    padding: 35px 25px 60px;
-                }
-
-                .footer {
-                    margin-left: 210px;
-                }
-
-                .navbar-container {
-                    padding: 0 20px;
-                }
-
-                .navbar-logo {
-                    width: 42px;
-                    height: 42px;
-                }
-
-                .navbar-brand {
-                    font-size: 17px;
-                }
-
-                .role {
-                    display: none;
-                }
+            .logout-btn {
+                padding: 9px 12px;
             }
 
-
-            @@media (max-width: 650px) {
-
-                .navbar-brand {
-                    display: none;
-                }
-
-                .navbar-right {
-                    margin-left: auto;
-                }
-
-                .sidebar {
-                    position: relative;
-                    top: auto;
-                    width: 100%;
-                    height: auto;
-                    border-right: none;
-                    border-bottom: 1px solid #e2e8f0;
-                    padding: 15px;
-                }
-
-                .app {
-                    display: block;
-                }
-
-                .sidebar-menu {
-                    flex-direction: row;
-                    overflow-x: auto;
-                }
-
-                .sidebar-link {
-                    flex-shrink: 0;
-                }
-
-                .sidebar-heading,
-                .sidebar-divider,
-                .sidebar-footer {
-                    display: none;
-                }
-
-                .main {
-                    width: 100%;
-                    margin-left: 0;
-                    padding: 30px 15px 50px;
-                }
-
-                .footer {
-                    margin-left: 0;
-                    padding: 25px 15px;
-                }
-
-                .page-header {
-                    align-items: flex-start;
-                    flex-direction: column;
-                }
-
-                .footer-content {
-                    flex-direction: column;
-                    text-align: center;
-                }
-
-                .footer-right {
-                    text-align: center;
-                }
+            .card-header {
+                padding: 20px;
             }
 
-
-            @@media (max-width: 480px) {
-
-                .stat-grid {
-                    grid-template-columns: 1fr;
-                }
-
-                .logout-btn span {
-                    display: none;
-                }
-
-                .logout-btn {
-                    padding: 9px 12px;
-                }
-
-                .card-header {
-                    padding: 20px;
-                }
-
-                .card-title h2 {
-                    font-size: 15px;
-                }
+            .card-title h2 {
+                font-size: 15px;
             }
+        }
 
     </style>
 
 </head>
 
-
 <body>
 
-
     <!-- =========================================================
-         GLASS HEADER
+         HEADER
     ========================================================== -->
 
     <nav class="navbar">
 
         <div class="navbar-container">
-
 
             <div class="navbar-left">
 
@@ -807,7 +771,6 @@
 
             </div>
 
-
             <div class="navbar-right">
 
                 <div class="role">
@@ -815,11 +778,10 @@
                     <i class="bi bi-person-workspace"></i>
 
                     <span>
-                        Head of Department
+                        @Model.HodName · @Model.HodDepartment
                     </span>
 
                 </div>
-
 
                 <a href="/Login" class="logout-btn">
 
@@ -838,13 +800,11 @@
     </nav>
 
 
-
     <!-- =========================================================
          APP
     ========================================================== -->
 
     <div class="app">
-
 
         <!-- =====================================================
              SIDEBAR
@@ -852,9 +812,7 @@
 
         <aside class="sidebar">
 
-
             <nav class="sidebar-menu">
-
 
                 <a href="/HOD"
                    class="sidebar-link active">
@@ -867,7 +825,6 @@
 
                 </a>
 
-
                 <a href="/HOD/Claims"
                    class="sidebar-link">
 
@@ -878,7 +835,6 @@
                     </span>
 
                 </a>
-
 
                 <a href="/HOD/Staff"
                    class="sidebar-link">
@@ -891,14 +847,9 @@
 
                 </a>
 
-
             </nav>
 
-
-           
-
         </aside>
-
 
 
         <!-- =====================================================
@@ -909,11 +860,11 @@
 
             <div class="main-container">
 
-
-                <!-- PAGE HEADER -->
+                <!-- =================================================
+                     PAGE HEADER
+                ================================================== -->
 
                 <section class="page-header">
-
 
                     <div>
 
@@ -922,16 +873,17 @@
                         </span>
 
                         <h1>
-                            Welcome !
+                            Welcome, @Model.HodName!
                         </h1>
 
                         <p>
-                            Manage academic staff engagements, contracts and payment claims.
+                            Manage academic staff engagements, contracts and payment claims for
+                            @Model.HodDepartment.
                         </p>
 
                     </div>
-                </section>
 
+                </section>
 
 
                 <!-- =================================================
@@ -939,7 +891,6 @@
                 ================================================== -->
 
                 <section class="stat-grid">
-
 
                     <div class="stat-card">
 
@@ -950,7 +901,7 @@
                         </div>
 
                         <div class="stat-number">
-                            12
+                            @Model.ContractsToSign
                         </div>
 
                         <div class="stat-label">
@@ -969,7 +920,7 @@
                         </div>
 
                         <div class="stat-number">
-                            7
+                            @Model.ContractsToReview
                         </div>
 
                         <div class="stat-label">
@@ -988,7 +939,7 @@
                         </div>
 
                         <div class="stat-number">
-                            5
+                            @Model.ClaimsReceived
                         </div>
 
                         <div class="stat-label">
@@ -1007,7 +958,7 @@
                         </div>
 
                         <div class="stat-number">
-                            70
+                            @Model.AcademicStaff
                         </div>
 
                         <div class="stat-label">
@@ -1016,9 +967,7 @@
 
                     </div>
 
-
                 </section>
-
 
 
                 <!-- =================================================
@@ -1027,9 +976,7 @@
 
                 <section class="card">
 
-
                     <div class="card-header">
-
 
                         <div class="card-title">
 
@@ -1038,7 +985,6 @@
                                 <i class="bi bi-file-earmark-check-fill"></i>
 
                             </div>
-
 
                             <div>
 
@@ -1054,214 +1000,129 @@
 
                         </div>
 
-
                     </div>
 
 
                     <div class="table-wrapper">
 
-                        <table>
+                        @if (Model.ContractsAwaitingSignature.Any())
+                        {
+                            <table>
 
-                            <thead>
+                                <thead>
 
-                                <tr>
+                                    <tr>
 
-                                    <th>
-                                        Contract ID
-                                    </th>
+                                        <th>
+                                            Contract ID
+                                        </th>
 
-                                    <th>
-                                        Lecturer
-                                    </th>
+                                        <th>
+                                            Lecturer
+                                        </th>
 
-                                    <th>
-                                        Course
-                                    </th>
+                                        <th>
+                                            Course
+                                        </th>
 
-                                    <th>
-                                        Hours
-                                    </th>
+                                        <th>
+                                            Hours
+                                        </th>
 
-                                    <th>
-                                        Status
-                                    </th>
+                                        <th>
+                                            Status
+                                        </th>
 
-                                    <th>
-                                        Action
-                                    </th>
+                                        <th>
+                                            Action
+                                        </th>
 
-                                </tr>
+                                    </tr>
 
-                            </thead>
+                                </thead>
 
+                                <tbody>
 
-                            <tbody>
+                                    @foreach (var contract in Model.ContractsAwaitingSignature)
+                                    {
+                                        <tr>
 
+                                            <td>
 
-                                <tr>
+                                                <span class="id">
+                                                    C@contract.Id.ToString("D3")
+                                                </span>
 
-                                    <td>
-                                        <span class="id">
-                                            C001
-                                        </span>
-                                    </td>
+                                            </td>
 
-                                    <td>
-                                        <span class="lecturer">
-                                            Jean Uwase
-                                        </span>
-                                    </td>
+                                            <td>
 
-                                    <td>
-                                        <span class="course">
-                                            Software Engineering
-                                        </span>
-                                    </td>
+                                                <span class="lecturer">
+                                                    @contract.LecturerName
+                                                </span>
 
-                                    <td>
-                                        45h
-                                    </td>
+                                            </td>
 
-                                    <td>
+                                            <td>
 
-                                        <span class="badge badge-pending">
+                                                <span class="course">
+                                                    @contract.CourseTitle
+                                                </span>
 
-                                            <i class="bi bi-clock"></i>
+                                            </td>
 
-                                            Pending Signature
+                                            <td>
+                                                @contract.Hours.ToString("0.##")h
+                                            </td>
 
-                                        </span>
+                                            <td>
 
-                                    </td>
+                                                <span class="badge badge-pending">
 
-                                    <td>
+                                                    <i class="bi bi-clock"></i>
 
-                                        <a href="/HOD/Contracts"
-                                           class="action-btn">
+                                                    @contract.Status
 
-                                            <i class="bi bi-eye"></i>
+                                                </span>
 
-                                            Review
+                                            </td>
 
-                                        </a>
+                                            <td>
 
-                                    </td>
+                                                <a href="/HOD/Contracts"
+                                                   class="action-btn">
 
-                                </tr>
+                                                    <i class="bi bi-eye"></i>
 
+                                                    Review
 
-                                <tr>
+                                                </a>
 
-                                    <td>
-                                        <span class="id">
-                                            C004
-                                        </span>
-                                    </td>
+                                            </td>
 
-                                    <td>
-                                        <span class="lecturer">
-                                            Eric Mugisha
-                                        </span>
-                                    </td>
+                                        </tr>
+                                    }
 
-                                    <td>
-                                        <span class="course">
-                                            Database Systems
-                                        </span>
-                                    </td>
+                                </tbody>
 
-                                    <td>
-                                        60h
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge badge-pending">
-
-                                            <i class="bi bi-clock"></i>
-
-                                            Pending Signature
-
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <a href="/HOD/Contracts"
-                                           class="action-btn">
-
-                                            <i class="bi bi-eye"></i>
-
-                                            Review
-
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-
-                                <tr>
-
-                                    <td>
-                                        <span class="id">
-                                            C009
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <span class="lecturer">
-                                            Marie Niyonzima
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <span class="course">
-                                            Web Development
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        30h
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge badge-pending">
-
-                                            <i class="bi bi-clock"></i>
-
-                                            Pending Signature
-
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <a href="/HOD/Contracts"
-                                           class="action-btn">
-
-                                            <i class="bi bi-eye"></i>
-
-                                            Review
-
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-
-                            </tbody>
-
-                        </table>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                <p>
+                                    There are no contracts awaiting your signature.
+                                </p>
+
+                            </div>
+                        }
 
                     </div>
 
                 </section>
-
 
 
                 <!-- =================================================
@@ -1270,9 +1131,7 @@
 
                 <section class="card">
 
-
                     <div class="card-header">
-
 
                         <div class="card-title">
 
@@ -1281,7 +1140,6 @@
                                 <i class="bi bi-cash-coin"></i>
 
                             </div>
-
 
                             <div>
 
@@ -1297,7 +1155,6 @@
 
                         </div>
 
-
                         <a href="/HOD/Claims"
                            class="action-btn outline">
 
@@ -1307,161 +1164,180 @@
 
                         </a>
 
-
                     </div>
 
 
                     <div class="table-wrapper">
 
-                        <table>
+                        @if (Model.RecentClaims.Any())
+                        {
+                            <table>
 
-                            <thead>
+                                <thead>
 
-                                <tr>
+                                    <tr>
 
-                                    <th>
-                                        Claim ID
-                                    </th>
+                                        <th>
+                                            Claim ID
+                                        </th>
 
-                                    <th>
-                                        Lecturer
-                                    </th>
+                                        <th>
+                                            Lecturer
+                                        </th>
 
-                                    <th>
-                                        Contract
-                                    </th>
+                                        <th>
+                                            Contract
+                                        </th>
 
-                                    <th>
-                                        Status
-                                    </th>
+                                        <th>
+                                            Status
+                                        </th>
 
-                                    <th>
-                                        Action
-                                    </th>
+                                        <th>
+                                            Action
+                                        </th>
 
-                                </tr>
+                                    </tr>
 
-                            </thead>
+                                </thead>
 
+                                <tbody>
 
-                            <tbody>
+                                    @foreach (var claim in Model.RecentClaims)
+                                    {
+                                        <tr>
 
+                                            <td>
 
-                                <tr>
+                                                <span class="id">
+                                                    CL@claim.Id.ToString("D3")
+                                                </span>
 
-                                    <td>
+                                            </td>
 
-                                        <span class="id">
-                                            CL001
-                                        </span>
+                                            <td>
 
-                                    </td>
+                                                <span class="lecturer">
+                                                    @claim.LecturerName
+                                                </span>
 
-                                    <td>
+                                            </td>
 
-                                        <span class="lecturer">
-                                            Jean Uwase
-                                        </span>
+                                            <td>
+                                                C@claim.ContractId.ToString("D3")
+                                            </td>
 
-                                    </td>
+                                            <td>
 
-                                    <td>
-                                        C001
-                                    </td>
+                                                @switch (claim.Status)
+                                                {
+                                                    case ClaimStatus.PendingHODApproval:
+                                                    case ClaimStatus.Submitted:
+                                                    {
+                                                        <span class="badge badge-review">
 
-                                    <td>
+                                                            <i class="bi bi-eye"></i>
 
-                                        <span class="badge badge-review">
+                                                            @claim.Status
 
-                                            <i class="bi bi-eye"></i>
+                                                        </span>
 
-                                            Awaiting Review
+                                                        break;
+                                                    }
 
-                                        </span>
+                                                    case ClaimStatus.Approved:
+                                                    {
+                                                        <span class="badge badge-approved">
 
-                                    </td>
+                                                            <i class="bi bi-check-circle"></i>
 
-                                    <td>
+                                                            Approved
 
-                                        <a href="/HOD/Claims"
-                                           class="action-btn outline">
+                                                        </span>
 
-                                            <i class="bi bi-eye"></i>
+                                                        break;
+                                                    }
 
-                                            View
+                                                    case ClaimStatus.Rejected:
+                                                    {
+                                                        <span class="badge badge-rejected">
 
-                                        </a>
+                                                            <i class="bi bi-x-circle"></i>
 
-                                    </td>
+                                                            Rejected
 
-                                </tr>
+                                                        </span>
 
+                                                        break;
+                                                    }
 
-                                <tr>
+                                                    case ClaimStatus.Paid:
+                                                    {
+                                                        <span class="badge badge-paid">
 
-                                    <td>
+                                                            <i class="bi bi-cash-stack"></i>
 
-                                        <span class="id">
-                                            CL002
-                                        </span>
+                                                            Paid
 
-                                    </td>
+                                                        </span>
 
-                                    <td>
+                                                        break;
+                                                    }
 
-                                        <span class="lecturer">
-                                            Eric Mugisha
-                                        </span>
+                                                    default:
+                                                    {
+                                                        <span class="badge badge-review">
+                                                            @claim.Status
+                                                        </span>
 
-                                    </td>
+                                                        break;
+                                                    }
+                                                }
 
-                                    <td>
-                                        C004
-                                    </td>
+                                            </td>
 
-                                    <td>
+                                            <td>
 
-                                        <span class="badge badge-review">
+                                                <a href="/HOD/Claims"
+                                                   class="action-btn outline">
 
-                                            <i class="bi bi-eye"></i>
+                                                    <i class="bi bi-eye"></i>
 
-                                            Awaiting Review
+                                                    View
 
-                                        </span>
+                                                </a>
 
-                                    </td>
+                                            </td>
 
-                                    <td>
+                                        </tr>
+                                    }
 
-                                        <a href="/HOD/Claims"
-                                           class="action-btn outline">
+                                </tbody>
 
-                                            <i class="bi bi-eye"></i>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
 
-                                            View
+                                <i class="bi bi-inbox"></i>
 
-                                        </a>
+                                <p>
+                                    No claims have been received for your department.
+                                </p>
 
-                                    </td>
-
-                                </tr>
-
-
-                            </tbody>
-
-                        </table>
+                            </div>
+                        }
 
                     </div>
 
                 </section>
-
 
             </div>
 
         </main>
 
     </div>
-
 
 
     <!-- =========================================================
@@ -1471,7 +1347,6 @@
     <footer class="footer">
 
         <div class="footer-content">
-
 
             <div class="footer-brand">
 
@@ -1493,18 +1368,15 @@
 
             </div>
 
-
             <div class="footer-right">
 
                 © @DateTime.Now.Year University of Lay Adventists of Kigali
 
             </div>
 
-
         </div>
 
     </footer>
-
 
 </body>
 
