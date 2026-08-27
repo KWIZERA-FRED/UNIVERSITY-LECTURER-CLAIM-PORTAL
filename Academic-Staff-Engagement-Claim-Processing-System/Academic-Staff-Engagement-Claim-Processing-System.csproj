@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Academic_Staff_Engagement_Claim_Processing_System</RootNamespace>
+    <UserSecretsId>2d011f47-a30c-4068-913c-1c9d0f02364b</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
