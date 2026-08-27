@@ -118,6 +118,18 @@ builder.Services.AddScoped<EmailService>();
 var app = builder.Build();
 
 // ============================================================
+// TEMPLATE SEEDING
+// ============================================================
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
+
+    await TemplateSeeder.SeedAsync(db);
+}
+
+// ============================================================
 // HTTP REQUEST PIPELINE
 // ============================================================
 
