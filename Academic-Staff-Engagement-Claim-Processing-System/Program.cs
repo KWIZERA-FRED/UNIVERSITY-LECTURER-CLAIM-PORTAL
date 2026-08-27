@@ -34,11 +34,18 @@ builder.Configuration.AddEnvironmentVariables();
 // DATABASE
 // ============================================================
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString(
-            "DefaultConnection")
-    ));
+        builder.Configuration.GetConnectionString("DefaultConnection"));
 
+    options.EnableDetailedErrors();
+
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.LogTo(Console.WriteLine);
+    }
+});
 // ============================================================
 // DATA PROTECTION
 // ============================================================
