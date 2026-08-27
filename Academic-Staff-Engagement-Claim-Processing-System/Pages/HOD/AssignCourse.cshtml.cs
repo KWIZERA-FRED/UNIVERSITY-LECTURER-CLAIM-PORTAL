@@ -1,68 +1,139 @@
+using Academic_Staff_Engagement_Claim_Processing_System.Data;
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+
+// IMPORTANT:
+// The HOD/Lecturer namespace conflicts with the Lecturer model.
+// This alias forces C# to use the database Lecturer model.
+using LecturerModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 {
     public class AssignCourseModel : PageModel
     {
-        [BindProperty]
-        public string? SelectedCourse { get; set; }
+        private readonly ApplicationDbContext _context;
+
+        public AssignCourseModel(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        // ============================================================
+        // FORM VALUES
+        // ============================================================
 
         [BindProperty]
-        public string? SelectedLecturer { get; set; }
+        public int? SelectedCourse { get; set; }
 
         [BindProperty]
-        public string? Session { get; set; }
+        public int? SelectedLecturer { get; set; }
+
+        [BindProperty]
+        public Semester? Semester { get; set; }
+
+        [BindProperty]
+        public Session? Session { get; set; }
+
+        [BindProperty]
+        public Campus? Campus { get; set; }
 
         [BindProperty]
         public string? AcademicYear { get; set; }
 
         [BindProperty]
-        public string? Campus { get; set; }
+        public decimal AllocatedHours { get; set; }
 
-        [BindProperty]
-        public int Hours { get; set; }
+        // ============================================================
+        // DATABASE DATA
+        // ============================================================
 
         public List<Course> Courses { get; set; } = new();
 
-        public List<Lecturer> Lecturers { get; set; } = new();
+        public List<LecturerModel> Lecturers { get; set; } = new();
+
+        public LecturerModel? SelectedLecturerDetails { get; set; }
+
+        // ============================================================
+        // OTHER DATA
+        // ============================================================
 
         public decimal HourlyRate { get; set; }
 
         public string? ErrorMessage { get; set; }
 
+        // ============================================================
+        // GET
+        // ============================================================
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
-            LoadData();
+            await LoadDataAsync();
         }
 
+        // ============================================================
+        // POST
+        // ============================================================
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
-            LoadData();
+            await LoadDataAsync();
 
+            // --------------------------------------------------------
+            // COURSE
+            // --------------------------------------------------------
 
-            if (string.IsNullOrWhiteSpace(SelectedCourse))
+            if (!SelectedCourse.HasValue)
             {
                 ErrorMessage = "Please select a course.";
                 return Page();
             }
 
+            // --------------------------------------------------------
+            // LECTURER
+            // --------------------------------------------------------
 
-            if (string.IsNullOrWhiteSpace(SelectedLecturer))
+            if (!SelectedLecturer.HasValue)
             {
                 ErrorMessage = "Please select a lecturer.";
                 return Page();
             }
 
+            // --------------------------------------------------------
+            // SEMESTER
+            // --------------------------------------------------------
 
-            if (string.IsNullOrWhiteSpace(Session))
+            if (!Semester.HasValue)
+            {
+                ErrorMessage = "Please select a semester.";
+                return Page();
+            }
+
+            // --------------------------------------------------------
+            // SESSION
+            // --------------------------------------------------------
+
+            if (!Session.HasValue)
             {
                 ErrorMessage = "Please select a session.";
                 return Page();
             }
 
+            // --------------------------------------------------------
+            // CAMPUS
+            // --------------------------------------------------------
+
+            if (!Campus.HasValue)
+            {
+                ErrorMessage = "Please select a campus.";
+                return Page();
+            }
+
+            // --------------------------------------------------------
+            // ACADEMIC YEAR
+            // --------------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(AcademicYear))
             {
@@ -70,234 +141,205 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return Page();
             }
 
+            // --------------------------------------------------------
+            // HOURS
+            // --------------------------------------------------------
 
-            if (string.IsNullOrWhiteSpace(Campus))
+            if (AllocatedHours <= 0)
             {
-                ErrorMessage = "Please select a campus.";
+                ErrorMessage =
+                    "Please enter a valid number of teaching hours.";
+
                 return Page();
             }
 
-
-            if (Hours <= 0)
+            if (AllocatedHours > 500)
             {
-                ErrorMessage = "Please enter a valid number of teaching hours.";
+                ErrorMessage =
+                    "The number of teaching hours cannot exceed 500.";
+
                 return Page();
             }
 
+            // ========================================================
+            // GET LECTURER FROM DATABASE
+            // ========================================================
 
-            var lecturer = Lecturers.FirstOrDefault(
-                l => l.Id == SelectedLecturer
-            );
-
+            var lecturer = await _context.Lecturers
+                .FirstOrDefaultAsync(l =>
+                    l.Id == SelectedLecturer.Value);
 
             if (lecturer == null)
             {
-                ErrorMessage = "Selected lecturer could not be found.";
+                ErrorMessage =
+                    "The selected lecturer could not be found.";
+
                 return Page();
             }
 
+            // ========================================================
+            // CHECK LECTURER ACTIVE
+            // ========================================================
 
-            var course = Courses.FirstOrDefault(
-                c => c.Code == SelectedCourse
-            );
+            if (!lecturer.IsActive)
+            {
+                ErrorMessage =
+                    "The selected lecturer account is inactive.";
 
+                return Page();
+            }
+
+            // ========================================================
+            // GET COURSE FROM DATABASE
+            // ========================================================
+
+            var course = await _context.Courses
+                .FirstOrDefaultAsync(c =>
+                    c.Id == SelectedCourse.Value);
 
             if (course == null)
             {
-                ErrorMessage = "Selected course could not be found.";
+                ErrorMessage =
+                    "The selected course could not be found.";
+
                 return Page();
             }
 
+            // ========================================================
+            // CHECK COURSE ACTIVE
+            // ========================================================
+
+            if (!course.IsActive)
+            {
+                ErrorMessage =
+                    "The selected course is inactive.";
+
+                return Page();
+            }
+
+            // ========================================================
+            // CALCULATE RATE
+            // ========================================================
 
             HourlyRate = GetRateForRank(lecturer.Rank);
 
+            SelectedLecturerDetails = lecturer;
 
-            // IMPORTANT:
-            // This is the original working redirect pattern.
+            // ========================================================
+            // CREATE COURSE ASSIGNMENT
+            // ========================================================
+
+            var assignment = new CourseAssignment
+            {
+                LecturerId = lecturer.Id,
+
+                CourseId = course.Id,
+
+                AcademicYear = AcademicYear,
+
+                Semester = Semester.Value,
+
+                Session = Session.Value,
+
+                Campus = Campus.Value,
+
+                AllocatedHours = AllocatedHours,
+
+                IsApproved = false,
+
+                IsActive = true,
+
+                CreatedAtUtc = DateTime.UtcNow
+            };
+
+            // ========================================================
+            // SAVE
+            // ========================================================
+
+            _context.CourseAssignments.Add(assignment);
+
+            await _context.SaveChangesAsync();
+
+            // ========================================================
+            // CONTRACT PREVIEW
+            // ========================================================
+
             return RedirectToPage(
                 "./ContractPreview",
                 new
                 {
-                    Course = course.Code + " - " + course.Name,
+                    Course =
+                        course.Code + " - " + course.Title,
 
-                    Lecturer = lecturer.Name,
+                    Lecturer =
+                        lecturer.UserName,
 
-                    GovernmentId = lecturer.GovernmentId,
+                    GovernmentId =
+                        lecturer.GovernmentIdEncrypted,
 
-                    Rank = lecturer.Rank,
+                    Rank =
+                        lecturer.Rank?.ToString(),
 
-                    Session = Session,
+                    Session =
+                        Session.Value.ToString(),
 
-                    AcademicYear = AcademicYear,
+                    Semester =
+                        Semester.Value.ToString(),
 
-                    Campus = Campus,
+                    AcademicYear =
+                        AcademicYear,
 
-                    Hours = Hours,
+                    Campus =
+                        Campus.Value.ToString(),
 
-                    Rate = HourlyRate
-                }
-            );
+                    Hours =
+                        AllocatedHours,
+
+                    Rate =
+                        HourlyRate,
+
+                    AssignmentId =
+                        assignment.Id
+                });
         }
 
+        // ============================================================
+        // LOAD DATABASE DATA
+        // ============================================================
 
-        private void LoadData()
+        private async Task LoadDataAsync()
         {
-            Courses = new List<Course>
-            {
-                new Course(
-                    "CS101",
-                    "Introduction to Computer Science"
-                ),
+            Courses = await _context.Courses
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.Code)
+                .ToListAsync();
 
-                new Course(
-                    "SE201",
-                    "Software Engineering"
-                ),
-
-                new Course(
-                    "DB301",
-                    "Database Management Systems"
-                ),
-
-                new Course(
-                    "NET202",
-                    "Computer Networks"
-                ),
-
-                new Course(
-                    "AI401",
-                    "Artificial Intelligence"
-                ),
-
-                new Course(
-                    "IOT301",
-                    "Internet of Things"
-                ),
-
-                new Course(
-                    "WD302",
-                    "Web Development"
-                ),
-
-                new Course(
-                    "CYB401",
-                    "Cybersecurity"
-                ),
-
-                new Course(
-                    "OS301",
-                    "Operating Systems"
-                ),
-
-                new Course(
-                    "MOB302",
-                    "Mobile Application Development"
-                )
-            };
-
-
-            Lecturers = new List<Lecturer>
-            {
-                new Lecturer(
-                    "L001",
-                    "Dr. Ahmed Mohammed",
-                    "Assistant Lecturer",
-                    "1198780012345678"
-                ),
-
-                new Lecturer(
-                    "L002",
-                    "Dr. Sarah Uwase",
-                    "Lecturer",
-                    "1198780023456789"
-                ),
-
-                new Lecturer(
-                    "L003",
-                    "Prof. Jean Claude",
-                    "Senior Lecturer",
-                    "1198780034567890"
-                ),
-
-                new Lecturer(
-                    "L004",
-                    "Dr. Patrick Niyonzima",
-                    "Associate Professor",
-                    "1198780045678901"
-                ),
-
-                new Lecturer(
-                    "L005",
-                    "Prof. Grace Mukamana",
-                    "Professor",
-                    "1198780056789012"
-                )
-            };
+            Lecturers = await _context.Lecturers
+                .Where(l => l.IsActive)
+                .OrderBy(l => l.UserName)
+                .ToListAsync();
         }
 
+        // ============================================================
+        // HOURLY RATE
+        // ============================================================
 
-        private decimal GetRateForRank(string rank)
+        private decimal GetRateForRank(LecturerRank? rank)
         {
             return rank switch
             {
-                "Assistant Lecturer" => 5000m,
+                LecturerRank.AssistantLecturer => 5000m,
 
-                "Lecturer" => 7000m,
+                LecturerRank.Lecturer => 7000m,
 
-                "Senior Lecturer" => 9000m,
+                LecturerRank.SeniorLecturer => 9000m,
 
-                "Associate Professor" => 11000m,
+                LecturerRank.AssociateProfessor => 11000m,
 
-                "Professor" => 13000m,
-
-                "Teaching Assistant" => 4000m,
-
-                "Professor Emeritus" => 13000m,
+                LecturerRank.Professor => 13000m,
 
                 _ => 5000m
             };
-        }
-
-
-        public class Course
-        {
-            public string Code { get; set; }
-
-            public string Name { get; set; }
-
-
-            public Course(
-                string code,
-                string name)
-            {
-                Code = code;
-                Name = name;
-            }
-        }
-
-
-        public class Lecturer
-        {
-            public string Id { get; set; }
-
-            public string Name { get; set; }
-
-            public string Rank { get; set; }
-
-            public string GovernmentId { get; set; }
-
-
-            public Lecturer(
-                string id,
-                string name,
-                string rank,
-                string governmentId)
-            {
-                Id = id;
-                Name = name;
-                Rank = rank;
-                GovernmentId = governmentId;
-            }
         }
     }
 }
