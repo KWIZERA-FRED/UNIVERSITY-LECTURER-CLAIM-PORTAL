@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+ 
+=======
 using System.ComponentModel.DataAnnotations;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 
@@ -18,3 +21,4 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         }
     }
 }
+>>>>>>> cf0e0096cb88d96f2be5daaf1b7f4640c1782cad
