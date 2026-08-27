@@ -1,5 +1,6 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.EntityFrameworkCore;
 
 using ClaimModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim;
@@ -9,10 +10,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 {
     public class ApplicationDbContext : DbContext
     {
+        private readonly GovernmentIdProtector _governmentIdProtector;
+
         public ApplicationDbContext(
-            DbContextOptions<ApplicationDbContext> options)
+            DbContextOptions<ApplicationDbContext> options,
+            GovernmentIdProtector governmentIdProtector)
             : base(options)
         {
+            _governmentIdProtector = governmentIdProtector;
         }
 
         // ============================================================
@@ -166,6 +171,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 
             modelBuilder.Entity<Lecturer>()
                 .Property(l => l.GovernmentIdEncrypted)
+                .HasConversion(
+                    plainOrCipher => _governmentIdProtector.Encrypt(plainOrCipher),
+                    cipher => _governmentIdProtector.Decrypt(cipher))
                 .IsRequired();
 
             modelBuilder.Entity<Lecturer>()

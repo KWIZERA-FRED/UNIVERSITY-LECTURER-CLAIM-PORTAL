@@ -27,7 +27,7 @@ packages/
 Thumbs.db
 
 # Secrets — never commit these
-appsettings.json
+#appsettings.json
 appsettings.*.json
 !appsettings.json.example
 
