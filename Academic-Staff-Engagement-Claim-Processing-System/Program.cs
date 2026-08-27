@@ -1,7 +1,9 @@
+using System.Threading.RateLimiting;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,11 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 // ============================================================
 // CONFIGURATION
 // ============================================================
-
-// Disable reloadOnChange to prevent Linux inotify limit crashes
-// on Render.
+// Disable reloadOnChange to prevent Linux inotify limit crashes on Render.
 builder.Configuration.Sources.Clear();
-
 builder.Configuration
     .AddJsonFile(
         "appsettings.json",
@@ -34,7 +33,6 @@ builder.Configuration.AddEnvironmentVariables();
 // ============================================================
 // DATABASE
 // ============================================================
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString(
@@ -44,7 +42,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // ============================================================
 // DATA PROTECTION
 // ============================================================
-
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(
         builder.Configuration["DataProtection:KeyPath"] ?? "keys"))
@@ -53,29 +50,54 @@ builder.Services.AddDataProtection()
 builder.Services.AddSingleton<GovernmentIdProtector>();
 
 // ============================================================
+// RATE LIMITING
+// ============================================================
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Strict policy for login attempts (5 attempts per minute per remote IP)
+    options.AddFixedWindowLimiter(policyName: "login-policy", configureOptions: opt =>
+    {
+        opt.PermitLimit = 5;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+
+    // General sliding window policy for application pages
+    options.AddSlidingWindowLimiter(policyName: "general-policy", configureOptions: opt =>
+    {
+        opt.PermitLimit = 100;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.SegmentsPerWindow = 4;
+        opt.QueueLimit = 0;
+    });
+});
+
+// ============================================================
 // AUTHENTICATION
 // ============================================================
-
 builder.Services
     .AddAuthentication(
         CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Login";
-
-        options.AccessDeniedPath =
-            "/AccessDenied";
-
-        options.ExpireTimeSpan =
-            TimeSpan.FromHours(8);
-
+        options.AccessDeniedPath = "/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
+
+        // Hardened Cookie Security
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.Name = ".StaffPortal.Auth";
     });
 
 // ============================================================
 // AUTHORIZATION
 // ============================================================
-
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("HOD", policy => policy.RequireRole("HOD"));
@@ -86,19 +108,15 @@ builder.Services.AddAuthorization(options =>
 // ============================================================
 // RAZOR PAGES
 // ============================================================
-
 builder.Services.AddRazorPages(options =>
 {
     // Folder-level role requirements
     options.Conventions.AuthorizeFolder("/HOD", "HOD");
     options.Conventions.AuthorizeFolder("/DEAN", "Dean");
     options.Conventions.AuthorizeFolder("/Lecturer", "Lecturer");
-    options.Conventions.AuthorizeFolder("/Shared"); // any authenticated role, no specific one
+    options.Conventions.AuthorizeFolder("/Shared");
 
-    // RegisterUser has its own bootstrap-aware check in code (allows the
-    // very first HOD to self-register when none exist yet) — so it must
-    // opt OUT of the blanket /HOD folder policy, or nobody could ever
-    // reach it to create that first account.
+    // RegisterUser allows initial bootstrap check in code
     options.Conventions.AllowAnonymousToPage("/HOD/RegisterUser");
 
     // Public pages — no login required
@@ -111,40 +129,30 @@ builder.Services.AddRazorPages(options =>
 // ============================================================
 // SESSION
 // ============================================================
-
 builder.Services.AddDistributedMemoryCache();
-
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout =
-        TimeSpan.FromHours(8);
-
-    options.Cookie.HttpOnly =
-        true;
-
-    options.Cookie.IsEssential =
-        true;
-
-    options.Cookie.Name =
-        ".StaffPortal.Session";
+    options.IdleTimeout = TimeSpan.FromHours(8);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.Name = ".StaffPortal.Session";
 });
 
 // ============================================================
 // SERVICES
 // ============================================================
-
 builder.Services.AddScoped<EmailService>();
 
 // ============================================================
 // BUILD APPLICATION
 // ============================================================
-
 var app = builder.Build();
 
 // ============================================================
 // TEMPLATE SEEDING
 // ============================================================
-
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider
@@ -156,44 +164,29 @@ using (var scope = app.Services.CreateScope())
 // ============================================================
 // HTTP REQUEST PIPELINE
 // ============================================================
-
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-
     app.UseHsts();
 }
-
-// HTTPS temporarily disabled
-// app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
 app.UseRouting();
 
-// ============================================================
-// SESSION
-// ============================================================
+// Rate Limiter must run directly after routing
+app.UseRateLimiter();
 
+// Session state configuration
 app.UseSession();
 
-// ============================================================
-// AUTHENTICATION
-// Must run before Authorization
-// ============================================================
-
+// Authentication & Authorization Pipeline
 app.UseAuthentication();
-
-// ============================================================
-// AUTHORIZATION
-// ============================================================
-
 app.UseAuthorization();
 
 // ============================================================
 // RAZOR PAGES
 // ============================================================
-
 app.MapRazorPages();
 
 app.Run();
