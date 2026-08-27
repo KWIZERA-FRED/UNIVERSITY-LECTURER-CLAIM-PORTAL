@@ -1,7 +1,6 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Microsoft.EntityFrameworkCore;
-using SystemModels;
 
 using ClaimModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim;
 using ContractModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract;
@@ -245,7 +244,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .IsUnique();
 
             // ========================================================
-            // ========================================================
             // COURSE ASSIGNMENT
             // ========================================================
 
@@ -440,15 +438,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 
             modelBuilder.Entity<Template>()
                 .Property(t => t.Contract)
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("nvarchar(max)")
+                .IsRequired();
 
             modelBuilder.Entity<Template>()
                 .Property(t => t.Claim)
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("nvarchar(max)")
+                .IsRequired();
 
             modelBuilder.Entity<Template>()
                 .Property(t => t.Letter)
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("nvarchar(max)")
+                .IsRequired();
         }
     }
 }
