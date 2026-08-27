@@ -5,10 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-// IMPORTANT:
-// The HOD/Lecturer namespace conflicts with the Lecturer model.
-// This alias forces C# to use the database Lecturer model.
-using LecturerModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
+using LecturerModel =
+    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 {
@@ -22,7 +20,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         }
 
         // ============================================================
-        // FORM VALUES
+        // FORM FIELDS
         // ============================================================
 
         [BindProperty]
@@ -30,6 +28,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
         [BindProperty]
         public int? SelectedLecturer { get; set; }
+
+        [BindProperty]
+        public string? AcademicYear { get; set; }
 
         [BindProperty]
         public Semester? Semester { get; set; }
@@ -41,24 +42,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         public Campus? Campus { get; set; }
 
         [BindProperty]
-        public string? AcademicYear { get; set; }
-
-        [BindProperty]
         public decimal AllocatedHours { get; set; }
 
         // ============================================================
-        // DATABASE DATA
+        // PAGE DATA
         // ============================================================
 
         public List<Course> Courses { get; set; } = new();
 
         public List<LecturerModel> Lecturers { get; set; } = new();
-
-        public LecturerModel? SelectedLecturerDetails { get; set; }
-
-        // ============================================================
-        // OTHER DATA
-        // ============================================================
 
         public decimal HourlyRate { get; set; }
 
@@ -82,7 +74,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             await LoadDataAsync();
 
             // --------------------------------------------------------
-            // COURSE
+            // COURSE VALIDATION
             // --------------------------------------------------------
 
             if (!SelectedCourse.HasValue)
@@ -92,7 +84,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             }
 
             // --------------------------------------------------------
-            // LECTURER
+            // LECTURER VALIDATION
             // --------------------------------------------------------
 
             if (!SelectedLecturer.HasValue)
@@ -102,37 +94,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             }
 
             // --------------------------------------------------------
-            // SEMESTER
-            // --------------------------------------------------------
-
-            if (!Semester.HasValue)
-            {
-                ErrorMessage = "Please select a semester.";
-                return Page();
-            }
-
-            // --------------------------------------------------------
-            // SESSION
-            // --------------------------------------------------------
-
-            if (!Session.HasValue)
-            {
-                ErrorMessage = "Please select a session.";
-                return Page();
-            }
-
-            // --------------------------------------------------------
-            // CAMPUS
-            // --------------------------------------------------------
-
-            if (!Campus.HasValue)
-            {
-                ErrorMessage = "Please select a campus.";
-                return Page();
-            }
-
-            // --------------------------------------------------------
-            // ACADEMIC YEAR
+            // ACADEMIC YEAR VALIDATION
             // --------------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(AcademicYear))
@@ -142,88 +104,107 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             }
 
             // --------------------------------------------------------
-            // HOURS
+            // SEMESTER VALIDATION
+            // --------------------------------------------------------
+
+            if (!Semester.HasValue)
+            {
+                ErrorMessage = "Please select a semester.";
+                return Page();
+            }
+
+            // --------------------------------------------------------
+            // SESSION VALIDATION
+            // --------------------------------------------------------
+
+            if (!Session.HasValue)
+            {
+                ErrorMessage = "Please select a session.";
+                return Page();
+            }
+
+            // --------------------------------------------------------
+            // CAMPUS VALIDATION
+            // --------------------------------------------------------
+
+            if (!Campus.HasValue)
+            {
+                ErrorMessage = "Please select a campus.";
+                return Page();
+            }
+
+            // --------------------------------------------------------
+            // HOURS VALIDATION
             // --------------------------------------------------------
 
             if (AllocatedHours <= 0)
             {
-                ErrorMessage =
-                    "Please enter a valid number of teaching hours.";
-
+                ErrorMessage = "Please enter a valid number of teaching hours.";
                 return Page();
             }
 
             if (AllocatedHours > 500)
             {
-                ErrorMessage =
-                    "The number of teaching hours cannot exceed 500.";
-
+                ErrorMessage = "Allocated hours cannot exceed 500.";
                 return Page();
             }
 
             // ========================================================
-            // GET LECTURER FROM DATABASE
-            // ========================================================
-
-            var lecturer = await _context.Lecturers
-                .FirstOrDefaultAsync(l =>
-                    l.Id == SelectedLecturer.Value);
-
-            if (lecturer == null)
-            {
-                ErrorMessage =
-                    "The selected lecturer could not be found.";
-
-                return Page();
-            }
-
-            // ========================================================
-            // CHECK LECTURER ACTIVE
-            // ========================================================
-
-            if (!lecturer.IsActive)
-            {
-                ErrorMessage =
-                    "The selected lecturer account is inactive.";
-
-                return Page();
-            }
-
-            // ========================================================
-            // GET COURSE FROM DATABASE
+            // FIND COURSE FROM DATABASE
             // ========================================================
 
             var course = await _context.Courses
                 .FirstOrDefaultAsync(c =>
-                    c.Id == SelectedCourse.Value);
+                    c.Id == SelectedCourse.Value &&
+                    c.IsActive);
 
             if (course == null)
             {
-                ErrorMessage =
-                    "The selected course could not be found.";
-
+                ErrorMessage = "Selected course could not be found.";
                 return Page();
             }
 
             // ========================================================
-            // CHECK COURSE ACTIVE
+            // FIND LECTURER FROM DATABASE
             // ========================================================
 
-            if (!course.IsActive)
+            var lecturer = await _context.Lecturers
+                .FirstOrDefaultAsync(l =>
+                    l.Id == SelectedLecturer.Value &&
+                    l.IsActive);
+
+            if (lecturer == null)
+            {
+                ErrorMessage = "Selected lecturer could not be found.";
+                return Page();
+            }
+
+            // ========================================================
+            // CHECK FOR DUPLICATE ASSIGNMENT
+            // ========================================================
+
+            var existingAssignment = await _context.CourseAssignments
+                .AnyAsync(ca =>
+                    ca.LecturerId == lecturer.Id &&
+                    ca.CourseId == course.Id &&
+                    ca.AcademicYear == AcademicYear &&
+                    ca.Semester == Semester.Value &&
+                    ca.IsActive);
+
+            if (existingAssignment)
             {
                 ErrorMessage =
-                    "The selected course is inactive.";
+                    "This lecturer has already been assigned this course " +
+                    "for the selected academic year and semester.";
 
                 return Page();
             }
 
             // ========================================================
-            // CALCULATE RATE
+            // DETERMINE HOURLY RATE
             // ========================================================
 
             HourlyRate = GetRateForRank(lecturer.Rank);
-
-            SelectedLecturerDetails = lecturer;
 
             // ========================================================
             // CREATE COURSE ASSIGNMENT
@@ -252,59 +233,45 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 CreatedAtUtc = DateTime.UtcNow
             };
 
-            // ========================================================
-            // SAVE
-            // ========================================================
-
             _context.CourseAssignments.Add(assignment);
 
             await _context.SaveChangesAsync();
 
             // ========================================================
-            // CONTRACT PREVIEW
+            // REDIRECT TO CONTRACT PREVIEW
             // ========================================================
 
             return RedirectToPage(
                 "./ContractPreview",
                 new
                 {
-                    Course =
-                        course.Code + " - " + course.Title,
+                    Course = course.Code + " - " + course.Title,
 
-                    Lecturer =
-                        lecturer.UserName,
+                    Lecturer = GetLecturerDisplayName(lecturer),
 
-                    GovernmentId =
-                        lecturer.GovernmentIdEncrypted,
+                    GovernmentId = lecturer.GovernmentIdEncrypted,
 
-                    Rank =
-                        lecturer.Rank?.ToString(),
+                    Rank = lecturer.Rank?.ToString() ?? "Not specified",
 
-                    Session =
-                        Session.Value.ToString(),
+                    AcademicYear = AcademicYear,
 
-                    Semester =
-                        Semester.Value.ToString(),
+                    Semester = Semester.Value.ToString(),
 
-                    AcademicYear =
-                        AcademicYear,
+                    Session = Session.Value.ToString(),
 
-                    Campus =
-                        Campus.Value.ToString(),
+                    Campus = Campus.Value.ToString(),
 
-                    Hours =
-                        AllocatedHours,
+                    Hours = AllocatedHours,
 
-                    Rate =
-                        HourlyRate,
+                    Rate = HourlyRate,
 
-                    AssignmentId =
-                        assignment.Id
-                });
+                    CourseAssignmentId = assignment.Id
+                }
+            );
         }
 
         // ============================================================
-        // LOAD DATABASE DATA
+        // LOAD DATA
         // ============================================================
 
         private async Task LoadDataAsync()
@@ -321,12 +288,31 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         }
 
         // ============================================================
-        // HOURLY RATE
+        // LECTURER DISPLAY NAME
+        // ============================================================
+
+        private string GetLecturerDisplayName(LecturerModel lecturer)
+        {
+            if (!string.IsNullOrWhiteSpace(lecturer.UserName))
+            {
+                return lecturer.UserName;
+            }
+
+            return "Lecturer #" + lecturer.Id;
+        }
+
+        // ============================================================
+        // RATE CALCULATION
         // ============================================================
 
         private decimal GetRateForRank(LecturerRank? rank)
         {
-            return rank switch
+            if (!rank.HasValue)
+            {
+                return 5000m;
+            }
+
+            return rank.Value switch
             {
                 LecturerRank.AssistantLecturer => 5000m,
 
