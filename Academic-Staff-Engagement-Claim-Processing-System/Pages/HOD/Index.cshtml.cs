@@ -1,12 +1,14 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 {
+    [Authorize(Roles = "HOD")] // Enforces authentication and restricts access strictly to users with the HOD role
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -88,34 +90,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             // CONTRACTS
             // ========================================================
 
-            /*
-             * A contract belongs to a department through:
-             *
-             * Contract
-             *    -> CourseAssignment
-             *       -> Course
-             *          -> Department
-             *
-             * We therefore only display contracts whose course belongs
-             * to the current HOD's department.
-             */
-
             var departmentContracts = _context.Contracts
                 .AsNoTracking()
-                .Include(c => c.Lecturer)
-                .Include(c => c.CourseAssignment)
-                    .ThenInclude(ca => ca!.Course)
                 .Where(c =>
                     c.CourseAssignment != null &&
                     c.CourseAssignment.Course.Department == department);
 
-            // --------------------------------------------------------
             // Contracts awaiting signature
-            // --------------------------------------------------------
-
             ContractsAwaitingSignature = await departmentContracts
-                .Where(c =>
-                    c.Status == ContractStatus.PendingSignature)
+                .Where(c => c.Status == ContractStatus.PendingSignature)
                 .OrderByDescending(c => c.CreatedAtUtc)
                 .Take(10)
                 .Select(c => new ContractDashboardItem
@@ -129,61 +112,25 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 .ToListAsync();
 
             ContractsToSign = await departmentContracts
-                .CountAsync(c =>
-                    c.Status == ContractStatus.PendingSignature);
+                .CountAsync(c => c.Status == ContractStatus.PendingSignature);
 
-            // --------------------------------------------------------
-            // Contracts to review
-            // --------------------------------------------------------
-
-            /*
-             * Your current Contract model does not have a separate
-             * "Review" status.
-             *
-             * Therefore ContractsToReview is based on contracts in
-             * the HOD's department that have already been signed by
-             * the lecturer and are active.
-             */
-
+            // Contracts to review (Active contracts signed by lecturer)
             ContractsToReview = await departmentContracts
-                .CountAsync(c =>
-                    c.Status == ContractStatus.Active);
+                .CountAsync(c => c.Status == ContractStatus.Active);
 
             // ========================================================
             // CLAIMS
             // ========================================================
 
-            /*
-             * A claim belongs to the HOD's department through:
-             *
-             * Claim
-             *    -> CourseAssignment
-             *       -> Course
-             *          -> Department
-             */
-
             var departmentClaims = _context.Claims
                 .AsNoTracking()
-                .Include(c => c.CourseAssignment)
-                    .ThenInclude(ca => ca.Lecturer)
-                .Include(c => c.CourseAssignment)
-                    .ThenInclude(ca => ca.Course)
-                .Include(c => c.Contract)
-                .Where(c =>
-                    c.CourseAssignment.Course.Department == department);
+                .Where(c => c.CourseAssignment.Course.Department == department);
 
-            // --------------------------------------------------------
             // Claims waiting for HOD approval
-            // --------------------------------------------------------
-
             ClaimsReceived = await departmentClaims
-                .CountAsync(c =>
-                    c.Status == ClaimStatus.PendingHODApproval);
+                .CountAsync(c => c.Status == ClaimStatus.PendingHODApproval);
 
-            // --------------------------------------------------------
             // Recent claims
-            // --------------------------------------------------------
-
             RecentClaims = await departmentClaims
                 .Where(c =>
                     c.Status == ClaimStatus.PendingHODApproval ||
@@ -205,11 +152,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             // ========================================================
             // ACADEMIC STAFF
             // ========================================================
-
-            /*
-             * Count distinct lecturers who have a course assignment
-             * belonging to this HOD's department.
-             */
 
             AcademicStaff = await _context.CourseAssignments
                 .AsNoTracking()
