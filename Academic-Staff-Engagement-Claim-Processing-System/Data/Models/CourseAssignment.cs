@@ -27,6 +27,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 
         [Required]
         public Semester Semester { get; set; }
+        [Required]
+        public Session Session { get; set; }
+
+        [Required]
+        public Campus Campus { get; set; }
 
         [Range(0, 500)]
         public decimal AllocatedHours { get; set; }

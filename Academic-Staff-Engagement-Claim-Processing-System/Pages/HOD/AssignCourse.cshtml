@@ -1,9 +1,19 @@
 ﻿@page
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.AssignCourseModel
 
+@using System.Text.Json
+
 @{
     Layout = null;
     ViewData["Title"] = "Assign Course";
+
+    var lecturerInformation = Model.Lecturers.ToDictionary(
+        lecturer => lecturer.Id.ToString(),
+        lecturer => new
+        {
+            Rank = lecturer.Rank?.ToString() ?? "Not specified",
+            GovernmentId = "Protected"
+        });
 }
 
 <!DOCTYPE html>
@@ -33,354 +43,499 @@
 
     <style>
 
-            * {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #174d3b;
+            --primary-light: #236b51;
+            --accent: #2a7f5e;
+            --accent-light: #e1f0e8;
+            --bg: #f5f8f6;
+            --card: #ffffff;
+            --border: #dce7e1;
+            --text: #1a2b24;
+            --text-muted: #60736a;
+
+            --danger-bg: #f8d7da;
+            --danger-text: #721c24;
+            --danger-border: #f1bfc4;
+
+            --radius: 16px;
+
+            --shadow: 0 10px 30px rgba(23, 77, 59, 0.08);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .top-header {
+            height: 72px;
+            background: rgba(255,255,255,.96);
+            border-bottom: 1px solid var(--border);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 30px;
+
+            position: sticky;
+            top: 0;
+
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+        }
+
+        .header-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .header-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-icon {
+            width: 38px;
+            height: 38px;
+
+            border-radius: 50%;
+
+            background: var(--accent-light);
+            color: var(--accent);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-text {
+            font-size: 12px;
+        }
+
+        .user-name {
+            font-weight: 700;
+        }
+
+        .user-role {
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+
+        /* =========================================================
+           LAYOUT
+        ========================================================= */
+
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 72px);
+        }
+
+        /* =========================================================
+           SIDEBAR
+        ========================================================= */
+
+        .sidebar {
+            width: 245px;
+
+            background: white;
+            border-right: 1px solid var(--border);
+
+            padding: 25px 15px;
+
+            flex-shrink: 0;
+        }
+
+        .sidebar-title {
+            font-size: 10px;
+            font-weight: 700;
+
+            color: #94a59d;
+
+            text-transform: uppercase;
+            letter-spacing: 1px;
+
+            padding: 0 12px;
+
+            margin-bottom: 10px;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            margin-bottom: 5px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 12px;
+
+            border-radius: 10px;
+
+            text-decoration: none;
+
+            color: var(--text-muted);
+
+            font-size: 12px;
+            font-weight: 600;
+
+            transition: .2s;
+        }
+
+        .menu a:hover {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .menu a.active {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .menu i {
+            font-size: 15px;
+        }
+
+        /* =========================================================
+           CONTENT
+        ========================================================= */
+
+        .content {
+            flex: 1;
+
+            padding: 32px;
+
+            max-width: 1200px;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            color: var(--primary);
+
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+
+            font-size: 12px;
+
+            margin-top: 5px;
+        }
+
+        /* =========================================================
+           FORM CARD
+        ========================================================= */
+
+        .form-card {
+            background: var(--card);
+
+            border: 1px solid var(--border);
+
+            border-radius: var(--radius);
+
+            box-shadow: var(--shadow);
+
+            padding: 28px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            color: var(--primary);
+
+            font-size: 14px;
+            font-weight: 700;
+
+            margin-bottom: 22px;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        /* =========================================================
+           ERROR
+        ========================================================= */
+
+        .error-message {
+            background: var(--danger-bg);
+
+            color: var(--danger-text);
+
+            border: 1px solid var(--danger-border);
+
+            padding: 12px;
+
+            border-radius: 9px;
+
+            font-size: 11px;
+
+            margin-bottom: 20px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 8px;
+        }
+
+        /* =========================================================
+           FORM
+        ========================================================= */
+
+        .form-grid {
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);
+
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 11px;
+
+            font-weight: 700;
+
+            margin-bottom: 7px;
+        }
+
+        select,
+        input {
+            width: 100%;
+
+            padding: 12px 13px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 9px;
+
+            background: white;
+
+            font-family: inherit;
+
+            font-size: 12px;
+
+            color: var(--text);
+        }
+
+        select:focus,
+        input:focus {
+            outline: none;
+
+            border-color: var(--accent);
+
+            box-shadow:
+                0 0 0 3px rgba(42,127,94,.10);
+        }
+
+        .readonly {
+            background: #f5f8f6;
+
+            cursor: not-allowed;
+        }
+
+        /* =========================================================
+           RATE
+        ========================================================= */
+
+        .rate-box {
+            background: var(--accent-light);
+
+            border: 1px solid #cde3d8;
+
+            border-radius: 10px;
+
+            padding: 14px;
+        }
+
+        .rate-label {
+            font-size: 10px;
+
+            color: var(--text-muted);
+        }
+
+        .rate-value {
+            font-size: 20px;
+
+            font-weight: 800;
+
+            color: var(--accent);
+
+            margin-top: 4px;
+        }
+
+        /* =========================================================
+           INFO BOX
+        ========================================================= */
+
+        .info-box {
+            margin-top: 25px;
+
+            padding: 15px;
+
+            background: #f8fbf9;
+
+            border: 1px solid var(--border);
+
+            border-radius: 12px;
+
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 10px;
+        }
+
+        .info-box i {
+            color: var(--accent);
+
+            font-size: 16px;
+
+            margin-top: 1px;
+        }
+
+        .info-box p {
+            font-size: 11px;
+
+            color: var(--text-muted);
+
+            line-height: 1.6;
+        }
+
+        /* =========================================================
+           ACTIONS
+        ========================================================= */
+
+        .actions {
+            display: flex;
+
+            justify-content: flex-end;
+
+            margin-top: 25px;
+        }
+
+        .generate-button {
+            border: none;
+
+            border-radius: 30px;
+
+            padding: 13px 23px;
+
+            background: var(--accent);
+
+            color: white;
+
+            font-family: inherit;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            transition: .2s;
+        }
+
+        .generate-button:hover {
+            background: #216b4f;
+
+            transform: translateY(-1px);
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @@media(max-width: 800px) {
+
+            .sidebar {
+                width: 70px;
             }
 
-            :root {
-                --primary: #174d3b;
-                --primary-light: #236b51;
-                --accent: #2a7f5e;
-                --accent-light: #e1f0e8;
-                --bg: #f5f8f6;
-                --card: #ffffff;
-                --border: #dce7e1;
-                --text: #1a2b24;
-                --text-muted: #60736a;
-                --danger-bg: #f8d7da;
-                --danger-text: #721c24;
-                --danger-border: #f1bfc4;
-                --radius: 16px;
-                --shadow: 0 10px 30px rgba(23, 77, 59, 0.08);
+            .sidebar-title,
+            .menu span {
+                display: none;
             }
 
-            body {
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                background: var(--bg);
-                color: var(--text);
-                min-height: 100vh;
-            }
-
-            .top-header {
-                height: 72px;
-                background: rgba(255,255,255,.96);
-                border-bottom: 1px solid var(--border);
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0 30px;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-            }
-
-            .header-left {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
-
-            .header-logo {
-                width: 42px;
-                height: 42px;
-                object-fit: contain;
-            }
-
-            .header-title {
-                font-size: 15px;
-                font-weight: 700;
-                color: var(--primary);
-            }
-
-            .header-subtitle {
-                font-size: 11px;
-                color: var(--text-muted);
-                margin-top: 2px;
-            }
-
-            .header-user {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .user-icon {
-                width: 38px;
-                height: 38px;
-                border-radius: 50%;
-                background: var(--accent-light);
-                color: var(--accent);
-                display: flex;
-                align-items: center;
+            .menu a {
                 justify-content: center;
             }
 
-            .user-text {
-                font-size: 12px;
-            }
-
-            .user-name {
-                font-weight: 700;
-            }
-
-            .user-role {
-                color: var(--text-muted);
-                font-size: 10px;
-            }
-
-            .layout {
-                display: flex;
-                min-height: calc(100vh - 72px);
-            }
-
-            .sidebar {
-                width: 245px;
-                background: white;
-                border-right: 1px solid var(--border);
-                padding: 25px 15px;
-                flex-shrink: 0;
-            }
-
-            .sidebar-title {
-                font-size: 10px;
-                font-weight: 700;
-                color: #94a59d;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                padding: 0 12px;
-                margin-bottom: 10px;
-            }
-
-            .menu {
-                list-style: none;
-            }
-
-                .menu li {
-                    margin-bottom: 5px;
-                }
-
-                .menu a {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    padding: 12px;
-                    border-radius: 10px;
-                    text-decoration: none;
-                    color: var(--text-muted);
-                    font-size: 12px;
-                    font-weight: 600;
-                    transition: .2s;
-                }
-
-                    .menu a:hover {
-                        background: var(--accent-light);
-                        color: var(--accent);
-                    }
-
-                    .menu a.active {
-                        background: var(--accent-light);
-                        color: var(--accent);
-                    }
-
-                .menu i {
-                    font-size: 15px;
-                }
-
             .content {
-                flex: 1;
-                padding: 32px;
-                max-width: 1200px;
+                padding: 20px;
             }
-
-            .page-header {
-                margin-bottom: 25px;
-            }
-
-                .page-header h1 {
-                    color: var(--primary);
-                    font-size: 25px;
-                    font-weight: 800;
-                }
-
-                .page-header p {
-                    color: var(--text-muted);
-                    font-size: 12px;
-                    margin-top: 5px;
-                }
-
-            .form-card {
-                background: var(--card);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                box-shadow: var(--shadow);
-                padding: 28px;
-            }
-
-            .section-title {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                color: var(--primary);
-                font-size: 14px;
-                font-weight: 700;
-                margin-bottom: 22px;
-            }
-
-                .section-title i {
-                    color: var(--accent);
-                }
 
             .form-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
+                grid-template-columns: 1fr;
             }
-
-            .form-group {
-                display: flex;
-                flex-direction: column;
-            }
-
-            label {
-                font-size: 11px;
-                font-weight: 700;
-                margin-bottom: 7px;
-            }
-
-            select,
-            input {
-                width: 100%;
-                padding: 12px 13px;
-                border: 1px solid var(--border);
-                border-radius: 9px;
-                background: white;
-                font-family: inherit;
-                font-size: 12px;
-                color: var(--text);
-            }
-
-                select:focus,
-                input:focus {
-                    outline: none;
-                    border-color: var(--accent);
-                    box-shadow: 0 0 0 3px rgba(42,127,94,.10);
-                }
-
-            .readonly {
-                background: #f5f8f6;
-                cursor: not-allowed;
-            }
-
-            .rate-box {
-                background: var(--accent-light);
-                border: 1px solid #cde3d8;
-                border-radius: 10px;
-                padding: 14px;
-            }
-
-            .rate-label {
-                font-size: 10px;
-                color: var(--text-muted);
-            }
-
-            .rate-value {
-                font-size: 20px;
-                font-weight: 800;
-                color: var(--accent);
-                margin-top: 4px;
-            }
-
-            .info-box {
-                margin-top: 25px;
-                padding: 15px;
-                background: #f8fbf9;
-                border: 1px solid var(--border);
-                border-radius: 12px;
-                display: flex;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-                .info-box i {
-                    color: var(--accent);
-                    font-size: 16px;
-                    margin-top: 1px;
-                }
-
-                .info-box p {
-                    font-size: 11px;
-                    color: var(--text-muted);
-                    line-height: 1.6;
-                }
-
-            .error-message {
-                background: var(--danger-bg);
-                color: var(--danger-text);
-                border: 1px solid var(--danger-border);
-                padding: 12px;
-                border-radius: 9px;
-                font-size: 11px;
-                margin-bottom: 20px;
-            }
-
-            .actions {
-                display: flex;
-                justify-content: flex-end;
-                margin-top: 25px;
-            }
-
-            .generate-button {
-                border: none;
-                border-radius: 30px;
-                padding: 13px 23px;
-                background: var(--accent);
-                color: white;
-                font-family: inherit;
-                font-size: 12px;
-                font-weight: 700;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                transition: .2s;
-            }
-
-                .generate-button:hover {
-                    background: #216b4f;
-                    transform: translateY(-1px);
-                }
-
-            @@media(max-width: 800px) {
-
-                .sidebar {
-                    width: 70px;
-                }
-
-                .sidebar-title,
-                .menu span {
-                    display: none;
-                }
-
-                .menu a {
-                    justify-content: center;
-                }
-
-                .content {
-                    padding: 20px;
-                }
-
-                .form-grid {
-                    grid-template-columns: 1fr;
-                }
-            }
+        }
 
     </style>
 
 </head>
 
 <body>
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
 
     <header class="top-header">
 
@@ -427,7 +582,16 @@
     </header>
 
 
+    <!-- =========================================================
+         MAIN LAYOUT
+    ========================================================== -->
+
     <div class="layout">
+
+
+        <!-- =====================================================
+             SIDEBAR
+        ====================================================== -->
 
         <aside class="sidebar">
 
@@ -438,39 +602,78 @@
             <ul class="menu">
 
                 <li>
+
                     <a href="/HOD">
+
                         <i class="bi bi-grid"></i>
-                        <span>Dashboard</span>
+
+                        <span>
+                            Dashboard
+                        </span>
+
                     </a>
+
                 </li>
 
+
                 <li>
+
                     <a href="/HOD/Management">
+
                         <i class="bi bi-people"></i>
-                        <span>Manage Lecturers</span>
+
+                        <span>
+                            Manage Lecturers
+                        </span>
+
                     </a>
+
                 </li>
 
+
                 <li>
+
                     <a href="/HOD/RegisterUser">
+
                         <i class="bi bi-person-plus"></i>
-                        <span>Register User</span>
+
+                        <span>
+                            Register User
+                        </span>
+
                     </a>
+
                 </li>
 
+
                 <li>
+
                     <a href="/HOD/AssignCourse"
                        class="active">
+
                         <i class="bi bi-book"></i>
-                        <span>Assign Course</span>
+
+                        <span>
+                            Assign Course
+                        </span>
+
                     </a>
+
                 </li>
 
+
                 <li>
+
                     <a href="/HOD/Contracts">
+
                         <i class="bi bi-file-earmark-text"></i>
-                        <span>Contracts</span>
+
+                        <span>
+                            Contracts
+                        </span>
+
                     </a>
+
                 </li>
 
             </ul>
@@ -478,7 +681,12 @@
         </aside>
 
 
+        <!-- =====================================================
+             CONTENT
+        ====================================================== -->
+
         <main class="content">
+
 
             <div class="page-header">
 
@@ -487,13 +695,14 @@
                 </h1>
 
                 <p>
-                    Assign an IT course to a lecturer and generate their academic engagement contract.
+                    Assign a course to a lecturer and generate their academic engagement contract.
                 </p>
 
             </div>
 
 
             <div class="form-card">
+
 
                 <div class="section-title">
 
@@ -504,23 +713,41 @@
                 </div>
 
 
+                <!-- =================================================
+                     ERROR MESSAGE
+                ================================================== -->
+
                 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
                 {
+
                     <div class="error-message">
 
                         <i class="bi bi-exclamation-circle"></i>
 
-                        @Model.ErrorMessage
+                        <span>
+                            @Model.ErrorMessage
+                        </span>
 
                     </div>
+
                 }
 
+
+                <!-- =================================================
+                     FORM
+                ================================================== -->
 
                 <form method="post">
 
                     @Html.AntiForgeryToken()
 
+
                     <div class="form-grid">
+
+
+                        <!-- =================================================
+                             COURSE
+                        ================================================== -->
 
                         <div class="form-group">
 
@@ -532,20 +759,28 @@
                                     id="courseSelect">
 
                                 <option value="">
-                                    Select IT course
+                                    Select course
                                 </option>
 
                                 @foreach (var course in Model.Courses)
                                 {
-                                    <option value="@course.Code">
-                                        @course.Code - @course.Name
+
+                                    <option value="@course.Id">
+
+                                        @course.Code - @course.Title
+
                                     </option>
+
                                 }
 
                             </select>
 
                         </div>
 
+
+                        <!-- =================================================
+                             LECTURER
+                        ================================================== -->
 
                         <div class="form-group">
 
@@ -562,15 +797,23 @@
 
                                 @foreach (var lecturer in Model.Lecturers)
                                 {
+
                                     <option value="@lecturer.Id">
-                                        @lecturer.Name
+
+                                        @lecturer.UserName
+
                                     </option>
+
                                 }
 
                             </select>
 
                         </div>
 
+
+                        <!-- =================================================
+                             RANK
+                        ================================================== -->
 
                         <div class="form-group">
 
@@ -586,6 +829,10 @@
                         </div>
 
 
+                        <!-- =================================================
+                             GOVERNMENT ID
+                        ================================================== -->
+
                         <div class="form-group">
 
                             <label for="governmentId">
@@ -595,29 +842,68 @@
                             <input id="governmentId"
                                    class="readonly"
                                    readonly
-                                   placeholder="Automatically displayed" />
+                                   value="Protected"
+                                   placeholder="Protected" />
 
                         </div>
 
 
+                        <!-- =================================================
+                             SEMESTER
+                        ================================================== -->
+
                         <div class="form-group">
 
-                            <label for="Session">
+                            <label for="semester">
+                                Semester
+                            </label>
+
+                            <select asp-for="Semester"
+                                    id="semester">
+
+                                <option value="">
+                                    Select semester
+                                </option>
+
+                                <option value="1">
+                                    Semester One
+                                </option>
+
+                                <option value="2">
+                                    Semester Two
+                                </option>
+
+                                <option value="3">
+                                    Summer Semester
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             SESSION
+                        ================================================== -->
+
+                        <div class="form-group">
+
+                            <label for="session">
                                 Session
                             </label>
 
                             <select asp-for="Session"
-                                    id="Session">
+                                    id="session">
 
                                 <option value="">
                                     Select session
                                 </option>
 
-                                <option value="Day">
+                                <option value="1">
                                     Day
                                 </option>
 
-                                <option value="Evening">
+                                <option value="2">
                                     Evening
                                 </option>
 
@@ -626,14 +912,18 @@
                         </div>
 
 
+                        <!-- =================================================
+                             ACADEMIC YEAR
+                        ================================================== -->
+
                         <div class="form-group">
 
-                            <label for="AcademicYear">
+                            <label for="academicYear">
                                 Academic Year
                             </label>
 
                             <select asp-for="AcademicYear"
-                                    id="AcademicYear">
+                                    id="academicYear">
 
                                 <option value="">
                                     Select academic year
@@ -660,28 +950,32 @@
                         </div>
 
 
+                        <!-- =================================================
+                             CAMPUS
+                        ================================================== -->
+
                         <div class="form-group">
 
-                            <label for="Campus">
+                            <label for="campus">
                                 Campus
                             </label>
 
                             <select asp-for="Campus"
-                                    id="Campus">
+                                    id="campus">
 
                                 <option value="">
                                     Select campus
                                 </option>
 
-                                <option value="Kigali">
+                                <option value="1">
                                     Kigali
                                 </option>
 
-                                <option value="Rwamagana">
+                                <option value="2">
                                     Rwamagana
                                 </option>
 
-                                <option value="Nyanza">
+                                <option value="3">
                                     Nyanza
                                 </option>
 
@@ -690,20 +984,30 @@
                         </div>
 
 
+                        <!-- =================================================
+                             HOURS
+                        ================================================== -->
+
                         <div class="form-group">
 
-                            <label for="Hours">
+                            <label for="allocatedHours">
                                 Number of Hours
                             </label>
 
-                            <input asp-for="Hours"
-                                   id="Hours"
+                            <input asp-for="AllocatedHours"
+                                   id="allocatedHours"
                                    type="number"
                                    min="1"
+                                   max="500"
+                                   step="0.01"
                                    placeholder="Enter number of hours" />
 
                         </div>
 
+
+                        <!-- =================================================
+                             RATE
+                        ================================================== -->
 
                         <div class="form-group">
 
@@ -728,21 +1032,32 @@
 
                         </div>
 
+
                     </div>
 
+
+                    <!-- =================================================
+                         INFORMATION
+                    ================================================== -->
 
                     <div class="info-box">
 
                         <i class="bi bi-info-circle-fill"></i>
 
                         <p>
-                            The selected lecturer's rank and government ID will automatically
-                            be included in the contract. The hourly rate is determined by the
-                            lecturer's academic rank.
+                            The selected lecturer's rank will automatically
+                            determine the applicable hourly rate. Lecturer
+                            information is retrieved from the database.
+                            Government ID information is protected because
+                            it is stored encrypted.
                         </p>
 
                     </div>
 
+
+                    <!-- =================================================
+                         SUBMIT
+                    ================================================== -->
 
                     <div class="actions">
 
@@ -757,94 +1072,135 @@
 
                     </div>
 
+
                 </form>
+
 
             </div>
 
+
         </main>
+
 
     </div>
 
 
+    <!-- =========================================================
+         LECTURER DATA FROM DATABASE
+    ========================================================== -->
+
     <script>
 
-            const lecturerSelect =
-                document.getElementById("lecturerSelect");
-
-            const rankInput =
-                document.getElementById("rank");
-
-            const governmentIdInput =
-                document.getElementById("governmentId");
-
-            const rateDisplay =
-                document.getElementById("rateDisplay");
+        const lecturerData =
+            @Html.Raw(JsonSerializer.Serialize(lecturerInformation));
 
 
-            const lecturerData = {
-
-                "L001": {
-                    rank: "Assistant Lecturer",
-                    governmentId: "1198780012345678",
-                    rate: 5000
-                },
-
-                "L002": {
-                    rank: "Lecturer",
-                    governmentId: "1198780023456789",
-                    rate: 7000
-                },
-
-                "L003": {
-                    rank: "Senior Lecturer",
-                    governmentId: "1198780034567890",
-                    rate: 9000
-                },
-
-                "L004": {
-                    rank: "Associate Professor",
-                    governmentId: "1198780045678901",
-                    rate: 11000
-                },
-
-                "L005": {
-                    rank: "Professor",
-                    governmentId: "1198780056789012",
-                    rate: 13000
-                }
-
-            };
+        const lecturerSelect =
+            document.getElementById("lecturerSelect");
 
 
-            function updateLecturer() {
+        const rankInput =
+            document.getElementById("rank");
 
-                const id = lecturerSelect.value;
 
-                const lecturer = lecturerData[id];
+        const governmentIdInput =
+            document.getElementById("governmentId");
 
-                if (!lecturer) {
 
-                    rankInput.value = "";
-                    governmentIdInput.value = "";
-                    rateDisplay.textContent = "RWF 0";
+        const rateDisplay =
+            document.getElementById("rateDisplay");
 
-                    return;
-                }
 
-                rankInput.value = lecturer.rank;
+        function getRateForRank(rank) {
+
+            switch (rank) {
+
+                case "TeachingAssistant":
+                    return 4000;
+
+                case "AssistantLecturer":
+                    return 5000;
+
+                case "Lecturer":
+                    return 7000;
+
+                case "SeniorLecturer":
+                    return 9000;
+
+                case "AssociateProfessor":
+                    return 11000;
+
+                case "Professor":
+                    return 13000;
+
+                case "ProfessorEmeritus":
+                    return 13000;
+
+                default:
+                    return 5000;
+            }
+        }
+
+
+        function formatRank(rank) {
+
+            if (!rank)
+                return "Not specified";
+
+
+            return rank
+                .replace(/([a-z])([A-Z])/g, "$1 $2");
+
+        }
+
+
+        function updateLecturer() {
+
+            const id =
+                lecturerSelect.value;
+
+
+            const lecturer =
+                lecturerData[id];
+
+
+            if (!lecturer) {
+
+                rankInput.value = "";
 
                 governmentIdInput.value =
-                    lecturer.governmentId;
+                    "Protected";
 
                 rateDisplay.textContent =
-                    "RWF " + lecturer.rate.toLocaleString();
+                    "RWF 0";
+
+                return;
             }
 
 
-            lecturerSelect.addEventListener(
-                "change",
-                updateLecturer
-            );
+            rankInput.value =
+                formatRank(lecturer.Rank);
+
+
+            governmentIdInput.value =
+                lecturer.GovernmentId;
+
+
+            const rate =
+                getRateForRank(lecturer.Rank);
+
+
+            rateDisplay.textContent =
+                "RWF " + rate.toLocaleString();
+
+        }
+
+
+        lecturerSelect.addEventListener(
+            "change",
+            updateLecturer
+        );
+
 
     </script>
 

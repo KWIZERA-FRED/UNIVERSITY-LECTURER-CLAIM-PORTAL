@@ -245,6 +245,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .IsUnique();
 
             // ========================================================
+            // ========================================================
             // COURSE ASSIGNMENT
             // ========================================================
 
@@ -258,6 +259,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 
             modelBuilder.Entity<CourseAssignment>()
                 .Property(ca => ca.Semester)
+                .HasConversion<int>()
+                .IsRequired();
+
+            modelBuilder.Entity<CourseAssignment>()
+                .Property(ca => ca.Session)
+                .HasConversion<int>()
+                .IsRequired();
+
+            modelBuilder.Entity<CourseAssignment>()
+                .Property(ca => ca.Campus)
                 .HasConversion<int>()
                 .IsRequired();
 
