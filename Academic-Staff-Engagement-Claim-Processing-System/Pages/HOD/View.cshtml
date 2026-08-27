@@ -167,6 +167,7 @@
         }
 
         .sidebar-link {
+            position: relative;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -556,7 +557,10 @@
                         ? "?"
                         : string.Concat(
                             Model.Lecturer.UserName
-                                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                .Split(
+                                    ' ',
+                                    StringSplitOptions.RemoveEmptyEntries
+                                )
                                 .Take(2)
                                 .Select(x => x[0])
                         ).ToUpper();
@@ -717,7 +721,9 @@
                                 </div>
 
                                 <div class="detail-value">
-                                    @Model.Lecturer.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                                    @Model.Lecturer.CreatedAtUtc
+                                        .ToLocalTime()
+                                        .ToString("dd MMM yyyy, HH:mm")
                                 </div>
 
                             </div>
@@ -729,9 +735,13 @@
                                 </div>
 
                                 <div class="detail-value">
+
                                     @(Model.Lecturer.LastLoginUtc.HasValue
-                                        ? Model.Lecturer.LastLoginUtc.Value.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                                        ? Model.Lecturer.LastLoginUtc.Value
+                                            .ToLocalTime()
+                                            .ToString("dd MMM yyyy, HH:mm")
                                         : "Never logged in")
+
                                 </div>
 
                             </div>
@@ -782,4 +792,5 @@
 </div>
 
 </body>
+
 </html>

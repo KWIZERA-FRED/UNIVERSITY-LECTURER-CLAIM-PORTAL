@@ -1,5 +1,8 @@
+
 @page
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.EditModel
+
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
     ViewData["Title"] = "Edit Lecturer";
@@ -288,10 +291,6 @@
             flex-direction: column;
         }
 
-        .form-group.full {
-            grid-column: 1 / -1;
-        }
-
         label {
             margin-bottom: 7px;
             color: #334155;
@@ -316,11 +315,6 @@
             outline: none;
             border-color: var(--green);
             box-shadow: 0 0 0 3px rgba(5,150,105,0.08);
-        }
-
-        input[readonly] {
-            background: #f8fafc;
-            color: var(--muted);
         }
 
         .validation {
@@ -422,10 +416,6 @@
                 grid-template-columns: 1fr;
             }
 
-            .form-group.full {
-                grid-column: auto;
-            }
-
             .role-badge {
                 display: none;
             }
@@ -477,6 +467,7 @@
 
     </nav>
 
+
     <div class="app-body">
 
         <aside class="sidebar">
@@ -511,6 +502,7 @@
 
         </aside>
 
+
         <main class="main">
 
             <div class="page-header">
@@ -527,6 +519,7 @@
 
             </div>
 
+
             <section class="content-card">
 
                 <div class="card-header">
@@ -536,17 +529,27 @@
                     </div>
 
                     <div>
+
                         <h2>Lecturer Information</h2>
-                        <p>Changes will be saved directly to the database.</p>
+
+                        <p>
+                            Changes will be saved directly to the database.
+                        </p>
+
                     </div>
 
                 </div>
 
+
                 <div class="card-body">
 
-                    <div asp-validation-summary="All"
-                         class="validation-summary">
-                    </div>
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div asp-validation-summary="All"
+                             class="validation-summary">
+                        </div>
+                    }
+
 
                     <div class="info-box">
 
@@ -555,17 +558,25 @@
 
                         <br />
 
-                        Password, government ID, signature information and audit
-                        fields are protected and are not editable from this page.
+                        Password, government ID, signature information and
+                        audit fields are protected and are not editable from
+                        this page.
 
                     </div>
 
+
                     <form method="post">
+
+                        @Html.AntiForgeryToken()
 
                         <input type="hidden"
                                asp-for="LecturerId" />
 
+
                         <div class="form-grid">
+
+
+                            <!-- USERNAME -->
 
                             <div class="form-group">
 
@@ -582,6 +593,9 @@
 
                             </div>
 
+
+                            <!-- EMAIL -->
+
                             <div class="form-group">
 
                                 <label asp-for="Email">
@@ -589,13 +603,17 @@
                                 </label>
 
                                 <input asp-for="Email"
-                                       type="email" />
+                                       type="email"
+                                       autocomplete="email" />
 
                                 <span asp-validation-for="Email"
                                       class="validation">
                                 </span>
 
                             </div>
+
+
+                            <!-- PHONE -->
 
                             <div class="form-group">
 
@@ -604,13 +622,17 @@
                                 </label>
 
                                 <input asp-for="PhoneNumber"
-                                       type="tel" />
+                                       type="tel"
+                                       autocomplete="tel" />
 
                                 <span asp-validation-for="PhoneNumber"
                                       class="validation">
                                 </span>
 
                             </div>
+
+
+                            <!-- TYPE -->
 
                             <div class="form-group">
 
@@ -619,7 +641,7 @@
                                 </label>
 
                                 <select asp-for="Type"
-                                        asp-items="Html.GetEnumSelectList<Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums.UserRole>()">
+                                        asp-items="Html.GetEnumSelectList<UserRole>()">
                                 </select>
 
                                 <span asp-validation-for="Type"
@@ -627,6 +649,9 @@
                                 </span>
 
                             </div>
+
+
+                            <!-- RANK -->
 
                             <div class="form-group">
 
@@ -640,7 +665,7 @@
                                         -- Select Rank --
                                     </option>
 
-                                    @foreach (var rank in Enum.GetValues<Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums.LecturerRank>())
+                                    @foreach (var rank in Enum.GetValues<LecturerRank>())
                                     {
                                         <option value="@rank">
                                             @rank
@@ -654,6 +679,9 @@
                                 </span>
 
                             </div>
+
+
+                            <!-- ACTIVE -->
 
                             <div class="form-group">
 
@@ -671,20 +699,25 @@
 
                         </div>
 
+
                         <div class="actions">
 
                             <button type="submit"
                                     class="btn btn-primary">
 
                                 <i class="bi bi-check-lg"></i>
+
                                 Save Changes
 
                             </button>
 
-                            <a href="/HOD/View?id=@Model.LecturerId"
+
+                            <a asp-page="/HOD/View"
+                               asp-route-id="@Model.LecturerId"
                                class="btn btn-secondary">
 
                                 <i class="bi bi-x-lg"></i>
+
                                 Cancel
 
                             </a>
@@ -704,4 +737,6 @@
 </div>
 
 </body>
+
 </html>
+

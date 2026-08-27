@@ -38,8 +38,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         [BindProperty]
         public bool IsActive { get; set; }
 
-        public Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer? Lecturer { get; set; }
-
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
@@ -47,42 +45,62 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return NotFound();
             }
 
-            Lecturer = await _context.Lecturers
-                .AsNoTracking()
-                .FirstOrDefaultAsync(l => l.Id == id.Value);
-
-            if (Lecturer == null)
-            {
-                return NotFound();
-            }
-
-            LecturerId = Lecturer.Id;
-            UserName = Lecturer.UserName;
-            Email = Lecturer.Email;
-            PhoneNumber = Lecturer.PhoneNumber;
-            Type = Lecturer.Type;
-            Rank = Lecturer.Rank;
-            IsActive = Lecturer.IsActive;
-
-            return Page();
-        }
-
-        public async Task<IActionResult> OnPostAsync()
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
             var lecturer = await _context.Lecturers
-                .FirstOrDefaultAsync(l => l.Id == LecturerId);
+                .AsNoTracking()
+                .Where(l => l.Id == id.Value)
+                .Select(l => new
+                {
+                    l.Id,
+                    l.UserName,
+                    l.Email,
+                    l.PhoneNumber,
+                    l.Type,
+                    l.Rank,
+                    l.IsActive
+                })
+                .FirstOrDefaultAsync();
 
             if (lecturer == null)
             {
                 return NotFound();
             }
 
-            bool duplicateUsername = await _context.Lecturers
+            LecturerId = lecturer.Id;
+            UserName = lecturer.UserName;
+            Email = lecturer.Email;
+            PhoneNumber = lecturer.PhoneNumber;
+            Type = lecturer.Type;
+            Rank = lecturer.Rank;
+            IsActive = lecturer.IsActive;
+
+            return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            UserName = UserName?.Trim() ?? string.Empty;
+            Email = Email?.Trim() ?? string.Empty;
+            PhoneNumber = PhoneNumber?.Trim() ?? string.Empty;
+
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            // Check that the lecturer exists without loading
+            // the encrypted GovernmentIdEncrypted property.
+            var lecturerExists = await _context.Lecturers
+                .AsNoTracking()
+                .AnyAsync(l => l.Id == LecturerId);
+
+            if (!lecturerExists)
+            {
+                return NotFound();
+            }
+
+            // Check duplicate username.
+            var duplicateUsername = await _context.Lecturers
+                .AsNoTracking()
                 .AnyAsync(l =>
                     l.Id != LecturerId &&
                     l.UserName == UserName);
@@ -96,7 +114,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return Page();
             }
 
-            bool duplicateEmail = await _context.Lecturers
+            // Check duplicate email.
+            var duplicateEmail = await _context.Lecturers
+                .AsNoTracking()
                 .AnyAsync(l =>
                     l.Id != LecturerId &&
                     l.Email == Email);
@@ -110,13 +130,56 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return Page();
             }
 
-            lecturer.UserName = UserName.Trim();
-            lecturer.Email = Email.Trim();
-            lecturer.PhoneNumber = PhoneNumber?.Trim() ?? string.Empty;
+            /*
+             * Do NOT load the existing Lecturer entity here.
+             *
+             * Loading it would cause EF Core to decrypt
+             * GovernmentIdEncrypted and produce the missing-key error.
+             *
+             * Instead, attach a lightweight Lecturer entity and mark
+             * only the editable properties as modified.
+             */
+
+            var lecturer = new Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer(
+                LecturerId,
+                UserName,
+                Email);
+
+            lecturer.PhoneNumber = PhoneNumber;
             lecturer.Type = Type;
             lecturer.Rank = Rank;
             lecturer.IsActive = IsActive;
             lecturer.UpdatedAtUtc = DateTime.UtcNow;
+
+            _context.Lecturers.Attach(lecturer);
+
+            _context.Entry(lecturer)
+                .Property(l => l.UserName)
+                .IsModified = true;
+
+            _context.Entry(lecturer)
+                .Property(l => l.Email)
+                .IsModified = true;
+
+            _context.Entry(lecturer)
+                .Property(l => l.PhoneNumber)
+                .IsModified = true;
+
+            _context.Entry(lecturer)
+                .Property(l => l.Type)
+                .IsModified = true;
+
+            _context.Entry(lecturer)
+                .Property(l => l.Rank)
+                .IsModified = true;
+
+            _context.Entry(lecturer)
+                .Property(l => l.IsActive)
+                .IsModified = true;
+
+            _context.Entry(lecturer)
+                .Property(l => l.UpdatedAtUtc)
+                .IsModified = true;
 
             await _context.SaveChangesAsync();
 
@@ -126,3 +189,4 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         }
     }
 }
+
