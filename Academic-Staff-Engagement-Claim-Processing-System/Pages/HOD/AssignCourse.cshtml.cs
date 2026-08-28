@@ -5,9 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-using LecturerModel =
-    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
-
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 {
     public class AssignCourseModel : PageModel
@@ -50,11 +47,30 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
         public List<Course> Courses { get; set; } = new();
 
-        public List<LecturerModel> Lecturers { get; set; } = new();
+        public List<LecturerOption> Lecturers { get; set; } = new();
 
         public decimal HourlyRate { get; set; }
 
         public string? ErrorMessage { get; set; }
+
+        // ============================================================
+        // LIGHTWEIGHT LECTURER DATA
+        //
+        // IMPORTANT:
+        // We deliberately do NOT load GovernmentIdEncrypted here.
+        // Loading a complete Lecturer entity causes EF Core to invoke
+        // GovernmentIdProtector.Decrypt(), which currently fails for
+        // existing records encrypted with the missing Data Protection key.
+        // ============================================================
+
+        public class LecturerOption
+        {
+            public int Id { get; set; }
+
+            public string UserName { get; set; } = string.Empty;
+
+            public LecturerRank? Rank { get; set; }
+        }
 
         // ============================================================
         // GET
@@ -71,6 +87,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
         public async Task<IActionResult> OnPostAsync()
         {
+            // --------------------------------------------------------
+            // LOAD DROPDOWN DATA
+            // --------------------------------------------------------
+
             await LoadDataAsync();
 
             // --------------------------------------------------------
@@ -139,43 +159,68 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
             if (AllocatedHours <= 0)
             {
-                ErrorMessage = "Please enter a valid number of teaching hours.";
+                ErrorMessage =
+                    "Please enter a valid number of teaching hours.";
+
                 return Page();
             }
 
             if (AllocatedHours > 500)
             {
-                ErrorMessage = "Allocated hours cannot exceed 500.";
+                ErrorMessage =
+                    "Allocated hours cannot exceed 500.";
+
                 return Page();
             }
 
             // ========================================================
-            // FIND COURSE FROM DATABASE
+            // FIND COURSE
             // ========================================================
 
             var course = await _context.Courses
+                .AsNoTracking()
                 .FirstOrDefaultAsync(c =>
                     c.Id == SelectedCourse.Value &&
                     c.IsActive);
 
             if (course == null)
             {
-                ErrorMessage = "Selected course could not be found.";
+                ErrorMessage =
+                    "Selected course could not be found.";
+
                 return Page();
             }
 
             // ========================================================
-            // FIND LECTURER FROM DATABASE
+            // FIND LECTURER WITHOUT LOADING GOVERNMENT ID
+            //
+            // We only need:
+            // Id
+            // UserName
+            // Rank
+            //
+            // This projection prevents EF from materializing the
+            // encrypted GovernmentIdEncrypted property.
             // ========================================================
 
             var lecturer = await _context.Lecturers
-                .FirstOrDefaultAsync(l =>
+                .AsNoTracking()
+                .Where(l =>
                     l.Id == SelectedLecturer.Value &&
-                    l.IsActive);
+                    l.IsActive)
+                .Select(l => new LecturerOption
+                {
+                    Id = l.Id,
+                    UserName = l.UserName,
+                    Rank = l.Rank
+                })
+                .FirstOrDefaultAsync();
 
             if (lecturer == null)
             {
-                ErrorMessage = "Selected lecturer could not be found.";
+                ErrorMessage =
+                    "Selected lecturer could not be found.";
+
                 return Page();
             }
 
@@ -183,19 +228,20 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             // CHECK FOR DUPLICATE ASSIGNMENT
             // ========================================================
 
-            var existingAssignment = await _context.CourseAssignments
-                .AnyAsync(ca =>
-                    ca.LecturerId == lecturer.Id &&
-                    ca.CourseId == course.Id &&
-                    ca.AcademicYear == AcademicYear &&
-                    ca.Semester == Semester.Value &&
-                    ca.IsActive);
+            var existingAssignment =
+                await _context.CourseAssignments
+                    .AnyAsync(ca =>
+                        ca.LecturerId == lecturer.Id &&
+                        ca.CourseId == course.Id &&
+                        ca.AcademicYear == AcademicYear &&
+                        ca.Semester == Semester.Value &&
+                        ca.IsActive);
 
             if (existingAssignment)
             {
                 ErrorMessage =
-                    "This lecturer has already been assigned this course " +
-                    "for the selected academic year and semester.";
+                    "This lecturer has already been assigned this " +
+                    "course for the selected academic year and semester.";
 
                 return Page();
             }
@@ -216,7 +262,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
                 CourseId = course.Id,
 
-                AcademicYear = AcademicYear,
+                AcademicYear = AcademicYear.Trim(),
 
                 Semester = Semester.Value,
 
@@ -240,34 +286,52 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             // ========================================================
             // REDIRECT TO CONTRACT PREVIEW
             // ========================================================
+            //
+            // IMPORTANT:
+            // GovernmentId is intentionally NOT read here because the
+            // existing encrypted database value currently cannot be
+            // decrypted due to the missing Data Protection key.
+            //
+            // We will fix the Government ID encryption/data separately.
+            // ========================================================
 
             return RedirectToPage(
                 "./ContractPreview",
                 new
                 {
-                    Course = course.Code + " - " + course.Title,
+                    Course =
+                        course.Code + " - " + course.Title,
 
-                    Lecturer = GetLecturerDisplayName(lecturer),
+                    Lecturer =
+                        GetLecturerDisplayName(lecturer),
 
-                    GovernmentId = lecturer.GovernmentIdEncrypted,
+                    GovernmentId = "",
 
-                    Rank = lecturer.Rank?.ToString() ?? "Not specified",
+                    Rank =
+                        lecturer.Rank?.ToString()
+                        ?? "Not specified",
 
-                    AcademicYear = AcademicYear,
+                    AcademicYear =
+                        AcademicYear,
 
-                    Semester = Semester.Value.ToString(),
+                    Semester =
+                        Semester.Value.ToString(),
 
-                    Session = Session.Value.ToString(),
+                    Session =
+                        Session.Value.ToString(),
 
-                    Campus = Campus.Value.ToString(),
+                    Campus =
+                        Campus.Value.ToString(),
 
-                    Hours = AllocatedHours,
+                    Hours =
+                        AllocatedHours,
 
-                    Rate = HourlyRate,
+                    Rate =
+                        HourlyRate,
 
-                    CourseAssignmentId = assignment.Id
-                }
-            );
+                    CourseAssignmentId =
+                        assignment.Id
+                });
         }
 
         // ============================================================
@@ -276,14 +340,41 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
         private async Task LoadDataAsync()
         {
+            // --------------------------------------------------------
+            // COURSES
+            // --------------------------------------------------------
+
             Courses = await _context.Courses
+                .AsNoTracking()
                 .Where(c => c.IsActive)
                 .OrderBy(c => c.Code)
                 .ToListAsync();
 
+            // --------------------------------------------------------
+            // LECTURERS
+            // --------------------------------------------------------
+            //
+            // DO NOT change this to:
+            //
+            // _context.Lecturers.ToListAsync()
+            //
+            // because that will cause EF Core to read
+            // GovernmentIdEncrypted and execute:
+            //
+            // GovernmentIdProtector.Decrypt()
+            //
+            // --------------------------------------------------------
+
             Lecturers = await _context.Lecturers
+                .AsNoTracking()
                 .Where(l => l.IsActive)
                 .OrderBy(l => l.UserName)
+                .Select(l => new LecturerOption
+                {
+                    Id = l.Id,
+                    UserName = l.UserName,
+                    Rank = l.Rank
+                })
                 .ToListAsync();
         }
 
@@ -291,7 +382,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         // LECTURER DISPLAY NAME
         // ============================================================
 
-        private string GetLecturerDisplayName(LecturerModel lecturer)
+        private string GetLecturerDisplayName(
+            LecturerOption lecturer)
         {
             if (!string.IsNullOrWhiteSpace(lecturer.UserName))
             {

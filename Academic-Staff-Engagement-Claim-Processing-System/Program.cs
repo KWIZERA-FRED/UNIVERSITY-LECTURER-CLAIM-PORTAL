@@ -49,13 +49,21 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // ============================================================
 // DATA PROTECTION
 // ============================================================
+
+var dataProtectionKeyPath = Path.Combine(
+    Environment.GetFolderPath(
+        Environment.SpecialFolder.LocalApplicationData),
+    "StaffPortal",
+    "DataProtection-Keys");
+
+Directory.CreateDirectory(dataProtectionKeyPath);
+
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(
-        builder.Configuration["DataProtection:KeyPath"] ?? "keys"))
+    .PersistKeysToFileSystem(
+        new DirectoryInfo(dataProtectionKeyPath))
     .SetApplicationName("UnilakStaffClaimPortal");
 
 builder.Services.AddSingleton<GovernmentIdProtector>();
-
 // ============================================================
 // RATE LIMITING
 // ============================================================
