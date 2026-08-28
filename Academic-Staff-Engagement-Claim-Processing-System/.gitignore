@@ -36,3 +36,6 @@ keys/
 
 # User-uploaded content (signatures, etc.) — should not live in source control
 wwwroot/uploads/
+# ASP.NET Core Data Protection keys
+DataProtection-Keys/
+keys/
