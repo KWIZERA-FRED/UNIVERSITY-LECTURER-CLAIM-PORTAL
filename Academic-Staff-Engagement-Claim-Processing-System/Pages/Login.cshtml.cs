@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 // Type aliases to eliminate namespace collisions
@@ -17,6 +18,7 @@ using SecurityClaim = System.Security.Claims.Claim;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
 {
+    [EnableRateLimiting("login-policy")]
     public class LoginModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -378,4 +380,3 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
         }
     }
 }
-
