@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Amazon.S3;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,23 +47,50 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.EnableSensitiveDataLogging();
         options.LogTo(Console.WriteLine);
     }
-});
-// ============================================================
-// DATA PROTECTION
+});// ============================================================
+// DATA PROTECTION — CLOUDFLARE R2
 // ============================================================
 
-var dataProtectionKeyPath = Path.Combine(
-    Environment.GetFolderPath(
-        Environment.SpecialFolder.LocalApplicationData),
-    "StaffPortal",
-    "DataProtection-Keys");
+var r2AccountId = builder.Configuration["R2:AccountId"];
+var r2AccessKeyId = builder.Configuration["R2:AccessKeyId"];
+var r2SecretAccessKey = builder.Configuration["R2:SecretAccessKey"];
+var r2BucketName = builder.Configuration["R2:BucketName"];
 
-Directory.CreateDirectory(dataProtectionKeyPath);
+if (string.IsNullOrWhiteSpace(r2AccountId) ||
+    string.IsNullOrWhiteSpace(r2AccessKeyId) ||
+    string.IsNullOrWhiteSpace(r2SecretAccessKey) ||
+    string.IsNullOrWhiteSpace(r2BucketName))
+{
+    throw new InvalidOperationException(
+        "Cloudflare R2 Data Protection configuration is missing.");
+}
+
+var r2Config = new AmazonS3Config
+{
+    ServiceURL = $"https://{r2AccountId}.r2.cloudflarestorage.com",
+    ForcePathStyle = true,
+    AuthenticationRegion = "auto"
+};
+
+var r2Client = new AmazonS3Client(
+    r2AccessKeyId,
+    r2SecretAccessKey,
+    r2Config);
+
+builder.Services.AddSingleton<IAmazonS3>(r2Client);
+
+// Custom XML repository for Cloudflare R2.
+// This avoids AWS streaming payloads that R2 does not support.
+var r2Repository = new CloudflareR2XmlRepository(
+    r2Client,
+    r2BucketName);
 
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(
-        new DirectoryInfo(dataProtectionKeyPath))
-    .SetApplicationName("UnilakStaffClaimPortal");
+    .SetApplicationName("UnilakStaffClaimPortal")
+    .AddKeyManagementOptions(options =>
+    {
+        options.XmlRepository = r2Repository;
+    });
 
 builder.Services.AddSingleton<GovernmentIdProtector>();
 // ============================================================
