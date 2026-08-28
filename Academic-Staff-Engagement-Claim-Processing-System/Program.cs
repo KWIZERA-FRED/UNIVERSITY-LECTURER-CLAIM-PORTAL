@@ -3,6 +3,7 @@ using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Amazon.S3;
@@ -40,10 +41,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"));
 
-    options.EnableDetailedErrors();
-
     if (builder.Environment.IsDevelopment())
     {
+        options.EnableDetailedErrors();
         options.EnableSensitiveDataLogging();
         options.LogTo(Console.WriteLine);
     }
@@ -96,18 +96,37 @@ builder.Services.AddSingleton<GovernmentIdProtector>();
 // ============================================================
 // RATE LIMITING
 // ============================================================
+// ============================================================
+// RATE LIMITING
+// ============================================================
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    // Strict policy for login attempts (5 attempts per minute per remote IP)
-    options.AddFixedWindowLimiter(policyName: "login-policy", configureOptions: opt =>
+    options.OnRejected = async (context, cancellationToken) =>
     {
-        opt.PermitLimit = 5;
-        opt.Window = TimeSpan.FromMinutes(1);
-        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        opt.QueueLimit = 0;
-    });
+        Console.WriteLine(
+            $"[RateLimiter] Rejected request from {context.HttpContext.Connection.RemoteIpAddress} to {context.HttpContext.Request.Path}");
+
+        context.HttpContext.Response.ContentType = "text/plain";
+        await context.HttpContext.Response.WriteAsync(
+            "Too many attempts. Please wait a minute before trying again.",
+            cancellationToken);
+    };
+
+    // Per-IP fixed window — each IP gets its own 5-attempts-per-minute
+    // budget, so one person's retries (or one attacker) can't lock out
+    // every other user of the login page.
+    options.AddPolicy("login-policy", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
 
     // General sliding window policy for application pages
     options.AddSlidingWindowLimiter(policyName: "general-policy", configureOptions: opt =>
@@ -135,7 +154,7 @@ builder.Services
         // Hardened Cookie Security
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Strict;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Cookie.Name = ".StaffPortal.Auth";
     });
 
@@ -180,7 +199,7 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.SameSite = SameSiteMode.Strict;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.Name = ".StaffPortal.Session";
 });
 
@@ -193,6 +212,11 @@ builder.Services.AddScoped<EmailService>();
 // BUILD APPLICATION
 // ============================================================
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 // ============================================================
 // TEMPLATE SEEDING
