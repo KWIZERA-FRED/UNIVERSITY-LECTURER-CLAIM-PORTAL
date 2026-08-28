@@ -3,8 +3,11 @@ using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.EntityFrameworkCore;
 
-using ClaimModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim;
-using ContractModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract;
+using ClaimModel =
+    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim;
+
+using ContractModel =
+    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 {
@@ -31,8 +34,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
         // ============================================================
 
         public DbSet<AdminAccount> AdminAccounts => Set<AdminAccount>();
+
         public DbSet<Hod> Hods => Set<Hod>();
+
         public DbSet<Dean> Deans => Set<Dean>();
+
         public DbSet<Management> ManagementAccounts => Set<Management>();
 
         // ============================================================
@@ -40,20 +46,28 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
         // ============================================================
 
         public DbSet<Course> Courses => Set<Course>();
-        public DbSet<CourseAssignment> CourseAssignments => Set<CourseAssignment>();
+
+        public DbSet<CourseAssignment> CourseAssignments =>
+            Set<CourseAssignment>();
 
         // ============================================================
         // CONTRACTS
         // ============================================================
 
-        public DbSet<ContractModel> Contracts => Set<ContractModel>();
+        public DbSet<ContractModel> Contracts =>
+            Set<ContractModel>();
+
+        public DbSet<ContractSignature> ContractSignatures =>
+            Set<ContractSignature>();
 
         // ============================================================
         // CLAIMS
         // ============================================================
 
         public DbSet<ClaimModel> Claims => Set<ClaimModel>();
-        public DbSet<ClaimApproval> ClaimApprovals => Set<ClaimApproval>();
+
+        public DbSet<ClaimApproval> ClaimApprovals =>
+            Set<ClaimApproval>();
 
         // ============================================================
         // TEMPLATES
@@ -87,8 +101,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasValue<Dean>(ApprovalRole.Dean)
                 .HasValue<Management>(ApprovalRole.Management);
 
-            // Do not create a separate database column for the
-            // abstract Role property. The discriminator represents it.
+            // Role is represented by the discriminator.
             modelBuilder.Entity<AdminAccount>()
                 .Ignore(a => a.Role);
 
@@ -172,8 +185,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
             modelBuilder.Entity<Lecturer>()
                 .Property(l => l.GovernmentIdEncrypted)
                 .HasConversion(
-                    plainOrCipher => _governmentIdProtector.Encrypt(plainOrCipher),
-                    cipher => _governmentIdProtector.Decrypt(cipher))
+                    plainOrCipher =>
+                        _governmentIdProtector.Encrypt(plainOrCipher),
+
+                    cipher =>
+                        _governmentIdProtector.Decrypt(cipher))
                 .IsRequired();
 
             modelBuilder.Entity<Lecturer>()
@@ -210,7 +226,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasIndex(l => l.Email)
                 .IsUnique();
 
-            // Lecturer signature captured by HOD
+            // Lecturer signature captured by HOD.
             modelBuilder.Entity<Lecturer>()
                 .HasOne(l => l.SignatureCapturedByHod)
                 .WithMany()
@@ -327,10 +343,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .IsRequired();
 
             modelBuilder.Entity<ContractModel>()
-                .Property(c => c.SignatureHashAtSigning)
-                .HasMaxLength(256);
-
-            modelBuilder.Entity<ContractModel>()
                 .Property(c => c.RowVersion)
                 .IsRowVersion();
 
@@ -345,6 +357,64 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .WithMany()
                 .HasForeignKey(c => c.CourseAssignmentId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // ========================================================
+            // CONTRACT SIGNATURE
+            // ========================================================
+
+            modelBuilder.Entity<ContractSignature>()
+                .ToTable("ContractSignatures");
+
+            modelBuilder.Entity<ContractSignature>()
+                .Property(cs => cs.SignerType)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            modelBuilder.Entity<ContractSignature>()
+                .Property(cs => cs.SignerRole)
+                .HasConversion<int>()
+                .IsRequired();
+
+            modelBuilder.Entity<ContractSignature>()
+                .Property(cs => cs.Status)
+                .HasConversion<int>()
+                .IsRequired();
+
+            modelBuilder.Entity<ContractSignature>()
+                .Property(cs => cs.SignatureHash)
+                .HasMaxLength(256);
+
+            modelBuilder.Entity<ContractSignature>()
+                .Property(cs => cs.RowVersion)
+                .IsRowVersion();
+
+            // Contract -> ContractSignatures
+            modelBuilder.Entity<ContractSignature>()
+                .HasOne(cs => cs.Contract)
+                .WithMany(c => c.Signatures)
+                .HasForeignKey(cs => cs.ContractId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Prevent the same signer from being added twice
+            // to the same contract.
+            modelBuilder.Entity<ContractSignature>()
+                .HasIndex(cs => new
+                {
+                    cs.ContractId,
+                    cs.SignerId,
+                    cs.SignerType
+                })
+                .IsUnique();
+
+            // Prevent duplicate signing sequence numbers
+            // within one contract.
+            modelBuilder.Entity<ContractSignature>()
+                .HasIndex(cs => new
+                {
+                    cs.ContractId,
+                    cs.SequenceOrder
+                })
+                .IsUnique();
 
             // ========================================================
             // CLAIM
