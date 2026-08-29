@@ -12,6 +12,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
         ClaimSubmitted = 8,
         ClaimApproved = 9,
         ClaimRejected = 10,
-        AccessDenied = 11
+        AccessDenied = 11,
+        PasswordChanged = 12
     }
 }

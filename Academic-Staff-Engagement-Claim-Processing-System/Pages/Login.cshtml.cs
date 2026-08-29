@@ -70,7 +70,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     new PasswordHasher<LecturerModel>(),
                     onSuccess: async () =>
                     {
-                        if (lecturer.MustChangePassword)
+                       if (lecturer.MustChangePassword)
                         {
                             return RedirectToPage(
                                 "/ChangePassword",
