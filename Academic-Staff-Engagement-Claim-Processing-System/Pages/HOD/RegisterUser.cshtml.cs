@@ -19,14 +19,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         private readonly ApplicationDbContext _context;
         private readonly EmailService _emailService;
         private readonly IWebHostEnvironment _environment;
+        private readonly AuditLogger _auditLogger;
+
         public RegisterUserModel(
             ApplicationDbContext context,
             EmailService emailService,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            AuditLogger auditLogger)
         {
             _context = context;
             _emailService = emailService;
             _environment = environment;
+            _auditLogger = auditLogger;
         }
 
         // ============================================================
@@ -75,6 +79,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             // Malaz/1234 account is allowed to access this page.
             if (anyHodExists && !User.IsInRole("HOD"))
             {
+                await _auditLogger.LogAsync(
+                    AuditAction.AccessDenied,
+                    User.Identity?.Name ?? "Unknown",
+                    User.FindFirst(ClaimTypes.Role)?.Value ?? "Unknown",
+                    GetActorId(),
+                    "RegisterUser",
+                    null,
+                    "GET blocked: not authorized as HOD",
+                    HttpContext.Connection.RemoteIpAddress?.ToString());
+
                 return Forbid();
             }
 
@@ -88,6 +102,24 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         public async Task<IActionResult> OnPostAsync()
         {
             // --------------------------------------------------------
+            // WHO IS PERFORMING THIS REQUEST
+            // --------------------------------------------------------
+            // Captured first, before the authorization check, so it's
+            // available both for an AccessDenied log on Forbid() and
+            // for the AccountCreated logs further down.
+
+            string actorUsername =
+                User.Identity?.Name ?? "Unknown";
+
+            string actorRole =
+                User.FindFirst(ClaimTypes.Role)?.Value ?? "Unknown";
+
+            int? actorId = GetActorId();
+
+            string? ipAddress =
+                HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            // --------------------------------------------------------
             // HOD AUTHORIZATION
             // --------------------------------------------------------
 
@@ -96,6 +128,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
             if (anyHodExists && !User.IsInRole("HOD"))
             {
+                await _auditLogger.LogAsync(
+                    AuditAction.AccessDenied,
+                    actorUsername,
+                    actorRole,
+                    actorId,
+                    "RegisterUser",
+                    null,
+                    "POST blocked: not authorized as HOD",
+                    ipAddress);
+
                 return Forbid();
             }
 
@@ -466,6 +508,20 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                     await _context.SaveChangesAsync();
 
                     // ------------------------------------------------
+                    // AUDIT LOG
+                    // ------------------------------------------------
+
+                    await _auditLogger.LogAsync(
+                        AuditAction.AccountCreated,
+                        actorUsername,
+                        actorRole,
+                        actorId,
+                        "Lecturer",
+                        lecturer.Id,
+                        $"Username: {username}",
+                        ipAddress);
+
+                    // ------------------------------------------------
                     // SEND EMAIL
                     // ------------------------------------------------
 
@@ -513,6 +569,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
                     await _context.SaveChangesAsync();
 
+                    await _auditLogger.LogAsync(
+                        AuditAction.AccountCreated,
+                        actorUsername,
+                        actorRole,
+                        actorId,
+                        "HOD",
+                        hod.Id,
+                        $"Username: {username}",
+                        ipAddress);
+
                     await SendWelcomeEmailAndReturnResult(
                         email,
                         name,
@@ -555,6 +621,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                     _context.Deans.Add(dean);
 
                     await _context.SaveChangesAsync();
+
+                    await _auditLogger.LogAsync(
+                        AuditAction.AccountCreated,
+                        actorUsername,
+                        actorRole,
+                        actorId,
+                        "Dean",
+                        dean.Id,
+                        $"Username: {username}",
+                        ipAddress);
 
                     await SendWelcomeEmailAndReturnResult(
                         email,
@@ -599,6 +675,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                         management);
 
                     await _context.SaveChangesAsync();
+
+                    await _auditLogger.LogAsync(
+                        AuditAction.AccountCreated,
+                        actorUsername,
+                        actorRole,
+                        actorId,
+                        "Management",
+                        management.Id,
+                        $"Username: {username}",
+                        ipAddress);
 
                     await SendWelcomeEmailAndReturnResult(
                         email,
@@ -897,6 +983,19 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         }
 
         // ============================================================
+        // GET ACTOR ID
+        // ============================================================
+
+        private int? GetActorId()
+        {
+            int.TryParse(
+                User.FindFirst("UserId")?.Value,
+                out int parsedActorId);
+
+            return parsedActorId > 0 ? parsedActorId : (int?)null;
+        }
+
+        // ============================================================
         // CLEAR FORM
         // ============================================================
 
@@ -911,6 +1010,4 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             SignatureData = string.Empty;
         }
     }
-
-
 }
