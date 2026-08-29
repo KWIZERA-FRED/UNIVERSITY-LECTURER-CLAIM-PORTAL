@@ -61,6 +61,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 
         public DbSet<Template> Templates => Set<Template>();
 
+        // ============================================================
+        // AUDIT LOG
+        // ============================================================
+
+        public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -458,6 +464,52 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .Property(t => t.Letter)
                 .HasColumnType("nvarchar(max)")
                 .IsRequired();
+
+            // ========================================================
+            // AUDIT LOG
+            // ========================================================
+
+            modelBuilder.Entity<AuditLog>()
+                .ToTable("AuditLogs");
+
+            modelBuilder.Entity<AuditLog>()
+                .Property(a => a.Action)
+                .HasConversion<int>()
+                .IsRequired();
+
+            modelBuilder.Entity<AuditLog>()
+                .Property(a => a.ActorUsername)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            modelBuilder.Entity<AuditLog>()
+                .Property(a => a.ActorRole)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            modelBuilder.Entity<AuditLog>()
+                .Property(a => a.EntityType)
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<AuditLog>()
+                .Property(a => a.Details)
+                .HasMaxLength(500);
+
+            modelBuilder.Entity<AuditLog>()
+                .Property(a => a.IpAddress)
+                .HasMaxLength(45);
+
+            // Deliberately NOT a RowVersion / concurrency token — this
+            // table is insert-only, rows are never updated, so there's
+            // nothing to protect against concurrent overwrites.
+
+            // Query pattern is almost always "recent activity" or
+            // "activity for this entity" — index both.
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(a => a.OccurredAtUtc);
+
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(a => new { a.EntityType, a.EntityId });
         }
     }
 }
