@@ -207,6 +207,7 @@ builder.Services.AddSession(options =>
 // SERVICES
 // ============================================================
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<AuditLogger>();
 
 // ============================================================
 // BUILD APPLICATION

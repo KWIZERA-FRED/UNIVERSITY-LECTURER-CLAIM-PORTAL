@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -22,10 +23,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
     public class LoginModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly AuditLogger _auditLogger;
 
-        public LoginModel(ApplicationDbContext context)
+        public LoginModel(ApplicationDbContext context, AuditLogger auditLogger)
         {
             _context = context;
+            _auditLogger = auditLogger;
         }
 
         [BindProperty]
@@ -147,6 +150,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             // INVALID USERNAME
             // ============================================================
 
+            await _auditLogger.LogAsync(
+                AuditAction.LoginFailed,
+                username,
+                "Unknown",
+                actorId: null,
+                entityType: null,
+                entityId: null,
+                details: "Username not found",
+                ipAddress: HttpContext.Connection.RemoteIpAddress?.ToString());
+
             ErrorMessage = "Invalid username or password.";
             return Page();
         }
@@ -165,12 +178,25 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
         {
             dynamic entity = user;
 
+            string? ipAddress =
+                HttpContext.Connection.RemoteIpAddress?.ToString();
+
             // ============================================================
             // ACCOUNT STATUS
             // ============================================================
 
             if (!entity.IsActive)
             {
+                await _auditLogger.LogAsync(
+                    AuditAction.LoginFailed,
+                    entity.UserName,
+                    role,
+                    userId,
+                    role,
+                    userId,
+                    "Attempted login on deactivated account",
+                    ipAddress);
+
                 ErrorMessage =
                     "This account has been deactivated. Please contact the administrator.";
 
@@ -184,6 +210,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             if (entity.LockoutEndUtc != null &&
                 entity.LockoutEndUtc > DateTime.UtcNow)
             {
+                await _auditLogger.LogAsync(
+                    AuditAction.LoginFailed,
+                    entity.UserName,
+                    role,
+                    userId,
+                    role,
+                    userId,
+                    "Attempted login while account locked",
+                    ipAddress);
+
                 ErrorMessage =
                     "This account is temporarily locked. Please try again later.";
 
@@ -233,6 +269,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     return Page();
                 }
 
+                await _auditLogger.LogAsync(
+                    AuditAction.LoginSucceeded,
+                    entity.UserName,
+                    role,
+                    userId,
+                    role,
+                    userId,
+                    null,
+                    ipAddress);
+
                 await SignInAsync(
                     entity.UserName,
                     role,
@@ -247,12 +293,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
 
             entity.FailedLoginAttempts++;
 
+            bool justLockedOut = false;
+
             if (entity.FailedLoginAttempts >= 5)
             {
                 entity.LockoutEndUtc =
                     DateTime.UtcNow.AddMinutes(15);
 
                 entity.FailedLoginAttempts = 0;
+
+                justLockedOut = true;
             }
 
             entity.UpdatedAtUtc = DateTime.UtcNow;
@@ -269,6 +319,20 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                 ErrorMessage = "Invalid username or password.";
                 return Page();
             }
+
+            await _auditLogger.LogAsync(
+                justLockedOut
+                    ? AuditAction.AccountLockedOut
+                    : AuditAction.LoginFailed,
+                entity.UserName,
+                role,
+                userId,
+                role,
+                userId,
+                justLockedOut
+                    ? "Account locked after 5 failed attempts"
+                    : "Invalid password",
+                ipAddress);
 
             ErrorMessage = "Invalid username or password.";
             return Page();
