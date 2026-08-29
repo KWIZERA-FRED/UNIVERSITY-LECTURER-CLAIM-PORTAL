@@ -19,10 +19,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         private readonly ApplicationDbContext _context;
         private readonly EmailService _emailService;
         private readonly IWebHostEnvironment _environment;
-    public RegisterUserModel(
-        ApplicationDbContext context,
-        EmailService emailService,
-        IWebHostEnvironment environment)
+        public RegisterUserModel(
+            ApplicationDbContext context,
+            EmailService emailService,
+            IWebHostEnvironment environment)
         {
             _context = context;
             _emailService = emailService;
@@ -705,6 +705,34 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             {
                 throw new InvalidOperationException(
                     "The signature image is empty.");
+            }
+
+            // --------------------------------------------------------
+            // SIZE LIMIT
+            // --------------------------------------------------------
+
+            const int maxSignatureBytes = 500_000; // ~500 KB, generous for a signature PNG
+
+            if (imageBytes.Length > maxSignatureBytes)
+            {
+                throw new InvalidOperationException(
+                    "The signature image is too large. Please use a smaller image.");
+            }
+
+            // --------------------------------------------------------
+            // ACTUAL PNG VALIDATION (magic bytes)
+            // --------------------------------------------------------
+            // The client-sent "data:image/png;base64," prefix is just a
+            // string claim — verify the decoded bytes are genuinely a
+            // PNG before writing anything to disk.
+
+            byte[] pngSignature = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+
+            if (imageBytes.Length < pngSignature.Length ||
+                !imageBytes.Take(pngSignature.Length).SequenceEqual(pngSignature))
+            {
+                throw new InvalidOperationException(
+                    "The signature image is not a valid PNG file.");
             }
 
             // --------------------------------------------------------

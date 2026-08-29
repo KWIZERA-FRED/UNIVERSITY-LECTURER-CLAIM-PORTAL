@@ -54,7 +54,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
             message.Body = new TextPart("plain")
             {
-                Text = $***REMOVED***Dear {recipientName},
+                Text = $@"Dear {recipientName},
 
 Your login credentials for the UNILAK Staff Portal are:
 
