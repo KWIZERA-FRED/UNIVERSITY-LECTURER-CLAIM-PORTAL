@@ -152,6 +152,19 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .IsRequired();
 
             // ========================================================
+            // MANAGEMENT
+            // ========================================================
+
+            // Distinguishes which real office this account represents
+            // (HR Officer, DVCAR, Vice Chancellor) — see SignerRole for
+            // why these three are modeled as one account type with a
+            // Title rather than three separate TPH subclasses.
+            modelBuilder.Entity<Management>()
+                .Property(m => m.Title)
+                .HasConversion<int>()
+                .IsRequired();
+
+            // ========================================================
             // LECTURER
             // ========================================================
 
