@@ -47,6 +47,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
         // ============================================================
 
         public DbSet<ContractModel> Contracts => Set<ContractModel>();
+        public DbSet<ContractSignature> ContractSignatures => Set<ContractSignature>();
 
         // ============================================================
         // CLAIMS
@@ -351,6 +352,57 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .WithMany()
                 .HasForeignKey(c => c.CourseAssignmentId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // ========================================================
+            // CONTRACT SIGNATURE
+            // ========================================================
+
+            modelBuilder.Entity<ContractSignature>()
+                .ToTable("ContractSignatures");
+
+            modelBuilder.Entity<ContractSignature>()
+                .Property(cs => cs.SignerRole)
+                .HasConversion<int>()
+                .IsRequired();
+
+            modelBuilder.Entity<ContractSignature>()
+                .Property(cs => cs.Decision)
+                .HasConversion<int>()
+                .IsRequired();
+
+            modelBuilder.Entity<ContractSignature>()
+                .Property(cs => cs.SignatureHash)
+                .HasMaxLength(256);
+
+            modelBuilder.Entity<ContractSignature>()
+                .Property(cs => cs.Comments)
+                .HasColumnType("nvarchar(max)");
+
+            modelBuilder.Entity<ContractSignature>()
+                .HasOne(cs => cs.Contract)
+                .WithMany()
+                .HasForeignKey(cs => cs.ContractId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ContractSignature>()
+                .HasOne(cs => cs.SignedByLecturer)
+                .WithMany()
+                .HasForeignKey(cs => cs.SignedByLecturerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ContractSignature>()
+                .HasOne(cs => cs.SignedByAdminAccount)
+                .WithMany()
+                .HasForeignKey(cs => cs.SignedByAdminAccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ContractSignature>()
+                .HasIndex(cs => new
+                {
+                    cs.ContractId,
+                    cs.SequenceOrder
+                })
+                .IsUnique();
 
             // ========================================================
             // CLAIM

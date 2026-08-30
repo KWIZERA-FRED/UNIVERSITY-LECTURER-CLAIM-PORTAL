@@ -1,6 +1,8 @@
+using System.Security.Claims;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +12,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
     public class AssignCourseModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly AuditLogger _auditLogger;
 
-        public AssignCourseModel(ApplicationDbContext context)
+        public AssignCourseModel(
+            ApplicationDbContext context,
+            AuditLogger auditLogger)
         {
             _context = context;
+            _auditLogger = auditLogger;
         }
 
         // ============================================================
@@ -282,6 +288,25 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             _context.CourseAssignments.Add(assignment);
 
             await _context.SaveChangesAsync();
+
+            // ========================================================
+            // AUDIT LOG
+            // ========================================================
+
+            int.TryParse(
+                User.FindFirst("UserId")?.Value,
+                out int parsedActorId);
+
+            await _auditLogger.LogAsync(
+                AuditAction.CourseAssigned,
+                User.Identity?.Name ?? "Unknown",
+                User.FindFirst(ClaimTypes.Role)?.Value ?? "Unknown",
+                parsedActorId > 0 ? parsedActorId : (int?)null,
+                "CourseAssignment",
+                assignment.Id,
+                $"{course.Code} assigned to {lecturer.UserName} " +
+                $"({AcademicYear}, {Semester.Value}, {AllocatedHours}h)",
+                HttpContext.Connection.RemoteIpAddress?.ToString());
 
             // ========================================================
             // REDIRECT TO CONTRACT PREVIEW
