@@ -4,6 +4,7 @@ using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Academic_Staff_Engagement_Claim_Processing_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260829111217_AddAuditLogs")]
+    partial class AddAuditLogs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -310,57 +313,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Migrations
                     b.HasIndex("LecturerId");
 
                     b.ToTable("Contracts", (string)null);
-                });
-
-            modelBuilder.Entity("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.ContractSignature", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Comments")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ContractId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Decision")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SequenceOrder")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SignatureHash")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<DateTime?>("SignedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("SignedByAdminAccountId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SignedByLecturerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SignerRole")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SignedByAdminAccountId");
-
-                    b.HasIndex("SignedByLecturerId");
-
-                    b.HasIndex("ContractId", "SequenceOrder")
-                        .IsUnique();
-
-                    b.ToTable("ContractSignatures", (string)null);
                 });
 
             modelBuilder.Entity("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Course", b =>
@@ -675,31 +627,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Migrations
                     b.Navigation("CourseAssignment");
 
                     b.Navigation("Lecturer");
-                });
-
-            modelBuilder.Entity("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.ContractSignature", b =>
-                {
-                    b.HasOne("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract", "Contract")
-                        .WithMany()
-                        .HasForeignKey("ContractId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.AdminAccount", "SignedByAdminAccount")
-                        .WithMany()
-                        .HasForeignKey("SignedByAdminAccountId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer", "SignedByLecturer")
-                        .WithMany()
-                        .HasForeignKey("SignedByLecturerId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Contract");
-
-                    b.Navigation("SignedByAdminAccount");
-
-                    b.Navigation("SignedByLecturer");
                 });
 
             modelBuilder.Entity("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.CourseAssignment", b =>

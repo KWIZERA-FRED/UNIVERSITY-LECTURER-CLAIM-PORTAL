@@ -2,24 +2,27 @@ using System.Security.Claims;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
-namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
+namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
 {
+    // No bootstrap exception here, unlike HOD/RegisterUser — a Dean
+    // account always already exists (created by an HOD) before this
+    // page can ever be reached, so [Authorize(Roles = "Dean")] alone
+    // is sufficient; there's no first-run chicken-and-egg problem to
+    // solve for this role the way there was for the very first HOD.
+    [Authorize(Roles = "Dean")]
     public class RegisterUserModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
         private readonly AccountRegistrationService _registrationService;
         private readonly AuditLogger _auditLogger;
 
         public RegisterUserModel(
-            ApplicationDbContext context,
             AccountRegistrationService registrationService,
             AuditLogger auditLogger)
         {
-            _context = context;
             _registrationService = registrationService;
             _auditLogger = auditLogger;
         }
@@ -45,29 +48,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         [BindProperty]
         public string SignatureData { get; set; } = string.Empty;
 
+        // Only meaningful when Role == "Management". Bound as a string
+        // from the form's dropdown, parsed below.
+        [BindProperty]
+        public string ManagementTitle { get; set; } = string.Empty;
+
         public string? SuccessMessage { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public void OnGet()
         {
-            bool anyHodExists = await _context.Hods.AnyAsync();
-
-            if (anyHodExists && !User.IsInRole("HOD"))
-            {
-                await _auditLogger.LogAsync(
-                    AuditAction.AccessDenied,
-                    User.Identity?.Name ?? "Unknown",
-                    User.FindFirst(ClaimTypes.Role)?.Value ?? "Unknown",
-                    GetActorId(),
-                    "RegisterUser",
-                    null,
-                    "GET blocked: not authorized as HOD",
-                    HttpContext.Connection.RemoteIpAddress?.ToString());
-
-                return Forbid();
-            }
-
-            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -77,30 +67,17 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             int? actorId = GetActorId();
             string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-            bool anyHodExists = await _context.Hods.AnyAsync();
+            ManagementTitle? parsedTitle = null;
 
-            if (anyHodExists && !User.IsInRole("HOD"))
-            {
-                await _auditLogger.LogAsync(
-                    AuditAction.AccessDenied,
-                    actorUsername,
-                    actorRole,
-                    actorId,
-                    "RegisterUser",
-                    null,
-                    "POST blocked: not authorized as HOD",
-                    ipAddress);
-
-                return Forbid();
-            }
-
-            // HOD may create Lecturer, HOD, or Dean — not Management.
-            // Management accounts (HR Officer, DVCAR, Vice Chancellor)
-            // are created only by the Dean.
             if (Role.Trim().Equals("Management", StringComparison.OrdinalIgnoreCase))
             {
-                ErrorMessage = "HOD accounts cannot create Management accounts. Please contact a Dean.";
-                return Page();
+                if (!Enum.TryParse<ManagementTitle>(ManagementTitle, true, out var titleValue))
+                {
+                    ErrorMessage = "Please select a valid Management office.";
+                    return Page();
+                }
+
+                parsedTitle = titleValue;
             }
 
             var request = new AccountRegistrationRequest
@@ -112,6 +89,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 Role = Role,
                 GovernmentId = GovernmentId,
                 SignatureData = SignatureData,
+                ManagementTitle = parsedTitle,
                 RegisteringUserId = actorId ?? 0,
                 ActorUsername = actorUsername,
                 ActorRole = actorRole,
@@ -146,6 +124,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             Role = string.Empty;
             GovernmentId = string.Empty;
             SignatureData = string.Empty;
+            ManagementTitle = string.Empty;
         }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
@@ -11,28 +10,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         [Key]
         public int Id { get; private set; }
 
-        // ============================================================
-        // LECTURER
-        // ============================================================
-
         [Required]
         [ForeignKey(nameof(Lecturer))]
         public int LecturerId { get; set; }
-
         public Lecturer Lecturer { get; set; } = null!;
-
-        // ============================================================
-        // COURSE ASSIGNMENT
-        // ============================================================
 
         [ForeignKey(nameof(CourseAssignment))]
         public int? CourseAssignmentId { get; set; }
-
         public CourseAssignment? CourseAssignment { get; set; }
-
-        // ============================================================
-        // CONTRACT CONTENT
-        // ============================================================
 
         [Required]
         public string Content { get; set; } = string.Empty;
@@ -41,49 +26,40 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         [MaxLength(20)]
         public string Version { get; set; } = string.Empty;
 
-        // ============================================================
-        // CONTRACT STATUS
-        // ============================================================
-
         [Required]
-        public ContractStatus Status { get; set; }
-            = ContractStatus.PendingSignature;
+        public ContractStatus Status { get; set; } = ContractStatus.PendingSignature;
 
-        // ============================================================
-        // CONTRACT DATES
-        // ============================================================
+        // Snapshot of the lecturer's signature hash at the moment this
+        // contract was generated — not a live link to Lecturer.SignatureFileHash,
+        // so a later signature reissue can't silently change what an old
+        // contract appears to have been signed with.
+        public string SignatureHashAtSigning { get; private set; } = string.Empty;
+        public DateTime? SignedAtUtc { get; set; }
 
         public DateTime? StartDateUtc { get; set; }
-
         public DateTime? EndDateUtc { get; set; }
 
-        // ============================================================
-        // AUDIT
-        // ============================================================
-
-        public DateTime CreatedAtUtc { get; private set; }
-            = DateTime.UtcNow;
-
+        public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
         public DateTime? UpdatedAtUtc { get; set; }
 
         [Timestamp]
         public byte[]? RowVersion { get; set; }
 
-        // ============================================================
-        // SIGNERS
-        // ============================================================
-
-        public ICollection<ContractSignature> Signatures { get; set; }
-            = new List<ContractSignature>();
-
-        // ============================================================
-        // CONSTRUCTOR
-        // ============================================================
-
         public Contract(int id, string version)
         {
             Id = id;
             Version = version;
+        }
+
+        public void StampSignature(string signatureHash)
+        {
+            if (string.IsNullOrWhiteSpace(signatureHash))
+                throw new ArgumentException("Signature hash is required.", nameof(signatureHash));
+
+            SignatureHashAtSigning = signatureHash;
+            SignedAtUtc = DateTime.UtcNow;
+            Status = ContractStatus.Active;
+            UpdatedAtUtc = DateTime.UtcNow;
         }
     }
 }

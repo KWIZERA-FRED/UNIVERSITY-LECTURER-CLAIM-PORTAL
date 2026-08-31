@@ -207,6 +207,10 @@ builder.Services.AddSession(options =>
 // SERVICES
 // ============================================================
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<AuditLogger>();
+builder.Services.AddScoped<AccountRegistrationService>();
+builder.Services.AddScoped<ContractSigningService>();
+builder.Services.AddScoped<ClaimSigningService>();
 
 // ============================================================
 // BUILD APPLICATION
