@@ -51,8 +51,6 @@
                 flex-direction: column;
             }
 
-            /* HEADER */
-
             .app-header {
                 height: 70px;
                 background: var(--primary);
@@ -103,14 +101,10 @@
                     background: rgba(255,255,255,0.1);
                 }
 
-            /* BODY */
-
             .app-body {
                 display: flex;
                 flex: 1;
             }
-
-            /* SIDEBAR */
 
             .sidebar {
                 width: 230px;
@@ -162,8 +156,6 @@
                         color: var(--accent);
                     }
 
-            /* MAIN */
-
             .main {
                 flex: 1;
                 padding: 1.8rem 2rem 2rem;
@@ -188,8 +180,6 @@
                     color: var(--text-muted);
                     font-size: 0.85rem;
                 }
-
-            /* STAT CARDS */
 
             .stat-grid {
                 display: grid;
@@ -226,8 +216,6 @@
                     margin-bottom: 0.5rem;
                 }
 
-            /* CARDS */
-
             .card {
                 background: white;
                 border: 1px solid var(--border);
@@ -248,7 +236,12 @@
                         margin-right: 0.4rem;
                     }
 
-            /* TABLE */
+            .empty-state {
+                padding: 1.5rem;
+                text-align: center;
+                color: var(--text-muted);
+                font-size: 0.85rem;
+            }
 
             .table-wrap {
                 overflow-x: auto;
@@ -278,8 +271,6 @@
                 background: #f8fafc;
             }
 
-            /* STATUS */
-
             .badge {
                 display: inline-block;
                 padding: 0.15rem 0.8rem;
@@ -298,8 +289,6 @@
                 color: #1a4b7a;
             }
 
-            /* BUTTONS */
-
             .action-btn {
                 background: var(--accent);
                 color: white;
@@ -317,58 +306,10 @@
                     background: #1d6a4d;
                 }
 
-            /* QUICK ACTIONS */
-
-            .quick-actions {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-            }
-
-            .quick-action {
-                border: 1px solid var(--border);
-                border-radius: 12px;
-                padding: 1rem;
-                text-decoration: none;
-                color: var(--text);
-                transition: 0.2s ease;
-                background: white;
-            }
-
-                .quick-action:hover {
-                    border-color: var(--accent);
-                    background: var(--accent-light);
-                }
-
-                .quick-action i {
-                    color: var(--accent);
-                    font-size: 1.3rem;
-                    margin-bottom: 0.5rem;
-                }
-
-                .quick-action strong {
-                    display: block;
-                    color: var(--primary);
-                    font-size: 0.9rem;
-                }
-
-                .quick-action span {
-                    display: block;
-                    color: var(--text-muted);
-                    font-size: 0.75rem;
-                    margin-top: 0.2rem;
-                }
-
-            /* RESPONSIVE */
-
             @@media (max-width: 900px) {
 
                 .stat-grid {
                     grid-template-columns: repeat(2, 1fr);
-                }
-
-                .quick-actions {
-                    grid-template-columns: 1fr 1fr;
                 }
             }
 
@@ -389,10 +330,6 @@
                     grid-template-columns: 1fr;
                 }
 
-                .quick-actions {
-                    grid-template-columns: 1fr;
-                }
-
                 .app-header {
                     padding: 0.8rem 1rem;
                 }
@@ -410,33 +347,21 @@
 
     <div class="dean-app">
 
-        <!-- HEADER -->
-
         <header class="app-header">
 
             <div class="brand">
-
                 <i class="fas fa-university"></i>
-
-                <span>
-                    UNILAK · Staff Engagement
-                </span>
-
+                <span>UNILAK · Staff Engagement</span>
             </div>
 
             <div class="user-area">
 
                 <span class="role-badge">
-
                     <i class="fas fa-user-tie"></i>
-
                     Dean
-
                 </span>
 
-                <a href="/Login" class="logout">
-                    Logout
-                </a>
+                <a href="/Login" class="logout">Logout</a>
 
             </div>
 
@@ -445,430 +370,188 @@
 
         <div class="app-body">
 
-            <!-- SIDEBAR -->
-
             <aside class="sidebar">
 
-                <div class="sidebar-title">
-                    Dean Portal
-                </div>
+                <div class="sidebar-title">Dean Portal</div>
 
                 <a href="/DEAN" class="active">
-
                     <i class="fas fa-th-large"></i>
-
                     Dashboard
-
                 </a>
 
-                <a href="/Contracts">
+                <a href="/DEAN/RegisterUser">
+                    <i class="fas fa-user-plus"></i>
+                    Register New User
+                </a>
 
+                <a href="/DEAN/Contracts">
                     <i class="fas fa-file-signature"></i>
-
                     Contracts
-
                 </a>
 
-                <a href="/Claims">
-
+                <a href="/DEAN/Claims">
                     <i class="fas fa-coins"></i>
-
                     Claims
-
                 </a>
 
             </aside>
 
-
-            <!-- MAIN -->
 
             <main class="main">
 
                 <div class="page-header">
 
                     <div>
-
-                        <h1>
-                            Dean Dashboard
-                        </h1>
-
-                        <p>
-                            Review and approve academic staff contracts and payment claims.
-                        </p>
-
+                        <h1>Dean Dashboard</h1>
+                        <p>Review and approve academic staff contracts and payment claims.</p>
                     </div>
 
                 </div>
 
-
-                <!-- STATISTICS -->
 
                 <div class="stat-grid">
 
                     <div class="stat-card">
-
-                        <div class="icon">
-                            <i class="fas fa-file-signature"></i>
-                        </div>
-
-                        <div class="number">
-                            8
-                        </div>
-
-                        <div class="label">
-                            Contracts to Sign
-                        </div>
-
+                        <div class="icon"><i class="fas fa-file-signature"></i></div>
+                        <div class="number">@Model.ContractsToSignCount</div>
+                        <div class="label">Contracts to Sign</div>
                     </div>
 
-
                     <div class="stat-card">
-
-                        <div class="icon">
-                            <i class="fas fa-file-contract"></i>
-                        </div>
-
-                        <div class="number">
-                            15
-                        </div>
-
-                        <div class="label">
-                            Active Contracts
-                        </div>
-
+                        <div class="icon"><i class="fas fa-file-contract"></i></div>
+                        <div class="number">@Model.ActiveContractsCount</div>
+                        <div class="label">Active Contracts</div>
                     </div>
 
-
                     <div class="stat-card">
-
-                        <div class="icon">
-                            <i class="fas fa-coins"></i>
-                        </div>
-
-                        <div class="number">
-                            5
-                        </div>
-
-                        <div class="label">
-                            Claims to Sign
-                        </div>
-
+                        <div class="icon"><i class="fas fa-coins"></i></div>
+                        <div class="number">@Model.ClaimsToSignCount</div>
+                        <div class="label">Claims to Sign</div>
                     </div>
 
-
                     <div class="stat-card">
-
-                        <div class="icon">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-
-                        <div class="number">
-                            27
-                        </div>
-
-                        <div class="label">
-                            Completed Approvals
-                        </div>
-
+                        <div class="icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="number">@Model.CompletedApprovalsCount</div>
+                        <div class="label">Completed Approvals</div>
                     </div>
 
                 </div>
 
 
-                <!-- CONTRACTS -->
-
                 <div class="card">
 
                     <h3>
-
                         <i class="fas fa-file-signature"></i>
-
                         Contracts Awaiting Your Signature
-
                     </h3>
 
-                    <div class="table-wrap">
+                    @if (Model.ContractsAwaitingSignature.Count == 0)
+                    {
+                        <div class="empty-state">
+                            No contracts are currently awaiting your signature.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-wrap">
 
-                        <table>
+                            <table>
 
-                            <thead>
+                                <thead>
+                                    <tr>
+                                        <th>Contract ID</th>
+                                        <th>Lecturer</th>
+                                        <th>Department</th>
+                                        <th>Course</th>
+                                        <th>Hours</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
 
-                                <tr>
+                                <tbody>
 
-                                    <th>Contract ID</th>
-                                    <th>Lecturer</th>
-                                    <th>Department</th>
-                                    <th>Course</th>
-                                    <th>Hours</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    @foreach (var row in Model.ContractsAwaitingSignature)
+                                    {
+                                        <tr>
+                                            <td><strong>C@(row.ContractId.ToString("D3"))</strong></td>
+                                            <td>@row.LecturerName</td>
+                                            <td>@row.Department</td>
+                                            <td>@row.CourseTitle</td>
+                                            <td>@row.AllocatedHours h</td>
+                                            <td><span class="badge badge-pending">Pending Signature</span></td>
+                                            <td>
+                                                <a href="/DEAN/Contracts?contractId=@row.ContractId" class="action-btn">
+                                                    Review
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
 
-                                </tr>
+                                </tbody>
 
-                            </thead>
+                            </table>
 
-                            <tbody>
-
-                                <tr>
-
-                                    <td>
-                                        <strong>C001</strong>
-                                    </td>
-
-                                    <td>
-                                        Jean Uwase
-                                    </td>
-
-                                    <td>
-                                        Computer Science
-                                    </td>
-
-                                    <td>
-                                        Software Engineering
-                                    </td>
-
-                                    <td>
-                                        45h
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge badge-pending">
-                                            Pending Signature
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <a href="/DEAN/Contracts"
-                                           class="action-btn">
-
-                                            Review
-
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-
-                                <tr>
-
-                                    <td>
-                                        <strong>C004</strong>
-                                    </td>
-
-                                    <td>
-                                        Eric Mugisha
-                                    </td>
-
-                                    <td>
-                                        Business
-                                    </td>
-
-                                    <td>
-                                        Database Systems
-                                    </td>
-
-                                    <td>
-                                        60h
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge badge-pending">
-                                            Pending Signature
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <a href="/DEAN/Contracts"
-                                           class="action-btn">
-
-                                            Review
-
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-
-                                <tr>
-
-                                    <td>
-                                        <strong>C009</strong>
-                                    </td>
-
-                                    <td>
-                                        Marie Niyonzima
-                                    </td>
-
-                                    <td>
-                                        Education
-                                    </td>
-
-                                    <td>
-                                        Web Development
-                                    </td>
-
-                                    <td>
-                                        30h
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge badge-pending">
-                                            Pending Signature
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <a href="/DEAN/Contracts"
-                                           class="action-btn">
-
-                                            Review
-
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
+                        </div>
+                    }
 
                 </div>
 
-
-                <!-- CLAIMS -->
 
                 <div class="card">
 
                     <h3>
-
                         <i class="fas fa-coins"></i>
-
                         Claims Awaiting Your Signature
-
                     </h3>
 
-                    <div class="table-wrap">
+                    @if (Model.ClaimsAwaitingSignature.Count == 0)
+                    {
+                        <div class="empty-state">
+                            No claims are currently awaiting your signature.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-wrap">
 
-                        <table>
+                            <table>
 
-                            <thead>
+                                <thead>
+                                    <tr>
+                                        <th>Claim ID</th>
+                                        <th>Lecturer</th>
+                                        <th>Contract</th>
+                                        <th>Hours</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
 
-                                <tr>
+                                <tbody>
 
-                                    <th>Claim ID</th>
-                                    <th>Lecturer</th>
-                                    <th>Contract</th>
-                                    <th>Hours</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    @foreach (var row in Model.ClaimsAwaitingSignature)
+                                    {
+                                        <tr>
+                                            <td><strong>CL@(row.ClaimId.ToString("D3"))</strong></td>
+                                            <td>@row.LecturerName</td>
+                                            <td>C@(row.ContractId.ToString("D3"))</td>
+                                            <td>@row.HoursClaimed h</td>
+                                            <td><span class="badge badge-review">Awaiting Signature</span></td>
+                                            <td>
+                                                <a href="/DEAN/Claims?claimId=@row.ClaimId" class="action-btn">
+                                                    Review
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
 
-                                </tr>
+                                </tbody>
 
-                            </thead>
+                            </table>
 
-                            <tbody>
-
-                                <tr>
-
-                                    <td>
-                                        <strong>CL001</strong>
-                                    </td>
-
-                                    <td>
-                                        Jean Uwase
-                                    </td>
-
-                                    <td>
-                                        C001
-                                    </td>
-
-                                    <td>
-                                        45h
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge badge-review">
-                                            Awaiting Signature
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <a href="/DEAN/Claims"
-                                           class="action-btn">
-
-                                            Review
-
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-
-                                <tr>
-
-                                    <td>
-                                        <strong>CL002</strong>
-                                    </td>
-
-                                    <td>
-                                        Eric Mugisha
-                                    </td>
-
-                                    <td>
-                                        C004
-                                    </td>
-
-                                    <td>
-                                        60h
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge badge-review">
-                                            Awaiting Signature
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <a href="/DEAN/Claims"
-                                           class="action-btn">
-
-                                            Review
-
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
+                        </div>
+                    }
 
                 </div>
 

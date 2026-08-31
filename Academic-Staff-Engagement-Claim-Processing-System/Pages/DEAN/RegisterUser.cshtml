@@ -1,0 +1,1133 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.RegisterUserModel
+
+@{
+    ViewData["Title"] = "Register New User";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Register New User</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+
+            * {
+                box-sizing: border-box;
+            }
+
+            :root {
+                --primary: #0f2b4a;
+                --primary-light: #1a3f64;
+                --accent: #2a7f5e;
+                --accent-light: #e1f0e8;
+                --bg: #f0f4fa;
+                --card: #ffffff;
+                --border: #dce4ed;
+                --text: #1a2634;
+                --text-muted: #4d6278;
+                --radius: 16px;
+                --shadow: 0 12px 30px -10px rgba(0,20,40,0.12);
+            }
+
+            body {
+                margin: 0;
+                font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                background: var(--bg);
+                color: var(--text);
+            }
+
+            .dean-app {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* HEADER */
+
+            .app-header {
+                height: 70px;
+                background: var(--primary);
+                color: white;
+                padding: 0.9rem 2rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 3px solid var(--accent);
+            }
+
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+                font-weight: 600;
+                font-size: 1.2rem;
+            }
+
+                .brand i {
+                    color: #7bc9a0;
+                    font-size: 1.4rem;
+                }
+
+            .user-area {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .role-badge {
+                background: rgba(255,255,255,0.1);
+                padding: 0.35rem 1rem;
+                border-radius: 40px;
+                font-size: 0.8rem;
+            }
+
+            .logout {
+                color: white;
+                text-decoration: none;
+                font-size: 0.85rem;
+                padding: 0.4rem 0.9rem;
+                border: 1px solid rgba(255,255,255,0.25);
+                border-radius: 30px;
+            }
+
+                .logout:hover {
+                    background: rgba(255,255,255,0.1);
+                }
+
+            /* BODY */
+
+            .app-body {
+                display: flex;
+                flex: 1;
+            }
+
+            /* SIDEBAR */
+
+            .sidebar {
+                width: 230px;
+                background: white;
+                border-right: 1px solid var(--border);
+                padding: 1.2rem 0;
+                flex-shrink: 0;
+                min-height: calc(100vh - 70px);
+            }
+
+            .sidebar-title {
+                padding: 0 1.8rem 0.8rem;
+                font-size: 0.7rem;
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+                color: var(--text-muted);
+                font-weight: 700;
+            }
+
+            .sidebar a {
+                display: block;
+                width: 100%;
+                text-decoration: none;
+                padding: 0.7rem 1.8rem;
+                color: var(--text);
+                font-size: 0.9rem;
+                font-weight: 500;
+                border-left: 3px solid transparent;
+                transition: 0.2s ease;
+            }
+
+                .sidebar a i {
+                    width: 1.6rem;
+                    color: var(--text-muted);
+                }
+
+                .sidebar a:hover {
+                    background: var(--bg);
+                }
+
+                .sidebar a.active {
+                    background: var(--accent-light);
+                    border-left-color: var(--accent);
+                    color: var(--primary);
+                    font-weight: 600;
+                }
+
+                    .sidebar a.active i {
+                        color: var(--accent);
+                    }
+
+            /* MAIN */
+
+            .main {
+                flex: 1;
+                padding: 1.8rem 2rem 2rem;
+                overflow-x: auto;
+            }
+
+            .page-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+            }
+
+                .page-header h1 {
+                    margin: 0;
+                    color: var(--primary);
+                    font-size: 1.6rem;
+                }
+
+                .page-header p {
+                    margin-top: 0.3rem;
+                    color: var(--text-muted);
+                    font-size: 0.85rem;
+                }
+
+            .back-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                padding: 0.5rem 1rem;
+                border: 1px solid var(--border);
+                border-radius: 30px;
+                background: white;
+                color: var(--text-muted);
+                text-decoration: none;
+                font-size: 0.8rem;
+                font-weight: 600;
+            }
+
+                .back-link:hover {
+                    border-color: var(--accent);
+                    color: var(--accent);
+                }
+
+            /* CARDS */
+
+            .card {
+                background: white;
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+                box-shadow: var(--shadow);
+            }
+
+                .card h3 {
+                    font-size: 1rem;
+                    margin-bottom: 0.8rem;
+                    color: var(--primary);
+                }
+
+                    .card h3 i {
+                        color: var(--accent);
+                        margin-right: 0.4rem;
+                    }
+
+            /* FORM */
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.2rem 1.5rem;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .form-group.full {
+                grid-column: 1 / -1;
+            }
+
+            .form-group label {
+                margin-bottom: 0.4rem;
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: var(--text);
+            }
+
+            .required {
+                color: var(--accent);
+            }
+
+            .form-control,
+            .form-select {
+                width: 100%;
+                padding: 0.7rem 0.9rem;
+                border: 1px solid var(--border);
+                border-radius: 9px;
+                background: #ffffff;
+                color: var(--text);
+                font-family: inherit;
+                font-size: 0.85rem;
+            }
+
+            .form-select {
+                cursor: pointer;
+            }
+
+            .form-control:focus,
+            .form-select:focus {
+                outline: none;
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(42, 127, 94, 0.1);
+            }
+
+            .field-help {
+                margin-top: 0.4rem;
+                color: var(--text-muted);
+                font-size: 0.72rem;
+            }
+
+            .role-info {
+                grid-column: 1 / -1;
+                display: none;
+                align-items: flex-start;
+                gap: 0.7rem;
+                padding: 0.8rem 1rem;
+                background: var(--bg);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                color: var(--text-muted);
+                font-size: 0.78rem;
+                line-height: 1.5;
+            }
+
+                .role-info i {
+                    color: var(--accent);
+                    margin-top: 2px;
+                }
+
+            /* SIGNATURE */
+
+            .signature-section {
+                grid-column: 1 / -1;
+            }
+
+            .signature-label {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 0.5rem;
+            }
+
+            .signature-label > span:first-child {
+                font-size: 0.8rem;
+                font-weight: 600;
+            }
+
+            .signature-help {
+                color: var(--text-muted);
+                font-size: 0.75rem;
+            }
+
+            .signature-container {
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                background: #fafcfb;
+                overflow: hidden;
+            }
+
+            #signaturePad {
+                width: 100%;
+                height: 180px;
+                display: block;
+                background: white;
+                cursor: crosshair;
+                touch-action: none;
+            }
+
+            .signature-footer {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0.6rem 0.8rem;
+                border-top: 1px solid var(--border);
+                background: #fafcfb;
+            }
+
+            .signature-status {
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+                color: var(--text-muted);
+                font-size: 0.75rem;
+            }
+
+                .signature-status i {
+                    color: var(--accent);
+                }
+
+            .clear-signature {
+                border: none;
+                background: transparent;
+                color: #a45c5c;
+                font-family: inherit;
+                font-size: 0.75rem;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+                .clear-signature:hover {
+                    color: #c43f3f;
+                }
+
+            /* INFO BOX */
+
+            .info-box {
+                grid-column: 1 / -1;
+                display: flex;
+                align-items: flex-start;
+                gap: 0.7rem;
+                padding: 0.9rem 1rem;
+                background: var(--accent-light);
+                border: 1px solid #cfe3d8;
+                border-radius: 10px;
+                color: #275c46;
+                font-size: 0.78rem;
+                line-height: 1.5;
+            }
+
+                .info-box i {
+                    margin-top: 2px;
+                    color: var(--accent);
+                }
+
+            /* MESSAGES */
+
+            .success-message,
+            .error-message {
+                margin-bottom: 1.2rem;
+                padding: 0.9rem 1rem;
+                border-radius: 10px;
+                font-size: 0.8rem;
+                line-height: 1.5;
+            }
+
+            .success-message {
+                background: #e1f0e8;
+                border: 1px solid #cfe3d8;
+                color: #275c46;
+            }
+
+            .error-message {
+                background: #fdecec;
+                border: 1px solid #f3caca;
+                color: #9c3b3b;
+            }
+
+            /* ACTIONS */
+
+            .form-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 0.8rem;
+                margin-top: 1.5rem;
+                padding-top: 1.3rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .cancel-button {
+                display: inline-flex;
+                align-items: center;
+                padding: 0.65rem 1.2rem;
+                border: 1px solid var(--border);
+                border-radius: 30px;
+                background: white;
+                color: var(--text-muted);
+                text-decoration: none;
+                font-size: 0.8rem;
+                font-weight: 600;
+            }
+
+                .cancel-button:hover {
+                    border-color: #b8c4d1;
+                }
+
+            .action-btn {
+                background: var(--accent);
+                color: white;
+                border: none;
+                padding: 0.65rem 1.4rem;
+                border-radius: 40px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+                .action-btn:hover {
+                    background: #1d6a4d;
+                }
+
+            /* RESPONSIVE */
+
+            @@media (max-width: 900px) {
+
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .form-group.full,
+                .signature-section,
+                .info-box,
+                .role-info {
+                    grid-column: 1;
+                }
+            }
+
+            @@media (max-width: 700px) {
+
+                .app-body {
+                    flex-direction: column;
+                }
+
+                .sidebar {
+                    width: 100%;
+                    min-height: auto;
+                    border-right: none;
+                    border-bottom: 1px solid var(--border);
+                }
+
+                .app-header {
+                    padding: 0.8rem 1rem;
+                }
+
+                .main {
+                    padding: 1.2rem;
+                }
+            }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="dean-app">
+
+        <!-- HEADER -->
+
+        <header class="app-header">
+
+            <div class="brand">
+
+                <i class="fas fa-university"></i>
+
+                <span>
+                    UNILAK · Staff Engagement
+                </span>
+
+            </div>
+
+            <div class="user-area">
+
+                <span class="role-badge">
+
+                    <i class="fas fa-user-tie"></i>
+
+                    Dean
+
+                </span>
+
+                <a href="/Login" class="logout">
+                    Logout
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <div class="app-body">
+
+            <!-- SIDEBAR -->
+
+            <aside class="sidebar">
+
+                <div class="sidebar-title">
+                    Dean Portal
+                </div>
+
+                <a href="/DEAN">
+
+                    <i class="fas fa-th-large"></i>
+
+                    Dashboard
+
+                </a>
+
+                <a href="/DEAN/RegisterUser" class="active">
+
+                    <i class="fas fa-user-plus"></i>
+
+                    Register New User
+
+                </a>
+
+                <a href="/DEAN/Contracts">
+
+                    <i class="fas fa-file-signature"></i>
+
+                    Contracts
+
+                </a>
+
+                <a href="/DEAN/Claims">
+
+                    <i class="fas fa-coins"></i>
+
+                    Claims
+
+                </a>
+
+            </aside>
+
+
+            <!-- MAIN -->
+
+            <main class="main">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h1>
+                            Register New User
+                        </h1>
+
+                        <p>
+                            Create a new staff portal account and capture their signature.
+                        </p>
+
+                    </div>
+
+                    <a href="/DEAN" class="back-link">
+                        <i class="fas fa-arrow-left"></i>
+                        Back
+                    </a>
+
+                </div>
+
+
+                @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+                {
+                    <div class="success-message">
+                        @Model.SuccessMessage
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                {
+                    <div class="error-message">
+                        @Model.ErrorMessage
+                    </div>
+                }
+
+
+                <div class="card">
+
+                    <h3>
+                        <i class="fas fa-user-plus"></i>
+                        User Registration
+                    </h3>
+
+                    <form method="post" id="registerForm">
+
+                        <div class="form-grid">
+
+                            <!-- NAME -->
+
+                            <div class="form-group">
+
+                                <label>
+                                    Full Name <span class="required">*</span>
+                                </label>
+
+                                <input type="text"
+                                       asp-for="Name"
+                                       class="form-control"
+                                       placeholder="Enter full name"
+                                       required />
+
+                            </div>
+
+
+                            <!-- EMAIL -->
+
+                            <div class="form-group">
+
+                                <label>
+                                    Email Address <span class="required">*</span>
+                                </label>
+
+                                <input type="email"
+                                       asp-for="Email"
+                                       class="form-control"
+                                       placeholder="Enter email address"
+                                       required />
+
+                            </div>
+
+
+                            <!-- ROLE -->
+
+                            <div class="form-group">
+
+                                <label>
+                                    System Role <span class="required">*</span>
+                                </label>
+
+                                <select asp-for="Role"
+                                        class="form-select"
+                                        id="roleSelect"
+                                        required>
+
+                                    <option value="">
+                                        Select system role
+                                    </option>
+
+                                    <option value="Lecturer">
+                                        Lecturer
+                                    </option>
+
+                                    <option value="HOD">
+                                        Head of Department
+                                    </option>
+
+                                    <option value="Dean">
+                                        Dean
+                                    </option>
+
+                                    <option value="Management">
+                                        Management
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- DEPARTMENT -->
+
+                            <div class="form-group"
+                                 id="departmentGroup"
+                                 style="display:none;">
+
+                                <label>
+                                    Department <span class="required">*</span>
+                                </label>
+
+                                <input type="text"
+                                       asp-for="Department"
+                                       id="departmentInput"
+                                       class="form-control"
+                                       placeholder="Enter department" />
+
+                                <div class="field-help">
+                                    Required only for Head of Department accounts.
+                                </div>
+
+                            </div>
+
+
+                            <!-- GOVERNMENT ID -->
+
+                            <div class="form-group"
+                                 id="governmentIdGroup"
+                                 style="display:none;">
+
+                                <label>
+                                    Government ID <span class="required">*</span>
+                                </label>
+
+                                <input type="text"
+                                       asp-for="GovernmentId"
+                                       id="governmentIdInput"
+                                       class="form-control"
+                                       placeholder="Enter government ID" />
+
+                                <div class="field-help">
+                                    Required when registering a Lecturer account.
+                                </div>
+
+                            </div>
+
+
+                            <!-- LECTURER RANK -->
+
+                            <div class="form-group"
+                                 id="rankGroup"
+                                 style="display:none;">
+
+                                <label>
+                                    Academic Rank <span class="required">*</span>
+                                </label>
+
+                                <select asp-for="Rank"
+                                        id="rankInput"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Select academic rank
+                                    </option>
+
+                                    <option value="AssistantLecturer">
+                                        Assistant Lecturer
+                                    </option>
+
+                                    <option value="Lecturer">
+                                        Lecturer
+                                    </option>
+
+                                    <option value="SeniorLecturer">
+                                        Senior Lecturer
+                                    </option>
+
+                                    <option value="AssociateProfessor">
+                                        Associate Professor
+                                    </option>
+
+                                    <option value="Professor">
+                                        Professor
+                                    </option>
+
+                                </select>
+
+                                <div class="field-help">
+                                    Required when registering a Lecturer account.
+                                </div>
+
+                            </div>
+
+
+                            <!-- MANAGEMENT TITLE -->
+
+                            <div class="form-group"
+                                 id="managementTitleGroup"
+                                 style="display:none;">
+
+                                <label>
+                                    Management Office <span class="required">*</span>
+                                </label>
+
+                                <select asp-for="ManagementTitle"
+                                        id="managementTitleInput"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Select office
+                                    </option>
+
+                                    <option value="HROfficer">
+                                        Human Resource Officer
+                                    </option>
+
+                                    <option value="DVCAR">
+                                        DVCAR
+                                    </option>
+
+                                    <option value="ViceChancellor">
+                                        Vice Chancellor
+                                    </option>
+
+                                </select>
+
+                                <div class="field-help">
+                                    Required when registering a Management account.
+                                </div>
+
+                            </div>
+
+
+                            <!-- ROLE INFO -->
+
+                            <div class="role-info" id="roleInfo">
+                                <i class="fas fa-circle-info"></i>
+                                <span id="roleInfoText"></span>
+                            </div>
+
+
+                            <!-- SIGNATURE -->
+
+                            <div class="signature-section">
+
+                                <div class="signature-label">
+
+                                    <span>
+                                        Digital Signature <span class="required">*</span>
+                                    </span>
+
+                                    <span class="signature-help">
+                                        Sign inside the box below
+                                    </span>
+
+                                </div>
+
+                                <div class="signature-container">
+
+                                    <canvas id="signaturePad"></canvas>
+
+                                    <div class="signature-footer">
+
+                                        <div class="signature-status">
+                                            <i class="fas fa-pen"></i>
+                                            <span>Signature will be securely saved with the account</span>
+                                        </div>
+
+                                        <button type="button" class="clear-signature" id="clearSignature">
+                                            Clear Signature
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- INFO -->
+
+                            <div class="info-box">
+                                <i class="fas fa-circle-info"></i>
+                                <span>
+                                    After registration, the system will automatically generate the
+                                    user's username and password. The login credentials will be
+                                    sent to the email address provided above. Lecturer accounts
+                                    require a Government ID and academic rank. Management accounts
+                                    require an office to be selected.
+                                </span>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-actions">
+
+                            <a href="/DEAN" class="cancel-button">
+                                Cancel
+                            </a>
+
+                            <button type="submit" class="action-btn">
+                                <i class="fas fa-user-check"></i>
+                                Create User
+                            </button>
+
+                        </div>
+
+
+                        <input type="hidden" asp-for="SignatureData" id="signatureData" />
+
+                    </form>
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        const roleSelect = document.getElementById("roleSelect");
+        const departmentGroup = document.getElementById("departmentGroup");
+        const departmentInput = document.getElementById("departmentInput");
+        const governmentIdGroup = document.getElementById("governmentIdGroup");
+        const governmentIdInput = document.getElementById("governmentIdInput");
+        const rankGroup = document.getElementById("rankGroup");
+        const rankInput = document.getElementById("rankInput");
+        const managementTitleGroup = document.getElementById("managementTitleGroup");
+        const managementTitleInput = document.getElementById("managementTitleInput");
+        const roleInfo = document.getElementById("roleInfo");
+        const roleInfoText = document.getElementById("roleInfoText");
+
+        function updateRoleFields() {
+
+            const role = roleSelect.value;
+
+            departmentGroup.style.display = "none";
+            governmentIdGroup.style.display = "none";
+            rankGroup.style.display = "none";
+            managementTitleGroup.style.display = "none";
+            roleInfo.style.display = "none";
+
+            departmentInput.required = false;
+            governmentIdInput.required = false;
+            rankInput.required = false;
+            managementTitleInput.required = false;
+
+            if (role === "HOD") {
+                departmentGroup.style.display = "flex";
+                departmentInput.required = true;
+                roleInfo.style.display = "flex";
+                roleInfoText.textContent = "A Head of Department account requires the department they manage.";
+            }
+            else if (role === "Lecturer") {
+                governmentIdGroup.style.display = "flex";
+                rankGroup.style.display = "flex";
+                governmentIdInput.required = true;
+                rankInput.required = true;
+                roleInfo.style.display = "flex";
+                roleInfoText.textContent = "A Lecturer account requires a Government ID and academic rank.";
+            }
+            else if (role === "Dean") {
+                roleInfo.style.display = "flex";
+                roleInfoText.textContent = "A Dean account does not require a department, Government ID, or academic rank.";
+            }
+            else if (role === "Management") {
+                managementTitleGroup.style.display = "flex";
+                managementTitleInput.required = true;
+                roleInfo.style.display = "flex";
+                roleInfoText.textContent = "A Management account represents one specific office — HR Officer, DVCAR, or Vice Chancellor.";
+            }
+        }
+
+        roleSelect.addEventListener("change", updateRoleFields);
+        updateRoleFields();
+
+
+        /* SIGNATURE PAD */
+
+        const canvas = document.getElementById("signaturePad");
+        const ctx = canvas.getContext("2d");
+        let drawing = false;
+        let hasSignature = false;
+
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            const ratio = window.devicePixelRatio || 1;
+            const existingSignature = hasSignature ? canvas.toDataURL("image/png") : null;
+
+            canvas.width = rect.width * ratio;
+            canvas.height = rect.height * ratio;
+            ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+            ctx.lineWidth = 2;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.strokeStyle = "#0f2b4a";
+
+            if (existingSignature) {
+                const image = new Image();
+                image.onload = function () {
+                    ctx.drawImage(image, 0, 0, rect.width, rect.height);
+                };
+                image.src = existingSignature;
+            }
+        }
+
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+
+        function getPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            if (e.touches && e.touches.length > 0) {
+                return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+            }
+            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+
+        function startDrawing(e) {
+            e.preventDefault();
+            drawing = true;
+            hasSignature = true;
+            const position = getPosition(e);
+            ctx.beginPath();
+            ctx.moveTo(position.x, position.y);
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            const position = getPosition(e);
+            ctx.lineTo(position.x, position.y);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            if (!drawing) return;
+            drawing = false;
+            document.getElementById("signatureData").value = canvas.toDataURL("image/png");
+        }
+
+        canvas.addEventListener("mousedown", startDrawing);
+        canvas.addEventListener("mousemove", draw);
+        canvas.addEventListener("mouseup", stopDrawing);
+        canvas.addEventListener("mouseleave", stopDrawing);
+        canvas.addEventListener("touchstart", startDrawing, { passive: false });
+        canvas.addEventListener("touchmove", draw, { passive: false });
+        canvas.addEventListener("touchend", stopDrawing);
+
+        document.getElementById("clearSignature").addEventListener("click", function () {
+            const rect = canvas.getBoundingClientRect();
+            ctx.clearRect(0, 0, rect.width, rect.height);
+            hasSignature = false;
+            document.getElementById("signatureData").value = "";
+        });
+
+
+        /* FORM SUBMISSION */
+
+        document.getElementById("registerForm").addEventListener("submit", function (e) {
+
+            const role = roleSelect.value;
+
+            if (!role) {
+                e.preventDefault();
+                alert("Please select the user's system role.");
+                roleSelect.focus();
+                return;
+            }
+
+            if (!hasSignature) {
+                e.preventDefault();
+                alert("Please provide the user's digital signature.");
+                return;
+            }
+
+            if (role === "HOD" && !departmentInput.value.trim()) {
+                e.preventDefault();
+                alert("Please enter the HOD's department.");
+                departmentInput.focus();
+                return;
+            }
+
+            if (role === "Lecturer" && !governmentIdInput.value.trim()) {
+                e.preventDefault();
+                alert("Please enter the lecturer's Government ID.");
+                governmentIdInput.focus();
+                return;
+            }
+
+            if (role === "Lecturer" && !rankInput.value) {
+                e.preventDefault();
+                alert("Please select the lecturer's academic rank.");
+                rankInput.focus();
+                return;
+            }
+
+            if (role === "Management" && !managementTitleInput.value) {
+                e.preventDefault();
+                alert("Please select the Management office.");
+                managementTitleInput.focus();
+                return;
+            }
+
+            document.getElementById("signatureData").value = canvas.toDataURL("image/png");
+        });
+
+    </script>
+
+</body>
+</html>
