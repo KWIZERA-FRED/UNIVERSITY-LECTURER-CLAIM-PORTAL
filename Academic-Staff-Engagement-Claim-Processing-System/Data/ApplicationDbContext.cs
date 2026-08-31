@@ -3,6 +3,7 @@ using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.EntityFrameworkCore;
 
+
 using ClaimModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim;
 using ContractModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract;
 
@@ -61,6 +62,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
         // ============================================================
 
         public DbSet<Template> Templates => Set<Template>();
+        public DbSet<MarksSubmission> MarksSubmissions { get; set; } = null!;
 
         // ============================================================
         // AUDIT LOG
@@ -529,7 +531,61 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .Property(t => t.Letter)
                 .HasColumnType("nvarchar(max)")
                 .IsRequired();
+            // ========================================================
+            // MARKS SUBMISSION
+            // ========================================================
 
+            modelBuilder.Entity<MarksSubmission>()
+                .ToTable("MarksSubmissions");
+
+            modelBuilder.Entity<MarksSubmission>()
+                .Property(ms => ms.AcademicYear)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            modelBuilder.Entity<MarksSubmission>()
+                .Property(ms => ms.OriginalFileName)
+                .HasMaxLength(255)
+                .IsRequired();
+
+            modelBuilder.Entity<MarksSubmission>()
+                .Property(ms => ms.StoredFilePath)
+                .HasMaxLength(1000)
+                .IsRequired();
+
+            modelBuilder.Entity<MarksSubmission>()
+                .Property(ms => ms.SubmissionReference)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            modelBuilder.Entity<MarksSubmission>()
+                .Property(ms => ms.Status)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            modelBuilder.Entity<MarksSubmission>()
+                .HasOne(ms => ms.Lecturer)
+                .WithMany()
+                .HasForeignKey(ms => ms.LecturerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MarksSubmission>()
+                .HasOne(ms => ms.CourseAssignment)
+                .WithMany()
+                .HasForeignKey(ms => ms.CourseAssignmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MarksSubmission>()
+                .HasIndex(ms => ms.SubmissionReference)
+                .IsUnique();
+
+            modelBuilder.Entity<MarksSubmission>()
+                .HasIndex(ms => new
+                {
+                    ms.LecturerId,
+                    ms.CourseAssignmentId,
+                    ms.AcademicYear
+                });
             // ========================================================
             // AUDIT LOG
             // ========================================================

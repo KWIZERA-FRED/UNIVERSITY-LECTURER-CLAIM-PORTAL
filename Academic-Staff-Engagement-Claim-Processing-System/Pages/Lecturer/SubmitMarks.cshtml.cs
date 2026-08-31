@@ -1,64 +1,154 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+using Academic_Staff_Engagement_Claim_Processing_System.Data;
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
+using Academic_Staff_Engagement_Claim_Processing_System.Services;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+
+using LecturerModel =
+    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 {
     public class SubmitMarksModel : PageModel
     {
+        private readonly ApplicationDbContext _context;
+        private readonly EmailService _emailService;
+        private readonly IWebHostEnvironment _environment;
+        private readonly IConfiguration _configuration;
+
+        public SubmitMarksModel(
+            ApplicationDbContext context,
+            EmailService emailService,
+            IWebHostEnvironment environment,
+            IConfiguration configuration)
+        {
+            _context = context;
+            _emailService = emailService;
+            _environment = environment;
+            _configuration = configuration;
+        }
+
         // =====================================================
-        // FORM PROPERTIES
+        // FORM
         // =====================================================
 
         [BindProperty]
-        public string? SelectedCourse { get; set; }
+        public int SelectedCourseAssignmentId { get; set; }
 
         [BindProperty]
-        public string? AcademicYear { get; set; }
+        public string AcademicYear { get; set; } = string.Empty;
 
         [BindProperty]
         public IFormFile? MarksFile { get; set; }
+
+        // =====================================================
+        // MESSAGES
+        // =====================================================
 
         public string? ErrorMessage { get; set; }
 
         public string? SuccessMessage { get; set; }
 
-        public List<Course> Courses { get; set; } = new();
-
         // =====================================================
-        // SIMULATED LECTURER
+        // LECTURER
         // =====================================================
 
-        public string LecturerName { get; set; } =
-            "Dr. Ahmed Mohammed";
+        public LecturerModel? CurrentLecturer { get; set; }
 
-        public string LecturerId { get; set; } =
-            "L001";
+        public string LecturerName { get; set; } = string.Empty;
+
+        public string LecturerId { get; set; } = string.Empty;
+
+        // =====================================================
+        // ASSIGNMENTS
+        // =====================================================
+
+        public List<CourseAssignment> CourseAssignments { get; set; }
+            = new List<CourseAssignment>();
 
         // =====================================================
         // GET
         // =====================================================
 
-        public void OnGet()
+        public async Task<IActionResult> OnGetAsync(
+            string? success = null)
         {
-            LoadCourses();
+            if (!(User.Identity?.IsAuthenticated ?? false))
+            {
+                return RedirectToPage("/Login");
+            }
+
+            var lecturer = await GetCurrentLecturerAsync();
+
+            if (lecturer == null)
+            {
+                return RedirectToPage("/Login");
+            }
+
+            CurrentLecturer = lecturer;
+
+            LecturerName = lecturer.UserName;
+            LecturerId = lecturer.Id.ToString();
+
+            await LoadCourseAssignmentsAsync(lecturer.Id);
+
+            if (!string.IsNullOrWhiteSpace(success))
+            {
+                SuccessMessage =
+                    $"Marks submission {success} was successfully uploaded and sent to the Exam Office for review.";
+            }
+
+            return Page();
         }
 
         // =====================================================
         // POST
         // =====================================================
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
-            LoadCourses();
-
-            // -------------------------------------------------
-            // Validate course
-            // -------------------------------------------------
-
-            if (string.IsNullOrWhiteSpace(SelectedCourse))
+            if (!(User.Identity?.IsAuthenticated ?? false))
             {
-                ErrorMessage = "Please select the course.";
+                return RedirectToPage("/Login");
+            }
+
+            // -------------------------------------------------
+            // Get logged-in lecturer
+            // -------------------------------------------------
+
+            var lecturer = await GetCurrentLecturerAsync();
+
+            if (lecturer == null)
+            {
+                return RedirectToPage("/Login");
+            }
+
+            CurrentLecturer = lecturer;
+
+            LecturerName = lecturer.UserName;
+            LecturerId = lecturer.Id.ToString();
+
+            await LoadCourseAssignmentsAsync(lecturer.Id);
+
+            // -------------------------------------------------
+            // Validate course assignment
+            // -------------------------------------------------
+
+            if (SelectedCourseAssignmentId <= 0)
+            {
+                ErrorMessage =
+                    "Please select the course.";
+
                 return Page();
             }
 
@@ -68,9 +158,13 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
             if (string.IsNullOrWhiteSpace(AcademicYear))
             {
-                ErrorMessage = "Please select the academic year.";
+                ErrorMessage =
+                    "Please select the academic year.";
+
                 return Page();
             }
+
+            AcademicYear = AcademicYear.Trim();
 
             // -------------------------------------------------
             // Validate file
@@ -78,7 +172,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
             if (MarksFile == null || MarksFile.Length == 0)
             {
-                ErrorMessage = "Please upload the Excel marks sheet.";
+                ErrorMessage =
+                    "Please upload the Excel marks sheet.";
+
                 return Page();
             }
 
@@ -86,7 +182,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
             // Validate extension
             // -------------------------------------------------
 
-            var extension =
+            string extension =
                 Path.GetExtension(MarksFile.FileName)
                     .ToLowerInvariant();
 
@@ -99,10 +195,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
             }
 
             // -------------------------------------------------
-            // Validate file size
+            // Validate size
             // -------------------------------------------------
 
-            const long maxFileSize = 10 * 1024 * 1024;
+            const long maxFileSize =
+                10 * 1024 * 1024;
 
             if (MarksFile.Length > maxFileSize)
             {
@@ -113,139 +210,290 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
             }
 
             // -------------------------------------------------
-            // Find course
+            // Find assignment belonging to this lecturer
             // -------------------------------------------------
 
-            var course = Courses.FirstOrDefault(
-                c => c.Code == SelectedCourse
-            );
+            var courseAssignment =
+                await _context.CourseAssignments
+                    .Include(ca => ca.Course)
+                    .FirstOrDefaultAsync(ca =>
+                        ca.Id == SelectedCourseAssignmentId &&
+                        ca.LecturerId == lecturer.Id &&
+                        ca.IsActive);
 
-            if (course == null)
+            if (courseAssignment == null)
             {
                 ErrorMessage =
-                    "The selected course could not be found.";
+                    "The selected course assignment could not be found.";
 
                 return Page();
             }
 
             // -------------------------------------------------
-            // Generate submission reference
+            // Check course active
             // -------------------------------------------------
 
-            var submissionReference =
+            if (!courseAssignment.Course.IsActive)
+            {
+                ErrorMessage =
+                    "The selected course is no longer active.";
+
+                return Page();
+            }
+
+            // -------------------------------------------------
+            // Prevent duplicate pending submission
+            // -------------------------------------------------
+
+            bool existingSubmission =
+                await _context.MarksSubmissions.AnyAsync(ms =>
+                    ms.LecturerId == lecturer.Id &&
+                    ms.CourseAssignmentId ==
+                        courseAssignment.Id &&
+                    ms.AcademicYear == AcademicYear &&
+                    ms.Status == "PendingExamOffice");
+
+            if (existingSubmission)
+            {
+                ErrorMessage =
+                    "You already have a marks submission pending with the Exam Office for this course and academic year.";
+
+                return Page();
+            }
+
+            // -------------------------------------------------
+            // Generate reference
+            // -------------------------------------------------
+
+            string submissionReference =
                 "MRK-" +
-                DateTime.Now.ToString("yyyyMMddHHmmss") +
+                DateTime.UtcNow.ToString("yyyyMMddHHmmss") +
                 "-" +
-                LecturerId;
+                Guid.NewGuid()
+                    .ToString("N")[..8]
+                    .ToUpperInvariant();
 
             // -------------------------------------------------
-            // In the prototype we do not permanently save the
-            // Excel file yet.
+            // Secure storage
             //
-            // Later this will be stored securely in the database
-            // and linked to the lecturer/course.
+            // Outside wwwroot
             // -------------------------------------------------
+
+            string marksDirectory =
+                Path.Combine(
+                    _environment.ContentRootPath,
+                    "App_Data",
+                    "Marks");
+
+            Directory.CreateDirectory(marksDirectory);
+
+            // -------------------------------------------------
+            // Server-side filename
+            // -------------------------------------------------
+
+            string storedFileName =
+                submissionReference + ".xlsx";
+
+            string storedFilePath =
+                Path.Combine(
+                    marksDirectory,
+                    storedFileName);
+
+            // -------------------------------------------------
+            // Save file
+            // -------------------------------------------------
+
+            try
+            {
+                await using var fileStream =
+                    new FileStream(
+                        storedFilePath,
+                        FileMode.CreateNew,
+                        FileAccess.Write,
+                        FileShare.None);
+
+                await MarksFile.CopyToAsync(fileStream);
+            }
+            catch
+            {
+                ErrorMessage =
+                    "The marks file could not be uploaded. Please try again.";
+
+                return Page();
+            }
+
+            // -------------------------------------------------
+            // Create database record
+            // -------------------------------------------------
+
+            var submission = new MarksSubmission
+            {
+                LecturerId =
+                    lecturer.Id,
+
+                CourseAssignmentId =
+                    courseAssignment.Id,
+
+                AcademicYear =
+                    AcademicYear,
+
+                OriginalFileName =
+                    Path.GetFileName(
+                        MarksFile.FileName),
+
+                StoredFilePath =
+                    storedFilePath,
+
+                FileSize =
+                    MarksFile.Length,
+
+                SubmissionReference =
+                    submissionReference,
+
+                Status =
+                    "PendingExamOffice",
+
+                SubmittedAtUtc =
+                    DateTime.UtcNow
+            };
+
+            _context.MarksSubmissions.Add(submission);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                if (System.IO.File.Exists(
+                    storedFilePath))
+                {
+                    System.IO.File.Delete(
+                        storedFilePath);
+                }
+
+                ErrorMessage =
+                    "The marks submission could not be saved. Please try again.";
+
+                return Page();
+            }
+
+            // =================================================
+            // EXAM OFFICE EMAIL
+            // =================================================
+
+            try
+            {
+                string examOfficeEmail =
+                    _configuration[
+                        "ExamOffice:Email"]
+                    ?? throw new InvalidOperationException(
+                        "ExamOffice:Email is missing.");
+
+                string examOfficeName =
+                    _configuration[
+                        "ExamOffice:Name"]
+                    ?? "Exam Office";
+
+                await _emailService
+                    .SendMarksSubmissionNotificationAsync(
+                        examOfficeEmail,
+                        examOfficeName,
+                        lecturer.UserName,
+                        lecturer.Email,
+                        courseAssignment.Course.Code,
+                        courseAssignment.Course.Title,
+                        AcademicYear,
+                        submissionReference);
+            }
+            catch
+            {
+                // ---------------------------------------------
+                // Important:
+                //
+                // The submission remains in the database.
+                // We do NOT delete the marks because the upload
+                // succeeded.
+                // ---------------------------------------------
+
+                ErrorMessage =
+                    "The marks were uploaded successfully, but the Exam Office notification could not be sent. Please contact the administrator.";
+
+                return Page();
+            }
+
+            // =================================================
+            // SUCCESS
+            // =================================================
 
             return RedirectToPage(
-                "/Lecturer/MarksPreview",
+                "/Lecturer/SubmitMarks",
                 new
                 {
-                    Course =
-                        course.Code + " - " + course.Name,
-
-                    Lecturer = LecturerName,
-
-                    LecturerId = LecturerId,
-
-                    AcademicYear = AcademicYear,
-
-                    FileName = MarksFile.FileName,
-
-                    FileSize = MarksFile.Length,
-
-                    SubmissionReference =
+                    success =
                         submissionReference
-                }
-            );
+                });
         }
 
         // =====================================================
-        // LOAD COURSES
+        // LOAD ASSIGNMENTS
         // =====================================================
 
-        private void LoadCourses()
+        private async Task LoadCourseAssignmentsAsync(
+            int lecturerId)
         {
-            Courses = new List<Course>
-            {
-                new Course(
-                    "CS101",
-                    "Introduction to Computer Science"
-                ),
-
-                new Course(
-                    "SE201",
-                    "Software Engineering"
-                ),
-
-                new Course(
-                    "DB301",
-                    "Database Management Systems"
-                ),
-
-                new Course(
-                    "NET202",
-                    "Computer Networks"
-                ),
-
-                new Course(
-                    "AI401",
-                    "Artificial Intelligence"
-                ),
-
-                new Course(
-                    "IOT301",
-                    "Internet of Things"
-                ),
-
-                new Course(
-                    "WD302",
-                    "Web Development"
-                ),
-
-                new Course(
-                    "CYB401",
-                    "Cybersecurity"
-                ),
-
-                new Course(
-                    "OS301",
-                    "Operating Systems"
-                ),
-
-                new Course(
-                    "MOB302",
-                    "Mobile Application Development"
-                )
-            };
+            CourseAssignments =
+                await _context.CourseAssignments
+                    .Include(ca => ca.Course)
+                    .Where(ca =>
+                        ca.LecturerId == lecturerId &&
+                        ca.IsActive &&
+                        ca.Course.IsActive)
+                    .OrderBy(ca => ca.Course.Code)
+                    .ToListAsync();
         }
 
         // =====================================================
-        // COURSE CLASS
+        // CURRENT LECTURER
         // =====================================================
 
-        public class Course
+        private async Task<LecturerModel?>
+            GetCurrentLecturerAsync()
         {
-            public string Code { get; set; }
+            // Login.cshtml.cs stores:
+            //
+            // "UserId"
+            //
+            // in the authentication cookie.
 
-            public string Name { get; set; }
+            string? userId =
+                User.FindFirst("UserId")?.Value;
 
-            public Course(
-                string code,
-                string name)
+            if (int.TryParse(
+                userId,
+                out int lecturerId))
             {
-                Code = code;
-                Name = name;
+                return await _context.Lecturers
+                    .FirstOrDefaultAsync(l =>
+                        l.Id == lecturerId &&
+                        l.IsActive);
             }
+
+            // Fallback to username
+
+            string? username =
+                User.Identity?.Name;
+
+            if (string.IsNullOrWhiteSpace(
+                username))
+            {
+                return null;
+            }
+
+            return await _context.Lecturers
+                .FirstOrDefaultAsync(l =>
+                    l.UserName == username &&
+                    l.IsActive);
         }
     }
 }
