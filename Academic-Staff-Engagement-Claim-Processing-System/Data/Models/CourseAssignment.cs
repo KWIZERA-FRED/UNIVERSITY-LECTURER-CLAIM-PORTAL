@@ -53,5 +53,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         public byte[]? RowVersion { get; set; }
 
         public ICollection<Claim> Claims { get; set; } = new List<Claim>();
+        public ICollection<MarksSubmission> MarksSubmissions { get; set; } = new List<MarksSubmission>();
     }
 }

@@ -8,14 +8,15 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Amazon.S3;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // ============================================================
 // CONFIGURATION
 // ============================================================
+
 // Disable reloadOnChange to prevent Linux inotify limit crashes on Render.
 builder.Configuration.Sources.Clear();
+
 builder.Configuration
     .AddJsonFile(
         "appsettings.json",
@@ -36,6 +37,7 @@ builder.Configuration.AddEnvironmentVariables();
 // ============================================================
 // DATABASE
 // ============================================================
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(
@@ -47,7 +49,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.EnableSensitiveDataLogging();
         options.LogTo(Console.WriteLine);
     }
-});// ============================================================
+});
+
+// ============================================================
 // DATA PROTECTION — CLOUDFLARE R2
 // ============================================================
 
@@ -93,54 +97,73 @@ builder.Services.AddDataProtection()
     });
 
 builder.Services.AddSingleton<GovernmentIdProtector>();
+
 // ============================================================
 // RATE LIMITING
 // ============================================================
-// ============================================================
-// RATE LIMITING
-// ============================================================
+
 builder.Services.AddRateLimiter(options =>
 {
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.RejectionStatusCode =
+        StatusCodes.Status429TooManyRequests;
 
     options.OnRejected = async (context, cancellationToken) =>
     {
         Console.WriteLine(
-            $"[RateLimiter] Rejected request from {context.HttpContext.Connection.RemoteIpAddress} to {context.HttpContext.Request.Path}");
+            $"[RateLimiter] Rejected request from " +
+            $"{context.HttpContext.Connection.RemoteIpAddress} " +
+            $"to {context.HttpContext.Request.Path}");
 
-        context.HttpContext.Response.ContentType = "text/plain";
+        context.HttpContext.Response.ContentType =
+            "text/plain";
+
         await context.HttpContext.Response.WriteAsync(
             "Too many attempts. Please wait a minute before trying again.",
             cancellationToken);
     };
 
-    // Per-IP fixed window — each IP gets its own 5-attempts-per-minute
-    // budget, so one person's retries (or one attacker) can't lock out
-    // every other user of the login page.
-    options.AddPolicy("login-policy", httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 5,
-                Window = TimeSpan.FromMinutes(1),
-                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit = 0
-            }));
+    // ========================================================
+    // LOGIN RATE LIMIT
+    // ========================================================
 
-    // General sliding window policy for application pages
-    options.AddSlidingWindowLimiter(policyName: "general-policy", configureOptions: opt =>
-    {
-        opt.PermitLimit = 100;
-        opt.Window = TimeSpan.FromMinutes(1);
-        opt.SegmentsPerWindow = 4;
-        opt.QueueLimit = 0;
-    });
+    // Each IP gets its own 5-attempts-per-minute budget.
+    options.AddPolicy(
+        "login-policy",
+        httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey:
+                    httpContext.Connection.RemoteIpAddress?.ToString()
+                    ?? "unknown",
+
+                factory: _ =>
+                    new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 5,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueProcessingOrder =
+                            QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 0
+                    }));
+
+    // ========================================================
+    // GENERAL APPLICATION RATE LIMIT
+    // ========================================================
+
+    options.AddSlidingWindowLimiter(
+        policyName: "general-policy",
+        configureOptions: opt =>
+        {
+            opt.PermitLimit = 100;
+            opt.Window = TimeSpan.FromMinutes(1);
+            opt.SegmentsPerWindow = 4;
+            opt.QueueLimit = 0;
+        });
 });
 
 // ============================================================
 // AUTHENTICATION
 // ============================================================
+
 builder.Services
     .AddAuthentication(
         CookieAuthenticationDefaults.AuthenticationScheme)
@@ -148,83 +171,151 @@ builder.Services
     {
         options.LoginPath = "/Login";
         options.AccessDeniedPath = "/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+
+        options.ExpireTimeSpan =
+            TimeSpan.FromHours(8);
+
         options.SlidingExpiration = true;
 
         // Hardened Cookie Security
         options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Strict;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.Name = ".StaffPortal.Auth";
+        options.Cookie.SameSite =
+            SameSiteMode.Strict;
+
+        options.Cookie.SecurePolicy =
+            CookieSecurePolicy.Always;
+
+        options.Cookie.Name =
+            ".StaffPortal.Auth";
     });
 
 // ============================================================
 // AUTHORIZATION
 // ============================================================
+
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("HOD", policy => policy.RequireRole("HOD"));
-    options.AddPolicy("Dean", policy => policy.RequireRole("Dean"));
-    options.AddPolicy("Lecturer", policy => policy.RequireRole("Lecturer"));
+    options.AddPolicy(
+        "HOD",
+        policy => policy.RequireRole("HOD"));
+
+    options.AddPolicy(
+        "Dean",
+        policy => policy.RequireRole("Dean"));
+
+    options.AddPolicy(
+        "Lecturer",
+        policy => policy.RequireRole("Lecturer"));
 });
 
 // ============================================================
 // RAZOR PAGES
 // ============================================================
+
 builder.Services.AddRazorPages(options =>
 {
     // Folder-level role requirements
-    options.Conventions.AuthorizeFolder("/HOD", "HOD");
-    options.Conventions.AuthorizeFolder("/DEAN", "Dean");
-    options.Conventions.AuthorizeFolder("/Lecturer", "Lecturer");
-    options.Conventions.AuthorizeFolder("/Shared");
+    options.Conventions.AuthorizeFolder(
+        "/HOD",
+        "HOD");
+
+    options.Conventions.AuthorizeFolder(
+        "/DEAN",
+        "Dean");
+
+    options.Conventions.AuthorizeFolder(
+        "/Lecturer",
+        "Lecturer");
+
+    options.Conventions.AuthorizeFolder(
+        "/Shared");
 
     // RegisterUser allows initial bootstrap check in code
-    options.Conventions.AllowAnonymousToPage("/HOD/RegisterUser");
+    options.Conventions.AllowAnonymousToPage(
+        "/HOD/RegisterUser");
 
-    // Public pages — no login required
-    options.Conventions.AllowAnonymousToPage("/Login");
-    options.Conventions.AllowAnonymousToPage("/Index");
-    options.Conventions.AllowAnonymousToPage("/Privacy");
-    options.Conventions.AllowAnonymousToPage("/Error");
+    // Public pages
+    options.Conventions.AllowAnonymousToPage(
+        "/Login");
+
+    options.Conventions.AllowAnonymousToPage(
+        "/Index");
+
+    options.Conventions.AllowAnonymousToPage(
+        "/Privacy");
+
+    options.Conventions.AllowAnonymousToPage(
+        "/Error");
 });
 
 // ============================================================
 // SESSION
 // ============================================================
+
 builder.Services.AddDistributedMemoryCache();
+
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromHours(8);
+    options.IdleTimeout =
+        TimeSpan.FromHours(8);
+
     options.Cookie.HttpOnly = true;
+
     options.Cookie.IsEssential = true;
-    options.Cookie.SameSite = SameSiteMode.Strict;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.Name = ".StaffPortal.Session";
+
+    options.Cookie.SameSite =
+        SameSiteMode.Strict;
+
+    options.Cookie.SecurePolicy =
+        CookieSecurePolicy.Always;
+
+    options.Cookie.Name =
+        ".StaffPortal.Session";
 });
 
 // ============================================================
 // SERVICES
 // ============================================================
+
 builder.Services.AddScoped<EmailService>();
+
 builder.Services.AddScoped<AuditLogger>();
+
 builder.Services.AddScoped<AccountRegistrationService>();
+builder.Services.AddScoped<MarksSigningService>();
+
+// Contract signing workflow
 builder.Services.AddScoped<ContractSigningService>();
+
+// Lecturer marks submission +
+// Exam Office signing/declining workflow
+builder.Services.AddScoped<MarksSigningService>();
+
+// Claims workflow
 builder.Services.AddScoped<ClaimSigningService>();
 
 // ============================================================
 // BUILD APPLICATION
 // ============================================================
+
 var app = builder.Build();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
+// ============================================================
+// FORWARDED HEADERS
+// ============================================================
+
+app.UseForwardedHeaders(
+    new ForwardedHeadersOptions
+    {
+        ForwardedHeaders =
+            ForwardedHeaders.XForwardedFor |
+            ForwardedHeaders.XForwardedProto
+    });
 
 // ============================================================
 // TEMPLATE SEEDING
 // ============================================================
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider
@@ -236,9 +327,11 @@ using (var scope = app.Services.CreateScope())
 // ============================================================
 // HTTP REQUEST PIPELINE
 // ============================================================
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
+
     app.UseHsts();
 }
 
@@ -246,19 +339,22 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Rate Limiter must run directly after routing
+// Rate limiter must run directly after routing
 app.UseRateLimiter();
 
-// Session state configuration
+// Session state
 app.UseSession();
 
-// Authentication & Authorization Pipeline
+// Authentication
 app.UseAuthentication();
+
+// Authorization
 app.UseAuthorization();
 
 // ============================================================
 // RAZOR PAGES
 // ============================================================
+
 app.MapRazorPages();
 
 app.Run();
