@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
-// Type aliases to eliminate namespace collisions
+// Type aliases to avoid namespace/type collisions
 using LecturerModel =
     Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
 
@@ -25,7 +25,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
         private readonly ApplicationDbContext _context;
         private readonly AuditLogger _auditLogger;
 
-        public LoginModel(ApplicationDbContext context, AuditLogger auditLogger)
+        public LoginModel(
+            ApplicationDbContext context,
+            AuditLogger auditLogger)
         {
             _context = context;
             _auditLogger = auditLogger;
@@ -43,23 +45,30 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
         {
         }
 
+        // ============================================================
+        // LOGIN
+        // ============================================================
+
         public async Task<IActionResult> OnPostAsync()
         {
             if (string.IsNullOrWhiteSpace(Username) ||
                 string.IsNullOrWhiteSpace(Password))
             {
-                ErrorMessage = "Please enter your username and password.";
+                ErrorMessage =
+                    "Please enter your username and password.";
+
                 return Page();
             }
 
             string username = Username.Trim();
 
-            // ============================================================
+            // ========================================================
             // 1. CHECK LECTURER
-            // ============================================================
+            // ========================================================
 
             var lecturer = await _context.Lecturers
-                .FirstOrDefaultAsync(l => l.UserName == username);
+                .FirstOrDefaultAsync(l =>
+                    l.UserName == username);
 
             if (lecturer != null)
             {
@@ -68,9 +77,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     "Lecturer",
                     lecturer.Id,
                     new PasswordHasher<LecturerModel>(),
+
                     onSuccess: async () =>
                     {
-                       if (lecturer.MustChangePassword)
+                        // ------------------------------------------------
+                        // First-login password change
+                        // ------------------------------------------------
+
+                        if (lecturer.MustChangePassword)
                         {
                             return RedirectToPage(
                                 "/ChangePassword",
@@ -80,12 +94,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                                 });
                         }
 
-                        if (lecturer.Type == UserRole.PartTimeLecturer)
-                        {
-                            return RedirectToPage("/Lecturer/Part/Index");
-                        }
+                        // ------------------------------------------------
+                        // Lecturer dashboard
+                        // ------------------------------------------------
 
-                        return RedirectToPage("/Lecturer/Index");
+                        return RedirectToPage(
+                            "/Lecturer/Index");
                     });
             }
 
@@ -94,7 +108,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             // ============================================================
 
             var hod = await _context.Hods
-                .FirstOrDefaultAsync(h => h.UserName == username);
+                .FirstOrDefaultAsync(h =>
+                    h.UserName == username);
 
             if (hod != null)
             {
@@ -103,6 +118,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     "HOD",
                     hod.Id,
                     new PasswordHasher<AdminAccount>(),
+
                     onSuccess: () =>
                         Task.FromResult<IActionResult>(
                             RedirectToPage("/HOD/Index")));
@@ -113,7 +129,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             // ============================================================
 
             var dean = await _context.Deans
-                .FirstOrDefaultAsync(d => d.UserName == username);
+                .FirstOrDefaultAsync(d =>
+                    d.UserName == username);
 
             if (dean != null)
             {
@@ -122,6 +139,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     "Dean",
                     dean.Id,
                     new PasswordHasher<AdminAccount>(),
+
                     onSuccess: () =>
                         Task.FromResult<IActionResult>(
                             RedirectToPage("/DEAN/Index")));
@@ -132,7 +150,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             // ============================================================
 
             var management = await _context.ManagementAccounts
-                .FirstOrDefaultAsync(m => m.UserName == username);
+                .FirstOrDefaultAsync(m =>
+                    m.UserName == username);
 
             if (management != null)
             {
@@ -141,6 +160,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     "Management",
                     management.Id,
                     new PasswordHasher<AdminAccount>(),
+
                     onSuccess: () =>
                         Task.FromResult<IActionResult>(
                             RedirectToPage("/ManagementDashboard")));
@@ -158,15 +178,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                 entityType: null,
                 entityId: null,
                 details: "Username not found",
-                ipAddress: HttpContext.Connection.RemoteIpAddress?.ToString());
+                ipAddress:
+                    HttpContext.Connection.RemoteIpAddress?.ToString());
 
-            ErrorMessage = "Invalid username or password.";
+            ErrorMessage =
+                "Invalid username or password.";
+
             return Page();
         }
 
-        // ================================================================
+        // ============================================================
         // PROCESS LOGIN
-        // ================================================================
+        // ============================================================
 
         private async Task<IActionResult> ProcessUserLoginAsync<TUser>(
             TUser user,
@@ -181,9 +204,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             string? ipAddress =
                 HttpContext.Connection.RemoteIpAddress?.ToString();
 
-            // ============================================================
+            // ========================================================
             // ACCOUNT STATUS
-            // ============================================================
+            // ========================================================
 
             if (!entity.IsActive)
             {
@@ -198,14 +221,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     ipAddress);
 
                 ErrorMessage =
-                    "This account has been deactivated. Please contact the administrator.";
+                    "This account has been deactivated. " +
+                    "Please contact the administrator.";
 
                 return Page();
             }
 
-            // ============================================================
+            // ========================================================
             // LOCKOUT
-            // ============================================================
+            // ========================================================
 
             if (entity.LockoutEndUtc != null &&
                 entity.LockoutEndUtc > DateTime.UtcNow)
@@ -221,14 +245,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     ipAddress);
 
                 ErrorMessage =
-                    "This account is temporarily locked. Please try again later.";
+                    "This account is temporarily locked. " +
+                    "Please try again later.";
 
                 return Page();
             }
 
-            // ============================================================
+            // ========================================================
             // VERIFY PASSWORD
-            // ============================================================
+            // ========================================================
 
             var verificationResult =
                 hasher.VerifyHashedPassword(
@@ -236,27 +261,41 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     entity.PasswordHash,
                     Password);
 
-            // ============================================================
+            // ========================================================
             // SUCCESSFUL LOGIN
-            // ============================================================
+            // ========================================================
 
-            if (verificationResult == PasswordVerificationResult.Success ||
+            if (verificationResult ==
+                    PasswordVerificationResult.Success ||
                 verificationResult ==
                     PasswordVerificationResult.SuccessRehashNeeded)
             {
+                // ----------------------------------------------------
+                // Rehash password if required
+                // ----------------------------------------------------
+
                 if (verificationResult ==
                     PasswordVerificationResult.SuccessRehashNeeded)
                 {
                     entity.PasswordHash =
-                        hasher.HashPassword(user, Password);
+                        hasher.HashPassword(
+                            user,
+                            Password);
                 }
+
+                // ----------------------------------------------------
+                // Reset login security information
+                // ----------------------------------------------------
 
                 entity.FailedLoginAttempts = 0;
                 entity.LockoutEndUtc = null;
                 entity.LastLoginUtc = DateTime.UtcNow;
                 entity.UpdatedAtUtc = DateTime.UtcNow;
 
-                // Save with concurrency protection.
+                // ----------------------------------------------------
+                // Save changes
+                // ----------------------------------------------------
+
                 bool saved =
                     await SaveLoginChangesWithConcurrencyRetryAsync(
                         entity);
@@ -264,10 +303,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                 if (!saved)
                 {
                     ErrorMessage =
-                        "Your login could not be completed because the account was updated by another request. Please try again.";
+                        "Your login could not be completed because " +
+                        "the account was updated by another request. " +
+                        "Please try again.";
 
                     return Page();
                 }
+
+                // ----------------------------------------------------
+                // Audit successful login
+                // ----------------------------------------------------
 
                 await _auditLogger.LogAsync(
                     AuditAction.LoginSucceeded,
@@ -279,17 +324,25 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     null,
                     ipAddress);
 
+                // ----------------------------------------------------
+                // CREATE AUTHENTICATION COOKIE
+                // ----------------------------------------------------
+
                 await SignInAsync(
                     entity.UserName,
                     role,
                     userId);
 
+                // ----------------------------------------------------
+                // REDIRECT
+                // ----------------------------------------------------
+
                 return await onSuccess();
             }
 
-            // ============================================================
-            // FAILED LOGIN
-            // ============================================================
+            // ========================================================
+            // FAILED PASSWORD
+            // ========================================================
 
             entity.FailedLoginAttempts++;
 
@@ -307,40 +360,52 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
 
             entity.UpdatedAtUtc = DateTime.UtcNow;
 
-            // Save with concurrency protection.
+            // --------------------------------------------------------
+            // Save failed login attempt
+            // --------------------------------------------------------
+
             bool failedAttemptSaved =
                 await SaveLoginChangesWithConcurrencyRetryAsync(
                     entity);
 
             if (!failedAttemptSaved)
             {
-                // We don't expose database/concurrency details
-                // to the user.
-                ErrorMessage = "Invalid username or password.";
+                ErrorMessage =
+                    "Invalid username or password.";
+
                 return Page();
             }
+
+            // --------------------------------------------------------
+            // Audit failed login
+            // --------------------------------------------------------
 
             await _auditLogger.LogAsync(
                 justLockedOut
                     ? AuditAction.AccountLockedOut
                     : AuditAction.LoginFailed,
+
                 entity.UserName,
                 role,
                 userId,
                 role,
                 userId,
+
                 justLockedOut
                     ? "Account locked after 5 failed attempts"
                     : "Invalid password",
+
                 ipAddress);
 
-            ErrorMessage = "Invalid username or password.";
+            ErrorMessage =
+                "Invalid username or password.";
+
             return Page();
         }
 
-        // ================================================================
+        // ============================================================
         // SAVE LOGIN CHANGES WITH CONCURRENCY RETRY
-        // ================================================================
+        // ============================================================
 
         private async Task<bool>
             SaveLoginChangesWithConcurrencyRetryAsync(
@@ -348,7 +413,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
         {
             const int maxAttempts = 2;
 
-            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            for (int attempt = 1;
+                 attempt <= maxAttempts;
+                 attempt++)
             {
                 try
                 {
@@ -363,10 +430,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                         return false;
                     }
 
-                    // ====================================================
-                    // REFRESH THE DATABASE VALUES
-                    // ====================================================
-
                     foreach (var entry in _context.ChangeTracker
                         .Entries()
                         .Where(e => e.Entity == user))
@@ -379,32 +442,31 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                             return false;
                         }
 
-                        // Preserve the values that this login operation
-                        // intentionally changed.
+                        // Preserve our changes
                         var currentValues =
                             entry.CurrentValues.Clone();
 
-                        // Replace EF's original values with the values
-                        // currently stored in the database.
-                        entry.OriginalValues.SetValues(databaseValues);
+                        // Refresh original database values
+                        entry.OriginalValues
+                            .SetValues(databaseValues);
 
-                        // Keep our login changes.
-                        entry.CurrentValues.SetValues(currentValues);
+                        // Restore our changes
+                        entry.CurrentValues
+                            .SetValues(currentValues);
 
-                        // Make sure EF attempts the update again.
-                        entry.State = EntityState.Modified;
+                        // Tell EF to update again
+                        entry.State =
+                            EntityState.Modified;
                     }
-
-                    // Loop around and retry SaveChangesAsync().
                 }
             }
 
             return false;
         }
 
-        // ================================================================
+        // ============================================================
         // SIGN IN
-        // ================================================================
+        // ============================================================
 
         private async Task SignInAsync(
             string username,
@@ -426,20 +488,26 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     userId.ToString())
             };
 
-            var identity = new ClaimsIdentity(
-                claims,
-                CookieAuthenticationDefaults.AuthenticationScheme);
+            var identity =
+                new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults
+                        .AuthenticationScheme);
 
-            var principal = new ClaimsPrincipal(identity);
+            var principal =
+                new ClaimsPrincipal(identity);
 
             await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
+                CookieAuthenticationDefaults
+                    .AuthenticationScheme,
                 principal,
                 new AuthenticationProperties
                 {
                     IsPersistent = false,
+
                     ExpiresUtc =
-                        DateTimeOffset.UtcNow.AddHours(8)
+                        DateTimeOffset.UtcNow
+                            .AddHours(8)
                 });
         }
     }

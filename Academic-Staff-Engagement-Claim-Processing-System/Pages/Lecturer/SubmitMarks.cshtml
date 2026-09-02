@@ -1,4 +1,5 @@
-﻿@page
+﻿```cshtml
+@page
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer.SubmitMarksModel
 
 @{
@@ -7,7 +8,6 @@
 }
 
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -50,12 +50,17 @@
             --border: #dce7e1;
             --text: #1a2b24;
             --muted: #60736a;
+
             --danger-bg: #f8d7da;
             --danger-text: #721c24;
             --danger-border: #f1bfc4;
+
             --success-bg: #dff3e7;
             --success-text: #145c35;
             --success-border: #b8dfc6;
+
+            --radius: 16px;
+            --shadow: 0 10px 30px rgba(23, 77, 59, .08);
         }
 
         body {
@@ -65,14 +70,21 @@
             min-height: 100vh;
         }
 
+        /* =====================================================
+           HEADER
+           ===================================================== */
+
         .top-header {
             height: 72px;
-            background: white;
+            background: rgba(255,255,255,.97);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .header-left,
@@ -118,20 +130,31 @@
             justify-content: center;
         }
 
-        .user-name {
+        .user-text {
             font-size: 12px;
+        }
+
+        .user-name {
             font-weight: 700;
         }
 
         .user-role {
-            font-size: 10px;
             color: var(--muted);
+            font-size: 10px;
         }
+
+        /* =====================================================
+           LAYOUT
+           ===================================================== */
 
         .layout {
             display: flex;
             min-height: calc(100vh - 72px);
         }
+
+        /* =====================================================
+           SIDEBAR
+           ===================================================== */
 
         .sidebar {
             width: 245px;
@@ -169,6 +192,7 @@
             color: var(--muted);
             font-size: 12px;
             font-weight: 600;
+            transition: .2s;
         }
 
         .menu a:hover,
@@ -177,10 +201,18 @@
             color: var(--accent);
         }
 
+        .menu i {
+            font-size: 15px;
+        }
+
+        /* =====================================================
+           CONTENT
+           ===================================================== */
+
         .content {
             flex: 1;
             padding: 32px;
-            max-width: 1100px;
+            max-width: 1150px;
         }
 
         .page-header {
@@ -199,12 +231,16 @@
             margin-top: 5px;
         }
 
+        /* =====================================================
+           CARD
+           ===================================================== */
+
         .form-card {
-            background: white;
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(23, 77, 59, .08);
             max-width: 850px;
         }
 
@@ -221,6 +257,10 @@
         .section-title i {
             color: var(--accent);
         }
+
+        /* =====================================================
+           MESSAGES
+           ===================================================== */
 
         .message {
             padding: 13px;
@@ -240,6 +280,10 @@
             color: var(--success-text);
             border: 1px solid var(--success-border);
         }
+
+        /* =====================================================
+           FORM
+           ===================================================== */
 
         .form-group {
             margin-bottom: 22px;
@@ -271,12 +315,23 @@
             box-shadow: 0 0 0 3px rgba(42, 127, 94, .10);
         }
 
+        /* =====================================================
+           UPLOAD
+           ===================================================== */
+
         .upload-area {
             border: 2px dashed #bfd3c9;
             border-radius: 14px;
             padding: 30px 25px;
             text-align: center;
             background: #fbfdfc;
+            transition: .2s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
         }
 
         .upload-icon {
@@ -304,6 +359,27 @@
             font-size: 10px;
             color: var(--muted);
         }
+
+        .file-input {
+            margin-top: 18px;
+        }
+
+        .file-input input {
+            font-family: inherit;
+            font-size: 11px;
+            max-width: 100%;
+        }
+
+        #fileName {
+            margin-top: 10px;
+            font-size: 10px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           FORMAT
+           ===================================================== */
 
         .format-box {
             margin-top: 20px;
@@ -350,6 +426,27 @@
             font-weight: 600;
         }
 
+        /* =====================================================
+           SECURITY NOTE
+           ===================================================== */
+
+        .security-note {
+            margin-top: 18px;
+            font-size: 10px;
+            color: var(--muted);
+            display: flex;
+            gap: 7px;
+            align-items: flex-start;
+        }
+
+        .security-note i {
+            color: var(--accent);
+        }
+
+        /* =====================================================
+           BUTTON
+           ===================================================== */
+
         .actions {
             display: flex;
             justify-content: flex-end;
@@ -369,24 +466,17 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            transition: .2s;
         }
 
         .submit-button:hover {
             background: var(--primary-light);
+            transform: translateY(-1px);
         }
 
-        .security-note {
-            margin-top: 18px;
-            font-size: 10px;
-            color: var(--muted);
-            display: flex;
-            gap: 7px;
-            align-items: flex-start;
-        }
-
-        .security-note i {
-            color: var(--accent);
-        }
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
 
         @@media(max-width: 800px) {
 
@@ -414,6 +504,10 @@
             .header-subtitle {
                 display: none;
             }
+
+            .header-user .user-text {
+                display: none;
+            }
         }
 
     </style>
@@ -422,363 +516,408 @@
 
 <body>
 
-<header class="top-header">
+    <!-- HEADER -->
 
-    <div class="header-left">
+    <header class="top-header">
 
-        <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-             class="header-logo"
-             alt="UNILAK">
+        <div class="header-left">
 
-        <div>
+            <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                 class="header-logo"
+                 alt="UNILAK">
 
-            <div class="header-title">
-                UNILAK Staff Portal
-            </div>
+            <div>
 
-            <div class="header-subtitle">
-                Academic Staff Engagement & Claim Processing
+                <div class="header-title">
+                    UNILAK Staff Portal
+                </div>
+
+                <div class="header-subtitle">
+                    Academic Staff Engagement & Claim Processing
+                </div>
+
             </div>
 
         </div>
+
+        <div class="header-user">
+
+            <div class="user-icon">
+                <i class="bi bi-person"></i>
+            </div>
+
+            <div class="user-text">
+
+                <div class="user-name">
+                    @Model.LecturerName
+                </div>
+
+                <div class="user-role">
+                    Lecturer
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-title">
+                Lecturer Portal
+            </div>
+
+            <ul class="menu">
+
+                <li>
+                    <a href="/Lecturer">
+                        <i class="bi bi-grid"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Lecturer/Contracts">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Contracts</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Lecturer/SubmitMarks"
+                       class="active">
+                        <i class="bi bi-file-earmark-spreadsheet"></i>
+                        <span>Submit Marks</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Lecturer/SubmitClaim">
+                        <i class="bi bi-cash-stack"></i>
+                        <span>Submit Claim</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Shared/Claims">
+                        <i class="bi bi-receipt"></i>
+                        <span>Claims</span>
+                    </a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+
+        <!-- CONTENT -->
+
+        <main class="content">
+
+            <div class="page-header">
+
+                <h1>
+                    Submit Marks
+                </h1>
+
+                <p>
+                    Upload the completed marks sheet for one of your assigned courses.
+                </p>
+
+            </div>
+
+
+            <div class="form-card">
+
+                <div class="section-title">
+
+                    <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+
+                    Academic Marks Submission
+
+                </div>
+
+
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                {
+                    <div class="message error-message">
+
+                        <i class="bi bi-exclamation-circle"></i>
+
+                        @Model.ErrorMessage
+
+                    </div>
+                }
+
+
+                @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+                {
+                    <div class="message success-message">
+
+                        <i class="bi bi-check-circle"></i>
+
+                        @Model.SuccessMessage
+
+                    </div>
+                }
+
+
+                <form method="post"
+                      enctype="multipart/form-data">
+
+                    @Html.AntiForgeryToken()
+
+
+                    <!-- COURSE -->
+
+                    <div class="form-group">
+
+                        <label asp-for="CourseAssignmentId">
+                            Course
+                        </label>
+
+                        <select asp-for="CourseAssignmentId">
+
+                            <option value="0">
+                                Select course
+                            </option>
+
+                            @foreach (var assignment in Model.Assignments)
+                            {
+                                <option value="@assignment.Id">
+                                    @assignment.Course.Code -
+                                    @assignment.Course.Title
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- ACADEMIC YEAR -->
+
+                    <div class="form-group">
+
+                        <label asp-for="AcademicYear">
+                            Academic Year
+                        </label>
+
+                        <select asp-for="AcademicYear">
+
+                            <option value="">
+                                Select academic year
+                            </option>
+
+                            @foreach (var year in Model.Assignments
+                                .Select(a => a.AcademicYear)
+                                .Distinct()
+                                .OrderByDescending(y => y))
+                            {
+                                <option value="@year">
+                                    @year
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- SEMESTER -->
+
+                    <div class="form-group">
+
+                        <label asp-for="Semester">
+                            Semester
+                        </label>
+
+                        <select asp-for="Semester">
+
+                            <option value="">
+                                Select semester
+                            </option>
+
+                            @foreach (var semester in Enum.GetValues<Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums.Semester>())
+                            {
+                                <option value="@semester">
+                                    @semester
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- EXCEL FILE -->
+
+                    <div class="form-group">
+
+                        <label asp-for="MarksFile">
+                            Marks Excel Sheet
+                        </label>
+
+                        <div class="upload-area"
+                             onclick="document.getElementById('marksFile').click();">
+
+                            <div class="upload-icon">
+
+                                <i class="bi bi-file-earmark-excel"></i>
+
+                            </div>
+
+                            <div class="upload-title">
+                                Upload Excel Marks Sheet
+                            </div>
+
+                            <div class="upload-description">
+                                Select the completed .xlsx marks file from your computer.
+                            </div>
+
+                            <div class="file-input">
+
+                                <input asp-for="MarksFile"
+                                       id="marksFile"
+                                       type="file"
+                                       accept=".xlsx"
+                                       onclick="event.stopPropagation();"
+                                       onchange="showFileName(this)" />
+
+                            </div>
+
+                            <div id="fileName"></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- FORMAT -->
+
+                    <div class="format-box">
+
+                        <div class="format-title">
+
+                            <i class="bi bi-info-circle-fill"></i>
+
+                            Required Excel Format
+
+                        </div>
+
+                        <p>
+                            Your Excel file should contain the student
+                            information and their marks required by the university.
+                            The system will validate the uploaded sheet before
+                            accepting the submission.
+                        </p>
+
+                        <div class="columns">
+
+                            <span class="column-tag">
+                                Student ID
+                            </span>
+
+                            <span class="column-tag">
+                                Student Name
+                            </span>
+
+                            <span class="column-tag">
+                                CAT
+                            </span>
+
+                            <span class="column-tag">
+                                Assignment
+                            </span>
+
+                            <span class="column-tag">
+                                Exam
+                            </span>
+
+                            <span class="column-tag">
+                                Total
+                            </span>
+
+                            <span class="column-tag">
+                                Grade
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SECURITY NOTE -->
+
+                    <div class="security-note">
+
+                        <i class="bi bi-shield-check"></i>
+
+                        <span>
+                            Your submission is linked to your authenticated
+                            lecturer account. The uploaded file is stored using
+                            a server-generated private storage key and is
+                            protected by a SHA-256 integrity hash.
+                        </span>
+
+                    </div>
+
+
+                    <!-- SUBMIT -->
+
+                    <div class="actions">
+
+                        <button type="submit"
+                                class="submit-button">
+
+                            <i class="bi bi-cloud-arrow-up"></i>
+
+                            Submit Marks
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </main>
 
     </div>
 
-    <div class="header-user">
 
-        <div class="user-icon">
-            <i class="bi bi-person"></i>
-        </div>
+    <script>
 
-        <div>
+        function showFileName(input) {
 
-            <div class="user-name">
-                @Model.LecturerName
-            </div>
+            const fileName =
+                document.getElementById("fileName");
 
-            <div class="user-role">
-                Lecturer
-            </div>
+            if (input.files &&
+                input.files.length > 0) {
 
-        </div>
+                fileName.textContent =
+                    "Selected: " +
+                    input.files[0].name;
 
-    </div>
-
-</header>
-
-
-<div class="layout">
-
-    <aside class="sidebar">
-
-        <div class="sidebar-title">
-            Lecturer Portal
-        </div>
-
-        <ul class="menu">
-
-            <li>
-                <a href="/Lecturer">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="/Lecturer/Contracts">
-                    <i class="bi bi-file-earmark-text"></i>
-                    <span>Contracts</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="/Lecturer/SubmitMarks"
-                   class="active">
-                    <i class="bi bi-file-earmark-spreadsheet"></i>
-                    <span>Submit Marks</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="/Lecturer/SubmitClaim">
-                    <i class="bi bi-cash-stack"></i>
-                    <span>Submit Claim</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="/Shared/Claims">
-                    <i class="bi bi-receipt"></i>
-                    <span>Claims</span>
-                </a>
-            </li>
-
-        </ul>
-
-    </aside>
-
-
-    <main class="content">
-
-        <div class="page-header">
-
-            <h1>
-                Submit Marks
-            </h1>
-
-            <p>
-                Upload the completed marks sheet for your assigned course.
-            </p>
-
-        </div>
-
-
-        <div class="form-card">
-
-            <div class="section-title">
-
-                <i class="bi bi-file-earmark-spreadsheet-fill"></i>
-
-                Academic Marks Submission
-
-            </div>
-
-
-            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-            {
-                <div class="message error-message">
-
-                    <i class="bi bi-exclamation-circle"></i>
-
-                    @Model.ErrorMessage
-
-                </div>
             }
+            else {
 
+                fileName.textContent = "";
 
-            @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
-            {
-                <div class="message success-message">
-
-                    <i class="bi bi-check-circle"></i>
-
-                    @Model.SuccessMessage
-
-                </div>
             }
+        }
 
-
-            <form method="post"
-                  enctype="multipart/form-data">
-
-                @Html.AntiForgeryToken()
-
-
-                <div class="form-group">
-
-                    <label asp-for="CourseAssignmentId">
-                        Course
-                    </label>
-
-                    <select asp-for="CourseAssignmentId">
-
-                        <option value="0">
-                            Select course
-                        </option>
-
-                        @foreach (var assignment in Model.Assignments)
-                        {
-                            <option value="@assignment.Id">
-
-                                @assignment.Course.Code -
-                                @assignment.Course.Title
-                                |
-                                @assignment.AcademicYear
-                                |
-                                @assignment.Semester
-
-                            </option>
-                        }
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label asp-for="AcademicYear">
-                        Academic Year
-                    </label>
-
-                    <select asp-for="AcademicYear">
-
-                        <option value="">
-                            Select academic year
-                        </option>
-
-                        @foreach (var year in Model.Assignments
-                            .Select(a => a.AcademicYear)
-                            .Distinct()
-                            .OrderByDescending(y => y))
-                        {
-                            <option value="@year">
-                                @year
-                            </option>
-                        }
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label asp-for="Semester">
-                        Semester
-                    </label>
-
-                    <select asp-for="Semester">
-
-                        <option value="">
-                            Select semester
-                        </option>
-
-                        @foreach (var semester in Enum.GetValues<Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums.Semester>())
-                        {
-                            <option value="@semester">
-                                @semester
-                            </option>
-                        }
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label asp-for="MarksFile">
-                        Marks Excel Sheet
-                    </label>
-
-                    <div class="upload-area">
-
-                        <div class="upload-icon">
-
-                            <i class="bi bi-file-earmark-excel"></i>
-
-                        </div>
-
-                        <div class="upload-title">
-
-                            Upload Excel Marks Sheet
-
-                        </div>
-
-                        <div class="upload-description">
-
-                            Only .xlsx files are accepted.
-                            Maximum file size: 10 MB.
-
-                        </div>
-
-                        <input asp-for="MarksFile"
-                               type="file"
-                               accept=".xlsx" />
-
-                    </div>
-
-                </div>
-
-
-                <div class="format-box">
-
-                    <div class="format-title">
-
-                        <i class="bi bi-info-circle-fill"></i>
-
-                        Required Excel Format
-
-                    </div>
-
-                    <p>
-
-                        Your Excel file should contain the student
-                        information and marks required by the university.
-
-                    </p>
-
-                    <div class="columns">
-
-                        <span class="column-tag">
-                            Student ID
-                        </span>
-
-                        <span class="column-tag">
-                            Student Name
-                        </span>
-
-                        <span class="column-tag">
-                            CAT
-                        </span>
-
-                        <span class="column-tag">
-                            Assignment
-                        </span>
-
-                        <span class="column-tag">
-                            Exam
-                        </span>
-
-                        <span class="column-tag">
-                            Total
-                        </span>
-
-                        <span class="column-tag">
-                            Grade
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="security-note">
-
-                    <i class="bi bi-shield-check"></i>
-
-                    <span>
-                        Your submission is linked to your authenticated
-                        lecturer account. The uploaded file is stored using
-                        a server-generated private storage key and is
-                        protected by a SHA-256 integrity hash.
-                    </span>
-
-                </div>
-
-
-                <div class="actions">
-
-                    <button type="submit"
-                            class="submit-button">
-
-                        <i class="bi bi-cloud-arrow-up"></i>
-
-                        Submit Marks
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </main>
-
-</div>
+    </script>
 
 </body>
 
 </html>
+```
