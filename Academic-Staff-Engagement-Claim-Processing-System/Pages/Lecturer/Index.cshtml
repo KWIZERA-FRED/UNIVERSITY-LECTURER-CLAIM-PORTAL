@@ -69,10 +69,6 @@ Layout = null;
         flex-direction: column;
     }
 
-    /* ============================================================
-       HEADER
-       ============================================================ */
-
     .app-header {
         min-height: 70px;
         background: var(--primary);
@@ -111,6 +107,9 @@ Layout = null;
     }
 
     .logout {
+        background: none;
+        font-family: inherit;
+        cursor: pointer;
         color: white;
         text-decoration: none;
         font-size: 0.82rem;
@@ -123,18 +122,10 @@ Layout = null;
         background: rgba(255,255,255,0.1);
     }
 
-    /* ============================================================
-       BODY
-       ============================================================ */
-
     .app-body {
         display: flex;
         flex: 1;
     }
-
-    /* ============================================================
-       SIDEBAR
-       ============================================================ */
 
     .sidebar {
         width: 235px;
@@ -186,10 +177,6 @@ Layout = null;
         color: var(--accent);
     }
 
-    /* ============================================================
-       MAIN
-       ============================================================ */
-
     .main {
         flex: 1;
         padding: 1.8rem 2rem 2.5rem;
@@ -214,10 +201,6 @@ Layout = null;
         color: var(--text-muted);
         font-size: 0.85rem;
     }
-
-    /* ============================================================
-       WELCOME
-       ============================================================ */
 
     .welcome-card {
         background: linear-gradient(
@@ -264,10 +247,6 @@ Layout = null;
         margin-bottom: 0.15rem;
     }
 
-    /* ============================================================
-       NOTICE
-       ============================================================ */
-
     .notice {
         background: var(--accent-light);
         border-left: 4px solid var(--accent);
@@ -286,10 +265,6 @@ Layout = null;
         background: var(--warning-light);
         border-left-color: #d39e00;
     }
-
-    /* ============================================================
-       STATISTICS
-       ============================================================ */
 
     .stat-grid {
         display: grid;
@@ -326,10 +301,6 @@ Layout = null;
         color: var(--text-muted);
         margin-top: 0.3rem;
     }
-
-    /* ============================================================
-       CARDS
-       ============================================================ */
 
     .card {
         background: var(--card);
@@ -370,10 +341,6 @@ Layout = null;
         text-decoration: underline;
     }
 
-    /* ============================================================
-       TABLE
-       ============================================================ */
-
     .table-wrap {
         overflow-x: auto;
     }
@@ -410,10 +377,6 @@ Layout = null;
     tr:hover td {
         background: #f8fafc;
     }
-
-    /* ============================================================
-       BADGES
-       ============================================================ */
 
     .badge {
         display: inline-block;
@@ -469,10 +432,6 @@ Layout = null;
         color: #586879;
     }
 
-    /* ============================================================
-       BUTTONS
-       ============================================================ */
-
     .action-btn {
         background: var(--accent);
         color: white;
@@ -502,10 +461,6 @@ Layout = null;
         color: white;
     }
 
-    /* ============================================================
-       EMPTY STATE
-       ============================================================ */
-
     .empty {
         text-align: center;
         padding: 2rem 1rem;
@@ -522,10 +477,6 @@ Layout = null;
         margin: 0;
         font-size: 0.82rem;
     }
-
-    /* ============================================================
-       FULL-TIME MIS AREA
-       ============================================================ */
 
     .mis-card {
         background: #f8fafc;
@@ -563,10 +514,6 @@ Layout = null;
         font-weight: 600;
         white-space: nowrap;
     }
-
-    /* ============================================================
-       QUICK ACTIONS
-       ============================================================ */
 
     .quick-actions {
         display: grid;
@@ -608,10 +555,6 @@ Layout = null;
         font-size: 0.72rem;
         margin-top: 0.25rem;
     }
-
-    /* ============================================================
-       RESPONSIVE
-       ============================================================ */
 
     @@media (max-width: 1050px) {
 
@@ -660,18 +603,12 @@ Layout = null;
     }
 
 </style>
-```
 
 </head>
 
 <body>
 
 <div class="lecturer-app">
-
-
-<!-- ============================================================
-     HEADER
-     ============================================================ -->
 
 <header class="app-header">
 
@@ -695,20 +632,17 @@ Layout = null;
 
         </span>
 
-        <a href="/Login" class="logout">
-            Logout
-        </a>
+        <form method="post" asp-page="/LogOut" style="margin:0;">
+            <button type="submit" class="logout">
+                Logout
+            </button>
+        </form>
 
     </div>
 
 </header>
 
-
 <div class="app-body">
-
-    <!-- ========================================================
-         SIDEBAR
-         ======================================================== -->
 
     <aside class="sidebar">
 
@@ -744,20 +678,21 @@ Layout = null;
 
             <i class="fas fa-coins"></i>
 
-            Payment Claims
+            Submit Claim
+
+        </a>
+
+        <a href="/Claims">
+
+            <i class="fas fa-receipt"></i>
+
+            My Claims
 
         </a>
 
     </aside>
 
-
-    <!-- ========================================================
-         MAIN CONTENT
-         ======================================================== -->
-
     <main class="main">
-
-        <!-- PAGE HEADER -->
 
         <div class="page-header">
 
@@ -775,11 +710,6 @@ Layout = null;
             </div>
 
         </div>
-
-
-        <!-- ====================================================
-             WELCOME
-             ==================================================== -->
 
         <div class="welcome-card">
 
@@ -833,11 +763,6 @@ Layout = null;
 
         </div>
 
-
-        <!-- ====================================================
-             ROLE NOTICE
-             ==================================================== -->
-
         @if (Model.IsFullTime)
         {
             <div class="notice warning">
@@ -875,14 +800,7 @@ Layout = null;
             </div>
         }
 
-
-        <!-- ====================================================
-             STATISTICS
-             ==================================================== -->
-
         <div class="stat-grid">
-
-            <!-- COURSES -->
 
             <div class="stat-card">
 
@@ -906,9 +824,6 @@ Layout = null;
 
             </div>
 
-
-            <!-- ALLOCATED HOURS -->
-
             <div class="stat-card">
 
                 <div class="icon">
@@ -931,9 +846,6 @@ Layout = null;
 
             </div>
 
-
-            <!-- CONTRACTS -->
-
             <div class="stat-card">
 
                 <div class="icon">
@@ -955,9 +867,6 @@ Layout = null;
                 </div>
 
             </div>
-
-
-            <!-- CLAIMS -->
 
             <div class="stat-card">
 
@@ -982,11 +891,6 @@ Layout = null;
             </div>
 
         </div>
-
-
-        <!-- ====================================================
-             FULL-TIME MIS INFORMATION
-             ==================================================== -->
 
         @if (Model.IsFullTime)
         {
@@ -1038,11 +942,6 @@ Layout = null;
             </div>
         }
 
-
-        <!-- ====================================================
-             COURSE ASSIGNMENTS
-             ==================================================== -->
-
         <div class="card">
 
             <div class="card-header">
@@ -1056,7 +955,6 @@ Layout = null;
                 </h3>
 
             </div>
-
 
             @if (Model.CourseAssignments.Any())
             {
@@ -1196,11 +1094,6 @@ Layout = null;
 
         </div>
 
-
-        <!-- ====================================================
-             CONTRACTS
-             ==================================================== -->
-
         <div class="card">
 
             <div class="card-header">
@@ -1221,7 +1114,6 @@ Layout = null;
                 </a>
 
             </div>
-
 
             @if (Model.Contracts.Any())
             {
@@ -1390,11 +1282,6 @@ Layout = null;
 
         </div>
 
-
-        <!-- ====================================================
-             CLAIMS
-             ==================================================== -->
-
         <div class="card">
 
             <div class="card-header">
@@ -1415,7 +1302,6 @@ Layout = null;
                 </a>
 
             </div>
-
 
             @if (Model.Claims.Any())
             {
@@ -1583,11 +1469,6 @@ Layout = null;
 
         </div>
 
-
-        <!-- ====================================================
-             QUICK ACTIONS
-             ==================================================== -->
-
         <div class="card">
 
             <div class="card-header">
@@ -1604,8 +1485,6 @@ Layout = null;
 
             <div class="quick-actions">
 
-                <!-- CONTRACTS -->
-
                 <a href="/Lecturer/Contracts"
                    class="quick-action">
 
@@ -1620,9 +1499,6 @@ Layout = null;
                     </span>
 
                 </a>
-
-
-                <!-- MARKS -->
 
                 <a href="/Lecturer/SubmitMarks"
                    class="quick-action">
@@ -1639,9 +1515,6 @@ Layout = null;
                     </span>
 
                 </a>
-
-
-                <!-- CLAIM -->
 
                 <a href="/Lecturer/SubmitClaim"
                    class="quick-action">
@@ -1665,7 +1538,6 @@ Layout = null;
     </main>
 
 </div>
-```
 
 </div>
 
