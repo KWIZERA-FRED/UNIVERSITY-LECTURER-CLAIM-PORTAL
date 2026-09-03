@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -82,18 +83,39 @@ public class SubmitClaimModel : PageModel
             .Select(l => l.UserName)
             .FirstOrDefaultAsync() ?? string.Empty;
 
-        Courses = await _context.CourseAssignments
+        var assignments = await _context.CourseAssignments
             .AsNoTracking()
             .Include(a => a.Course)
             .Where(a => a.LecturerId == lecturerId && a.IsActive)
             .OrderBy(a => a.Course.Code)
-            .Select(a => new CourseItem(
-                a.Id,
-                a.Course.Code,
-                a.Course.Title,
-                a.AcademicYear,
-                a.AllocatedHours))
             .ToListAsync();
+
+        var assignmentIds = assignments.Select(a => a.Id).ToList();
+
+        // Latest marks submission per course assignment, so the MIS
+        // status reflects what's actually on file rather than a
+        // hardcoded "Verified".
+        var latestMarksByAssignment = await _context.MarksSubmissions
+            .AsNoTracking()
+            .Where(m => m.LecturerId == lecturerId && assignmentIds.Contains(m.CourseAssignmentId))
+            .GroupBy(m => m.CourseAssignmentId)
+            .Select(g => g.OrderByDescending(m => m.SubmittedAtUtc).First())
+            .ToDictionaryAsync(m => m.CourseAssignmentId, m => m.Status);
+
+        Courses = assignments
+            .Select(a =>
+            {
+                var hasSubmission = latestMarksByAssignment.TryGetValue(a.Id, out var status);
+                return new CourseItem(
+                    a.Id,
+                    a.Course.Code,
+                    a.Course.Title,
+                    a.AcademicYear,
+                    a.AllocatedHours,
+                    MarksSubmitted: hasSubmission,
+                    MarksSigned: hasSubmission && status == MarksSubmissionStatus.Signed);
+            })
+            .ToList();
     }
 
     public sealed record CourseItem(
@@ -101,5 +123,7 @@ public class SubmitClaimModel : PageModel
         string Code,
         string Name,
         string AcademicYear,
-        decimal AllocatedHours);
+        decimal AllocatedHours,
+        bool MarksSubmitted,
+        bool MarksSigned);
 }

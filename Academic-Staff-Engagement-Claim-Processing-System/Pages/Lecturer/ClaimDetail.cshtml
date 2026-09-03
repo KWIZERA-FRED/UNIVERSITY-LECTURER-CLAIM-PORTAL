@@ -1,0 +1,100 @@
+@page
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer.ClaimDetailModel
+@{
+    ViewData["Title"] = "Claim Detail";
+}
+
+<style>
+    .claim-detail-page { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    .claim-detail-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.5rem; }
+    .claim-detail-header h1 { margin:0; color:#174d3b; font-size:1.6rem; }
+    .card-box { background:#fff; border:1px solid #dce7e1; border-radius:12px; padding:1.25rem; box-shadow:0 4px 14px rgba(23,77,59,.06); margin-bottom:1.25rem; }
+    .meta-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:.9rem 1.5rem; }
+    .meta-label { color:#60736a; font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; }
+    .meta-value { color:#1a2b24; font-size:.98rem; font-weight:600; margin-top:.15rem; }
+    .badge { display:inline-block; border-radius:99px; padding:.3rem .65rem; font-size:.78rem; font-weight:600; }
+    .badge-active { background:#e1f0e8; color:#216b4f; }
+    .badge-pending { background:#fff7df; color:#8a6500; }
+    .badge-closed { background:#fdecec; color:#8c2d2d; }
+    .timeline { display:flex; flex-direction:column; gap:0; }
+    .timeline-step { display:flex; gap:1rem; padding:1rem 0; border-bottom:1px solid #eef2f0; }
+    .timeline-step:last-child { border-bottom:none; }
+    .step-role { min-width:130px; font-weight:700; color:#174d3b; }
+    .step-comments { color:#60736a; font-size:.88rem; margin-top:.25rem; }
+    .message { padding:.85rem 1rem; border-radius:8px; margin-bottom:1rem; }
+    .error { background:#fdecec; color:#8c2d2d; }
+    @@media (max-width:600px) { .meta-grid { grid-template-columns:1fr; } }
+</style>
+
+<main class="claim-detail-page">
+    <div class="claim-detail-header">
+        <div>
+            <h1>Claim Detail</h1>
+            <p class="text-muted mb-0">Track your claim's approval progress and download official documents.</p>
+        </div>
+        <a class="btn btn-outline-success" href="/Claims">Back to claims</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="message error">@Model.ErrorMessage</div>
+    }
+    else if (Model.Claim is not null)
+    {
+        var claim = Model.Claim;
+        <section class="card-box">
+            <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                <h2 class="h5 mb-0">@claim.Reference</h2>
+                <span class="badge @(claim.IsFullyApproved ? "badge-active" : claim.IsRejected ? "badge-closed" : "badge-pending")">@claim.Status</span>
+            </div>
+            <div class="meta-grid">
+                <div><div class="meta-label">Course</div><div class="meta-value">@claim.CourseCode - @claim.CourseTitle</div></div>
+                <div><div class="meta-label">Contract</div><div class="meta-value">@claim.ContractReference</div></div>
+                <div><div class="meta-label">Academic Year</div><div class="meta-value">@claim.AcademicYear</div></div>
+                <div><div class="meta-label">Campus</div><div class="meta-value">@claim.Campus</div></div>
+                <div><div class="meta-label">Hours Claimed</div><div class="meta-value">@claim.HoursClaimed.ToString("N1")</div></div>
+                <div><div class="meta-label">Submitted</div><div class="meta-value">@(claim.SubmittedAtUtc.HasValue ? claim.SubmittedAtUtc.Value.ToString("dd MMM yyyy") : "-")</div></div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(claim.Description))
+            {
+                <div class="mt-3">
+                    <div class="meta-label">Description</div>
+                    <div class="meta-value" style="font-weight:400;">@claim.Description</div>
+                </div>
+            }
+        </section>
+
+        <section class="card-box">
+            <h2 class="h6 mb-3" style="color:#174d3b;">Approval Timeline</h2>
+            <div class="timeline">
+                @foreach (var step in claim.Steps)
+                {
+                    <div class="timeline-step">
+                        <div class="step-role">@step.RoleLabel</div>
+                        <div class="flex-grow-1">
+                            <span class="badge @step.BadgeClass">@step.Decision</span>
+                            @if (step.DecidedAtUtc.HasValue)
+                            {
+                                <span class="text-muted small ms-2">@step.DecidedAtUtc.Value.ToString("dd MMM yyyy")@(step.ApproverName is not null ? $" · {step.ApproverName}" : "")</span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(step.Comments))
+                            {
+                                <div class="step-comments">@step.Comments</div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+
+        @if (claim.IsFullyApproved && !string.IsNullOrWhiteSpace(claim.PublicDocumentsUrl))
+        {
+            <section class="card-box">
+                <h2 class="h6 mb-3" style="color:#174d3b;">Documents</h2>
+                <p class="text-muted">Your claim is fully approved. Download the signed contract and claim letter, or share the link below.</p>
+                <a class="btn btn-success" href="@claim.PublicDocumentsUrl" target="_blank" rel="noopener">Open claim documents</a>
+            </section>
+        }
+    }
+</main>

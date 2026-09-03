@@ -337,6 +337,10 @@
                     margin-right: 4px;
                 }
 
+                .status-value.negative {
+                    color: var(--danger-text);
+                }
+
             /* INFO */
 
             .info-box {
@@ -509,7 +513,7 @@
 
                 <li>
 
-                    <a href="/Contracts">
+                    <a href="/Lecturer/Contracts">
 
                         <i class="bi bi-file-earmark-text"></i>
 
@@ -534,7 +538,7 @@
 
                 <li>
 
-                    <a href="/Contracts">
+                    <a href="/Lecturer/Contracts">
 
                         <i class="bi bi-pen"></i>
 
@@ -614,7 +618,8 @@
                             </label>
 
                             <select asp-for="SelectedCourseAssignmentId"
-                                    id="course">
+                                    id="course"
+                                    onchange="updateMisStatus()">
 
                                 <option value="">
                                     Select course
@@ -622,7 +627,9 @@
 
                                 @foreach (var course in Model.Courses)
                                 {
-                                    <option value="@course.AssignmentId">
+                                    <option value="@course.AssignmentId"
+                                            data-submitted="@course.MarksSubmitted.ToString().ToLowerInvariant()"
+                                            data-signed="@course.MarksSigned.ToString().ToLowerInvariant()">
                                         @course.Code - @course.Name (@course.AcademicYear, @course.AllocatedHours hours)
                                     </option>
                                 }
@@ -687,11 +694,11 @@
                                     Marks Submitted
                                 </div>
 
-                                <div class="status-value">
+                                <div class="status-value" id="marks-submitted-status">
 
-                                    <i class="bi bi-check-circle-fill"></i>
+                                    <i class="bi bi-dash-circle"></i>
 
-                                    Verified
+                                    Select a course
 
                                 </div>
 
@@ -704,11 +711,11 @@
                                     Marks Signed
                                 </div>
 
-                                <div class="status-value">
+                                <div class="status-value" id="marks-signed-status">
 
-                                    <i class="bi bi-check-circle-fill"></i>
+                                    <i class="bi bi-dash-circle"></i>
 
-                                    Verified
+                                    Select a course
 
                                 </div>
 
@@ -754,6 +761,39 @@
         </main>
 
     </div>
+
+    <script>
+        function updateMisStatus() {
+            var select = document.getElementById('course');
+            var option = select.options[select.selectedIndex];
+
+            var submittedEl = document.getElementById('marks-submitted-status');
+            var signedEl = document.getElementById('marks-signed-status');
+
+            if (!option || !option.value) {
+                submittedEl.className = 'status-value';
+                submittedEl.innerHTML = '<i class="bi bi-dash-circle"></i> Select a course';
+                signedEl.className = 'status-value';
+                signedEl.innerHTML = '<i class="bi bi-dash-circle"></i> Select a course';
+                return;
+            }
+
+            var submitted = option.getAttribute('data-submitted') === 'true';
+            var signed = option.getAttribute('data-signed') === 'true';
+
+            submittedEl.className = 'status-value' + (submitted ? '' : ' negative');
+            submittedEl.innerHTML = submitted
+                ? '<i class="bi bi-check-circle-fill"></i> Verified'
+                : '<i class="bi bi-x-circle-fill"></i> Not submitted';
+
+            signedEl.className = 'status-value' + (signed ? '' : ' negative');
+            signedEl.innerHTML = signed
+                ? '<i class="bi bi-check-circle-fill"></i> Verified'
+                : '<i class="bi bi-x-circle-fill"></i> Not signed';
+        }
+
+        document.addEventListener('DOMContentLoaded', updateMisStatus);
+    </script>
 
 </body>
 

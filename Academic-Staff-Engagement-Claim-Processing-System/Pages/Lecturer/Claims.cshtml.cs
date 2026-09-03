@@ -83,7 +83,9 @@ public class ClaimsModel : PageModel
                 Status = c.Status is ClaimStatus.PendingHODApproval or ClaimStatus.PendingDeanApproval
                     ? "Under Review"
                     : c.Status.ToString(),
-                OpenUrl = "/Claims",
+                OpenUrl = CurrentUserRole == "Lecturer"
+                    ? $"/Lecturer/ClaimDetail?ClaimId={c.Id}"
+                    : $"/DEAN/Claims?ClaimId={c.Id}",
                 ReviewUrl = $"/DEAN/Claims?ClaimId={c.Id}"
             })
             .ToList();
