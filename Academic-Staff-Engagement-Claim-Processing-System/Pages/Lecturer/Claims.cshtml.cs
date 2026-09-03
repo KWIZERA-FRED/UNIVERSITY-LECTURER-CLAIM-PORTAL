@@ -1,499 +1,123 @@
-using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Academic_Staff_Engagement_Claim_Processing_System.Data;
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
-namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Shared
+namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Shared;
+
+[Authorize]
+public class ClaimsModel : PageModel
 {
-    public class ClaimsModel : PageModel
+    private readonly ApplicationDbContext _context;
+
+    public ClaimsModel(ApplicationDbContext context) => _context = context;
+
+    public string CurrentUserName { get; private set; } = string.Empty;
+    public string CurrentUserRole { get; private set; } = string.Empty;
+    public List<ClaimItem> Claims { get; private set; } = new();
+    public string? SuccessMessage { get; private set; }
+
+    public bool CanReviewClaims => CurrentUserRole == "Dean";
+    public int TotalClaims => Claims.Count;
+    public int PendingClaims => Claims.Count(c => c.IsPending);
+    public int ApprovedClaims => Claims.Count(c => c.Status == "Approved");
+    public decimal TotalHours => Claims.Sum(c => c.Hours);
+
+    public async Task OnGetAsync()
     {
-        // ============================================================
-        // CURRENT USER
-        // ============================================================
+        CurrentUserName = User.Identity?.Name ?? "User";
+        CurrentUserRole = User.FindFirstValue(ClaimTypes.Role) ?? "User";
+        SuccessMessage = TempData["SuccessMessage"] as string;
 
-        public string CurrentUserId { get; set; } = "L001";
+        var query = _context.Claims
+            .AsNoTracking()
+            .Include(c => c.CourseAssignment)
+                .ThenInclude(a => a.Course)
+            .Include(c => c.CourseAssignment)
+                .ThenInclude(a => a.Lecturer)
+            .AsQueryable();
 
-        public string CurrentUserName { get; set; }
-            = "Dr. Ahmed Mohammed";
-
-        public string CurrentUserRole { get; set; }
-            = "Lecturer";
-
-
-        // ============================================================
-        // CLAIMS
-        // ============================================================
-
-        public List<ClaimItem> Claims { get; set; } = new();
-
-
-        // ============================================================
-        // PERMISSIONS
-        // ============================================================
-
-        public bool CanReviewClaims
+        if (CurrentUserRole == "Lecturer" &&
+            int.TryParse(User.FindFirstValue("UserId"), out var lecturerId))
         {
-            get
-            {
-                return CurrentUserRole == "HOD"
-                    || CurrentUserRole == "Dean"
-                    || CurrentUserRole == "Management";
-            }
+            query = query.Where(c => c.CourseAssignment.LecturerId == lecturerId);
+        }
+        else if (CurrentUserRole == "Dean")
+        {
+            query = query.Where(c => c.Approvals.Any(a => a.ApprovalRole == ApprovalRole.Dean));
+        }
+        else
+        {
+            Claims = new();
+            return;
         }
 
+        var claims = await query
+            .OrderByDescending(c => c.CreatedAtUtc)
+            .Select(c => new
+            {
+                Id = c.Id,
+                LecturerName = c.CourseAssignment.Lecturer.UserName,
+                CourseCode = c.CourseAssignment.Course.Code,
+                CourseName = c.CourseAssignment.Course.Title,
+                AcademicYear = c.CourseAssignment.AcademicYear,
+                Campus = c.CourseAssignment.Campus,
+                Hours = c.HoursClaimed,
+                Status = c.Status
+            })
+            .ToListAsync();
 
-        // ============================================================
-        // SUMMARY
-        // ============================================================
+        Claims = claims
+            .Select(c => new ClaimItem
+            {
+                Id = c.Id,
+                ClaimNumber = $"CLM-{c.Id:D6}",
+                LecturerName = c.LecturerName,
+                CourseCode = c.CourseCode,
+                CourseName = c.CourseName,
+                AcademicYear = c.AcademicYear,
+                Campus = c.Campus.ToString(),
+                Hours = c.Hours,
+                Status = c.Status is ClaimStatus.PendingHODApproval or ClaimStatus.PendingDeanApproval
+                    ? "Under Review"
+                    : c.Status.ToString(),
+                OpenUrl = "/Claims",
+                ReviewUrl = $"/DEAN/Claims?ClaimId={c.Id}"
+            })
+            .ToList();
+    }
 
-        public int TotalClaims =>
-            Claims.Count;
+    public sealed class ClaimItem
+    {
+        public int Id { get; init; }
+        public string ClaimNumber { get; init; } = string.Empty;
+        public string LecturerName { get; init; } = string.Empty;
+        public string CourseCode { get; init; } = string.Empty;
+        public string CourseName { get; init; } = string.Empty;
+        public string AcademicYear { get; init; } = string.Empty;
+        public string Campus { get; init; } = string.Empty;
+        public decimal Hours { get; init; }
+        public string Status { get; init; } = string.Empty;
+        public string OpenUrl { get; init; } = "/Claims";
+        public string ReviewUrl { get; init; } = string.Empty;
+        public bool IsPending => Status is "Submitted" or "Under Review";
 
-        public int PendingClaims =>
-            Claims.Count(c =>
-                c.Status == "Pending" ||
-                c.Status == "Under Review");
-
-        public int ApprovedClaims =>
-            Claims.Count(c =>
-                c.Status == "Approved");
-
-        public decimal TotalAmount =>
-            Claims.Sum(c => c.Amount);
-
-
-        // ============================================================
-        // GET
-        // ============================================================
-
-        public void OnGet(
-            string? userId,
-            string? role)
+        public string StatusClass => Status switch
         {
-            /*
-             * Prototype user identification.
-             *
-             * Later this will come from the authenticated
-             * user and database.
-             */
+            "Approved" or "Paid" => "approved",
+            "Rejected" => "rejected",
+            "Under Review" => "processing",
+            _ => "pending"
+        };
 
-            if (!string.IsNullOrWhiteSpace(userId))
-            {
-                CurrentUserId = userId;
-            }
-
-            SetUserInformation(role);
-
-            LoadClaims();
-        }
-
-
-        // ============================================================
-        // USER INFORMATION
-        // ============================================================
-
-        private void SetUserInformation(string? role)
+        public string StatusIcon => Status switch
         {
-            switch (CurrentUserId)
-            {
-                case "L001":
-
-                    CurrentUserName =
-                        "Dr. Ahmed Mohammed";
-
-                    CurrentUserRole =
-                        "Lecturer";
-
-                    break;
-
-
-                case "L002":
-
-                    CurrentUserName =
-                        "Dr. Sarah Uwase";
-
-                    CurrentUserRole =
-                        "Lecturer";
-
-                    break;
-
-
-                case "L003":
-
-                    CurrentUserName =
-                        "Prof. Jean Claude";
-
-                    CurrentUserRole =
-                        "Senior Lecturer";
-
-                    break;
-
-
-                case "HOD001":
-
-                    CurrentUserName =
-                        "Head of Department";
-
-                    CurrentUserRole =
-                        "HOD";
-
-                    break;
-
-
-                case "DEAN001":
-
-                    CurrentUserName =
-                        "Dean";
-
-                    CurrentUserRole =
-                        "Dean";
-
-                    break;
-
-
-                case "M001":
-
-                    CurrentUserName =
-                        "Management User";
-
-                    CurrentUserRole =
-                        "Management";
-
-                    break;
-
-
-                default:
-
-                    if (!string.IsNullOrWhiteSpace(role))
-                    {
-                        CurrentUserRole = role;
-                    }
-
-                    break;
-            }
-        }
-
-
-        // ============================================================
-        // LOAD CLAIMS
-        // ============================================================
-
-        private void LoadClaims()
-        {
-            var allClaims = new List<ClaimItem>
-            {
-                new ClaimItem
-                {
-                    Id = 1,
-
-                    ClaimNumber =
-                        "CLM-2026-001",
-
-                    LecturerId =
-                        "L001",
-
-                    LecturerName =
-                        "Dr. Ahmed Mohammed",
-
-                    CourseCode =
-                        "CS101",
-
-                    CourseName =
-                        "Introduction to Computer Science",
-
-                    AcademicYear =
-                        "2026/2027",
-
-                    Campus =
-                        "Kigali",
-
-                    Hours = 80,
-
-                    Rate = 5000,
-
-                    Amount = 400000,
-
-                    SubmittedDate =
-                        "20 August 2026",
-
-                    Status =
-                        "Pending"
-                },
-
-
-                new ClaimItem
-                {
-                    Id = 2,
-
-                    ClaimNumber =
-                        "CLM-2026-002",
-
-                    LecturerId =
-                        "L002",
-
-                    LecturerName =
-                        "Dr. Sarah Uwase",
-
-                    CourseCode =
-                        "SE201",
-
-                    CourseName =
-                        "Software Engineering",
-
-                    AcademicYear =
-                        "2026/2027",
-
-                    Campus =
-                        "Kigali",
-
-                    Hours = 70,
-
-                    Rate = 7000,
-
-                    Amount = 490000,
-
-                    SubmittedDate =
-                        "19 August 2026",
-
-                    Status =
-                        "Under Review"
-                },
-
-
-                new ClaimItem
-                {
-                    Id = 3,
-
-                    ClaimNumber =
-                        "CLM-2026-003",
-
-                    LecturerId =
-                        "L003",
-
-                    LecturerName =
-                        "Prof. Jean Claude",
-
-                    CourseCode =
-                        "DB301",
-
-                    CourseName =
-                        "Database Management Systems",
-
-                    AcademicYear =
-                        "2026/2027",
-
-                    Campus =
-                        "Rwamagana",
-
-                    Hours = 60,
-
-                    Rate = 9000,
-
-                    Amount = 540000,
-
-                    SubmittedDate =
-                        "18 August 2026",
-
-                    Status =
-                        "Approved"
-                },
-
-
-                new ClaimItem
-                {
-                    Id = 4,
-
-                    ClaimNumber =
-                        "CLM-2026-004",
-
-                    LecturerId =
-                        "L004",
-
-                    LecturerName =
-                        "Dr. Patrick Niyonzima",
-
-                    CourseCode =
-                        "AI401",
-
-                    CourseName =
-                        "Artificial Intelligence",
-
-                    AcademicYear =
-                        "2026/2027",
-
-                    Campus =
-                        "Kigali",
-
-                    Hours = 50,
-
-                    Rate = 11000,
-
-                    Amount = 550000,
-
-                    SubmittedDate =
-                        "17 August 2026",
-
-                    Status =
-                        "Pending"
-                },
-
-
-                new ClaimItem
-                {
-                    Id = 5,
-
-                    ClaimNumber =
-                        "CLM-2026-005",
-
-                    LecturerId =
-                        "L005",
-
-                    LecturerName =
-                        "Prof. Grace Mukamana",
-
-                    CourseCode =
-                        "IOT301",
-
-                    CourseName =
-                        "Internet of Things",
-
-                    AcademicYear =
-                        "2026/2027",
-
-                    Campus =
-                        "Nyanza",
-
-                    Hours = 45,
-
-                    Rate = 13000,
-
-                    Amount = 585000,
-
-                    SubmittedDate =
-                        "16 August 2026",
-
-                    Status =
-                        "Approved"
-                }
-            };
-
-
-            /*
-             * LECTURERS:
-             *
-             * Only see their own claims.
-             *
-             * HOD / Dean / Management:
-             *
-             * Can see claims relevant to processing.
-             */
-
-            if (CurrentUserRole == "Lecturer" ||
-                CurrentUserRole == "Senior Lecturer")
-            {
-                Claims = allClaims
-                    .Where(c =>
-                        c.LecturerId ==
-                        CurrentUserId)
-                    .ToList();
-            }
-            else
-            {
-                Claims = allClaims;
-            }
-        }
-
-
-        // ============================================================
-        // CLAIM CLASS
-        // ============================================================
-
-        public class ClaimItem
-        {
-            public int Id { get; set; }
-
-            public string ClaimNumber { get; set; }
-                = "";
-
-            public string LecturerId { get; set; }
-                = "";
-
-            public string LecturerName { get; set; }
-                = "";
-
-            public string CourseCode { get; set; }
-                = "";
-
-            public string CourseName { get; set; }
-                = "";
-
-            public string AcademicYear { get; set; }
-                = "";
-
-            public string Campus { get; set; }
-                = "";
-
-            public int Hours { get; set; }
-
-            public decimal Rate { get; set; }
-
-            public decimal Amount { get; set; }
-
-            public string SubmittedDate { get; set; }
-                = "";
-
-            public string Status { get; set; }
-                = "";
-
-
-            // ========================================================
-            // STATUS CSS
-            // ========================================================
-
-            public string StatusClass
-            {
-                get
-                {
-                    return Status switch
-                    {
-                        "Approved" =>
-                            "approved",
-
-                        "Rejected" =>
-                            "rejected",
-
-                        "Under Review" =>
-                            "processing",
-
-                        _ =>
-                            "pending"
-                    };
-                }
-            }
-
-
-            // ========================================================
-            // STATUS ICON
-            // ========================================================
-
-            public string StatusIcon
-            {
-                get
-                {
-                    return Status switch
-                    {
-                        "Approved" =>
-                            "bi-check-circle",
-
-                        "Rejected" =>
-                            "bi-x-circle",
-
-                        "Under Review" =>
-                            "bi-arrow-repeat",
-
-                        _ =>
-                            "bi-clock"
-                    };
-                }
-            }
-        }
+            "Approved" or "Paid" => "bi-check-circle",
+            "Rejected" => "bi-x-circle",
+            "Under Review" => "bi-arrow-repeat",
+            _ => "bi-clock"
+        };
     }
 }

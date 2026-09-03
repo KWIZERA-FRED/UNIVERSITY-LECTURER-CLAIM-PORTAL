@@ -1,0 +1,31 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.Public.ClaimDocumentsModel
+@{
+    ViewData["Title"] = "UNILAK Claim Documents";
+}
+
+<main class="container py-5" style="max-width:760px">
+    <section class="card shadow-sm border-success">
+        <div class="card-body p-4 p-md-5">
+            <div class="d-flex justify-content-between gap-3 align-items-start">
+                <div>
+                    <p class="text-success fw-bold mb-2">UNILAK</p>
+                    <h1 class="h3">Claim documents</h1>
+                    <p class="text-muted mb-0">@Model.Documents!.ClaimReference · @Model.Documents.ContractReference</p>
+                </div>
+                <img src="@Model.QrCodeDataUrl" width="92" height="92" alt="QR code for these claim documents" />
+            </div>
+            <hr class="my-4" />
+            <dl class="row mb-4">
+                <dt class="col-sm-4">Lecturer</dt><dd class="col-sm-8">@Model.Documents.LecturerName</dd>
+                <dt class="col-sm-4">Course</dt><dd class="col-sm-8">@Model.Documents.CourseCode - @Model.Documents.CourseTitle</dd>
+                <dt class="col-sm-4">Claimed hours</dt><dd class="col-sm-8">@Model.Documents.Hours.ToString("N1")</dd>
+                <dt class="col-sm-4">Status</dt><dd class="col-sm-8">@Model.Documents.Status</dd>
+            </dl>
+            <div class="d-grid gap-2">
+                <a class="btn btn-success" href="?handler=Pdf&token=@Model.Documents.Token&document=contract">Download signed contract PDF</a>
+                <a class="btn btn-outline-success" href="?handler=Pdf&token=@Model.Documents.Token&document=claim-letter">Download claim letter PDF</a>
+            </div>
+        </div>
+    </section>
+</main>

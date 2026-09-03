@@ -289,6 +289,40 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
             await _context.SaveChangesAsync();
 
+            // A course assignment always creates a contract snapshot and its
+            // fixed signature sequence. The claim workflow cannot be opened
+            // until this exact contract reaches Active status.
+            var template = await _context.Templates.AsNoTracking().FirstOrDefaultAsync();
+            var content = template?.Contract ?? "UNILAK PART-TIME EMPLOYMENT CONTRACT";
+            content = content
+                .Replace("{{LecturerName}}", lecturer.UserName)
+                .Replace("{{CourseTitle}}", course.Title)
+                .Replace("{{Department}}", course.Department)
+                .Replace("{{AcademicYear}}", assignment.AcademicYear)
+                .Replace("{{Semester}}", assignment.Semester.ToString())
+                .Replace("{{Session}}", assignment.Session.ToString())
+                .Replace("{{Campus}}", assignment.Campus.ToString())
+                .Replace("{{AllocatedHours}}", assignment.AllocatedHours.ToString());
+
+            var contract = new Contract(0, "1.0")
+            {
+                LecturerId = lecturer.Id,
+                CourseAssignmentId = assignment.Id,
+                Content = content,
+                StartDateUtc = DateTime.UtcNow,
+                Status = ContractStatus.PendingSignature
+            };
+            _context.Contracts.Add(contract);
+            await _context.SaveChangesAsync();
+
+            _context.ContractSignatures.AddRange(
+                new ContractSignature(0, contract.Id, 1, SignerRole.Lecturer),
+                new ContractSignature(0, contract.Id, 2, SignerRole.Dean),
+                new ContractSignature(0, contract.Id, 3, SignerRole.HROfficer),
+                new ContractSignature(0, contract.Id, 4, SignerRole.DVCAR),
+                new ContractSignature(0, contract.Id, 5, SignerRole.ViceChancellor));
+            await _context.SaveChangesAsync();
+
             // ========================================================
             // AUDIT LOG
             // ========================================================

@@ -88,6 +88,38 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             return dto;
         }
 
+        public async Task<ContractSigningResult> SignAsLecturerAsync(
+            int contractId, int lecturerId, string actorUsername, string? ipAddress)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var contract = await _context.Contracts.FirstOrDefaultAsync(c =>
+                    c.Id == contractId && c.LecturerId == lecturerId && c.Status == ContractStatus.PendingSignature);
+                var step = await _context.ContractSignatures.FirstOrDefaultAsync(s =>
+                    s.ContractId == contractId && s.SignerRole == SignerRole.Lecturer);
+                var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.Id == lecturerId && l.IsActive);
+
+                if (contract is null || step is null || lecturer is null || step.Decision != SignatureDecision.Pending)
+                    return Fail("This contract is not available for signing.");
+                if (string.IsNullOrWhiteSpace(lecturer.SignatureFileHash))
+                    return Fail("A verified signature must be captured before you can sign a contract.");
+
+                step.SignAsLecturer(lecturerId, lecturer.SignatureFileHash);
+                contract.StampSignature(lecturer.SignatureFileHash);
+                contract.Status = ContractStatus.PendingSignature;
+                await _context.SaveChangesAsync();
+                await _auditLogger.LogAsync(AuditAction.ContractSigned, actorUsername, "Lecturer", lecturerId,
+                    "Contract", contractId, "Lecturer signed the contract.", ipAddress);
+                await transaction.CommitAsync();
+                return new ContractSigningResult { Succeeded = true };
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return Fail("The contract signature could not be saved.");
+            }
+        }
         // --------------------------------------------------------------
         // SIGN
         // --------------------------------------------------------------

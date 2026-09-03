@@ -603,6 +603,14 @@
         </div>
 
 
+        @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+        {
+            <div class="info-box" style="margin-bottom:25px;">
+                <i class="bi bi-check-circle-fill"></i>
+                @Model.SuccessMessage
+            </div>
+        }
+
         <!-- SUMMARY -->
 
         <div class="summary">
@@ -665,13 +673,13 @@
                 </div>
 
                 <div class="summary-label">
-                    Total Amount
+                    Total Hours
                 </div>
 
                 <div class="summary-number"
                      style="font-size:18px;">
 
-                    RWF @Model.TotalAmount.ToString("N0")
+                    @Model.TotalHours.ToString("N1") hours
 
                 </div>
 
@@ -790,12 +798,12 @@
                             <div class="claim-amount">
 
                                 <div class="amount-label">
-                                    Claim Amount
+                                    Hours Claimed
                                 </div>
 
                                 <div class="amount">
 
-                                    RWF @claim.Amount.ToString("N0")
+                                    @claim.Hours.ToString("N1") hours
 
                                 </div>
 
@@ -814,7 +822,7 @@
                             <div class="claim-actions">
 
                                 <a class="open-button"
-                                   href="/Shared/ClaimPreview?ClaimId=@claim.Id">
+                                   href="@claim.OpenUrl">
 
                                     <i class="bi bi-eye"></i>
 
@@ -827,7 +835,7 @@
                                 {
 
                                     <a class="review-button"
-                                       href="/Shared/ClaimPreview?ClaimId=@claim.Id&Review=true">
+                                       href="@claim.ReviewUrl">
 
                                         <i class="bi bi-check2-square"></i>
 

@@ -1,0 +1,93 @@
+@page
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer.ContractsModel
+@{
+    ViewData["Title"] = "My Contracts";
+}
+
+<style>
+    .contracts-page { max-width: 1120px; margin: 2rem auto; padding: 0 1rem; }
+    .contracts-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.5rem; }
+    .contracts-header h1 { margin:0; color:#174d3b; font-size:1.8rem; }
+    .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
+    .summary-card, .contract-card, .contract-detail { background:#fff; border:1px solid #dce7e1; border-radius:12px; padding:1.25rem; box-shadow:0 4px 14px rgba(23,77,59,.06); }
+    .summary-label { color:#60736a; font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; }
+    .summary-value { color:#174d3b; font-size:1.7rem; font-weight:700; margin-top:.35rem; }
+    .contract-list { display:grid; gap:1rem; }
+    .contract-card { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+    .contract-meta { display:flex; flex-wrap:wrap; gap:.8rem; color:#60736a; font-size:.88rem; margin-top:.45rem; }
+    .badge { display:inline-block; border-radius:99px; padding:.3rem .65rem; font-size:.78rem; font-weight:600; }
+    .badge-active { background:#e1f0e8; color:#216b4f; }
+    .badge-pending { background:#fff7df; color:#8a6500; }
+    .badge-closed { background:#f1f3f5; color:#59636d; }
+    .detail-content { white-space:pre-wrap; line-height:1.65; background:#f8fbf9; border-radius:8px; padding:1rem; }
+    .message { padding:.85rem 1rem; border-radius:8px; margin-bottom:1rem; }
+    .success { background:#e1f0e8; color:#216b4f; } .error { background:#fdecec; color:#8c2d2d; }
+    @@media (max-width:700px) { .summary-grid { grid-template-columns:1fr; } .contract-card, .contracts-header { align-items:flex-start; flex-direction:column; } }
+</style>
+
+<main class="contracts-page">
+    <div class="contracts-header">
+        <div>
+            <h1>My Contracts</h1>
+            <p class="text-muted mb-0">Review contracts assigned to you and sign when ready.</p>
+        </div>
+        <a class="btn btn-outline-success" href="/Lecturer">Back to dashboard</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage)) { <div class="message success">@Model.SuccessMessage</div> }
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage)) { <div class="message error">@Model.ErrorMessage</div> }
+
+    <section class="summary-grid">
+        <div class="summary-card"><div class="summary-label">Total Contracts</div><div class="summary-value">@Model.Contracts.Count</div></div>
+        <div class="summary-card"><div class="summary-label">Awaiting Your Signature</div><div class="summary-value">@Model.PendingSignatureCount</div></div>
+        <div class="summary-card"><div class="summary-label">Active Contracts</div><div class="summary-value">@Model.ActiveContractCount</div></div>
+    </section>
+
+    @if (Model.SelectedContract is not null)
+    {
+        var contract = Model.SelectedContract;
+        <section class="contract-detail mb-4">
+            <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                <h2 class="h5 mb-0">@contract.Reference</h2>
+                <span class="badge @(contract.Status == ContractStatus.Active ? "badge-active" : contract.IsClosed ? "badge-closed" : "badge-pending")">@contract.Status</span>
+            </div>
+            <div class="detail-content">@contract.Content</div>
+            <div class="mt-3 d-flex gap-2">
+                @if (!contract.IsSignedByLecturer && !contract.IsClosed)
+                {
+                    <form method="post" asp-page-handler="Sign">
+                        <input type="hidden" name="contractId" value="@contract.Id" />
+                        <button class="btn btn-success" type="submit">Sign Contract</button>
+                    </form>
+                }
+                else if (contract.IsSignedByLecturer)
+                {
+                    <span class="badge badge-active">Signed by you</span>
+                }
+                <a class="btn btn-outline-secondary" href="/Lecturer/Contracts">Close</a>
+            </div>
+        </section>
+    }
+
+    <section class="contract-list">
+        @if (!Model.Contracts.Any())
+        {
+            <div class="contract-card"><div><strong>No contracts assigned yet</strong><div class="text-muted">Contracts created for you will appear here.</div></div></div>
+        }
+        @foreach (var contract in Model.Contracts)
+        {
+            <article class="contract-card">
+                <div>
+                    <strong>@contract.Reference · @contract.CourseCode</strong>
+                    <div>@contract.CourseTitle</div>
+                    <div class="contract-meta"><span>@contract.AcademicYear</span><span>@contract.Campus</span><span>@contract.AllocatedHours.ToString("N1") hours</span></div>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                    <span class="badge @(contract.Status == ContractStatus.Active ? "badge-active" : contract.IsClosed ? "badge-closed" : "badge-pending")">@(contract.IsSignedByLecturer ? "Signed by you" : contract.Status.ToString())</span>
+                    <a class="btn btn-sm btn-outline-success" href="/Lecturer/Contracts?ContractId=@contract.Id">View</a>
+                </div>
+            </article>
+        }
+    </section>
+</main>

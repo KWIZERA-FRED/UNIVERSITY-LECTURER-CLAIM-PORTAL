@@ -1,200 +1,105 @@
+using System.Security.Claims;
+using Academic_Staff_Engagement_Claim_Processing_System.Data;
+using Academic_Staff_Engagement_Claim_Processing_System.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
-namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
+namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer;
+
+[Authorize(Roles = "Lecturer")]
+public class SubmitClaimModel : PageModel
 {
-    public class SubmitClaimModel : PageModel
+    private readonly ApplicationDbContext _context;
+    private readonly ClaimSubmissionService _claimSubmissionService;
+
+    public SubmitClaimModel(ApplicationDbContext context, ClaimSubmissionService claimSubmissionService)
     {
-        [BindProperty]
-        public string? SelectedCourse { get; set; }
-
-    [BindProperty]
-        public DateTime? StartDate { get; set; }
-
-        [BindProperty]
-        public DateTime? FinishDate { get; set; }
-
-        [BindProperty]
-        public int Hours { get; set; }
-
-        public string LecturerName { get; set; } = "Dr. Ahmed Mohammed";
-
-        public string LecturerId { get; set; } = "L001";
-
-        public string? ErrorMessage { get; set; }
-
-        public List<CourseItem> Courses { get; set; } = new();
-
-        public List<ClaimRecord> PreviousClaims { get; set; } = new();
-
-        public void OnGet()
-        {
-            LoadData();
-        }
-
-        public IActionResult OnPost()
-        {
-            LoadData();
-
-            // Validate course
-            if (string.IsNullOrWhiteSpace(SelectedCourse))
-            {
-                ErrorMessage = "Please select the course you want to claim for.";
-                return Page();
-            }
-
-            // Validate start date
-            if (!StartDate.HasValue)
-            {
-                ErrorMessage = "Please select the claim start date.";
-                return Page();
-            }
-
-            // Validate finish date
-            if (!FinishDate.HasValue)
-            {
-                ErrorMessage = "Please select the claim finish date.";
-                return Page();
-            }
-
-            // Validate dates
-            if (FinishDate.Value.Date < StartDate.Value.Date)
-            {
-                ErrorMessage = "The finish date cannot be earlier than the start date.";
-                return Page();
-            }
-
-            // Validate hours
-            if (Hours <= 0)
-            {
-                ErrorMessage = "Please enter a valid number of teaching hours.";
-                return Page();
-            }
-
-            // Find selected course
-            var course = Courses.FirstOrDefault(
-                c => c.Code == SelectedCourse
-            );
-
-            if (course == null)
-            {
-                ErrorMessage = "The selected course could not be found.";
-                return Page();
-            }
-
-            // Redirect to claim preview
-            return RedirectToPage(
-                "/Lecturer/ClaimPreview",
-                new
-                {
-                    Course = course.Code + " - " + course.Name,
-                    Lecturer = LecturerName,
-                    LecturerId = LecturerId,
-                    StartDate = StartDate.Value.ToString("yyyy-MM-dd"),
-                    FinishDate = FinishDate.Value.ToString("yyyy-MM-dd"),
-                    Hours = Hours
-                }
-            );
-        }
-
-        private void LoadData()
-        {
-            Courses = new List<CourseItem>
-        {
-            new CourseItem(
-                "CS101",
-                "Introduction to Computer Science"
-            ),
-
-            new CourseItem(
-                "SE201",
-                "Software Engineering"
-            ),
-
-            new CourseItem(
-                "DB301",
-                "Database Management Systems"
-            ),
-
-            new CourseItem(
-                "NET202",
-                "Computer Networks"
-            ),
-
-            new CourseItem(
-                "AI401",
-                "Artificial Intelligence"
-            ),
-
-            new CourseItem(
-                "IOT301",
-                "Internet of Things"
-            ),
-
-            new CourseItem(
-                "WD302",
-                "Web Development"
-            ),
-
-            new CourseItem(
-                "CYB401",
-                "Cybersecurity"
-            ),
-
-            new CourseItem(
-                "OS301",
-                "Operating Systems"
-            ),
-
-            new CourseItem(
-                "MOB302",
-                "Mobile Application Development"
-            )
-        };
-
-            PreviousClaims = new List<ClaimRecord>
-        {
-            new ClaimRecord
-            {
-                Course = "CS101 - Introduction to Computer Science",
-                StartDate = "2026-02-01",
-                FinishDate = "2026-05-30",
-                Hours = 40,
-                Status = "Paid"
-            }
-        };
-        }
-
-        // =====================================================
-        // MODELS
-        // =====================================================
-
-        public class CourseItem
-        {
-            public string Code { get; set; }
-
-            public string Name { get; set; }
-
-            public CourseItem(string code, string name)
-            {
-                Code = code;
-                Name = name;
-            }
-        }
-
-        public class ClaimRecord
-        {
-            public string Course { get; set; } = "";
-
-            public string StartDate { get; set; } = "";
-
-            public string FinishDate { get; set; } = "";
-
-            public int Hours { get; set; }
-
-            public string Status { get; set; } = "";
-        }
+        _context = context;
+        _claimSubmissionService = claimSubmissionService;
     }
 
+    [BindProperty]
+    public int? SelectedCourseAssignmentId { get; set; }
 
+    [BindProperty]
+    public decimal Hours { get; set; }
+
+    public string LecturerName { get; private set; } = string.Empty;
+    public string? ErrorMessage { get; private set; }
+    public List<CourseItem> Courses { get; private set; } = new();
+
+    public async Task<IActionResult> OnGetAsync()
+    {
+        var lecturerId = GetLecturerId();
+        if (lecturerId is null)
+            return Challenge();
+
+        await LoadPageDataAsync(lecturerId.Value);
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        var lecturerId = GetLecturerId();
+        if (lecturerId is null)
+            return Challenge();
+
+        await LoadPageDataAsync(lecturerId.Value);
+
+        if (!SelectedCourseAssignmentId.HasValue)
+        {
+            ErrorMessage = "Please select one of your course assignments.";
+            return Page();
+        }
+
+        var result = await _claimSubmissionService.SubmitAsync(
+            lecturerId.Value,
+            SelectedCourseAssignmentId.Value,
+            Hours,
+            description: null,
+            actorUsername: User.Identity?.Name ?? "Unknown",
+            ipAddress: HttpContext.Connection.RemoteIpAddress?.ToString());
+
+        if (!result.Succeeded)
+        {
+            ErrorMessage = result.ErrorMessage;
+            return Page();
+        }
+
+        TempData["SuccessMessage"] = "Your claim was submitted and sent for approval.";
+        return Redirect("/Claims");
+    }
+
+    private int? GetLecturerId() =>
+        int.TryParse(User.FindFirstValue("UserId"), out var lecturerId) ? lecturerId : null;
+
+    private async Task LoadPageDataAsync(int lecturerId)
+    {
+        LecturerName = await _context.Lecturers
+            .Where(l => l.Id == lecturerId && l.IsActive)
+            .Select(l => l.UserName)
+            .FirstOrDefaultAsync() ?? string.Empty;
+
+        Courses = await _context.CourseAssignments
+            .AsNoTracking()
+            .Include(a => a.Course)
+            .Where(a => a.LecturerId == lecturerId && a.IsActive)
+            .OrderBy(a => a.Course.Code)
+            .Select(a => new CourseItem(
+                a.Id,
+                a.Course.Code,
+                a.Course.Title,
+                a.AcademicYear,
+                a.AllocatedHours))
+            .ToListAsync();
+    }
+
+    public sealed record CourseItem(
+        int AssignmentId,
+        string Code,
+        string Name,
+        string AcademicYear,
+        decimal AllocatedHours);
 }

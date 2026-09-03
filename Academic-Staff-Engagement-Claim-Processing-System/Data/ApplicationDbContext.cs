@@ -62,14 +62,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
         // MARKS
         // ============================================================
 
-        public DbSet<MarksSubmission> MarksSubmissions => Set<MarksSubmission>();
-        
         // ============================================================
         // TEMPLATES
         // ============================================================
 
         public DbSet<Template> Templates => Set<Template>();
-        public DbSet<MarksSubmission> MarksSubmissions { get; set; } = null!;
 
 
 
@@ -429,6 +426,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .IsUnique();
 
             // ========================================================
+            // CLAIMS
+            // ========================================================
+
+            modelBuilder.Entity<ClaimModel>()
+                .Property(c => c.HoursClaimed)
+                .HasPrecision(6, 2);
+
+            // ========================================================
             // MARKS SUBMISSION
             // ========================================================
 
@@ -443,11 +448,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
             modelBuilder.Entity<MarksSubmission>()
                 .Property(ms => ms.AcademicYear)
                 .HasMaxLength(20)
-                .IsRequired();
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(ms => ms.Semester)
-                .HasConversion<int>()
                 .IsRequired();
 
             modelBuilder.Entity<MarksSubmission>()
@@ -483,41 +483,17 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .Property(ms => ms.RowVersion)
                 .IsRowVersion();
 
-
-            // --------------------------------------------------------
-            // UNIQUE SUBMISSION REFERENCE
-            // --------------------------------------------------------
-
-            modelBuilder.Entity<MarksSubmission>()
-                .HasIndex(ms => ms.SubmissionReference)
-                .IsUnique();
-
-
-            // --------------------------------------------------------
-            // LECTURER RELATIONSHIP
-            // --------------------------------------------------------
-
             modelBuilder.Entity<MarksSubmission>()
                 .HasOne(ms => ms.Lecturer)
                 .WithMany()
                 .HasForeignKey(ms => ms.LecturerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-            // --------------------------------------------------------
-            // COURSE ASSIGNMENT RELATIONSHIP
-            // --------------------------------------------------------
-
             modelBuilder.Entity<MarksSubmission>()
                 .HasOne(ms => ms.CourseAssignment)
-                .WithMany()
+                .WithMany(ca => ca.MarksSubmissions)
                 .HasForeignKey(ms => ms.CourseAssignmentId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-
-            // --------------------------------------------------------
-            // COURSE RELATIONSHIP
-            // --------------------------------------------------------
 
             modelBuilder.Entity<MarksSubmission>()
                 .HasOne(ms => ms.Course)
@@ -525,248 +501,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasForeignKey(ms => ms.CourseId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-            // --------------------------------------------------------
-            // MANAGEMENT REVIEWER
-            // --------------------------------------------------------
-
             modelBuilder.Entity<MarksSubmission>()
                 .HasOne(ms => ms.ReviewedByManagement)
                 .WithMany()
                 .HasForeignKey(ms => ms.ReviewedByManagementId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-
-            // --------------------------------------------------------
-            // SEARCH INDEX
-            // --------------------------------------------------------
-
-            modelBuilder.Entity<MarksSubmission>()
-                .HasIndex(ms => new
-                {
-                    ms.Status,
-                    ms.SubmittedAtUtc
-                });
-
-            modelBuilder.Entity<MarksSubmission>()
-                .HasIndex(ms => new
-                {
-                    ms.LecturerId,
-                    ms.AcademicYear,
-                    ms.Semester
-                });
-
-            // ========================================================
-            // CLAIM
-            // ========================================================
-
-            modelBuilder.Entity<ClaimModel>()
-                .ToTable("Claims");
-
-            modelBuilder.Entity<ClaimModel>()
-                .Property(c => c.HoursClaimed)
-                .HasPrecision(6, 2);
-
-            modelBuilder.Entity<ClaimModel>()
-                .Property(c => c.Status)
-                .HasConversion<int>()
-                .IsRequired();
-
-            modelBuilder.Entity<ClaimModel>()
-                .Property(c => c.QrCodeToken)
-                .HasMaxLength(64)
-                .IsRequired();
-
-            modelBuilder.Entity<ClaimModel>()
-                .Property(c => c.Description)
-                .HasColumnType("nvarchar(max)")
-                .IsRequired();
-
-            modelBuilder.Entity<ClaimModel>()
-                .Property(c => c.RowVersion)
-                .IsRowVersion();
-
-            modelBuilder.Entity<ClaimModel>()
-                .HasOne(c => c.CourseAssignment)
-                .WithMany(ca => ca.Claims)
-                .HasForeignKey(c => c.CourseAssignmentId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ClaimModel>()
-                .HasOne(c => c.Contract)
-                .WithMany()
-                .HasForeignKey(c => c.ContractId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ClaimModel>()
-                .HasIndex(c => c.QrCodeToken)
-                .IsUnique();
-
-            // ========================================================
-            // CLAIM APPROVAL
-            // ========================================================
-
-            modelBuilder.Entity<ClaimApproval>()
-                .ToTable("ClaimApprovals");
-
-            modelBuilder.Entity<ClaimApproval>()
-                .Property(ca => ca.ApprovalRole)
-                .HasConversion<int>()
-                .IsRequired();
-
-            modelBuilder.Entity<ClaimApproval>()
-                .Property(ca => ca.Decision)
-                .HasConversion<int>()
-                .IsRequired();
-
-            modelBuilder.Entity<ClaimApproval>()
-                .Property(ca => ca.SignatureHashAtApproval)
-                .HasMaxLength(256);
-
-            modelBuilder.Entity<ClaimApproval>()
-                .Property(ca => ca.Comments)
-                .HasColumnType("nvarchar(max)");
-
-            modelBuilder.Entity<ClaimApproval>()
-                .HasOne(ca => ca.Claim)
-                .WithMany(c => c.Approvals)
-                .HasForeignKey(ca => ca.ClaimId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<ClaimApproval>()
-                .HasOne(ca => ca.ApprovedByAdminAccount)
-                .WithMany()
-                .HasForeignKey(ca => ca.ApprovedByAdminAccountId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ClaimApproval>()
-                .HasIndex(ca => new
-                {
-                    ca.ClaimId,
-                    ca.SequenceOrder
-                })
-                .IsUnique();
-
-            // ========================================================
-            // MARKS SUBMISSION
-            // ========================================================
-
-            modelBuilder.Entity<MarksSubmission>()
-                .ToTable("MarksSubmissions");
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(m => m.FileName)
-                .HasMaxLength(255)
-                .IsRequired();
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(m => m.FileHash)
-                .HasMaxLength(128)
-                .IsRequired();
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(m => m.FileContent)
-                .HasColumnType("varbinary(max)")
-                .IsRequired();
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(m => m.Status)
-                .HasConversion<int>()
-                .IsRequired();
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(m => m.SignatureHashAtReview)
-                .HasMaxLength(256);
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(m => m.DeclineReason)
-                .HasMaxLength(1000);
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(m => m.RowVersion)
-                .IsRowVersion();
-
-            modelBuilder.Entity<MarksSubmission>()
-                .HasOne(m => m.CourseAssignment)
-                .WithMany(ca => ca.MarksSubmissions)
-                .HasForeignKey(m => m.CourseAssignmentId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<MarksSubmission>()
-                .HasOne(m => m.SubmittedByLecturer)
-                .WithMany()
-                .HasForeignKey(m => m.SubmittedByLecturerId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<MarksSubmission>()
-                .HasOne(m => m.ReviewedByAdminAccount)
-                .WithMany()
-                .HasForeignKey(m => m.ReviewedByAdminAccountId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // ========================================================
-            // TEMPLATE
-            // ========================================================
-
-            modelBuilder.Entity<Template>()
-                .ToTable("Templates");
-
-            modelBuilder.Entity<Template>()
-                .Property(t => t.Contract)
-                .HasColumnType("nvarchar(max)")
-                .IsRequired();
-
-            modelBuilder.Entity<Template>()
-                .Property(t => t.Claim)
-                .HasColumnType("nvarchar(max)")
-                .IsRequired();
-
-            modelBuilder.Entity<Template>()
-                .Property(t => t.Letter)
-                .HasColumnType("nvarchar(max)")
-                .IsRequired();
-            // ========================================================
-            // MARKS SUBMISSION
-            // ========================================================
-
-            modelBuilder.Entity<MarksSubmission>()
-                .ToTable("MarksSubmissions");
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(ms => ms.AcademicYear)
-                .HasMaxLength(20)
-                .IsRequired();
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(ms => ms.OriginalFileName)
-                .HasMaxLength(255)
-                .IsRequired();
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(ms => ms.StoredFilePath)
-                .HasMaxLength(1000)
-                .IsRequired();
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(ms => ms.SubmissionReference)
-                .HasMaxLength(50)
-                .IsRequired();
-
-            modelBuilder.Entity<MarksSubmission>()
-                .Property(ms => ms.Status)
-                .HasMaxLength(50)
-                .IsRequired();
-
-            modelBuilder.Entity<MarksSubmission>()
-                .HasOne(ms => ms.Lecturer)
-                .WithMany()
-                .HasForeignKey(ms => ms.LecturerId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<MarksSubmission>()
-                .HasOne(ms => ms.CourseAssignment)
-                .WithMany()
-                .HasForeignKey(ms => ms.CourseAssignmentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MarksSubmission>()
@@ -774,12 +512,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .IsUnique();
 
             modelBuilder.Entity<MarksSubmission>()
-                .HasIndex(ms => new
-                {
-                    ms.LecturerId,
-                    ms.CourseAssignmentId,
-                    ms.AcademicYear
-                });
+                .HasIndex(ms => new { ms.LecturerId, ms.CourseAssignmentId, ms.AcademicYear });
+
             // ========================================================
             // AUDIT LOG
             // ========================================================

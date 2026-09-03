@@ -7,8 +7,11 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Amazon.S3;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 // ============================================================
 // CONFIGURATION
@@ -46,7 +49,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     if (builder.Environment.IsDevelopment())
     {
         options.EnableDetailedErrors();
-        options.EnableSensitiveDataLogging();
         options.LogTo(Console.WriteLine);
     }
 });
@@ -246,6 +248,9 @@ builder.Services.AddRazorPages(options =>
 
     options.Conventions.AllowAnonymousToPage(
         "/Error");
+
+    options.Conventions.AllowAnonymousToPage(
+        "/Public/ClaimDocuments");
 });
 
 // ============================================================
@@ -282,7 +287,6 @@ builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<AuditLogger>();
 
 builder.Services.AddScoped<AccountRegistrationService>();
-builder.Services.AddScoped<MarksSigningService>();
 
 // Contract signing workflow
 builder.Services.AddScoped<ContractSigningService>();
@@ -293,6 +297,8 @@ builder.Services.AddScoped<MarksSigningService>();
 
 // Claims workflow
 builder.Services.AddScoped<ClaimSigningService>();
+builder.Services.AddScoped<ClaimSubmissionService>();
+builder.Services.AddScoped<OfficialDocumentService>();
 
 // ============================================================
 // BUILD APPLICATION

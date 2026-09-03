@@ -1,4 +1,3 @@
-```csharp
 using System.Security.Claims;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
@@ -78,7 +77,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
         // POST
         // ============================================================
 
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync()
         {
             var lecturer = await GetAuthenticatedLecturerAsync();
@@ -178,7 +176,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
         // GET AUTHENTICATED LECTURER
         // ============================================================
 
-        private async Task<Lecturer?> GetAuthenticatedLecturerAsync()
+        private async Task<Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer?> GetAuthenticatedLecturerAsync()
         {
             /*
              * Login.cshtml.cs creates this claim:
@@ -223,4 +221,3 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
         }
     }
 }
-```

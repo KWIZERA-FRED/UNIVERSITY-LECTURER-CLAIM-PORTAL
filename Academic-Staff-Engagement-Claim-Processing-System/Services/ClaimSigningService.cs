@@ -124,7 +124,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
                 var adminAccount = await _context.AdminAccounts.FirstOrDefaultAsync(a => a.Id == adminAccountId);
 
-                if (adminAccount is null || string.IsNullOrWhiteSpace(adminAccount.SignatureFileHash))
+                if (adminAccount is null || !IsAuthorizedApprover(adminAccount, role) || string.IsNullOrWhiteSpace(adminAccount.SignatureFileHash))
                 {
                     await transaction.RollbackAsync();
                     return Fail("Your account does not have a signature on file. Please contact an administrator.");
@@ -216,6 +216,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             }
         }
 
+
+        private static bool IsAuthorizedApprover(Data.Models.AdminAccount account, ApprovalRole role) =>
+            role switch
+            {
+                ApprovalRole.Dean => account is Data.Models.Dean,
+                ApprovalRole.HROfficer => account is Data.Models.Management management && management.Title == ManagementTitle.HROfficer,
+                ApprovalRole.DVCAR => account is Data.Models.Management management && management.Title == ManagementTitle.DVCAR,
+                ApprovalRole.ViceChancellor => account is Data.Models.Management management && management.Title == ManagementTitle.ViceChancellor,
+                _ => false
+            };
         private static ClaimSigningResult Fail(string message) =>
             new() { Succeeded = false, ErrorMessage = message };
     }

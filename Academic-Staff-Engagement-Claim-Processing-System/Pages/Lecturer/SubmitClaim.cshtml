@@ -497,7 +497,7 @@
 
                 <li>
 
-                    <a href="/Lecturer/Part/Index">
+                    <a href="/Lecturer">
 
                         <i class="bi bi-grid"></i>
 
@@ -546,7 +546,7 @@
 
                 <li>
 
-                    <a href="/Shared/Claims">
+                    <a href="/Claims">
 
                         <i class="bi bi-receipt"></i>
 
@@ -613,7 +613,7 @@
                                 Course
                             </label>
 
-                            <select asp-for="SelectedCourse"
+                            <select asp-for="SelectedCourseAssignmentId"
                                     id="course">
 
                                 <option value="">
@@ -622,42 +622,12 @@
 
                                 @foreach (var course in Model.Courses)
                                 {
-                                    <option value="@course.Code">
-                                        @course.Code - @course.Name
+                                    <option value="@course.AssignmentId">
+                                        @course.Code - @course.Name (@course.AcademicYear, @course.AllocatedHours hours)
                                     </option>
                                 }
 
                             </select>
-
-                        </div>
-
-
-                        <!-- START DATE -->
-
-                        <div class="form-group">
-
-                            <label for="startDate">
-                                Start Date
-                            </label>
-
-                            <input asp-for="StartDate"
-                                   id="startDate"
-                                   type="date" />
-
-                        </div>
-
-
-                        <!-- FINISH DATE -->
-
-                        <div class="form-group">
-
-                            <label for="finishDate">
-                                Finish Date
-                            </label>
-
-                            <input asp-for="FinishDate"
-                                   id="finishDate"
-                                   type="date" />
 
                         </div>
 
@@ -667,14 +637,15 @@
                         <div class="form-group">
 
                             <label for="hours">
-                                Number of Hours
+                                Verified Teaching Hours
                             </label>
 
                             <input asp-for="Hours"
                                    id="hours"
                                    type="number"
-                                   min="1"
-                                   placeholder="Enter teaching hours" />
+                                   min="0.5"
+                                   step="0.5"
+                                   placeholder="Enter the allocated hours" />
 
                         </div>
 
@@ -754,12 +725,9 @@
 
                         <i class="bi bi-info-circle-fill"></i>
 
-                        Marks for the selected course must already have been submitted
-                        and signed in MIS before the claim can be submitted.
-                        After submission, the system will generate an official claim
-                        document containing your details and the information entered
-                        above. You will then be redirected to the claim preview page
-                        where you can review and sign the claim.
+                        The number of hours must exactly match the approved allocation.
+                        The system verifies that an active, fully signed contract and an
+                        Exam Office-signed marks submission exist before it creates the claim.
 
                     </div>
 
