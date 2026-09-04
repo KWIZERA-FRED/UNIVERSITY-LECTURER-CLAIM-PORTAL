@@ -26,6 +26,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         [MaxLength(20)]
         public string Version { get; set; } = string.Empty;
 
+        // Snapshot of the hourly rate in effect at contract generation,
+        // derived from the lecturer's rank at that time — not a live
+        // link, so a later rank change can't silently alter an old
+        // contract's terms.
+        public decimal RatePerHour { get; set; }
+
         [Required]
         public ContractStatus Status { get; set; } = ContractStatus.PendingSignature;
 

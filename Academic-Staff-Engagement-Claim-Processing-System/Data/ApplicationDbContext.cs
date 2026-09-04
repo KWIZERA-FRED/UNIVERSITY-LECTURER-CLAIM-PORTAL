@@ -345,6 +345,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .IsRequired();
 
             modelBuilder.Entity<ContractModel>()
+                .Property(c => c.RatePerHour)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<ContractModel>()
                 .Property(c => c.Content)
                 .HasColumnType("nvarchar(max)")
                 .IsRequired();

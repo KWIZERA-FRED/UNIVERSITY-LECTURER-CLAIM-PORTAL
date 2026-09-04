@@ -1,0 +1,177 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ContractsModel
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
+@{
+    Layout = null;
+    ViewData["Title"] = "Contracts";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contracts · UNILAK ASECPS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<style>
+    * { box-sizing: border-box; }
+    :root {
+        --primary: #0f2b4a; --primary-light: #1a3f64; --accent: #2a7f5e;
+        --accent-light: #e1f0e8; --bg: #f0f4fa; --card: #ffffff; --border: #dce4ed;
+        --text: #1a2634; --text-muted: #4d6278; --warning: #856404;
+        --warning-light: #fff3cd; --radius: 16px; --shadow: 0 12px 30px -10px rgba(0,20,40,0.12);
+    }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+        font-family: 'Segoe UI', system-ui, sans-serif; }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 3rem; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .top-bar a { text-decoration: none; color: var(--primary); font-weight: 600; font-size: 0.85rem; }
+    .top-bar h1 { margin: 0; font-size: 1.4rem; color: var(--primary); }
+    .subtitle { margin: 0.3rem 0 0; color: var(--text-muted); font-size: 0.85rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th { background: var(--primary); color: white; padding: 0.65rem 0.75rem; text-align: left; }
+    th:first-child { border-radius: 7px 0 0 0; }
+    th:last-child { border-radius: 0 7px 0 0; }
+    td { padding: 0.65rem 0.75rem; border-bottom: 1px solid var(--border); }
+    tr:hover td { background: #f8fafc; }
+    .badge { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 30px;
+        font-size: 0.68rem; font-weight: 600; white-space: nowrap; }
+    .badge-pending { background: var(--warning-light); color: var(--warning); }
+    .badge-active { background: #d4edda; color: #0b5e2e; }
+    .badge-expired, .badge-terminated { background: #edf0f3; color: #586879; }
+    .progress { font-size: 0.78rem; color: var(--text-muted); }
+    .view-link { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.78rem; }
+    .empty { text-align: center; padding: 2rem; color: var(--text-muted); }
+    .detail-content { white-space: pre-wrap; font-family: 'Courier New', monospace;
+        font-size: 0.8rem; line-height: 1.6; background: #f8fafc; border: 1px solid var(--border);
+        border-radius: 10px; padding: 1.5rem; max-height: 500px; overflow-y: auto; margin-top: 1rem; }
+    .steps { display: grid; gap: 0.6rem; margin-top: 1rem; }
+    .step { display: flex; justify-content: space-between; align-items: center;
+        border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 1rem; font-size: 0.82rem; }
+    .step-role { font-weight: 600; color: var(--primary); }
+    .error { background: #fdecec; border-left: 4px solid #b42318; padding: 1rem;
+        border-radius: 8px; color: #b42318; font-size: 0.85rem; margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+    <div class="top-bar">
+        <div>
+            <h1>Contracts</h1>
+            <p class="subtitle">Read-only view for @Model.HodDepartment. Signing is handled by Dean, HR, DVCAR and the Vice Chancellor.</p>
+        </div>
+        <a href="/HOD"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+
+    @if (Model.ErrorMessage != null)
+    {
+        <div class="error">@Model.ErrorMessage</div>
+    }
+
+    @if (Model.SelectedContract != null)
+    {
+        var sc = Model.SelectedContract;
+        <div class="card">
+            <h2 style="margin:0 0 0.3rem;color:var(--primary);font-size:1rem;">@sc.Reference — @sc.LecturerName</h2>
+            <p class="subtitle" style="margin:0 0 1rem;">@sc.CourseTitle</p>
+
+            <div class="steps">
+                @foreach (var step in sc.Steps)
+                {
+                    <div class="step">
+                        <span class="step-role">@step.Role</span>
+                        @if (step.Decision == SignatureDecision.Signed)
+                        {
+                            <span class="badge badge-active">Signed @(step.SignedAtUtc?.ToString("dd MMM yyyy"))</span>
+                        }
+                        else if (step.Decision == SignatureDecision.Declined)
+                        {
+                            <span class="badge" style="background:#fdecec;color:#b42318;">Declined</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-pending">Pending</span>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="detail-content">@sc.Content</div>
+
+            <a href="/HOD/Contracts" class="view-link" style="display:inline-block;margin-top:1rem;">
+                <i class="fas fa-arrow-left"></i> Back to all contracts
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            @if (Model.Contracts.Any())
+            {
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Lecturer</th>
+                            <th>Course</th>
+                            <th>Academic Year</th>
+                            <th>Signatures</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.Contracts)
+                        {
+                            <tr>
+                                <td><strong>@c.Reference</strong></td>
+                                <td>@c.LecturerName</td>
+                                <td>@c.CourseCode — @c.CourseTitle</td>
+                                <td>@c.AcademicYear</td>
+                                <td class="progress">@c.SignedSteps / @c.TotalSteps signed</td>
+                                <td>
+                                    @switch (c.Status)
+                                    {
+                                        case ContractStatus.PendingSignature:
+                                            <span class="badge badge-pending">Pending Signature</span>
+                                            break;
+                                        case ContractStatus.Active:
+                                            <span class="badge badge-active">Active</span>
+                                            break;
+                                        case ContractStatus.Expired:
+                                            <span class="badge badge-expired">Expired</span>
+                                            break;
+                                        case ContractStatus.Terminated:
+                                            <span class="badge badge-terminated">Terminated</span>
+                                            break;
+                                        case ContractStatus.Renewed:
+                                            <span class="badge badge-active">Renewed</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    <a href="/HOD/Contracts?ContractId=@c.Id" class="view-link">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty">
+                    <i class="fas fa-file-contract" style="font-size:1.8rem;opacity:0.4;"></i>
+                    <p>No contracts have been generated for your department yet.</p>
+                </div>
+            }
+        </div>
+    }
+
+</div>
+</body>
+</html>

@@ -295,20 +295,38 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             var template = await _context.Templates.AsNoTracking().FirstOrDefaultAsync();
             var content = template?.Contract ?? "UNILAK PART-TIME EMPLOYMENT CONTRACT";
             content = content
+                .Replace("{{ContractDate}}", DateTime.UtcNow.ToString("dd MMMM yyyy"))
                 .Replace("{{LecturerName}}", lecturer.UserName)
-                .Replace("{{CourseTitle}}", course.Title)
+                .Replace("{{AcademicRank}}", lecturer.Rank?.ToString() ?? "Not specified")
+                .Replace("{{GovernmentId}}", "On file")
                 .Replace("{{Department}}", course.Department)
+                .Replace("{{Intake}}", "N/A")
+                .Replace("{{Session}}", assignment.Session.ToString())
+                .Replace("{{CourseTitle}}", course.Title)
                 .Replace("{{AcademicYear}}", assignment.AcademicYear)
                 .Replace("{{Semester}}", assignment.Semester.ToString())
-                .Replace("{{Session}}", assignment.Session.ToString())
                 .Replace("{{Campus}}", assignment.Campus.ToString())
-                .Replace("{{AllocatedHours}}", assignment.AllocatedHours.ToString());
+                .Replace("{{AllocatedHours}}", assignment.AllocatedHours.ToString("0.##"))
+                .Replace("{{HourlyRate}}", HourlyRate.ToString("N0") + " RWF")
+                .Replace("{{NumberOfOnlineClasses}}", "0")
+                .Replace("{{OnlineHours}}", "0")
+                .Replace("{{LecturerSignature}}", "____________________")
+                .Replace("{{LecturerSignatureDate}}", "____________________")
+                .Replace("{{DeanSignature}}", "____________________")
+                .Replace("{{DeanSignatureDate}}", "____________________")
+                .Replace("{{HRSignature}}", "____________________")
+                .Replace("{{HRSignatureDate}}", "____________________")
+                .Replace("{{DVCARSignature}}", "____________________")
+                .Replace("{{DVCARSignatureDate}}", "____________________")
+                .Replace("{{VCSignature}}", "____________________")
+                .Replace("{{VCSignatureDate}}", "____________________");
 
             var contract = new Contract(0, "1.0")
             {
                 LecturerId = lecturer.Id,
                 CourseAssignmentId = assignment.Id,
                 Content = content,
+                RatePerHour = HourlyRate,
                 StartDateUtc = DateTime.UtcNow,
                 Status = ContractStatus.PendingSignature
             };
@@ -346,6 +364,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             // REDIRECT TO CONTRACT PREVIEW
             // ========================================================
             //
+            // The preview page loads everything itself from the real
+            // Contract row by Id — nothing is trusted from the URL.
+            //
             // IMPORTANT:
             // GovernmentId is intentionally NOT read here because the
             // existing encrypted database value currently cannot be
@@ -356,41 +377,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
             return RedirectToPage(
                 "./ContractPreview",
-                new
-                {
-                    Course =
-                        course.Code + " - " + course.Title,
-
-                    Lecturer =
-                        GetLecturerDisplayName(lecturer),
-
-                    GovernmentId = "",
-
-                    Rank =
-                        lecturer.Rank?.ToString()
-                        ?? "Not specified",
-
-                    AcademicYear =
-                        AcademicYear,
-
-                    Semester =
-                        Semester.Value.ToString(),
-
-                    Session =
-                        Session.Value.ToString(),
-
-                    Campus =
-                        Campus.Value.ToString(),
-
-                    Hours =
-                        AllocatedHours,
-
-                    Rate =
-                        HourlyRate,
-
-                    CourseAssignmentId =
-                        assignment.Id
-                });
+                new { ContractId = contract.Id });
         }
 
         // ============================================================
