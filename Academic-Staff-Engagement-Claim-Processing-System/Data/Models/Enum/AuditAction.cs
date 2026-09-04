@@ -15,5 +15,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
         AccessDenied = 11,
         PasswordChanged = 12,
         MarksSubmitted = 13,
+        MarksSigned = 14,
+        MarksDeclined = 15,
     }
 }

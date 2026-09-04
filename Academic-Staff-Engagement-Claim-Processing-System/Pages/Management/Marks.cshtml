@@ -1,0 +1,184 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.Management.MarksModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Marks Review";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Marks Review · Management Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <style>
+        * { box-sizing: border-box; }
+        :root {
+            --primary: #0f2b4a; --accent: #2a7f5e; --accent-light: #e1f0e8;
+            --bg: #f0f4fa; --card: #ffffff; --border: #dce4ed;
+            --text: #1a2634; --text-muted: #4d6278; --radius: 16px;
+            --shadow: 0 12px 30px -10px rgba(0,20,40,0.12);
+        }
+        body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+        .app-header {
+            min-height: 70px; background: var(--primary); color: white; padding: 0.9rem 2rem;
+            display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--accent);
+        }
+        .brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; font-size: 1.2rem; }
+        .brand i { color: #7bc9a0; font-size: 1.4rem; }
+        .role-badge { background: rgba(255,255,255,0.1); padding: 0.35rem 1rem; border-radius: 40px; font-size: 0.8rem; }
+        .logout {
+            color: white; text-decoration: none; font-size: 0.85rem; padding: 0.4rem 0.9rem;
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 30px; margin-left: 1rem;
+        }
+        .logout:hover { background: rgba(255,255,255,0.1); }
+        .main { max-width: 900px; margin: 0 auto; padding: 1.8rem 1.5rem 2.5rem; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .top-bar a { text-decoration: none; color: var(--primary); font-weight: 600; font-size: 0.85rem; }
+        .page-header h1 { margin: 0; color: var(--primary); font-size: 1.6rem; }
+        .page-header p { margin-top: 0.3rem; color: var(--text-muted); font-size: 0.85rem; }
+        .card {
+            background: white; border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
+        }
+        .card h3 { font-size: 1rem; margin-bottom: 0.8rem; color: var(--primary); }
+        .card h3 i { color: var(--accent); margin-right: 0.4rem; }
+        .empty-state { padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--primary); color: white; font-weight: 600; padding: 0.65rem 0.8rem; text-align: left; }
+        td { padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:hover td { background: #f8fafc; }
+        .action-btn {
+            background: var(--accent); color: white; border: none; padding: 0.4rem 1rem;
+            border-radius: 40px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+            text-decoration: none; display: inline-block;
+        }
+        .action-btn:hover { background: #1d6a4d; }
+        .detail-row { display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+        .detail-item { min-width: 160px; }
+        .detail-item label { display: block; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.2rem; }
+        .detail-item span { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.8rem; font-weight: 600; }
+        textarea.form-control {
+            width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--border);
+            border-radius: 9px; font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 70px;
+        }
+        .btn-row { display: flex; gap: 0.8rem; margin-top: 1rem; }
+        .btn-sign {
+            background: var(--accent); color: white; border: none; padding: 0.7rem 1.4rem;
+            border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+        }
+        .btn-sign:hover { background: #1d6a4d; }
+        .btn-decline {
+            background: white; color: #a33d3d; border: 1px solid #efcccc; padding: 0.7rem 1.4rem;
+            border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+        }
+        .btn-decline:hover { background: #fcecec; }
+        .success-message, .error-message { margin-bottom: 1.2rem; padding: 0.9rem 1rem; border-radius: 10px; font-size: 0.85rem; }
+        .success-message { background: #e1f0e8; border: 1px solid #cfe3d8; color: #275c46; }
+        .error-message { background: #fdecec; border: 1px solid #f3caca; color: #9c3b3b; }
+    </style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="brand"><i class="fas fa-university"></i><span>UNILAK · Staff Engagement</span></div>
+    <div>
+        <span class="role-badge"><i class="fas fa-file-excel"></i> Exam Office</span>
+        <a href="/Login" class="logout">Logout</a>
+    </div>
+</header>
+
+<div class="main">
+
+    <div class="top-bar">
+        <div class="page-header">
+            <h1>Marks Review</h1>
+            <p>Verify submitted marks sheets. Lecturers cannot submit a claim until this step is signed.</p>
+        </div>
+        <a href="/ManagementDashboard"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="success-message">@Model.SuccessMessage</div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="error-message">@Model.ErrorMessage</div>
+    }
+
+    @if (Model.SelectedSubmission is not null)
+    {
+        var s = Model.SelectedSubmission;
+
+        <div class="card">
+            <h3><i class="fas fa-file-excel"></i> @s.Reference</h3>
+
+            <div class="detail-row">
+                <div class="detail-item"><label>Lecturer</label><span>@s.LecturerName</span></div>
+                <div class="detail-item"><label>Course</label><span>@s.CourseTitle</span></div>
+                <div class="detail-item"><label>File</label><span>@s.FileName</span></div>
+            </div>
+
+            <form method="post" asp-page-handler="Approve">
+                <input type="hidden" asp-for="SubmissionId" value="@s.Id" />
+                <button type="submit" class="btn-sign"><i class="fas fa-check"></i> Sign Marks</button>
+            </form>
+
+            <form method="post" asp-page-handler="Decline" style="margin-top:1rem;">
+                <input type="hidden" asp-for="SubmissionId" value="@s.Id" />
+                <div class="form-group">
+                    <label>Reason for declining (required if declining)</label>
+                    <textarea asp-for="DeclineReason" class="form-control"
+                              placeholder="Explain what needs correcting"></textarea>
+                </div>
+                <button type="submit" class="btn-decline"><i class="fas fa-times"></i> Decline Submission</button>
+            </form>
+
+            <div class="btn-row">
+                <a href="/Management/Marks" class="action-btn" style="background:white;color:var(--text-muted);border:1px solid var(--border);">
+                    Back to list
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <h3><i class="fas fa-file-excel"></i> Marks Awaiting Review</h3>
+
+            @if (Model.PendingSubmissions.Count == 0)
+            {
+                <div class="empty-state">No marks submissions are currently awaiting review.</div>
+            }
+            else
+            {
+                <table>
+                    <thead>
+                        <tr><th>Reference</th><th>Lecturer</th><th>Course</th><th>Academic Year</th><th>Submitted</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.PendingSubmissions)
+                        {
+                            <tr>
+                                <td><strong>@row.Reference</strong></td>
+                                <td>@row.LecturerName</td>
+                                <td>@row.CourseTitle</td>
+                                <td>@row.AcademicYear</td>
+                                <td>@row.SubmittedAtUtc.ToString("dd MMM yyyy")</td>
+                                <td><a href="/Management/Marks?submissionId=@row.Id" class="action-btn">Review</a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+
+</div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.ManagementDashboardModel
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
+@{
+    Layout = null;
+    ViewData["Title"] = "Management Dashboard";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Management Dashboard · UNILAK ASECPS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<style>
+    * { box-sizing: border-box; }
+    :root {
+        --primary: #0f2b4a; --accent: #2a7f5e; --accent-light: #e1f0e8;
+        --bg: #f0f4fa; --card: #ffffff; --border: #dce4ed;
+        --text: #1a2634; --text-muted: #4d6278; --radius: 16px;
+        --shadow: 0 12px 30px -10px rgba(0,20,40,0.12);
+    }
+    body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    .app-header { min-height: 70px; background: var(--primary); color: white; padding: 0.9rem 2rem;
+        display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--accent); }
+    .brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; font-size: 1.2rem; }
+    .brand i { color: #7bc9a0; font-size: 1.4rem; }
+    .role-badge { background: rgba(255,255,255,0.1); padding: 0.35rem 1rem; border-radius: 40px; font-size: 0.8rem; }
+    .logout { color: white; text-decoration: none; font-size: 0.85rem; padding: 0.4rem 0.9rem;
+        border: 1px solid rgba(255,255,255,0.25); border-radius: 30px; margin-left: 1rem; }
+    .logout:hover { background: rgba(255,255,255,0.1); }
+    .main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 3rem; }
+    .welcome-card { background: var(--primary); color: white; border-radius: var(--radius);
+        padding: 1.5rem 1.7rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
+    .welcome-card h1 { margin: 0 0 0.3rem; font-size: 1.4rem; }
+    .welcome-card p { margin: 0; opacity: 0.8; font-size: 0.85rem; }
+    .action-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.5rem; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
+    .action-card h3 { margin: 0 0 0.3rem; color: var(--primary); font-size: 1.05rem; }
+    .action-card p { margin: 0; color: var(--text-muted); font-size: 0.85rem; }
+    .count-badge { background: var(--accent-light); color: #216344; padding: 0.3rem 0.9rem;
+        border-radius: 30px; font-size: 0.85rem; font-weight: 700; }
+    .go-btn { background: var(--accent); color: white; text-decoration: none; padding: 0.6rem 1.3rem;
+        border-radius: 30px; font-size: 0.85rem; font-weight: 600; margin-left: 1rem; }
+    .go-btn:hover { background: #1d6a4d; }
+    .row { display: flex; align-items: center; gap: 1rem; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="brand"><i class="fas fa-university"></i><span>UNILAK · Staff Engagement</span></div>
+    <div>
+        <span class="role-badge"><i class="fas fa-user-tie"></i> @Model.Title</span>
+        <a href="/Login" class="logout">Logout</a>
+    </div>
+</header>
+
+<div class="main">
+
+    <div class="welcome-card">
+        <h1>Welcome, @Model.DisplayName</h1>
+        <p>Signed in as @Model.Title.</p>
+    </div>
+
+    @if (Model.Title != ManagementTitle.ExamOffice)
+    {
+        <div class="action-card">
+            <div>
+                <h3><i class="fas fa-file-signature"></i> Contracts Awaiting Your Signature</h3>
+                <p>Review and sign lecturer contracts at your step in the sequence.</p>
+            </div>
+            <div class="row">
+                <span class="count-badge">@Model.PendingContractCount pending</span>
+                <a href="/Management/Contracts" class="go-btn">Open</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="action-card">
+            <div>
+                <h3><i class="fas fa-file-excel"></i> Marks Awaiting Review</h3>
+                <p>Verify submitted marks sheets before lecturers can claim payment.</p>
+            </div>
+            <div class="row">
+                <span class="count-badge">@Model.PendingMarksCount pending</span>
+                <a href="/Management/Marks" class="go-btn">Open</a>
+            </div>
+        </div>
+    }
+
+</div>
+</body>
+</html>

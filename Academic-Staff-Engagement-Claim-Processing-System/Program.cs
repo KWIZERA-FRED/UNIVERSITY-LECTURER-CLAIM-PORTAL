@@ -235,8 +235,12 @@ builder.Services.AddRazorPages(options =>
         "Dean");
 
     options.Conventions.AuthorizeFolder(
-        "/Lecturer",
-        "Lecturer");
+    "/Lecturer",
+    "Lecturer");
+
+    options.Conventions.AuthorizeFolder(
+        "/Management",
+        "Management");
 
     options.Conventions.AuthorizeFolder(
         "/Shared");

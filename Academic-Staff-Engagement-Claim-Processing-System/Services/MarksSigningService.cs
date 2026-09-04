@@ -1,16 +1,14 @@
-using System.IO.Compression;
-using System.Security.Cryptography;
-
-using Amazon.S3;
-using Amazon.S3.Model;
-
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
-
+using Amazon.S3;
+using Amazon.S3.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.IO.Compression;
+using System.Security.Cryptography;
+using static Academic_Staff_Engagement_Claim_Processing_System.Services.MarksSubmissionResult;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 {
@@ -34,7 +32,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 SubmissionReference = submissionReference
             };
         }
-
+        public class MarksReviewResult
+        {
+            public bool Succeeded { get; set; }
+            public string? ErrorMessage { get; set; }
+        }
         public static MarksSubmissionResult Fail(
             string message)
         {
@@ -131,6 +133,68 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             _configuration = configuration;
         }
 
+        // ============================================================
+        // REVIEW (SIGN / DECLINE) MARKS SUBMISSION
+        // ============================================================
+
+        public async Task<MarksReviewResult> ReviewAsync(
+            int marksSubmissionId,
+            bool approve,
+            string? comment,
+            int managementId,
+            string actorUsername,
+            string? ipAddress)
+        {
+            if (marksSubmissionId <= 0)
+                return new MarksReviewResult { Succeeded = false, ErrorMessage = "Invalid marks submission." };
+
+            if (!approve && string.IsNullOrWhiteSpace(comment))
+                return new MarksReviewResult { Succeeded = false, ErrorMessage = "Please provide a reason for declining this submission." };
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var submission = await _context.MarksSubmissions
+                    .Include(ms => ms.Course)
+                    .FirstOrDefaultAsync(ms =>
+                        ms.Id == marksSubmissionId &&
+                        ms.Status == MarksSubmissionStatus.Pending);
+
+                if (submission is null)
+                {
+                    await transaction.RollbackAsync();
+                    return new MarksReviewResult { Succeeded = false, ErrorMessage = "This submission is not available for review." };
+                }
+
+                submission.Status = approve ? MarksSubmissionStatus.Signed : MarksSubmissionStatus.Declined;
+                submission.ReviewedByManagementId = managementId;
+                submission.ReviewedAtUtc = DateTime.UtcNow;
+                submission.ReviewComment = comment;
+
+                await _context.SaveChangesAsync();
+
+                await _auditLogger.LogAsync(
+                    approve ? AuditAction.MarksSigned : AuditAction.MarksDeclined,
+                    actorUsername,
+                    "Management",
+                    managementId,
+                    "MarksSubmission",
+                    submission.Id,
+                    approve
+                        ? $"Marks signed for {submission.Course.Code} ({submission.AcademicYear}, {submission.Semester})."
+                        : $"Marks declined for {submission.Course.Code}: {comment}",
+                    ipAddress);
+
+                await transaction.CommitAsync();
+                return new MarksReviewResult { Succeeded = true };
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return new MarksReviewResult { Succeeded = false, ErrorMessage = "The review could not be saved." };
+            }
+        }
 
         // ============================================================
         // SUBMIT MARKS
