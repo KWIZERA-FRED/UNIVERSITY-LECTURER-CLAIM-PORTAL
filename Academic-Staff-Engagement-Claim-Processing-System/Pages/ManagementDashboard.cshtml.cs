@@ -20,6 +20,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
         public string DisplayName { get; private set; } = string.Empty;
         public ManagementTitle Title { get; private set; }
         public int PendingContractCount { get; private set; }
+        public int PendingClaimCount { get; private set; }
         public int PendingMarksCount { get; private set; }
 
         public async Task<IActionResult> OnGetAsync()
@@ -45,6 +46,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                 PendingContractCount = await _context.ContractSignatures
                     .Where(cs => cs.SignerRole == signerRole && cs.Decision == SignatureDecision.Pending)
                     .CountAsync();
+
+                var approvalRole = MapTitleToApprovalRole(Title);
+
+                PendingClaimCount = await _context.ClaimApprovals
+                    .Where(ca => ca.ApprovalRole == approvalRole && ca.Decision == ApprovalDecision.Pending)
+                    .CountAsync();
             }
             else
             {
@@ -62,6 +69,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             ManagementTitle.DVCAR => SignerRole.DVCAR,
             ManagementTitle.ViceChancellor => SignerRole.ViceChancellor,
             _ => throw new InvalidOperationException("This title does not sign contracts.")
+        };
+
+        public static ApprovalRole MapTitleToApprovalRole(ManagementTitle title) => title switch
+        {
+            ManagementTitle.HROfficer => ApprovalRole.HROfficer,
+            ManagementTitle.DVCAR => ApprovalRole.DVCAR,
+            ManagementTitle.ViceChancellor => ApprovalRole.ViceChancellor,
+            _ => throw new InvalidOperationException("This title does not approve claims.")
         };
     }
 }
