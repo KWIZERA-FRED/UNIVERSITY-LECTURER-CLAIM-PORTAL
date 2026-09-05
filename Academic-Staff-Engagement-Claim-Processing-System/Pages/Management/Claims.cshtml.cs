@@ -7,33 +7,31 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
+namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
 {
-    [Authorize(Roles = "Dean")]
+    [Authorize(Roles = "Management")]
     public class ClaimsModel : PageModel
     {
         private readonly ApplicationDbContext _context;
         private readonly ClaimSigningService _signingService;
-        private readonly MarksSigningService _marksService;
 
-        public ClaimsModel(ApplicationDbContext context, ClaimSigningService signingService, MarksSigningService marksService)
+        public ClaimsModel(ApplicationDbContext context, ClaimSigningService signingService)
         {
             _context = context;
             _signingService = signingService;
-            _marksService = marksService;
         }
 
         public List<PendingClaimRow> PendingClaims { get; set; } = new();
         public ClaimReviewDto? SelectedClaim { get; set; }
+        public string RoleLabel { get; set; } = string.Empty;
+        public string? ErrorMessage { get; set; }
+        public string? SuccessMessage { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public int? ClaimId { get; set; }
 
         [BindProperty]
         public string? RejectReason { get; set; }
-
-        public string? SuccessMessage { get; set; }
-        public string? ErrorMessage { get; set; }
 
         public class PendingClaimRow
         {
@@ -43,96 +41,93 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
             public decimal HoursClaimed { get; set; }
         }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
-            await LoadPendingListAsync();
+            var role = await ResolveApprovalRoleAsync();
+            if (role is null)
+                return RedirectToPage("/ManagementDashboard");
+
+            await LoadPendingListAsync(role.Value);
 
             if (ClaimId.HasValue)
             {
-                SelectedClaim = await _signingService.GetClaimForReviewAsync(ClaimId.Value, ApprovalRole.Dean);
-
+                SelectedClaim = await _signingService.GetClaimForReviewAsync(ClaimId.Value, role.Value);
                 if (SelectedClaim is null)
-                {
-                    ErrorMessage = "That claim could not be found, or is not awaiting a Dean approval.";
-                }
+                    ErrorMessage = $"That claim could not be found, or is not awaiting a {RoleLabel} approval.";
             }
+
+            return Page();
         }
 
         public async Task<IActionResult> OnPostApproveAsync()
         {
-            if (!ClaimId.HasValue)
-                return RedirectToPage();
+            var role = await ResolveApprovalRoleAsync();
+            if (role is null || !ClaimId.HasValue)
+                return RedirectToPage("/ManagementDashboard");
 
             var (actorId, actorUsername, actorRole, ipAddress) = GetActorContext();
 
             var result = await _signingService.ApproveAsync(
-                ClaimId.Value, ApprovalRole.Dean, actorId, actorUsername, actorRole, ipAddress);
+                ClaimId.Value, role.Value, actorId, actorUsername, actorRole, ipAddress);
 
             if (!result.Succeeded)
-            {
                 ErrorMessage = result.ErrorMessage;
-            }
             else
-            {
                 SuccessMessage = "Claim approved successfully.";
-            }
 
-            await LoadPendingListAsync();
+            await LoadPendingListAsync(role.Value);
             return Page();
         }
 
         public async Task<IActionResult> OnPostRejectAsync()
         {
-            if (!ClaimId.HasValue)
-                return RedirectToPage();
+            var role = await ResolveApprovalRoleAsync();
+            if (role is null || !ClaimId.HasValue)
+                return RedirectToPage("/ManagementDashboard");
 
             if (string.IsNullOrWhiteSpace(RejectReason))
             {
                 ErrorMessage = "Please provide a reason for rejecting this claim.";
-                await LoadPendingListAsync();
-                SelectedClaim = await _signingService.GetClaimForReviewAsync(ClaimId.Value, ApprovalRole.Dean);
+                await LoadPendingListAsync(role.Value);
+                SelectedClaim = await _signingService.GetClaimForReviewAsync(ClaimId.Value, role.Value);
                 return Page();
             }
 
             var (actorId, actorUsername, actorRole, ipAddress) = GetActorContext();
 
             var result = await _signingService.RejectAsync(
-                ClaimId.Value, ApprovalRole.Dean, actorId, RejectReason, actorUsername, actorRole, ipAddress);
+                ClaimId.Value, role.Value, actorId, RejectReason, actorUsername, actorRole, ipAddress);
 
             if (!result.Succeeded)
-            {
                 ErrorMessage = result.ErrorMessage;
-            }
             else
-            {
                 SuccessMessage = "Claim rejected.";
-            }
 
-            await LoadPendingListAsync();
+            await LoadPendingListAsync(role.Value);
             return Page();
         }
 
-        // Lets the Dean open the actual signed marks spreadsheet from the
-        // review screen, instead of just seeing that a reference exists.
-        // Re-validates that the requested marks file actually belongs to a
-        // claim this Dean is entitled to review, rather than trusting the
-        // marksId on its own.
-        public async Task<IActionResult> OnGetDownloadMarksAsync(int claimId, int marksId)
+        private async Task<ApprovalRole?> ResolveApprovalRoleAsync()
         {
-            var claim = await _signingService.GetClaimForReviewAsync(claimId, ApprovalRole.Dean);
+            var username = User.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(username))
+                return null;
 
-            if (claim is null || claim.MarksSubmissionId != marksId)
-                return NotFound();
+            var management = await _context.ManagementAccounts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.UserName == username && m.IsActive);
 
-            var url = await _marksService.GetSignedFileDownloadUrlAsync(marksId);
+            if (management is null || management.Title == ManagementTitle.ExamOffice)
+                return null;
 
-            return url is null ? NotFound() : Redirect(url);
+            RoleLabel = management.Title.ToString();
+            return ManagementDashboardModel.MapTitleToApprovalRole(management.Title);
         }
 
-        private async Task LoadPendingListAsync()
+        private async Task LoadPendingListAsync(ApprovalRole role)
         {
             PendingClaims = await _context.ClaimApprovals
-                .Where(ca => ca.ApprovalRole == ApprovalRole.Dean && ca.Decision == ApprovalDecision.Pending)
+                .Where(ca => ca.ApprovalRole == role && ca.Decision == ApprovalDecision.Pending)
                 .Include(ca => ca.Claim)
                     .ThenInclude(c => c.CourseAssignment)
                         .ThenInclude(courseAssignment => courseAssignment.Lecturer)

@@ -14,6 +14,26 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         public int ApprovalStepId { get; set; }
         public bool IsThisRolesTurn { get; set; }
         public string? BlockedReason { get; set; }
+
+        // Used to link out to the public QR/verification page, which already
+        // knows how to render the Contract and Claim Letter PDFs for this claim.
+        public string QrCodeToken { get; set; } = string.Empty;
+
+        // Contract — snapshot the signing status so an approver isn't just
+        // trusting that "ContractId" exists; they can see it was actually signed.
+        public bool ContractSigned { get; set; }
+        public DateTime? ContractSignedAtUtc { get; set; }
+
+        // Marks — the Exam-Office-signed submission tied to this claim's course
+        // assignment. ClaimSubmissionService already guarantees one exists and
+        // is Signed before a claim can be created, so this should never be null
+        // in practice; it's nullable defensively.
+        public int? MarksSubmissionId { get; set; }
+        public string? MarksReference { get; set; }
+        public string? MarksFileName { get; set; }
+        public bool MarksSigned { get; set; }
+        public DateTime? MarksSignedAtUtc { get; set; }
+        public string? MarksSignedByName { get; set; }
     }
 
     public class ClaimSigningResult
@@ -42,6 +62,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             var claim = await _context.Claims
                 .Include(c => c.CourseAssignment)
                     .ThenInclude(ca => ca.Lecturer)
+                .Include(c => c.Contract)
                 .FirstOrDefaultAsync(c => c.Id == claimId);
 
             if (claim is null)
@@ -55,6 +76,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             if (thisStep is null)
                 return null;
 
+            // The signed marks submission for this claim's course assignment.
+            // ClaimSubmissionService only lets a claim be created once one exists
+            // with Status == Signed, so we pull the most recent signed one.
+            var marks = await _context.MarksSubmissions
+                .Where(ms => ms.CourseAssignmentId == claim.CourseAssignmentId
+                             && ms.Status == MarksSubmissionStatus.Signed)
+                .Include(ms => ms.ReviewedByManagement)
+                .OrderByDescending(ms => ms.ReviewedAtUtc)
+                .FirstOrDefaultAsync();
+
             var dto = new ClaimReviewDto
             {
                 ClaimId = claim.Id,
@@ -62,7 +93,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 ContractId = claim.ContractId,
                 HoursClaimed = claim.HoursClaimed,
                 Description = claim.Description,
-                ApprovalStepId = thisStep.Id
+                ApprovalStepId = thisStep.Id,
+                QrCodeToken = claim.QrCodeToken,
+
+                ContractSigned = claim.Contract.Status == ContractStatus.Active,
+                ContractSignedAtUtc = claim.Contract.SignedAtUtc,
+
+                MarksSubmissionId = marks?.Id,
+                MarksReference = marks?.SubmissionReference,
+                MarksFileName = marks?.FileName,
+                MarksSigned = marks is not null,
+                MarksSignedAtUtc = marks?.ReviewedAtUtc,
+                MarksSignedByName = marks?.ReviewedByManagement?.UserName
             };
 
             if (thisStep.Decision != ApprovalDecision.Pending)

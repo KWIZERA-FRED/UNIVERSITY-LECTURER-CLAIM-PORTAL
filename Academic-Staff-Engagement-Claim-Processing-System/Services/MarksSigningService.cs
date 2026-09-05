@@ -969,5 +969,43 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 return false;
             }
         }
+        // ============================================================
+        // SECURE DOWNLOAD LINK FOR A SIGNED MARKS FILE
+        // ============================================================
+
+        /*
+         * Returns a short-lived presigned URL so an authorized reviewer
+         * (Exam Office during review, or an approver further down the
+         * claim chain such as the Dean) can open the actual uploaded
+         * spreadsheet, not just its file name.
+         *
+         * Only ever issued for submissions that are Signed — a Pending
+         * or Declined submission has no business being downloaded from
+         * a claim-review screen.
+         */
+        public async Task<string?> GetSignedFileDownloadUrlAsync(int marksSubmissionId)
+        {
+            var submission = await _context.MarksSubmissions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(ms => ms.Id == marksSubmissionId
+                                            && ms.Status == MarksSubmissionStatus.Signed);
+
+            if (submission is null)
+                return null;
+
+            string? bucketName = _configuration["R2:BucketName"];
+            if (string.IsNullOrWhiteSpace(bucketName))
+                return null;
+
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = bucketName,
+                Key = submission.FilePath,
+                Expires = DateTime.UtcNow.AddMinutes(5),
+                Verb = HttpVerb.GET
+            };
+
+            return _s3Client.GetPreSignedURL(request);
+        }
     }
 }

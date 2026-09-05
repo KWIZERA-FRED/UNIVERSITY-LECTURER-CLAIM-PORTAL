@@ -222,6 +222,53 @@
 
                         <div class="claim-description">@c.Description</div>
 
+                        <div class="detail-row" style="margin-top:1rem;">
+
+                            <div class="detail-item">
+                                <label>Contract</label>
+                                @if (c.ContractSigned)
+                                {
+                                    <span><i class="fas fa-check-circle" style="color:var(--accent);"></i>
+                                        Signed @(c.ContractSignedAtUtc?.ToString("dd MMM yyyy") ?? "")</span>
+                                }
+                                else
+                                {
+                                    <span><i class="fas fa-exclamation-triangle" style="color:#b45309;"></i> Not signed</span>
+                                }
+                                <br />
+                                <a href="/Public/ClaimDocuments?token=@c.QrCodeToken" target="_blank">View contract</a>
+                            </div>
+
+                            <div class="detail-item">
+                                <label>Claim letter</label>
+                                <br />
+                                <a href="/Public/ClaimDocuments?token=@c.QrCodeToken" target="_blank">View claim letter</a>
+                            </div>
+
+                            <div class="detail-item">
+                                <label>Marks submission</label>
+                                @if (c.MarksSigned)
+                                {
+                                    <span><i class="fas fa-check-circle" style="color:var(--accent);"></i>
+                                        Signed by @c.MarksSignedByName
+                                        @(c.MarksSignedAtUtc?.ToString("dd MMM yyyy") ?? "")</span>
+                                    <br />
+                                    <span style="color:var(--text-muted);font-size:0.85em;">@c.MarksReference</span>
+                                    <br />
+                                    <a asp-page-handler="DownloadMarks"
+                                       asp-route-claimId="@c.ClaimId"
+                                       asp-route-marksId="@c.MarksSubmissionId"
+                                       target="_blank">Download marks file</a>
+                                }
+                                else
+                                {
+                                    <span><i class="fas fa-exclamation-triangle" style="color:#b45309;"></i>
+                                        No signed marks submission found</span>
+                                }
+                            </div>
+
+                        </div>
+
                         @if (!c.IsThisRolesTurn)
                         {
                             <div class="blocked-notice">
