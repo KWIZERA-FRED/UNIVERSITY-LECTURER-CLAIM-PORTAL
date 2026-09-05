@@ -117,6 +117,28 @@ public class ContractsModel : PageModel
                 return;
             }
 
+            // Ordered by SequenceOrder so parallel steps (Dean/HR share the
+            // same number) render side by side, not implying one comes
+            // before the other.
+            var signatureSteps = await _context.ContractSignatures
+                .AsNoTracking()
+                .Include(s => s.SignedByAdminAccount)
+                .Where(s => s.ContractId == contract.Id)
+                .OrderBy(s => s.SequenceOrder)
+                .ThenBy(s => s.SignerRole)
+                .ToListAsync();
+
+            var signerStatuses = signatureSteps.Select(s => new SignerStatusRow
+            {
+                Role = s.SignerRole,
+                SequenceOrder = s.SequenceOrder,
+                Decision = s.Decision,
+                SignedAtUtc = s.SignedAtUtc,
+                SignerDisplayName = s.SignerRole == SignerRole.Lecturer
+                    ? LecturerName
+                    : s.SignedByAdminAccount?.UserName
+            }).ToList();
+
             SelectedContract = new ContractDetail
             {
                 Id = contract.Id,
@@ -124,7 +146,9 @@ public class ContractsModel : PageModel
                 Content = contract.Content,
                 Status = contract.Status,
                 IsSignedByLecturer = signedContractIds.Contains(contract.Id),
-                IsClosed = contract.Status is ContractStatus.Expired or ContractStatus.Terminated
+                IsClosed = contract.Status is ContractStatus.Expired or ContractStatus.Terminated,
+                IsFullySigned = contract.Status == ContractStatus.Active,
+                SignerStatuses = signerStatuses
             };
         }
     }
@@ -151,5 +175,16 @@ public class ContractsModel : PageModel
         public ContractStatus Status { get; init; }
         public bool IsSignedByLecturer { get; init; }
         public bool IsClosed { get; init; }
+        public bool IsFullySigned { get; init; }
+        public List<SignerStatusRow> SignerStatuses { get; init; } = new();
+    }
+
+    public sealed class SignerStatusRow
+    {
+        public SignerRole Role { get; init; }
+        public int SequenceOrder { get; init; }
+        public SignatureDecision Decision { get; init; }
+        public DateTime? SignedAtUtc { get; init; }
+        public string? SignerDisplayName { get; init; }
     }
 }

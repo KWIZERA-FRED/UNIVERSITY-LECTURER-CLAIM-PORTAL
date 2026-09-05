@@ -336,9 +336,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             _context.ContractSignatures.AddRange(
                 new ContractSignature(0, contract.Id, 1, SignerRole.Lecturer),
                 new ContractSignature(0, contract.Id, 2, SignerRole.Dean),
-                new ContractSignature(0, contract.Id, 3, SignerRole.HROfficer),
-                new ContractSignature(0, contract.Id, 4, SignerRole.DVCAR),
-                new ContractSignature(0, contract.Id, 5, SignerRole.ViceChancellor));
+                new ContractSignature(0, contract.Id, 2, SignerRole.HROfficer),  // same number as Dean = parallel
+                new ContractSignature(0, contract.Id, 3, SignerRole.DVCAR),
+                new ContractSignature(0, contract.Id, 4, SignerRole.ViceChancellor));
             await _context.SaveChangesAsync();
 
             // ========================================================

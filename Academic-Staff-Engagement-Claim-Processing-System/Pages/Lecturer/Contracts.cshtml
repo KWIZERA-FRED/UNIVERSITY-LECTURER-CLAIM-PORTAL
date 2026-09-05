@@ -23,6 +23,23 @@
     .detail-content { white-space:pre-wrap; line-height:1.65; background:#f8fbf9; border-radius:8px; padding:1rem; }
     .message { padding:.85rem 1rem; border-radius:8px; margin-bottom:1rem; }
     .success { background:#e1f0e8; color:#216b4f; } .error { background:#fdecec; color:#8c2d2d; }
+
+    .ready-banner {
+        background:#e1f0e8; border:1px solid #b9dcc9; color:#174d3b;
+        border-radius:10px; padding:1rem 1.2rem; margin-bottom:1.2rem;
+        display:flex; align-items:center; gap:.7rem; font-weight:600;
+    }
+
+    .signer-timeline { display:grid; gap:.6rem; margin:1rem 0 1.3rem; }
+    .signer-row {
+        display:flex; align-items:center; justify-content:space-between;
+        gap:1rem; padding:.7rem .9rem; border:1px solid #e3e9e6; border-radius:8px;
+        background:#fafcfb; font-size:.85rem;
+    }
+    .signer-role { font-weight:600; color:#174d3b; }
+    .signer-name { color:#60736a; font-size:.8rem; }
+    .signer-parallel-note { color:#8a6500; font-size:.72rem; margin-top:.15rem; }
+
     @@media (max-width:700px) { .summary-grid { grid-template-columns:1fr; } .contract-card, .contracts-header { align-items:flex-start; flex-direction:column; } }
 </style>
 
@@ -47,12 +64,68 @@
     @if (Model.SelectedContract is not null)
     {
         var contract = Model.SelectedContract;
+
         <section class="contract-detail mb-4">
             <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
                 <h2 class="h5 mb-0">@contract.Reference</h2>
                 <span class="badge @(contract.Status == ContractStatus.Active ? "badge-active" : contract.IsClosed ? "badge-closed" : "badge-pending")">@contract.Status</span>
             </div>
-            <div class="detail-content">@contract.Content</div>
+
+            @if (contract.IsFullySigned)
+            {
+                <div class="ready-banner">
+                    ✅ This contract has been signed by all required signers and is now Active — you may begin work.
+                </div>
+            }
+
+            <div class="detail-content mb-3">@contract.Content</div>
+
+            <h3 class="h6 mb-2" style="color:#174d3b;">Signature Progress</h3>
+            <div class="signer-timeline">
+                @{
+                    // Group by SequenceOrder so signers who act in parallel
+                    // (e.g. Dean and HR Officer) render on the same row/step,
+                    // rather than implying a strict one-after-another order.
+                    var groupedSteps = contract.SignerStatuses
+                        .GroupBy(s => s.SequenceOrder)
+                        .OrderBy(g => g.Key);
+                }
+                @foreach (var group in groupedSteps)
+                {
+                    var isParallelStep = group.Count() > 1;
+                    @foreach (var signer in group)
+                    {
+                        <div class="signer-row">
+                            <div>
+                                <div class="signer-role">@signer.Role</div>
+                                @if (signer.Decision == SignatureDecision.Signed)
+                                {
+                                    <div class="signer-name">
+                                        Signed by @(signer.SignerDisplayName ?? "—")
+                                        @(signer.SignedAtUtc?.ToString("dd MMM yyyy") ?? "")
+                                    </div>
+                                }
+                                else if (signer.Decision == SignatureDecision.Declined)
+                                {
+                                    <div class="signer-name" style="color:#8c2d2d;">Declined</div>
+                                }
+                                else
+                                {
+                                    <div class="signer-name">Awaiting signature</div>
+                                }
+                                @if (isParallelStep)
+                                {
+                                    <div class="signer-parallel-note">Signs in parallel at this step</div>
+                                }
+                            </div>
+                            <span class="badge @(signer.Decision == SignatureDecision.Signed ? "badge-active" : signer.Decision == SignatureDecision.Declined ? "badge-closed" : "badge-pending")">
+                                @signer.Decision
+                            </span>
+                        </div>
+                    }
+                }
+            </div>
+
             <div class="mt-3 d-flex gap-2">
                 @if (!contract.IsSignedByLecturer && !contract.IsClosed)
                 {

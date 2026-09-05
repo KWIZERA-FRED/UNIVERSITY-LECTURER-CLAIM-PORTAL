@@ -425,7 +425,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasIndex(cs => new
                 {
                     cs.ContractId,
-                    cs.SequenceOrder
+                    cs.SignerRole
                 })
                 .IsUnique();
 
