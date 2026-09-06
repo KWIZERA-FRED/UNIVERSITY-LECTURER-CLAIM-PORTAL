@@ -8,345 +8,1303 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Claims - Dean Portal</title>
+    <title>Claims | UNILAK Staff Engagement</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap"
+          rel="stylesheet" />
 
     <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-    <style>
-
-            * { box-sizing: border-box; }
-
-            :root {
-                --primary: #0f2b4a;
-                --accent: #2a7f5e;
-                --accent-light: #e1f0e8;
-                --bg: #f0f4fa;
-                --card: #ffffff;
-                --border: #dce4ed;
-                --text: #1a2634;
-                --text-muted: #4d6278;
-                --radius: 16px;
-                --shadow: 0 12px 30px -10px rgba(0,20,40,0.12);
-            }
-
-            body {
-                margin: 0;
-                font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-                background: var(--bg);
-                color: var(--text);
-            }
-
-            .dean-app { min-height: 100vh; display: flex; flex-direction: column; }
-
-            .app-header {
-                height: 70px; background: var(--primary); color: white;
-                padding: 0.9rem 2rem; display: flex; align-items: center;
-                justify-content: space-between; border-bottom: 3px solid var(--accent);
-            }
-
-            .brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; font-size: 1.2rem; }
-            .brand i { color: #7bc9a0; font-size: 1.4rem; }
-
-            .user-area { display: flex; align-items: center; gap: 1rem; }
-
-            .role-badge { background: rgba(255,255,255,0.1); padding: 0.35rem 1rem; border-radius: 40px; font-size: 0.8rem; }
-
-            .logout {
-                color: white; text-decoration: none; font-size: 0.85rem;
-                padding: 0.4rem 0.9rem; border: 1px solid rgba(255,255,255,0.25); border-radius: 30px;
-            }
-            .logout:hover { background: rgba(255,255,255,0.1); }
-
-            .app-body { display: flex; flex: 1; }
-
-            .sidebar {
-                width: 230px; background: white; border-right: 1px solid var(--border);
-                padding: 1.2rem 0; flex-shrink: 0; min-height: calc(100vh - 70px);
-            }
-
-            .sidebar-title {
-                padding: 0 1.8rem 0.8rem; font-size: 0.7rem; text-transform: uppercase;
-                letter-spacing: 0.8px; color: var(--text-muted); font-weight: 700;
-            }
-
-            .sidebar a {
-                display: block; width: 100%; text-decoration: none; padding: 0.7rem 1.8rem;
-                color: var(--text); font-size: 0.9rem; font-weight: 500;
-                border-left: 3px solid transparent; transition: 0.2s ease;
-            }
-            .sidebar a i { width: 1.6rem; color: var(--text-muted); }
-            .sidebar a:hover { background: var(--bg); }
-            .sidebar a.active { background: var(--accent-light); border-left-color: var(--accent); color: var(--primary); font-weight: 600; }
-            .sidebar a.active i { color: var(--accent); }
-
-            .main { flex: 1; padding: 1.8rem 2rem 2rem; overflow-x: auto; }
-
-            .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-            .page-header h1 { margin: 0; color: var(--primary); font-size: 1.6rem; }
-            .page-header p { margin-top: 0.3rem; color: var(--text-muted); font-size: 0.85rem; }
-
-            .card {
-                background: white; border: 1px solid var(--border); border-radius: var(--radius);
-                padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
-            }
-            .card h3 { font-size: 1rem; margin-bottom: 0.8rem; color: var(--primary); }
-            .card h3 i { color: var(--accent); margin-right: 0.4rem; }
-
-            .empty-state { padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
-
-            table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-            th { background: var(--primary); color: white; font-weight: 600; padding: 0.65rem 0.8rem; text-align: left; }
-            td { padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
-            tr:hover td { background: #f8fafc; }
-
-            .action-btn {
-                background: var(--accent); color: white; border: none; padding: 0.4rem 1rem;
-                border-radius: 40px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
-                text-decoration: none; display: inline-block;
-            }
-            .action-btn:hover { background: #1d6a4d; }
-
-            .detail-row { display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
-            .detail-item { min-width: 160px; }
-            .detail-item label { display: block; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.2rem; }
-            .detail-item span { font-size: 0.95rem; font-weight: 600; color: var(--text); }
-
-            .claim-description {
-                white-space: pre-wrap; background: var(--bg); border: 1px solid var(--border);
-                border-radius: 10px; padding: 1rem; font-size: 0.85rem; line-height: 1.6;
-                margin-bottom: 1.3rem;
-            }
-
-            .blocked-notice {
-                background: #fff3cd; border: 1px solid #ffe08a; color: #7a5b00;
-                padding: 0.9rem 1rem; border-radius: 10px; font-size: 0.85rem; margin-bottom: 1.2rem;
-            }
-
-            .form-group { margin-bottom: 1rem; }
-            .form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.8rem; font-weight: 600; }
-            textarea.form-control {
-                width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--border);
-                border-radius: 9px; font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 70px;
-            }
-
-            .btn-row { display: flex; gap: 0.8rem; margin-top: 1rem; }
-
-            .btn-approve {
-                background: var(--accent); color: white; border: none; padding: 0.7rem 1.4rem;
-                border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
-            }
-            .btn-approve:hover { background: #1d6a4d; }
-
-            .btn-reject {
-                background: white; color: #a33d3d; border: 1px solid #efcccc; padding: 0.7rem 1.4rem;
-                border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
-            }
-            .btn-reject:hover { background: #fcecec; }
-
-            .success-message, .error-message {
-                margin-bottom: 1.2rem; padding: 0.9rem 1rem; border-radius: 10px; font-size: 0.85rem;
-            }
-            .success-message { background: #e1f0e8; border: 1px solid #cfe3d8; color: #275c46; }
-            .error-message { background: #fdecec; border: 1px solid #f3caca; color: #9c3b3b; }
-
-            @@media (max-width: 700px) {
-                .app-body { flex-direction: column; }
-                .sidebar { width: 100%; min-height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-                .main { padding: 1.2rem; }
-            }
-
-    </style>
+    <link rel="stylesheet"
+          href="~/css/DEAN/claims.css"
+          asp-append-version="true" />
 
 </head>
 
+
 <body>
 
-    <div class="dean-app">
+    <!-- ============================================================
+         HEADER
+         ============================================================ -->
 
-        <header class="app-header">
-            <div class="brand"><i class="fas fa-university"></i><span>UNILAK · Staff Engagement</span></div>
-            <div class="user-area">
-                <span class="role-badge"><i class="fas fa-user-tie"></i> Dean</span>
-                <a href="/Login" class="logout">Logout</a>
-            </div>
-        </header>
+    <header class="top-header">
 
-        <div class="app-body">
+        <div class="header-left">
 
-            <aside class="sidebar">
-                <div class="sidebar-title">Dean Portal</div>
-                <a href="/DEAN"><i class="fas fa-th-large"></i> Dashboard</a>
-                <a href="/DEAN/RegisterUser"><i class="fas fa-user-plus"></i> Register New User</a>
-                <a href="/DEAN/Contracts"><i class="fas fa-file-signature"></i> Contracts</a>
-                <a href="/DEAN/Claims" class="active"><i class="fas fa-coins"></i> Claims</a>
-            </aside>
+            <button type="button"
+                    class="mobile-menu-btn"
+                    id="mobileMenuBtn"
+                    aria-label="Open navigation menu">
 
-            <main class="main">
+                <i class="bi bi-list"></i>
 
-                <div class="page-header">
-                    <div>
-                        <h1>Claims</h1>
-                        <p>Review and approve lecturer payment claims awaiting your signature.</p>
-                    </div>
+            </button>
+
+
+            <a asp-page="/DEAN/Index" class="brand">
+
+                <div class="brand-logo">
+
+                    <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                         alt="UNILAK Logo" />
+
                 </div>
 
-                @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
-                {
-                    <div class="success-message">@Model.SuccessMessage</div>
-                }
 
-                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-                {
-                    <div class="error-message">@Model.ErrorMessage</div>
-                }
+                <div class="brand-text">
 
-                @if (Model.SelectedClaim is not null)
-                {
-                    var c = Model.SelectedClaim;
+                    <span class="brand-title">
+                        UNILAK Staff Engagement
+                    </span>
 
-                    <div class="card">
+                    <span class="brand-subtitle">
+                        Academic Staff Management Portal
+                    </span>
 
-                        <h3><i class="fas fa-coins"></i> Claim CL@(c.ClaimId.ToString("D3"))</h3>
+                </div>
 
-                        <div class="detail-row">
-                            <div class="detail-item"><label>Lecturer</label><span>@c.LecturerName</span></div>
-                            <div class="detail-item"><label>Contract</label><span>C@(c.ContractId.ToString("D3"))</span></div>
-                            <div class="detail-item"><label>Hours Claimed</label><span>@c.HoursClaimed h</span></div>
+            </a>
+
+        </div>
+
+
+        <div class="header-right">
+
+            <div class="user-info">
+
+                <div class="user-avatar">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+
+                <div class="user-details">
+
+                    <strong>
+                        @(User.Identity?.Name ?? "Dean")
+                    </strong>
+
+                    <span>
+                        Dean
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <a href="/Login" class="logout-btn">
+
+                <i class="bi bi-box-arrow-right"></i>
+
+                <span>
+                    Logout
+                </span>
+
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- ============================================================
+         SIDEBAR
+         ============================================================ -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-header">
+
+            <span class="sidebar-label">
+                MAIN MENU
+            </span>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <a asp-page="/DEAN/Index"
+               class="nav-item">
+
+                <span class="nav-icon">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                </span>
+
+                <span class="nav-text">
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <a asp-page="/DEAN/RegisterUser"
+               class="nav-item">
+
+                <span class="nav-icon">
+                    <i class="bi bi-person-plus-fill"></i>
+                </span>
+
+                <span class="nav-text">
+                    Register New User
+                </span>
+
+            </a>
+
+
+            <a asp-page="/DEAN/Contracts"
+               class="nav-item">
+
+                <span class="nav-icon">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </span>
+
+                <span class="nav-text">
+                    Contracts
+                </span>
+
+            </a>
+
+
+            <a asp-page="/DEAN/Claims"
+               class="nav-item active">
+
+                <span class="nav-icon">
+                    <i class="bi bi-cash-stack"></i>
+                </span>
+
+                <span class="nav-text">
+                    Claims
+                </span>
+
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="workflow-card">
+
+                <div class="workflow-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+
+                <div class="workflow-content">
+
+                    <strong>
+                        Approval Workflow
+                    </strong>
+
+                    <span>
+                        Dean Review
+                    </span>
+
+                </div>
+
+                <span class="status-dot"></span>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <div class="sidebar-overlay"
+         id="sidebarOverlay">
+    </div>
+
+
+    <!-- ============================================================
+         MAIN CONTENT
+         ============================================================ -->
+
+    <main class="main-content">
+
+
+        <!-- PAGE HEADER -->
+
+        <section class="page-header">
+
+            <div>
+
+                <div class="page-eyebrow">
+
+                    <i class="bi bi-cash-stack"></i>
+
+                    DEAN PORTAL
+
+                </div>
+
+
+                <h1>
+                    Claims
+                </h1>
+
+
+                <p>
+                    Review and approve lecturer payment claims awaiting
+                    your signature.
+                </p>
+
+            </div>
+
+
+            <div class="page-status">
+
+                <span class="status-indicator"></span>
+
+                Approval Workflow Active
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================================================
+             SUCCESS MESSAGE
+             ======================================================== -->
+
+        @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+        {
+            <div class="alert alert-success">
+
+                <div class="alert-icon">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                </div>
+
+
+                <div class="alert-content">
+
+                    <strong>
+                        Success
+                    </strong>
+
+                    <span>
+                        @Model.SuccessMessage
+                    </span>
+
+                </div>
+
+
+                <button type="button"
+                        class="alert-close"
+                        onclick="this.parentElement.remove()">
+
+                    <i class="bi bi-x"></i>
+
+                </button>
+
+            </div>
+        }
+
+
+        <!-- ========================================================
+             ERROR MESSAGE
+             ======================================================== -->
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+
+                <div class="alert-icon">
+
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+
+                </div>
+
+
+                <div class="alert-content">
+
+                    <strong>
+                        Action Failed
+                    </strong>
+
+                    <span>
+                        @Model.ErrorMessage
+                    </span>
+
+                </div>
+
+
+                <button type="button"
+                        class="alert-close"
+                        onclick="this.parentElement.remove()">
+
+                    <i class="bi bi-x"></i>
+
+                </button>
+
+            </div>
+        }
+
+
+        <!-- ========================================================
+             SELECTED CLAIM
+             ======================================================== -->
+
+        @if (Model.SelectedClaim is not null)
+        {
+            var c = Model.SelectedClaim;
+
+            <section class="card claim-review-card">
+
+
+                <!-- CARD HEADER -->
+
+                <div class="card-header">
+
+                    <div class="card-header-left">
+
+                        <div class="section-icon">
+
+                            <i class="bi bi-file-earmark-check-fill"></i>
+
                         </div>
 
-                        <div class="claim-description">@c.Description</div>
 
-                        <div class="detail-row" style="margin-top:1rem;">
+                        <div>
 
-                            <div class="detail-item">
-                                <label>Contract</label>
-                                @if (c.ContractSigned)
-                                {
-                                    <span><i class="fas fa-check-circle" style="color:var(--accent);"></i>
-                                        Signed @(c.ContractSignedAtUtc?.ToString("dd MMM yyyy") ?? "")</span>
-                                }
-                                else
-                                {
-                                    <span><i class="fas fa-exclamation-triangle" style="color:#b45309;"></i> Not signed</span>
-                                }
-                                <br />
-                                <a href="/Public/ClaimDocuments?token=@c.QrCodeToken" target="_blank">View contract</a>
-                            </div>
+                            <span class="section-eyebrow">
+                                CLAIM REVIEW
+                            </span>
 
-                            <div class="detail-item">
-                                <label>Claim letter</label>
-                                <br />
-                                <a href="/Public/ClaimDocuments?token=@c.QrCodeToken" target="_blank">View claim letter</a>
-                            </div>
-
-                            <div class="detail-item">
-                                <label>Marks submission</label>
-                                @if (c.MarksSigned)
-                                {
-                                    <span><i class="fas fa-check-circle" style="color:var(--accent);"></i>
-                                        Signed by @c.MarksSignedByName
-                                        @(c.MarksSignedAtUtc?.ToString("dd MMM yyyy") ?? "")</span>
-                                    <br />
-                                    <span style="color:var(--text-muted);font-size:0.85em;">@c.MarksReference</span>
-                                    <br />
-                                    <a asp-page-handler="DownloadMarks"
-                                       asp-route-claimId="@c.ClaimId"
-                                       asp-route-marksId="@c.MarksSubmissionId"
-                                       target="_blank">Download marks file</a>
-                                }
-                                else
-                                {
-                                    <span><i class="fas fa-exclamation-triangle" style="color:#b45309;"></i>
-                                        No signed marks submission found</span>
-                                }
-                            </div>
+                            <h2>
+                                Claim #@c.ClaimId.ToString("D3")
+                            </h2>
 
                         </div>
 
-                        @if (!c.IsThisRolesTurn)
+                    </div>
+
+
+                    <div class="claim-status pending">
+
+                        <span></span>
+
+                        Pending Dean Approval
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==================================================
+                     CLAIM SUMMARY
+                     ================================================== -->
+
+                <div class="claim-summary">
+
+
+                    <div class="summary-item">
+
+                        <span class="summary-label">
+                            Lecturer
+                        </span>
+
+                        <strong>
+                            @c.LecturerName
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span class="summary-label">
+                            Contract
+                        </span>
+
+                        <strong>
+                            C@c.ContractId.ToString("D3")
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span class="summary-label">
+                            Hours Claimed
+                        </span>
+
+                        <strong>
+                            @c.HoursClaimed.ToString("N2") h
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span class="summary-label">
+                            Approval Step
+                        </span>
+
+                        <strong>
+                            Dean
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==================================================
+                     DESCRIPTION
+                     ================================================== -->
+
+                <div class="detail-section">
+
+                    <div class="detail-heading">
+
+                        <i class="bi bi-card-text"></i>
+
+                        <h3>
+                            Claim Description
+                        </h3>
+
+                    </div>
+
+
+                    <div class="description-box">
+
+                        @if (!string.IsNullOrWhiteSpace(c.Description))
                         {
-                            <div class="blocked-notice">
-                                <i class="fas fa-lock"></i>
-                                @c.BlockedReason
-                            </div>
+                            <p>
+                                @c.Description
+                            </p>
                         }
                         else
                         {
-                            <form method="post" asp-page-handler="Approve">
-                                <input type="hidden" asp-for="ClaimId" value="@c.ClaimId" />
-                                <button type="submit" class="btn-approve">
-                                    <i class="fas fa-check"></i> Approve Claim
-                                </button>
-                            </form>
-
-                            <form method="post" asp-page-handler="Reject" style="margin-top:1rem;">
-                                <input type="hidden" asp-for="ClaimId" value="@c.ClaimId" />
-                                <div class="form-group">
-                                    <label>Reason for rejecting (required if rejecting)</label>
-                                    <textarea asp-for="RejectReason" class="form-control"
-                                              placeholder="Explain why this claim is being rejected"></textarea>
-                                </div>
-                                <button type="submit" class="btn-reject">
-                                    <i class="fas fa-times"></i> Reject Claim
-                                </button>
-                            </form>
+                            <p class="muted-text">
+                                No description was provided for this claim.
+                            </p>
                         }
 
-                        <div class="btn-row">
-                            <a href="/DEAN/Claims" class="action-btn" style="background:white;color:var(--text-muted);border:1px solid var(--border);">
-                                Back to list
+                    </div>
+
+                </div>
+
+
+                <!-- ==================================================
+                     CONTRACT
+                     ================================================== -->
+
+                <div class="detail-section">
+
+                    <div class="detail-heading">
+
+                        <i class="bi bi-file-earmark-lock-fill"></i>
+
+                        <h3>
+                            Contract
+                        </h3>
+
+                    </div>
+
+
+                    @if (c.ContractSigned)
+                    {
+                        <div class="status-information">
+
+                            <div class="status-information-icon">
+
+                                <i class="bi bi-check-circle-fill"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <strong>
+                                    Contract Signed
+                                </strong>
+
+                                <span>
+                                    Signed
+                                    @(c.ContractSignedAtUtc?.ToString("dd MMM yyyy") ?? "")
+                                </span>
+
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="blocked-panel">
+
+                            <div class="blocked-icon">
+
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                            </div>
+
+
+                            <div class="blocked-content">
+
+                                <strong>
+                                    Contract Not Signed
+                                </strong>
+
+                                <p>
+                                    The associated contract has not yet
+                                    reached the ACTIVE status.
+                                </p>
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    @if (!string.IsNullOrWhiteSpace(c.QrCodeToken))
+                    {
+                        <div class="document-action">
+
+                            <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="document-btn">
+
+                                <i class="bi bi-box-arrow-up-right"></i>
+
+                                View Contract &amp; Claim Documents
+
                             </a>
+
+                        </div>
+                    }
+
+                </div>
+
+
+                <!-- ==================================================
+                     CLAIM DOCUMENT
+                     ================================================== -->
+
+                <div class="detail-section">
+
+                    <div class="detail-heading">
+
+                        <i class="bi bi-envelope-paper-fill"></i>
+
+                        <h3>
+                            Claim Letter
+                        </h3>
+
+                    </div>
+
+
+                    @if (!string.IsNullOrWhiteSpace(c.QrCodeToken))
+                    {
+                        <div class="document-card">
+
+                            <div class="document-icon">
+
+                                <i class="bi bi-file-earmark-text-fill"></i>
+
+                            </div>
+
+
+                            <div class="document-info">
+
+                                <strong>
+                                    Claim Documents
+                                </strong>
+
+                                <span>
+                                    Open the secure claim document
+                                    package using the verification token.
+                                </span>
+
+                            </div>
+
+
+                            <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="document-btn">
+
+                                <i class="bi bi-box-arrow-up-right"></i>
+
+                                View
+
+                            </a>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-document">
+
+                            <i class="bi bi-file-earmark-x"></i>
+
+                            <span>
+                                No claim document token is available.
+                            </span>
+
+                        </div>
+                    }
+
+                </div>
+
+
+                <!-- ==================================================
+                     MARKS SUBMISSION
+                     ================================================== -->
+
+                <div class="detail-section">
+
+                    <div class="detail-heading">
+
+                        <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+
+                        <h3>
+                            Marks Submission
+                        </h3>
+
+                    </div>
+
+
+                    @if (c.MarksSigned && c.MarksSubmissionId.HasValue)
+                    {
+                        <div class="document-card">
+
+                            <div class="document-icon spreadsheet">
+
+                                <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+
+                            </div>
+
+
+                            <div class="document-info">
+
+                                <strong>
+                                    @(c.MarksFileName ?? "Signed Marks Submission")
+                                </strong>
+
+                                <span>
+
+                                    @if (!string.IsNullOrWhiteSpace(c.MarksSignedByName))
+                                    {
+                                        <text>
+                                            Signed by @c.MarksSignedByName
+                                        </text>
+                                    }
+
+                                    @if (c.MarksSignedAtUtc.HasValue)
+                                    {
+                                        <text>
+                                            · @c.MarksSignedAtUtc.Value.ToString("dd MMM yyyy")
+                                        </text>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(c.MarksReference))
+                                    {
+                                        <text>
+                                            · @c.MarksReference
+                                        </text>
+                                    }
+
+                                </span>
+
+                            </div>
+
+
+                            <a asp-page-handler="DownloadMarks"
+                               asp-route-claimId="@c.ClaimId"
+                               asp-route-marksId="@c.MarksSubmissionId.Value"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="document-btn">
+
+                                <i class="bi bi-download"></i>
+
+                                Download
+
+                            </a>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-document">
+
+                            <i class="bi bi-exclamation-triangle"></i>
+
+                            <span>
+                                No signed marks submission was found
+                                for this claim.
+                            </span>
+
+                        </div>
+                    }
+
+                </div>
+
+
+                <!-- ==================================================
+                     APPROVAL WORKFLOW
+                     ================================================== -->
+
+                @if (!c.IsThisRolesTurn)
+                {
+                    <div class="blocked-panel">
+
+                        <div class="blocked-icon">
+
+                            <i class="bi bi-lock-fill"></i>
+
+                        </div>
+
+
+                        <div class="blocked-content">
+
+                            <strong>
+                                Dean Action Currently Blocked
+                            </strong>
+
+                            <p>
+                                @(c.BlockedReason ??
+                                    "An earlier required approval on this claim is still pending.")
+                            </p>
+
                         </div>
 
                     </div>
                 }
                 else
                 {
-                    <div class="card">
+                    <div class="approval-panel">
 
-                        <h3><i class="fas fa-coins"></i> Claims Awaiting Your Signature</h3>
 
-                        @if (Model.PendingClaims.Count == 0)
-                        {
-                            <div class="empty-state">No claims are currently awaiting your signature.</div>
-                        }
-                        else
-                        {
-                            <table>
-                                <thead>
-                                    <tr><th>Claim ID</th><th>Lecturer</th><th>Contract</th><th>Hours</th><th>Action</th></tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var row in Model.PendingClaims)
-                                    {
-                                        <tr>
-                                            <td><strong>CL@(row.ClaimId.ToString("D3"))</strong></td>
-                                            <td>@row.LecturerName</td>
-                                            <td>C@(row.ContractId.ToString("D3"))</td>
-                                            <td>@row.HoursClaimed h</td>
-                                            <td>
-                                                <a href="/DEAN/Claims?claimId=@row.ClaimId" class="action-btn">Review</a>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        }
+                        <div class="approval-header">
+
+                            <div class="approval-title">
+
+                                <div class="approval-icon">
+
+                                    <i class="bi bi-check2-square"></i>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        DEAN DECISION
+                                    </span>
+
+                                    <h3>
+                                        Review This Claim
+                                    </h3>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="approval-badge">
+                                Action Required
+                            </div>
+
+                        </div>
+
+
+                        <div class="approval-note">
+
+                            <i class="bi bi-info-circle-fill"></i>
+
+                            <p>
+                                Review the lecturer, claimed hours,
+                                contract status, claim documents and
+                                signed marks submission before making
+                                your decision.
+                            </p>
+
+                        </div>
+
+
+                        <!-- APPROVE -->
+
+                        <form method="post"
+                              asp-page-handler="Approve"
+                              class="approval-form">
+
+                            <input type="hidden"
+                                   asp-for="ClaimId"
+                                   value="@c.ClaimId" />
+
+
+                            <button type="submit"
+                                    class="btn btn-approve"
+                                    onclick="return confirm('Are you sure you want to approve this claim?');">
+
+                                <i class="bi bi-check-circle-fill"></i>
+
+                                Approve Claim
+
+                            </button>
+
+                        </form>
+
+
+                        <!-- REJECT -->
+
+                        <form method="post"
+                              asp-page-handler="Reject"
+                              class="reject-form">
+
+                            <input type="hidden"
+                                   asp-for="ClaimId"
+                                   value="@c.ClaimId" />
+
+
+                            <div class="reject-heading">
+
+                                <i class="bi bi-exclamation-octagon-fill"></i>
+
+                                <div>
+
+                                    <strong>
+                                        Reject Claim
+                                    </strong>
+
+                                    <span>
+                                        A reason is required when rejecting
+                                        this claim.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <label asp-for="RejectReason">
+                                Rejection Reason
+                            </label>
+
+
+                            <textarea asp-for="RejectReason"
+                                      rows="4"
+                                      maxlength="1000"
+                                      placeholder="Explain why this claim is being rejected..."
+                                      required></textarea>
+
+
+                            <button type="submit"
+                                    class="btn btn-reject"
+                                    onclick="return confirm('Are you sure you want to reject this claim?');">
+
+                                <i class="bi bi-x-circle-fill"></i>
+
+                                Reject Claim
+
+                            </button>
+
+                        </form>
 
                     </div>
                 }
 
-            </main>
 
-        </div>
+                <!-- BACK -->
 
-    </div>
+                <div class="back-section">
+
+                    <a asp-page="/DEAN/Claims"
+                       class="back-btn">
+
+                        <i class="bi bi-arrow-left"></i>
+
+                        Back to Claims
+
+                    </a>
+
+                </div>
+
+            </section>
+        }
+        else
+        {
+            <!-- ====================================================
+                 PENDING CLAIMS LIST
+                 ==================================================== -->
+
+            <section class="card pending-claims-card">
+
+
+                <div class="card-header">
+
+                    <div class="card-header-left">
+
+                        <div class="section-icon">
+
+                            <i class="bi bi-hourglass-split"></i>
+
+                        </div>
+
+
+                        <div>
+
+                            <span class="section-eyebrow">
+                                PENDING WORK
+                            </span>
+
+                            <h2>
+                                Claims Awaiting Your Signature
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="claim-count">
+
+                        <strong>
+                            @Model.PendingClaims.Count
+                        </strong>
+
+                        <span>
+                            Pending
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                @if (Model.PendingClaims.Count == 0)
+                {
+                    <div class="empty-state">
+
+                        <div class="empty-state-icon">
+
+                            <i class="bi bi-check2-circle"></i>
+
+                        </div>
+
+
+                        <h3>
+                            No Pending Claims
+                        </h3>
+
+
+                        <p>
+                            There are currently no claims awaiting
+                            your signature.
+                        </p>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="table-wrapper">
+
+                        <table class="claims-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Claim
+                                    </th>
+
+                                    <th>
+                                        Lecturer
+                                    </th>
+
+                                    <th>
+                                        Contract
+                                    </th>
+
+                                    <th>
+                                        Hours
+                                    </th>
+
+                                    <th>
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                @foreach (var row in Model.PendingClaims)
+                                {
+                                    <tr>
+
+
+                                        <td>
+
+                                            <div class="claim-reference">
+
+                                                <div class="claim-table-icon">
+
+                                                    <i class="bi bi-file-earmark-text-fill"></i>
+
+                                                </div>
+
+
+                                                <div>
+
+                                                    <strong>
+                                                        CL@row.ClaimId.ToString("D3")
+                                                    </strong>
+
+                                                    <span>
+                                                        Claim
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <div class="lecturer-cell">
+
+                                                <div class="lecturer-avatar">
+
+                                                    <i class="bi bi-person-fill"></i>
+
+                                                </div>
+
+
+                                                <span>
+                                                    @row.LecturerName
+                                                </span>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <span class="contract-number">
+                                                C@row.ContractId.ToString("D3")
+                                            </span>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <strong class="hours-value">
+                                                @row.HoursClaimed.ToString("N2") h
+                                            </strong>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <a asp-page="/DEAN/Claims"
+                                               asp-route-ClaimId="@row.ClaimId"
+                                               class="review-btn">
+
+                                                <span>
+                                                    Review
+                                                </span>
+
+                                                <i class="bi bi-arrow-right"></i>
+
+                                            </a>
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+
+            </section>
+        }
+
+
+        <!-- ========================================================
+             FOOTER
+             ======================================================== -->
+
+        <footer class="page-footer">
+
+            <div class="footer-brand">
+
+                <strong>
+                    UNILAK Portal
+                </strong>
+
+                <span>
+                    Academic Staff Engagement &amp; Claim Processing System
+                </span>
+
+            </div>
+
+
+            <div class="footer-copy">
+
+                © @DateTime.Now.Year
+                University of Lay Adventists of Kigali
+
+            </div>
+
+        </footer>
+
+
+    </main>
+
+
+    <!-- ============================================================
+         JAVASCRIPT
+         ============================================================ -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const mobileMenuBtn =
+                document.getElementById("mobileMenuBtn");
+
+            const sidebar =
+                document.getElementById("sidebar");
+
+            const sidebarOverlay =
+                document.getElementById("sidebarOverlay");
+
+
+            function openSidebar() {
+
+                if (sidebar) {
+                    sidebar.classList.add("mobile-open");
+                }
+
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.add("active");
+                }
+
+                document.body.classList.add("menu-open");
+            }
+
+
+            function closeSidebar() {
+
+                if (sidebar) {
+                    sidebar.classList.remove("mobile-open");
+                }
+
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.remove("active");
+                }
+
+                document.body.classList.remove("menu-open");
+            }
+
+
+            if (mobileMenuBtn) {
+
+                mobileMenuBtn.addEventListener(
+                    "click",
+                    function () {
+
+                        if (
+                            sidebar &&
+                            sidebar.classList.contains("mobile-open")
+                        ) {
+                            closeSidebar();
+                        }
+                        else {
+                            openSidebar();
+                        }
+
+                    }
+                );
+
+            }
+
+
+            if (sidebarOverlay) {
+
+                sidebarOverlay.addEventListener(
+                    "click",
+                    closeSidebar
+                );
+
+            }
+
+
+            document
+                .querySelectorAll(".sidebar-nav .nav-item")
+                .forEach(function (item) {
+
+                    item.addEventListener(
+                        "click",
+                        function () {
+
+                            if (window.innerWidth <= 900) {
+                                closeSidebar();
+                            }
+
+                        }
+                    );
+
+                });
+
+
+            document.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (event.key === "Escape") {
+                        closeSidebar();
+                    }
+
+                }
+            );
+
+
+            window.addEventListener(
+                "resize",
+                function () {
+
+                    if (window.innerWidth > 900) {
+                        closeSidebar();
+                    }
+
+                }
+            );
+
+        });
+
+    </script>
 
 </body>
+
 </html>

@@ -99,12 +99,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return Forbid();
             }
 
-            // HOD may create Lecturer, HOD, or Dean — not Management.
-            // Management accounts (HR Officer, DVCAR, Vice Chancellor)
-            // are created only by the Dean.
-            if (Role.Trim().Equals("Management", StringComparison.OrdinalIgnoreCase))
+            // HOD may only create Lecturer accounts. The view already
+            // fixes Role to "Lecturer" and no longer offers HOD, Dean,
+            // or Management as options — this server-side allowlist
+            // check exists so a crafted POST bypassing the form can
+            // never create anything else.
+            if (!Role.Trim().Equals("Lecturer", StringComparison.OrdinalIgnoreCase))
             {
-                ErrorMessage = "HOD accounts cannot create Management accounts. Please contact a Dean.";
+                ErrorMessage = "HOD accounts can only create Lecturer accounts.";
                 return Page();
             }
 

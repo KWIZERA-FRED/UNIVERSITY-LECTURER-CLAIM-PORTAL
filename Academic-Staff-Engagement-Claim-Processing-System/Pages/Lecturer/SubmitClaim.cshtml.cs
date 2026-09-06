@@ -1,10 +1,9 @@
 using System.Security.Claims;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
-using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using LecturerModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -12,52 +11,30 @@ using Microsoft.EntityFrameworkCore;
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 {
     [Authorize(Roles = "Lecturer")]
-    public class SubmitMarksModel : PageModel
+    public class SubmitClaimModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly MarksSigningService _marksSigningService;
+        private readonly ClaimSubmissionService _claimSubmissionService;
 
-        public SubmitMarksModel(
+        public SubmitClaimModel(
             ApplicationDbContext context,
-            MarksSigningService marksSigningService)
+            ClaimSubmissionService claimSubmissionService)
         {
             _context = context;
-            _marksSigningService = marksSigningService;
+            _claimSubmissionService = claimSubmissionService;
         }
 
-        // ============================================================
-        // FORM
-        // ============================================================
+        [BindProperty]
+        public int SelectedCourseAssignmentId { get; set; }
 
         [BindProperty]
-        public int CourseAssignmentId { get; set; }
+        public decimal Hours { get; set; }
 
-        [BindProperty]
-        public string AcademicYear { get; set; } = string.Empty;
+        public string LecturerName { get; private set; } = string.Empty;
 
-        [BindProperty]
-        public Semester Semester { get; set; }
-
-        [BindProperty]
-        public IFormFile? MarksFile { get; set; }
-
-        // ============================================================
-        // DISPLAY
-        // ============================================================
-
-        public string LecturerName { get; private set; }
-            = string.Empty;
-
-        public List<CourseAssignment> Assignments { get; private set; }
-            = new();
+        public List<CourseOption> Courses { get; private set; } = new();
 
         public string? ErrorMessage { get; private set; }
-
-        public string? SuccessMessage { get; private set; }
-
-        // ============================================================
-        // GET
-        // ============================================================
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -70,14 +47,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
             LecturerName = lecturer.UserName;
 
-            await LoadAssignmentsAsync(lecturer.Id);
+            await LoadCoursesAsync(lecturer.Id);
 
             return Page();
         }
-
-        // ============================================================
-        // POST
-        // ============================================================
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -90,142 +63,115 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
             LecturerName = lecturer.UserName;
 
-            // --------------------------------------------------------
-            // BASIC INPUT VALIDATION
-            // --------------------------------------------------------
-
-            if (CourseAssignmentId <= 0)
+            if (SelectedCourseAssignmentId <= 0)
             {
                 ErrorMessage = "Please select your course.";
 
-                await LoadAssignmentsAsync(lecturer.Id);
+                await LoadCoursesAsync(lecturer.Id);
 
                 return Page();
             }
 
-            if (string.IsNullOrWhiteSpace(AcademicYear))
+            if (Hours <= 0)
             {
-                ErrorMessage = "Please select the academic year.";
+                ErrorMessage = "Please enter the verified teaching hours.";
 
-                await LoadAssignmentsAsync(lecturer.Id);
-
-                return Page();
-            }
-
-            if (!Enum.IsDefined(typeof(Semester), Semester))
-            {
-                ErrorMessage = "Please select a valid semester.";
-
-                await LoadAssignmentsAsync(lecturer.Id);
+                await LoadCoursesAsync(lecturer.Id);
 
                 return Page();
             }
 
-            if (MarksFile == null || MarksFile.Length == 0)
-            {
-                ErrorMessage = "Please upload the Excel marks sheet.";
-
-                await LoadAssignmentsAsync(lecturer.Id);
-
-                return Page();
-            }
-
-            // --------------------------------------------------------
-            // SECURITY-SENSITIVE VALIDATION AND STORAGE
-            // ARE HANDLED BY MarksSigningService
-            // --------------------------------------------------------
-
-            var result = await _marksSigningService.SubmitAsync(
+            var result = await _claimSubmissionService.SubmitAsync(
                 lecturer.Id,
-                CourseAssignmentId,
-                AcademicYear.Trim(),
-                Semester,
-                MarksFile,
+                SelectedCourseAssignmentId,
+                Hours,
+                description: null,
                 lecturer.UserName,
-                HttpContext.Connection
-                    .RemoteIpAddress?
-                    .ToString());
+                HttpContext.Connection.RemoteIpAddress?.ToString());
 
             if (!result.Succeeded)
             {
                 ErrorMessage =
                     result.ErrorMessage ??
-                    "The marks submission could not be completed.";
+                    "The claim could not be submitted.";
 
-                await LoadAssignmentsAsync(lecturer.Id);
+                await LoadCoursesAsync(lecturer.Id);
 
                 return Page();
             }
 
-            // --------------------------------------------------------
-            // SUCCESS
-            // --------------------------------------------------------
+            TempData["SuccessMessage"] = "Claim submitted successfully.";
 
-            SuccessMessage =
-                $"Marks submitted successfully. " +
-                $"Reference: {result.SubmissionReference}";
-
-            // Clear the form after successful submission.
-            CourseAssignmentId = 0;
-            AcademicYear = string.Empty;
-            Semester = default;
-            MarksFile = null;
-
-            await LoadAssignmentsAsync(lecturer.Id);
-
-            return Page();
+            return Redirect("/Claims");
         }
 
-        // ============================================================
-        // GET AUTHENTICATED LECTURER
-        // ============================================================
-
-        private async Task<
-            Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer?>
-            GetAuthenticatedLecturerAsync()
+        private async Task<LecturerModel?> GetAuthenticatedLecturerAsync()
         {
-            /*
-             * Login.cshtml.cs creates this claim:
-             *
-             * new Claim("UserId", userId.ToString())
-             *
-             * We use the authenticated claim rather than
-             * accepting a lecturer ID from the browser.
-             */
-
             var userIdValue = User.FindFirstValue("UserId");
 
-            if (!int.TryParse(
-                    userIdValue,
-                    out int lecturerId))
+            if (!int.TryParse(userIdValue, out int lecturerId))
             {
                 return null;
             }
 
             return await _context.Lecturers
-                .FirstOrDefaultAsync(l =>
-                    l.Id == lecturerId &&
-                    l.IsActive);
+                .FirstOrDefaultAsync(l => l.Id == lecturerId && l.IsActive);
         }
 
-        // ============================================================
-        // LOAD ONLY THIS LECTURER'S ASSIGNMENTS
-        // ============================================================
-
-        private async Task LoadAssignmentsAsync(int lecturerId)
+        private async Task LoadCoursesAsync(int lecturerId)
         {
-            Assignments =
-                await _context.CourseAssignments
-                    .AsNoTracking()
-                    .Include(ca => ca.Course)
-                    .Where(ca =>
-                        ca.LecturerId == lecturerId &&
-                        ca.IsActive &&
-                        ca.IsApproved &&
-                        ca.Course.IsActive)
-                    .OrderBy(ca => ca.AcademicYear)
-                    .ThenBy(ca => ca.Course.Code)
-                    .ToListAsync();
+            var assignments = await _context.CourseAssignments
+                .AsNoTracking()
+                .Include(ca => ca.Course)
+                .Where(ca =>
+                    ca.LecturerId == lecturerId &&
+                    ca.IsActive &&
+                    ca.IsApproved &&
+                    ca.Course.IsActive)
+                .OrderBy(ca => ca.AcademicYear)
+                .ThenBy(ca => ca.Course.Code)
+                .ToListAsync();
+
+            var assignmentIds = assignments.Select(a => a.Id).ToList();
+
+            var marksStatuses = await _context.MarksSubmissions
+                .AsNoTracking()
+                .Where(m =>
+                    m.LecturerId == lecturerId &&
+                    assignmentIds.Contains(m.CourseAssignmentId))
+                .Select(m => new { m.CourseAssignmentId, m.Status })
+                .ToListAsync();
+
+            Courses = assignments
+                .Select(a =>
+                {
+                    var marksForAssignment = marksStatuses
+                        .Where(m => m.CourseAssignmentId == a.Id)
+                        .ToList();
+
+                    return new CourseOption
+                    {
+                        AssignmentId = a.Id,
+                        Code = a.Course.Code,
+                        Name = a.Course.Title,
+                        AcademicYear = a.AcademicYear,
+                        AllocatedHours = a.AllocatedHours,
+                        MarksSubmitted = marksForAssignment.Any(),
+                        MarksSigned = marksForAssignment.Any(m => m.Status == MarksSubmissionStatus.Signed)
+                    };
+                })
+                .ToList();
+        }
+
+        public sealed class CourseOption
+        {
+            public int AssignmentId { get; init; }
+            public string Code { get; init; } = string.Empty;
+            public string Name { get; init; } = string.Empty;
+            public string AcademicYear { get; init; } = string.Empty;
+            public decimal AllocatedHours { get; init; }
+            public bool MarksSubmitted { get; init; }
+            public bool MarksSigned { get; init; }
         }
     }
 }

@@ -1,305 +1,1176 @@
 @page
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.ContractsModel
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
-    ViewData["Title"] = "Contracts";
     Layout = null;
+    ViewData["Title"] = "Contracts";
+
+    var selectedContractRow = Model.Contracts
+        .FirstOrDefault(x => x.ContractId == Model.ContractId);
 }
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Contracts - Dean Portal</title>
+    <title>Dean | Contracts | UNILAK</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap"
+          rel="stylesheet" />
 
     <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-    <style>
-
-            * { box-sizing: border-box; }
-
-            :root {
-                --primary: #0f2b4a;
-                --accent: #2a7f5e;
-                --accent-light: #e1f0e8;
-                --bg: #f0f4fa;
-                --card: #ffffff;
-                --border: #dce4ed;
-                --text: #1a2634;
-                --text-muted: #4d6278;
-                --radius: 16px;
-                --shadow: 0 12px 30px -10px rgba(0,20,40,0.12);
-            }
-
-            body {
-                margin: 0;
-                font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-                background: var(--bg);
-                color: var(--text);
-            }
-
-            .dean-app { min-height: 100vh; display: flex; flex-direction: column; }
-
-            .app-header {
-                height: 70px; background: var(--primary); color: white;
-                padding: 0.9rem 2rem; display: flex; align-items: center;
-                justify-content: space-between; border-bottom: 3px solid var(--accent);
-            }
-
-            .brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; font-size: 1.2rem; }
-            .brand i { color: #7bc9a0; font-size: 1.4rem; }
-
-            .user-area { display: flex; align-items: center; gap: 1rem; }
-
-            .role-badge { background: rgba(255,255,255,0.1); padding: 0.35rem 1rem; border-radius: 40px; font-size: 0.8rem; }
-
-            .logout {
-                color: white; text-decoration: none; font-size: 0.85rem;
-                padding: 0.4rem 0.9rem; border: 1px solid rgba(255,255,255,0.25); border-radius: 30px;
-            }
-            .logout:hover { background: rgba(255,255,255,0.1); }
-
-            .app-body { display: flex; flex: 1; }
-
-            .sidebar {
-                width: 230px; background: white; border-right: 1px solid var(--border);
-                padding: 1.2rem 0; flex-shrink: 0; min-height: calc(100vh - 70px);
-            }
-
-            .sidebar-title {
-                padding: 0 1.8rem 0.8rem; font-size: 0.7rem; text-transform: uppercase;
-                letter-spacing: 0.8px; color: var(--text-muted); font-weight: 700;
-            }
-
-            .sidebar a {
-                display: block; width: 100%; text-decoration: none; padding: 0.7rem 1.8rem;
-                color: var(--text); font-size: 0.9rem; font-weight: 500;
-                border-left: 3px solid transparent; transition: 0.2s ease;
-            }
-            .sidebar a i { width: 1.6rem; color: var(--text-muted); }
-            .sidebar a:hover { background: var(--bg); }
-            .sidebar a.active { background: var(--accent-light); border-left-color: var(--accent); color: var(--primary); font-weight: 600; }
-            .sidebar a.active i { color: var(--accent); }
-
-            .main { flex: 1; padding: 1.8rem 2rem 2rem; overflow-x: auto; }
-
-            .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-            .page-header h1 { margin: 0; color: var(--primary); font-size: 1.6rem; }
-            .page-header p { margin-top: 0.3rem; color: var(--text-muted); font-size: 0.85rem; }
-
-            .card {
-                background: white; border: 1px solid var(--border); border-radius: var(--radius);
-                padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
-            }
-            .card h3 { font-size: 1rem; margin-bottom: 0.8rem; color: var(--primary); }
-            .card h3 i { color: var(--accent); margin-right: 0.4rem; }
-
-            .empty-state { padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
-
-            table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-            th { background: var(--primary); color: white; font-weight: 600; padding: 0.65rem 0.8rem; text-align: left; }
-            td { padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
-            tr:hover td { background: #f8fafc; }
-
-            .action-btn {
-                background: var(--accent); color: white; border: none; padding: 0.4rem 1rem;
-                border-radius: 40px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
-                text-decoration: none; display: inline-block;
-            }
-            .action-btn:hover { background: #1d6a4d; }
-
-            .detail-row { display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
-            .detail-item { min-width: 160px; }
-            .detail-item label { display: block; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.2rem; }
-            .detail-item span { font-size: 0.95rem; font-weight: 600; color: var(--text); }
-
-            .contract-text {
-                white-space: pre-wrap; background: var(--bg); border: 1px solid var(--border);
-                border-radius: 10px; padding: 1rem; font-size: 0.82rem; line-height: 1.6;
-                max-height: 400px; overflow-y: auto; margin-bottom: 1.3rem;
-            }
-
-            .blocked-notice {
-                background: #fff3cd; border: 1px solid #ffe08a; color: #7a5b00;
-                padding: 0.9rem 1rem; border-radius: 10px; font-size: 0.85rem; margin-bottom: 1.2rem;
-            }
-
-            .form-group { margin-bottom: 1rem; }
-            .form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.8rem; font-weight: 600; }
-            textarea.form-control {
-                width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--border);
-                border-radius: 9px; font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 70px;
-            }
-
-            .btn-row { display: flex; gap: 0.8rem; margin-top: 1rem; }
-
-            .btn-sign {
-                background: var(--accent); color: white; border: none; padding: 0.7rem 1.4rem;
-                border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
-            }
-            .btn-sign:hover { background: #1d6a4d; }
-
-            .btn-decline {
-                background: white; color: #a33d3d; border: 1px solid #efcccc; padding: 0.7rem 1.4rem;
-                border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
-            }
-            .btn-decline:hover { background: #fcecec; }
-
-            .success-message, .error-message {
-                margin-bottom: 1.2rem; padding: 0.9rem 1rem; border-radius: 10px; font-size: 0.85rem;
-            }
-            .success-message { background: #e1f0e8; border: 1px solid #cfe3d8; color: #275c46; }
-            .error-message { background: #fdecec; border: 1px solid #f3caca; color: #9c3b3b; }
-
-            @@media (max-width: 700px) {
-                .app-body { flex-direction: column; }
-                .sidebar { width: 100%; min-height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-                .main { padding: 1.2rem; }
-            }
-
-    </style>
-
+    <link rel="stylesheet"
+          href="~/css/DEAN/contracts.css"
+          asp-append-version="true" />
 </head>
 
 <body>
 
-    <div class="dean-app">
+    <!-- =========================================================
+         NAVBAR
+    ========================================================== -->
 
-        <header class="app-header">
-            <div class="brand"><i class="fas fa-university"></i><span>UNILAK · Staff Engagement</span></div>
-            <div class="user-area">
-                <span class="role-badge"><i class="fas fa-user-tie"></i> Dean</span>
-                <a href="/Login" class="logout">Logout</a>
+    <header class="top-navbar">
+
+        <div class="brand-section">
+
+            <button type="button"
+                    class="mobile-menu-button"
+                    id="mobileMenuButton"
+                    aria-label="Open navigation menu">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                 alt="UNILAK Logo"
+                 class="unilak-logo" />
+
+            <div class="brand-text">
+                <span class="brand-title">UNILAK</span>
+                <span class="brand-subtitle">Staff Engagement Portal</span>
             </div>
-        </header>
 
-        <div class="app-body">
+        </div>
 
-            <aside class="sidebar">
-                <div class="sidebar-title">Dean Portal</div>
-                <a href="/DEAN"><i class="fas fa-th-large"></i> Dashboard</a>
-                <a href="/DEAN/RegisterUser"><i class="fas fa-user-plus"></i> Register New User</a>
-                <a href="/DEAN/Contracts" class="active"><i class="fas fa-file-signature"></i> Contracts</a>
-                <a href="/DEAN/Claims"><i class="fas fa-coins"></i> Claims</a>
-            </aside>
+        <div class="navbar-right">
 
-            <main class="main">
+            <div class="role-indicator">
+                <i class="bi bi-shield-check"></i>
+                <span>Dean</span>
+            </div>
 
-                <div class="page-header">
-                    <div>
-                        <h1>Contracts</h1>
-                        <p>Review and sign lecturer contracts awaiting your signature.</p>
-                    </div>
+            <div class="user-avatar">
+                <i class="bi bi-person"></i>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================================
+         SIDEBAR OVERLAY
+    ========================================================== -->
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    <!-- =========================================================
+         SIDEBAR
+    ========================================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-heading">
+            <span>DEAN PORTAL</span>
+        </div>
+
+        <nav class="sidebar-navigation">
+
+            <a href="/DEAN"
+               class="sidebar-link">
+                <span class="sidebar-icon">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                </span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="/DEAN/Contracts"
+               class="sidebar-link active">
+                <span class="sidebar-icon">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </span>
+                <span>Contracts</span>
+            </a>
+
+            <a href="/DEAN/Claims"
+               class="sidebar-link">
+                <span class="sidebar-icon">
+                    <i class="bi bi-receipt-cutoff"></i>
+                </span>
+                <span>Claims</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="sidebar-system-info">
+                <div class="system-icon">
+                    <i class="bi bi-shield-lock-fill"></i>
                 </div>
 
-                @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
-                {
-                    <div class="success-message">@Model.SuccessMessage</div>
-                }
+                <div>
+                    <strong>Secure Portal</strong>
+                    <span>UNILAK Administration</span>
+                </div>
+            </div>
 
-                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-                {
-                    <div class="error-message">@Model.ErrorMessage</div>
-                }
+        </div>
 
-                @if (Model.SelectedContract is not null)
-                {
-                    var c = Model.SelectedContract;
+    </aside>
 
-                    <div class="card">
 
-                        <h3><i class="fas fa-file-signature"></i> Contract C@(c.ContractId.ToString("D3"))</h3>
+    <!-- =========================================================
+         MAIN CONTENT
+    ========================================================== -->
 
-                        <div class="detail-row">
-                            <div class="detail-item"><label>Lecturer</label><span>@c.LecturerName</span></div>
-                            <div class="detail-item"><label>Department</label><span>@c.Department</span></div>
-                            <div class="detail-item"><label>Course</label><span>@c.CourseTitle</span></div>
-                            <div class="detail-item"><label>Hours</label><span>@c.AllocatedHours h</span></div>
+    <main class="main-content">
+
+        <!-- PAGE HEADER -->
+
+        <section class="page-header">
+
+            <div>
+
+                <div class="breadcrumb">
+                    <span>Dean Portal</span>
+                    <i class="bi bi-chevron-right"></i>
+                    <span>Contracts</span>
+                </div>
+
+                <h1>Contracts</h1>
+
+                <p>
+                    Review lecturer contracts and monitor the complete
+                    institutional signing process.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             ALERTS
+        ====================================================== -->
+
+        @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+        {
+            <div class="alert alert-success">
+
+                <div class="alert-icon">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+
+                <div class="alert-content">
+                    <strong>Success</strong>
+                    <span>@Model.SuccessMessage</span>
+                </div>
+
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+
+                <div class="alert-icon">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+
+                <div class="alert-content">
+                    <strong>Action failed</strong>
+                    <span>@Model.ErrorMessage</span>
+                </div>
+
+            </div>
+        }
+
+
+        <!-- =====================================================
+             SUMMARY CARDS
+        ====================================================== -->
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+
+                <div class="summary-icon blue">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+
+                <div class="summary-information">
+                    <span class="summary-label">Total Contracts</span>
+                    <strong>@Model.Contracts.Count</strong>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon amber">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+
+                <div class="summary-information">
+                    <span class="summary-label">Awaiting Dean</span>
+                    <strong>
+                        @Model.Contracts.Count(x => x.IsAwaitingDean)
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon green">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+
+                <div class="summary-information">
+                    <span class="summary-label">Completed</span>
+                    <strong>
+                        @Model.Contracts.Count(x => x.IsCompleted)
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon red">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+
+                <div class="summary-information">
+                    <span class="summary-label">Declined</span>
+                    <strong>
+                        @Model.Contracts.Count(x => x.IsDeclined)
+                    </strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             ALL CONTRACTS
+        ====================================================== -->
+
+        <section class="content-card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>All Contracts</h2>
+
+                    <p>
+                        View every lecturer contract and its current
+                        position in the approval sequence.
+                    </p>
+                </div>
+
+                <div class="record-count">
+                    @Model.Contracts.Count contract@(Model.Contracts.Count == 1 ? "" : "s")
+                </div>
+
+            </div>
+
+
+            @if (Model.Contracts.Any())
+            {
+                <div class="table-wrapper">
+
+                    <table class="contracts-table">
+
+                        <thead>
+                            <tr>
+
+                                <th>Lecturer</th>
+                                <th>Course</th>
+                                <th>Department</th>
+                                <th>Version</th>
+                                <th>Status</th>
+                                <th>Current Stage</th>
+                                <th>Created</th>
+                                <th></th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var contract in Model.Contracts)
+                            {
+                                <tr class="@(Model.ContractId == contract.ContractId ? "selected-row" : "")">
+
+                                    <td>
+
+                                        <div class="lecturer-cell">
+
+                                            <div class="lecturer-avatar">
+                                                <i class="bi bi-person-fill"></i>
+                                            </div>
+
+                                            <div>
+                                                <strong>
+                                                    @contract.LecturerName
+                                                </strong>
+
+                                                <span>
+                                                    Contract #@contract.ContractId
+                                                </span>
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+                                        <span class="course-name">
+                                            @contract.CourseTitle
+                                        </span>
+                                    </td>
+
+
+                                    <td>
+                                        @contract.Department
+                                    </td>
+
+
+                                    <td>
+                                        <span class="version-badge">
+                                            @contract.Version
+                                        </span>
+                                    </td>
+
+
+                                    <td>
+
+                                        @if (contract.Status == ContractStatus.Active)
+                                        {
+                                            <span class="status-badge status-active">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                Active
+                                            </span>
+                                        }
+                                        else if (contract.Status == ContractStatus.Expired)
+                                        {
+                                            <span class="status-badge status-expired">
+                                                <i class="bi bi-clock-history"></i>
+                                                Expired
+                                            </span>
+                                        }
+                                        else if (contract.Status == ContractStatus.Terminated)
+                                        {
+                                            <span class="status-badge status-declined">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                                Terminated
+                                            </span>
+                                        }
+                                        else if (contract.Status == ContractStatus.Renewed)
+                                        {
+                                            <span class="status-badge status-active">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                                Renewed
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge status-pending">
+                                                <i class="bi bi-hourglass-split"></i>
+                                                Pending Signature
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="stage-badge @contract.CurrentStageCss">
+                                            @contract.CurrentStage
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+                                        <span class="date-value">
+                                            @contract.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy")
+                                        </span>
+                                    </td>
+
+
+                                    <td class="action-cell">
+
+                                        <a asp-page="/DEAN/Contracts"
+                                           asp-route-ContractId="@contract.ContractId"
+                                           class="view-button">
+
+                                            <i class="bi bi-eye"></i>
+                                            View
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        <i class="bi bi-file-earmark-x"></i>
+                    </div>
+
+                    <h3>No contracts found</h3>
+
+                    <p>
+                        There are currently no lecturer contracts
+                        available for review.
+                    </p>
+
+                </div>
+            }
+
+        </section>
+
+
+        <!-- =====================================================
+             SELECTED CONTRACT
+        ====================================================== -->
+
+        @if (Model.SelectedContract != null && selectedContractRow != null)
+        {
+            var c = Model.SelectedContract;
+
+            <section class="selected-contract-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="section-eyebrow">
+                            CONTRACT DETAILS
+                        </span>
+
+                        <h2>
+                            Contract #@selectedContractRow.ContractId
+                        </h2>
+
+                        <p>
+                            Complete contract information and institutional
+                            signing progress.
+                        </p>
+                    </div>
+
+                    <a asp-page="/DEAN/Contracts"
+                       class="close-selection">
+
+                        <i class="bi bi-x-lg"></i>
+                        Close
+
+                    </a>
+
+                </div>
+
+
+                <!-- =================================================
+                     CONTRACT INFORMATION
+                ================================================== -->
+
+                <div class="content-card details-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <h2>Contract Information</h2>
+
+                            <p>
+                                Basic information associated with this contract.
+                            </p>
                         </div>
 
-                        <div class="contract-text">@c.ContractContent</div>
+                        <span class="contract-number">
+                            #@selectedContractRow.ContractId
+                        </span>
 
-                        @if (!c.IsThisRolesTurn)
-                        {
-                            <div class="blocked-notice">
-                                <i class="fas fa-lock"></i>
-                                @c.BlockedReason
-                            </div>
-                        }
-                        else
-                        {
-                            <form method="post" asp-page-handler="Sign">
-                                <input type="hidden" asp-for="ContractId" value="@c.ContractId" />
-                                <button type="submit" class="btn-sign">
-                                    <i class="fas fa-pen"></i> Sign Contract
-                                </button>
-                            </form>
+                    </div>
 
-                            <form method="post" asp-page-handler="Decline" style="margin-top:1rem;">
-                                <input type="hidden" asp-for="ContractId" value="@c.ContractId" />
-                                <div class="form-group">
-                                    <label>Reason for declining (required if declining)</label>
-                                    <textarea asp-for="DeclineReason" class="form-control"
-                                              placeholder="Explain why this contract is being declined"></textarea>
+
+                    <div class="details-grid">
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                <i class="bi bi-person"></i>
+                                Lecturer
+                            </span>
+
+                            <strong>
+                                @c.LecturerName
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                <i class="bi bi-book"></i>
+                                Course
+                            </span>
+
+                            <strong>
+                                @c.CourseTitle
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                <i class="bi bi-building"></i>
+                                Department
+                            </span>
+
+                            <strong>
+                                @c.Department
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                <i class="bi bi-tag"></i>
+                                Version
+                            </span>
+
+                            <strong>
+                                @selectedContractRow.Version
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     SIGNING TIMELINE
+                ================================================== -->
+
+                <div class="content-card timeline-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>Signing Timeline</h2>
+
+                            <p>
+                                Track every required signature in the
+                                institutional approval sequence.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    @if (Model.SelectedSignatureSteps.Any())
+                    {
+                        <div class="timeline">
+
+                            @foreach (var step in Model.SelectedSignatureSteps)
+                            {
+                                <div class="timeline-item
+                                            @(step.IsCurrent ? "current" : "")
+                                            @(step.IsSigned ? "completed" : "")
+                                            @(step.IsDeclined ? "declined" : "")">
+
+                                    <div class="timeline-marker">
+
+                                        @if (step.IsSigned)
+                                        {
+                                            <i class="bi bi-check-lg"></i>
+                                        }
+                                        else if (step.IsDeclined)
+                                        {
+                                            <i class="bi bi-x-lg"></i>
+                                        }
+                                        else
+                                        {
+                                            <span>
+                                                @step.SequenceOrder
+                                            </span>
+                                        }
+
+                                    </div>
+
+
+                                    <div class="timeline-content">
+
+                                        <div class="timeline-top">
+
+                                            <div>
+
+                                                <span class="timeline-step">
+                                                    STEP @step.SequenceOrder
+                                                </span>
+
+                                                <h3>
+                                                    @step.RoleName
+                                                </h3>
+
+                                            </div>
+
+
+                                            <span class="decision-badge @step.DecisionCss">
+                                                @step.DecisionName
+                                            </span>
+
+                                        </div>
+
+
+                                        @if (step.IsSigned && step.SignedAtUtc.HasValue)
+                                        {
+                                            <div class="timeline-meta">
+
+                                                <span>
+                                                    <i class="bi bi-calendar-check"></i>
+                                                    Signed
+                                                    @step.SignedAtUtc.Value
+                                                        .ToLocalTime()
+                                                        .ToString("dd MMM yyyy, HH:mm")
+                                                </span>
+
+                                            </div>
+                                        }
+
+
+                                        @if (!string.IsNullOrWhiteSpace(step.Comments))
+                                        {
+                                            <div class="timeline-comment">
+
+                                                <i class="bi bi-chat-left-text"></i>
+
+                                                <span>
+                                                    @step.Comments
+                                                </span>
+
+                                            </div>
+                                        }
+
+
+                                        @if (step.IsCurrent)
+                                        {
+                                            <div class="current-step-indicator">
+                                                <i class="bi bi-arrow-right-circle-fill"></i>
+                                                Current stage
+                                            </div>
+                                        }
+
+                                    </div>
+
                                 </div>
-                                <button type="submit" class="btn-decline">
-                                    <i class="fas fa-times"></i> Decline Contract
-                                </button>
-                            </form>
-                        }
+                            }
 
-                        <div class="btn-row">
-                            <a href="/DEAN/Contracts" class="action-btn" style="background:white;color:var(--text-muted);border:1px solid var(--border);">
-                                Back to list
-                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-inline">
+                            <i class="bi bi-signature"></i>
+                            <span>No signature records are available.</span>
+                        </div>
+                    }
+
+                </div>
+
+
+                <!-- =================================================
+                     CONTRACT CONTENT
+                ================================================== -->
+
+                <div class="content-card document-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>Contract Document</h2>
+
+                            <p>
+                                The official contract content submitted
+                                for institutional signing.
+                            </p>
+
+                        </div>
+
+                        <span class="document-label">
+                            <i class="bi bi-file-earmark-text"></i>
+                            Official Document
+                        </span>
+
+                    </div>
+
+
+                    <div class="contract-document">
+
+                        @Html.Raw(c.ContractContent)
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     DEAN ACTIONS
+                ================================================== -->
+
+                @if (Model.SelectedSignatureSteps.Any(x =>
+                    x.IsCurrent &&
+                    x.SignerRole == SignerRole.Dean))
+                {
+                    <div class="content-card action-card">
+
+                        <div class="action-header">
+
+                            <div class="action-icon">
+                                <i class="bi bi-pen-fill"></i>
+                            </div>
+
+                            <div>
+
+                                <h2>Dean Action Required</h2>
+
+                                <p>
+                                    This contract is currently awaiting
+                                    your signature.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="action-warning">
+
+                            <i class="bi bi-info-circle-fill"></i>
+
+                            <span>
+                                Review the contract carefully before
+                                signing or declining it.
+                            </span>
+
+                        </div>
+
+
+                        <div class="action-buttons">
+
+                            <form method="post"
+                                  asp-page-handler="Sign"
+                                  class="action-form">
+
+                                <input type="hidden"
+                                       name="ContractId"
+                                       value="@selectedContractRow.ContractId" />
+
+                                <button type="submit"
+                                        class="btn btn-sign"
+                                        onclick="return confirm('Are you sure you want to sign this contract?');">
+
+                                    <i class="bi bi-pen-fill"></i>
+
+                                    Sign Contract
+
+                                </button>
+
+                            </form>
+
+
+                            <button type="button"
+                                    class="btn btn-decline"
+                                    id="showDeclineButton">
+
+                                <i class="bi bi-x-circle"></i>
+
+                                Decline Contract
+
+                            </button>
+
+                        </div>
+
+
+                        <!-- DECLINE FORM -->
+
+                        <div class="decline-panel"
+                             id="declinePanel">
+
+                            <div class="decline-panel-header">
+
+                                <div>
+                                    <h3>Decline Contract</h3>
+
+                                    <p>
+                                        Provide a reason for declining
+                                        this contract.
+                                    </p>
+                                </div>
+
+                                <button type="button"
+                                        class="close-decline"
+                                        id="closeDeclineButton"
+                                        aria-label="Close decline form">
+
+                                    <i class="bi bi-x-lg"></i>
+
+                                </button>
+
+                            </div>
+
+
+                            <form method="post"
+                                  asp-page-handler="Decline">
+
+                                <input type="hidden"
+                                       name="ContractId"
+                                       value="@selectedContractRow.ContractId" />
+
+
+                                <div class="form-group">
+
+                                    <label for="DeclineReason">
+                                        Reason for Declining
+                                    </label>
+
+                                    <textarea id="DeclineReason"
+                                              name="DeclineReason"
+                                              rows="5"
+                                              maxlength="2000"
+                                              required
+                                              placeholder="Enter the reason for declining this contract...">@Model.DeclineReason</textarea>
+
+                                    <div class="form-help">
+                                        Please provide a clear and
+                                        professional explanation.
+                                    </div>
+
+                                </div>
+
+
+                                <div class="decline-actions">
+
+                                    <button type="button"
+                                            class="btn btn-secondary"
+                                            id="cancelDeclineButton">
+
+                                        Cancel
+
+                                    </button>
+
+                                    <button type="submit"
+                                            class="btn btn-danger"
+                                            onclick="return confirm('Are you sure you want to decline this contract?');">
+
+                                        <i class="bi bi-x-circle-fill"></i>
+
+                                        Confirm Decline
+
+                                    </button>
+
+                                </div>
+
+                            </form>
+
                         </div>
 
                     </div>
                 }
                 else
                 {
-                    <div class="card">
+                    <div class="content-card status-information-card">
 
-                        <h3><i class="fas fa-file-signature"></i> Contracts Awaiting Your Signature</h3>
+                        <div class="status-information-icon">
+                            <i class="bi bi-info-circle-fill"></i>
+                        </div>
 
-                        @if (Model.PendingContracts.Count == 0)
-                        {
-                            <div class="empty-state">No contracts are currently awaiting your signature.</div>
-                        }
-                        else
-                        {
-                            <table>
-                                <thead>
-                                    <tr><th>Contract ID</th><th>Lecturer</th><th>Course</th><th>Action</th></tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var row in Model.PendingContracts)
-                                    {
-                                        <tr>
-                                            <td><strong>C@(row.ContractId.ToString("D3"))</strong></td>
-                                            <td>@row.LecturerName</td>
-                                            <td>@row.CourseTitle</td>
-                                            <td>
-                                                <a href="/DEAN/Contracts?contractId=@row.ContractId" class="action-btn">Review</a>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        }
+                        <div>
+
+                            <h2>Dean Action Not Required</h2>
+
+                            <p>
+                                This contract is not currently awaiting
+                                the Dean's signature.
+                            </p>
+
+                            @if (selectedContractRow.IsCompleted)
+                            {
+                                <span class="information-status success">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Contract signing completed
+                                </span>
+                            }
+                            else if (selectedContractRow.IsDeclined)
+                            {
+                                <span class="information-status danger">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                    Contract has been declined
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="information-status pending">
+                                    <i class="bi bi-hourglass-split"></i>
+                                    Waiting for another institutional signer
+                                </span>
+                            }
+
+                        </div>
 
                     </div>
                 }
 
-            </main>
+            </section>
+        }
+        else
+        {
+            <!-- =====================================================
+                 NO CONTRACT SELECTED
+            ====================================================== -->
+
+            <section class="content-card selection-placeholder">
+
+                <div class="placeholder-icon">
+                    <i class="bi bi-file-earmark-check"></i>
+                </div>
+
+                <h2>Select a Contract</h2>
+
+                <p>
+                    Select a contract from the table above to view its
+                    complete details, signing timeline, and available
+                    Dean actions.
+                </p>
+
+            </section>
+        }
+
+    </main>
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <footer class="footer">
+
+        <div>
+
+            <strong>UNILAK Portal</strong>
+
+            <span>
+                Academic Staff Engagement &amp; Claim Processing System
+            </span>
 
         </div>
 
-    </div>
+        <span>
+            © @DateTime.Now.Year University of Lay Adventists of Kigali
+        </span>
+
+    </footer>
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================== -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const mobileMenuButton =
+                document.getElementById("mobileMenuButton");
+
+            const sidebar =
+                document.getElementById("sidebar");
+
+            const sidebarOverlay =
+                document.getElementById("sidebarOverlay");
+
+
+            function openSidebar() {
+
+                if (sidebar) {
+                    sidebar.classList.add("open");
+                }
+
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.add("visible");
+                }
+
+                document.body.classList.add("sidebar-open");
+            }
+
+
+            function closeSidebar() {
+
+                if (sidebar) {
+                    sidebar.classList.remove("open");
+                }
+
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.remove("visible");
+                }
+
+                document.body.classList.remove("sidebar-open");
+            }
+
+
+            if (mobileMenuButton) {
+
+                mobileMenuButton.addEventListener(
+                    "click",
+                    openSidebar
+                );
+
+            }
+
+
+            if (sidebarOverlay) {
+
+                sidebarOverlay.addEventListener(
+                    "click",
+                    closeSidebar
+                );
+
+            }
+
+
+            document
+                .querySelectorAll(".sidebar-link")
+                .forEach(function (link) {
+
+                    link.addEventListener(
+                        "click",
+                        closeSidebar
+                    );
+
+                });
+
+
+            /* =====================================================
+               DECLINE PANEL
+            ====================================================== */
+
+            const showDeclineButton =
+                document.getElementById("showDeclineButton");
+
+            const declinePanel =
+                document.getElementById("declinePanel");
+
+            const closeDeclineButton =
+                document.getElementById("closeDeclineButton");
+
+            const cancelDeclineButton =
+                document.getElementById("cancelDeclineButton");
+
+
+            function showDeclinePanel() {
+
+                if (declinePanel) {
+
+                    declinePanel.classList.add("visible");
+
+                    declinePanel.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                }
+
+            }
+
+
+            function hideDeclinePanel() {
+
+                if (declinePanel) {
+                    declinePanel.classList.remove("visible");
+                }
+
+            }
+
+
+            if (showDeclineButton) {
+
+                showDeclineButton.addEventListener(
+                    "click",
+                    showDeclinePanel
+                );
+
+            }
+
+
+            if (closeDeclineButton) {
+
+                closeDeclineButton.addEventListener(
+                    "click",
+                    hideDeclinePanel
+                );
+
+            }
+
+
+            if (cancelDeclineButton) {
+
+                cancelDeclineButton.addEventListener(
+                    "click",
+                    hideDeclinePanel
+                );
+
+            }
+
+        });
+
+    </script>
 
 </body>
 </html>

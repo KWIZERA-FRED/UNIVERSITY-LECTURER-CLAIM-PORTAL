@@ -13,502 +13,29 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Register New User</title>
+    <title>Register New User | UNILAK</title>
 
+    <!-- =========================================================
+         GOOGLE FONTS
+         ========================================================= -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap"
+          rel="stylesheet" />
+
+    <!-- =========================================================
+         BOOTSTRAP ICONS
+         ========================================================= -->
     <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-
-    <style>
-
-            * {
-                box-sizing: border-box;
-            }
-
-            :root {
-                --primary: #0f2b4a;
-                --primary-light: #1a3f64;
-                --accent: #2a7f5e;
-                --accent-light: #e1f0e8;
-                --bg: #f0f4fa;
-                --card: #ffffff;
-                --border: #dce4ed;
-                --text: #1a2634;
-                --text-muted: #4d6278;
-                --radius: 16px;
-                --shadow: 0 12px 30px -10px rgba(0,20,40,0.12);
-            }
-
-            body {
-                margin: 0;
-                font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-                background: var(--bg);
-                color: var(--text);
-            }
-
-            .dean-app {
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-            }
-
-            /* HEADER */
-
-            .app-header {
-                height: 70px;
-                background: var(--primary);
-                color: white;
-                padding: 0.9rem 2rem;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                border-bottom: 3px solid var(--accent);
-            }
-
-            .brand {
-                display: flex;
-                align-items: center;
-                gap: 0.6rem;
-                font-weight: 600;
-                font-size: 1.2rem;
-            }
-
-                .brand i {
-                    color: #7bc9a0;
-                    font-size: 1.4rem;
-                }
-
-            .user-area {
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-            }
-
-            .role-badge {
-                background: rgba(255,255,255,0.1);
-                padding: 0.35rem 1rem;
-                border-radius: 40px;
-                font-size: 0.8rem;
-            }
-
-            .logout {
-                color: white;
-                text-decoration: none;
-                font-size: 0.85rem;
-                padding: 0.4rem 0.9rem;
-                border: 1px solid rgba(255,255,255,0.25);
-                border-radius: 30px;
-            }
-
-                .logout:hover {
-                    background: rgba(255,255,255,0.1);
-                }
-
-            /* BODY */
-
-            .app-body {
-                display: flex;
-                flex: 1;
-            }
-
-            /* SIDEBAR */
-
-            .sidebar {
-                width: 230px;
-                background: white;
-                border-right: 1px solid var(--border);
-                padding: 1.2rem 0;
-                flex-shrink: 0;
-                min-height: calc(100vh - 70px);
-            }
-
-            .sidebar-title {
-                padding: 0 1.8rem 0.8rem;
-                font-size: 0.7rem;
-                text-transform: uppercase;
-                letter-spacing: 0.8px;
-                color: var(--text-muted);
-                font-weight: 700;
-            }
-
-            .sidebar a {
-                display: block;
-                width: 100%;
-                text-decoration: none;
-                padding: 0.7rem 1.8rem;
-                color: var(--text);
-                font-size: 0.9rem;
-                font-weight: 500;
-                border-left: 3px solid transparent;
-                transition: 0.2s ease;
-            }
-
-                .sidebar a i {
-                    width: 1.6rem;
-                    color: var(--text-muted);
-                }
-
-                .sidebar a:hover {
-                    background: var(--bg);
-                }
-
-                .sidebar a.active {
-                    background: var(--accent-light);
-                    border-left-color: var(--accent);
-                    color: var(--primary);
-                    font-weight: 600;
-                }
-
-                    .sidebar a.active i {
-                        color: var(--accent);
-                    }
-
-            /* MAIN */
-
-            .main {
-                flex: 1;
-                padding: 1.8rem 2rem 2rem;
-                overflow-x: auto;
-            }
-
-            .page-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 1.5rem;
-            }
-
-                .page-header h1 {
-                    margin: 0;
-                    color: var(--primary);
-                    font-size: 1.6rem;
-                }
-
-                .page-header p {
-                    margin-top: 0.3rem;
-                    color: var(--text-muted);
-                    font-size: 0.85rem;
-                }
-
-            .back-link {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.4rem;
-                padding: 0.5rem 1rem;
-                border: 1px solid var(--border);
-                border-radius: 30px;
-                background: white;
-                color: var(--text-muted);
-                text-decoration: none;
-                font-size: 0.8rem;
-                font-weight: 600;
-            }
-
-                .back-link:hover {
-                    border-color: var(--accent);
-                    color: var(--accent);
-                }
-
-            /* CARDS */
-
-            .card {
-                background: white;
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                padding: 1.5rem;
-                margin-bottom: 1.5rem;
-                box-shadow: var(--shadow);
-            }
-
-                .card h3 {
-                    font-size: 1rem;
-                    margin-bottom: 0.8rem;
-                    color: var(--primary);
-                }
-
-                    .card h3 i {
-                        color: var(--accent);
-                        margin-right: 0.4rem;
-                    }
-
-            /* FORM */
-
-            .form-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 1.2rem 1.5rem;
-            }
-
-            .form-group {
-                display: flex;
-                flex-direction: column;
-            }
-
-            .form-group.full {
-                grid-column: 1 / -1;
-            }
-
-            .form-group label {
-                margin-bottom: 0.4rem;
-                font-size: 0.8rem;
-                font-weight: 600;
-                color: var(--text);
-            }
-
-            .required {
-                color: var(--accent);
-            }
-
-            .form-control,
-            .form-select {
-                width: 100%;
-                padding: 0.7rem 0.9rem;
-                border: 1px solid var(--border);
-                border-radius: 9px;
-                background: #ffffff;
-                color: var(--text);
-                font-family: inherit;
-                font-size: 0.85rem;
-            }
-
-            .form-select {
-                cursor: pointer;
-            }
-
-            .form-control:focus,
-            .form-select:focus {
-                outline: none;
-                border-color: var(--accent);
-                box-shadow: 0 0 0 3px rgba(42, 127, 94, 0.1);
-            }
-
-            .field-help {
-                margin-top: 0.4rem;
-                color: var(--text-muted);
-                font-size: 0.72rem;
-            }
-
-            .role-info {
-                grid-column: 1 / -1;
-                display: none;
-                align-items: flex-start;
-                gap: 0.7rem;
-                padding: 0.8rem 1rem;
-                background: var(--bg);
-                border: 1px solid var(--border);
-                border-radius: 10px;
-                color: var(--text-muted);
-                font-size: 0.78rem;
-                line-height: 1.5;
-            }
-
-                .role-info i {
-                    color: var(--accent);
-                    margin-top: 2px;
-                }
-
-            /* SIGNATURE */
-
-            .signature-section {
-                grid-column: 1 / -1;
-            }
-
-            .signature-label {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-bottom: 0.5rem;
-            }
-
-            .signature-label > span:first-child {
-                font-size: 0.8rem;
-                font-weight: 600;
-            }
-
-            .signature-help {
-                color: var(--text-muted);
-                font-size: 0.75rem;
-            }
-
-            .signature-container {
-                border: 1px solid var(--border);
-                border-radius: 10px;
-                background: #fafcfb;
-                overflow: hidden;
-            }
-
-            #signaturePad {
-                width: 100%;
-                height: 180px;
-                display: block;
-                background: white;
-                cursor: crosshair;
-                touch-action: none;
-            }
-
-            .signature-footer {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0.6rem 0.8rem;
-                border-top: 1px solid var(--border);
-                background: #fafcfb;
-            }
-
-            .signature-status {
-                display: flex;
-                align-items: center;
-                gap: 0.4rem;
-                color: var(--text-muted);
-                font-size: 0.75rem;
-            }
-
-                .signature-status i {
-                    color: var(--accent);
-                }
-
-            .clear-signature {
-                border: none;
-                background: transparent;
-                color: #a45c5c;
-                font-family: inherit;
-                font-size: 0.75rem;
-                font-weight: 600;
-                cursor: pointer;
-            }
-
-                .clear-signature:hover {
-                    color: #c43f3f;
-                }
-
-            /* INFO BOX */
-
-            .info-box {
-                grid-column: 1 / -1;
-                display: flex;
-                align-items: flex-start;
-                gap: 0.7rem;
-                padding: 0.9rem 1rem;
-                background: var(--accent-light);
-                border: 1px solid #cfe3d8;
-                border-radius: 10px;
-                color: #275c46;
-                font-size: 0.78rem;
-                line-height: 1.5;
-            }
-
-                .info-box i {
-                    margin-top: 2px;
-                    color: var(--accent);
-                }
-
-            /* MESSAGES */
-
-            .success-message,
-            .error-message {
-                margin-bottom: 1.2rem;
-                padding: 0.9rem 1rem;
-                border-radius: 10px;
-                font-size: 0.8rem;
-                line-height: 1.5;
-            }
-
-            .success-message {
-                background: #e1f0e8;
-                border: 1px solid #cfe3d8;
-                color: #275c46;
-            }
-
-            .error-message {
-                background: #fdecec;
-                border: 1px solid #f3caca;
-                color: #9c3b3b;
-            }
-
-            /* ACTIONS */
-
-            .form-actions {
-                display: flex;
-                justify-content: flex-end;
-                gap: 0.8rem;
-                margin-top: 1.5rem;
-                padding-top: 1.3rem;
-                border-top: 1px solid var(--border);
-            }
-
-            .cancel-button {
-                display: inline-flex;
-                align-items: center;
-                padding: 0.65rem 1.2rem;
-                border: 1px solid var(--border);
-                border-radius: 30px;
-                background: white;
-                color: var(--text-muted);
-                text-decoration: none;
-                font-size: 0.8rem;
-                font-weight: 600;
-            }
-
-                .cancel-button:hover {
-                    border-color: #b8c4d1;
-                }
-
-            .action-btn {
-                background: var(--accent);
-                color: white;
-                border: none;
-                padding: 0.65rem 1.4rem;
-                border-radius: 40px;
-                font-size: 0.8rem;
-                font-weight: 600;
-                cursor: pointer;
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-
-                .action-btn:hover {
-                    background: #1d6a4d;
-                }
-
-            /* RESPONSIVE */
-
-            @@media (max-width: 900px) {
-
-                .form-grid {
-                    grid-template-columns: 1fr;
-                }
-
-                .form-group.full,
-                .signature-section,
-                .info-box,
-                .role-info {
-                    grid-column: 1;
-                }
-            }
-
-            @@media (max-width: 700px) {
-
-                .app-body {
-                    flex-direction: column;
-                }
-
-                .sidebar {
-                    width: 100%;
-                    min-height: auto;
-                    border-right: none;
-                    border-bottom: 1px solid var(--border);
-                }
-
-                .app-header {
-                    padding: 0.8rem 1rem;
-                }
-
-                .main {
-                    padding: 1.2rem;
-                }
-            }
-
-    </style>
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- =========================================================
+         DEAN REGISTER USER CSS
+         ========================================================= -->
+    <link rel="stylesheet"
+          href="~/css/DEAN/register-user.css"
+          asp-append-version="true" />
 
 </head>
 
@@ -516,32 +43,57 @@
 
     <div class="dean-app">
 
-        <!-- HEADER -->
+        <!-- =====================================================
+             TOP NAVIGATION
+             ===================================================== -->
 
-        <header class="app-header">
+        <header class="topbar">
 
-            <div class="brand">
+            <div class="topbar-brand">
 
-                <i class="fas fa-university"></i>
+                <div class="brand-logo">
 
-                <span>
-                    UNILAK · Staff Engagement
-                </span>
+                    <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                         alt="UNILAK Logo" />
+
+                </div>
+
+                <div class="brand-text">
+
+                    <span class="brand-title">
+                        UNILAK
+                    </span>
+
+                    <span class="brand-subtitle">
+                        Staff Engagement Portal
+                    </span>
+
+                </div>
 
             </div>
 
-            <div class="user-area">
 
-                <span class="role-badge">
+            <div class="topbar-actions">
 
-                    <i class="fas fa-user-tie"></i>
+                <div class="role-indicator">
 
-                    Dean
+                    <i class="bi bi-person-badge"></i>
 
-                </span>
+                    <span>
+                        Dean
+                    </span>
 
-                <a href="/Login" class="logout">
-                    Logout
+                </div>
+
+
+                <a href="/Login" class="logout-link">
+
+                    <i class="bi bi-box-arrow-right"></i>
+
+                    <span>
+                        Logout
+                    </span>
+
                 </a>
 
             </div>
@@ -549,295 +101,648 @@
         </header>
 
 
+        <!-- =====================================================
+             APPLICATION BODY
+             ===================================================== -->
+
         <div class="app-body">
 
-            <!-- SIDEBAR -->
+            <!-- =================================================
+                 SIDEBAR
+                 ================================================= -->
 
             <aside class="sidebar">
 
-                <div class="sidebar-title">
+                <div class="sidebar-heading">
                     Dean Portal
                 </div>
 
-                <a href="/DEAN">
 
-                    <i class="fas fa-th-large"></i>
+                <nav class="sidebar-nav">
 
-                    Dashboard
+                    <a href="/DEAN" class="nav-item">
 
-                </a>
+                        <span class="nav-icon">
+                            <i class="bi bi-grid-1x2-fill"></i>
+                        </span>
 
-                <a href="/DEAN/RegisterUser" class="active">
+                        <span>
+                            Dashboard
+                        </span>
 
-                    <i class="fas fa-user-plus"></i>
+                    </a>
 
-                    Register New User
 
-                </a>
+                    <a href="/DEAN/RegisterUser"
+                       class="nav-item active">
 
-                <a href="/DEAN/Contracts">
+                        <span class="nav-icon">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </span>
 
-                    <i class="fas fa-file-signature"></i>
+                        <span>
+                            Register New User
+                        </span>
 
-                    Contracts
+                    </a>
 
-                </a>
 
-                <a href="/DEAN/Claims">
+                    <a href="/DEAN/Contracts" class="nav-item">
 
-                    <i class="fas fa-coins"></i>
+                        <span class="nav-icon">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                        </span>
 
-                    Claims
+                        <span>
+                            Contracts
+                        </span>
 
-                </a>
+                    </a>
+
+
+                    <a href="/DEAN/Claims" class="nav-item">
+
+                        <span class="nav-icon">
+                            <i class="bi bi-cash-stack"></i>
+                        </span>
+
+                        <span>
+                            Claims
+                        </span>
+
+                    </a>
+
+                </nav>
+
+
+                <!-- Sidebar footer -->
+
+                <div class="sidebar-footer">
+
+                    <div class="security-note">
+
+                        <div class="security-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+
+                        <div class="security-text">
+
+                            <strong>
+                                Secure Portal
+                            </strong>
+
+                            <span>
+                                Authorized Dean access
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </aside>
 
 
-            <!-- MAIN -->
+            <!-- =================================================
+                 MAIN CONTENT
+                 ================================================= -->
 
-            <main class="main">
+            <main class="main-content">
 
-                <div class="page-header">
+                <!-- =================================================
+                     PAGE HEADER
+                     ================================================= -->
+
+                <section class="page-heading">
 
                     <div>
+
+                        <div class="breadcrumb">
+
+                            <i class="bi bi-house-door"></i>
+
+                            <span>/</span>
+
+                            <span>
+                                Dean Portal
+                            </span>
+
+                            <span>/</span>
+
+                            <strong>
+                                Register User
+                            </strong>
+
+                        </div>
+
 
                         <h1>
                             Register New User
                         </h1>
 
+
                         <p>
-                            Create a new HOD or Management account and capture their signature.
+                            Create a new HOD or Management account and securely
+                            capture their digital signature.
                         </p>
 
                     </div>
 
+
                     <a href="/DEAN" class="back-link">
-                        <i class="fas fa-arrow-left"></i>
-                        Back
+
+                        <i class="bi bi-arrow-left"></i>
+
+                        <span>
+                            Back to Dashboard
+                        </span>
+
                     </a>
 
-                </div>
+                </section>
 
 
-                @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
-                {
-                    <div class="success-message">
-                        @Model.SuccessMessage
-                    </div>
-                }
-
-                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-                {
-                    <div class="error-message">
-                        @Model.ErrorMessage
-                    </div>
-                }
+                <!-- =================================================
+                     SYSTEM BOOTSTRAP INFORMATION
+                     ================================================= -->
 
                 @if (Model.IsBootstrapMode)
                 {
-                    <div class="info-box" style="margin-bottom:1.5rem;">
-                        <i class="fas fa-circle-info"></i>
-                        <span>
-                            No Dean account exists yet. This first registration must create the
-                            initial Dean account — after that, this page will only allow creating
-                            HOD and Management accounts.
-                        </span>
+                    <div class="alert-box bootstrap-alert">
+
+                        <div class="alert-icon">
+                            <i class="bi bi-shield-exclamation"></i>
+                        </div>
+
+                        <div class="alert-content">
+
+                            <strong>
+                                Initial System Setup
+                            </strong>
+
+                            <p>
+                                No Dean account exists yet. This first registration
+                                will create the initial Dean account. After that,
+                                this page will only allow the Dean to create HOD
+                                and Management accounts.
+                            </p>
+
+                        </div>
+
                     </div>
                 }
 
 
-                <div class="card">
+                <!-- =================================================
+                     SUCCESS MESSAGE
+                     ================================================= -->
 
-                    <h3>
-                        <i class="fas fa-user-plus"></i>
-                        User Registration
-                    </h3>
+                @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+                {
+                    <div class="alert-box success-alert">
 
-                    <form method="post" id="registerForm">
+                        <div class="alert-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+
+                        <div class="alert-content">
+
+                            <strong>
+                                Registration Successful
+                            </strong>
+
+                            <p>
+                                @Model.SuccessMessage
+                            </p>
+
+                        </div>
+
+                    </div>
+                }
+
+
+                <!-- =================================================
+                     ERROR MESSAGE
+                     ================================================= -->
+
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                {
+                    <div class="alert-box error-alert">
+
+                        <div class="alert-icon">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                        </div>
+
+                        <div class="alert-content">
+
+                            <strong>
+                                Registration Failed
+                            </strong>
+
+                            <p>
+                                @Model.ErrorMessage
+                            </p>
+
+                        </div>
+
+                    </div>
+                }
+
+
+                <!-- =================================================
+                     REGISTRATION CARD
+                     ================================================= -->
+
+                <section class="content-card">
+
+                    <!-- Card heading -->
+
+                    <div class="card-header">
+
+                        <div class="card-heading">
+
+                            <div class="section-icon">
+
+                                <i class="bi bi-person-plus-fill"></i>
+
+                            </div>
+
+                            <div>
+
+                                <h2>
+                                    User Registration
+                                </h2>
+
+                                <p>
+                                    Enter the account information below.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         FORM
+                         ================================================= -->
+
+                    <form method="post"
+                          id="registerForm"
+                          class="registration-form">
 
                         <div class="form-grid">
 
-                            <!-- NAME -->
+
+                            <!-- =================================================
+                                 FULL NAME
+                                 ================================================= -->
 
                             <div class="form-group">
 
-                                <label>
-                                    Full Name <span class="required">*</span>
+                                <label asp-for="Name">
+
+                                    Full Name
+
+                                    <span class="required">
+                                        *
+                                    </span>
+
                                 </label>
 
-                                <input type="text"
-                                       asp-for="Name"
-                                       class="form-control"
-                                       placeholder="Enter full name"
-                                       required />
+
+                                <div class="input-wrapper">
+
+                                    <i class="bi bi-person input-icon"></i>
+
+                                    <input type="text"
+                                           asp-for="Name"
+                                           class="form-control has-icon"
+                                           placeholder="Enter full name"
+                                           autocomplete="name"
+                                           required />
+
+                                </div>
+
+                                <span asp-validation-for="Name"
+                                      class="validation-message">
+                                </span>
 
                             </div>
 
 
-                            <!-- EMAIL -->
+                            <!-- =================================================
+                                 EMAIL
+                                 ================================================= -->
 
                             <div class="form-group">
 
-                                <label>
-                                    Email Address <span class="required">*</span>
+                                <label asp-for="Email">
+
+                                    Email Address
+
+                                    <span class="required">
+                                        *
+                                    </span>
+
                                 </label>
 
-                                <input type="email"
-                                       asp-for="Email"
-                                       class="form-control"
-                                       placeholder="Enter email address"
-                                       required />
+
+                                <div class="input-wrapper">
+
+                                    <i class="bi bi-envelope input-icon"></i>
+
+                                    <input type="email"
+                                           asp-for="Email"
+                                           class="form-control has-icon"
+                                           placeholder="Enter email address"
+                                           autocomplete="email"
+                                           required />
+
+                                </div>
+
+                                <span asp-validation-for="Email"
+                                      class="validation-message">
+                                </span>
 
                             </div>
 
 
-                            <!-- ROLE -->
+                            <!-- =================================================
+                                 ROLE
+                                 ================================================= -->
 
                             <div class="form-group">
 
-                                <label>
-                                    System Role <span class="required">*</span>
+                                <label asp-for="Role">
+
+                                    System Role
+
+                                    <span class="required">
+                                        *
+                                    </span>
+
                                 </label>
 
-                                <select asp-for="Role"
-                                        class="form-select"
-                                        id="roleSelect"
-                                        required>
 
-                                    <option value="">
-                                        Select system role
-                                    </option>
+                                <div class="input-wrapper">
 
-                                    @if (Model.IsBootstrapMode)
-                                    {
-                                        <option value="Dean">
-                                            Dean (initial system account)
-                                        </option>
-                                    }
-                                    else
-                                    {
-                                        <option value="HOD">
-                                            Head of Department
+                                    <i class="bi bi-person-gear input-icon"></i>
+
+                                    <select asp-for="Role"
+                                            class="form-select has-icon"
+                                            id="roleSelect"
+                                            required>
+
+                                        <option value="">
+                                            Select system role
                                         </option>
 
-                                        <option value="Management">
-                                            Management
-                                        </option>
-                                    }
 
-                                </select>
+                                        @if (Model.IsBootstrapMode)
+                                        {
+                                            <option value="Dean">
+                                                Dean — Initial System Account
+                                            </option>
+                                        }
+                                        else
+                                        {
+                                            <option value="HOD">
+                                                Head of Department
+                                            </option>
+
+                                            <option value="Management">
+                                                Management
+                                            </option>
+                                        }
+
+                                    </select>
+
+                                </div>
 
                             </div>
 
 
-                            <!-- DEPARTMENT -->
+                            <!-- =================================================
+                                 DEPARTMENT
+                                 ================================================= -->
 
                             <div class="form-group"
-                                 id="departmentGroup"
-                                 style="display:none;">
+                                 id="departmentGroup">
 
-                                <label>
-                                    Department <span class="required">*</span>
+                                <label asp-for="Department">
+
+                                    Department
+
+                                    <span class="required">
+                                        *
+                                    </span>
+
                                 </label>
 
-                                <input type="text"
-                                       asp-for="Department"
-                                       id="departmentInput"
-                                       class="form-control"
-                                       placeholder="Enter department" />
+
+                                <div class="input-wrapper">
+
+                                    <i class="bi bi-building input-icon"></i>
+
+                                    <input type="text"
+                                           asp-for="Department"
+                                           id="departmentInput"
+                                           class="form-control has-icon"
+                                           placeholder="Enter department" />
+
+                                </div>
+
 
                                 <div class="field-help">
+
+                                    <i class="bi bi-info-circle"></i>
+
                                     Required only for Head of Department accounts.
+
                                 </div>
 
                             </div>
 
 
-                            <!-- MANAGEMENT TITLE -->
+                            <!-- =================================================
+                                 MANAGEMENT OFFICE
+                                 ================================================= -->
 
                             <div class="form-group"
-                                 id="managementTitleGroup"
-                                 style="display:none;">
+                                 id="managementTitleGroup">
 
-                                <label>
-                                    Management Office <span class="required">*</span>
+                                <label asp-for="ManagementTitle">
+
+                                    Management Office
+
+                                    <span class="required">
+                                        *
+                                    </span>
+
                                 </label>
 
-                                <select asp-for="ManagementTitle"
-                                        id="managementTitleInput"
-                                        class="form-select">
 
-                                    <option value="">
-                                        Select office
-                                    </option>
+                                <div class="input-wrapper">
 
-                                    <option value="HROfficer">
-                                        Human Resource Officer
-                                    </option>
+                                    <i class="bi bi-building-gear input-icon"></i>
 
-                                    <option value="DVCAR">
-                                        DVCAR
-                                    </option>
+                                    <select asp-for="ManagementTitle"
+                                            id="managementTitleInput"
+                                            class="form-select has-icon">
 
-                                    <option value="ViceChancellor">
-                                        Vice Chancellor
-                                    </option>
+                                        <option value="">
+                                            Select management office
+                                        </option>
 
-                                    <option value="ExamOffice">
-                                        Exam Office
-                                    </option>
+                                        <option value="HROfficer">
+                                            Human Resource Officer
+                                        </option>
 
-                                    <option value="DirectorOfQuality">
-                                        Director of Quality
-                                    </option>
+                                        <option value="DVCAR">
+                                            DVCAR
+                                        </option>
 
-                                </select>
+                                        <option value="ViceChancellor">
+                                            Vice Chancellor
+                                        </option>
+
+                                        <option value="ExamOffice">
+                                            Exam Office
+                                        </option>
+
+                                        <option value="DirectorOfQuality">
+                                            Director of Quality
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
 
                                 <div class="field-help">
+
+                                    <i class="bi bi-info-circle"></i>
+
                                     Required when registering a Management account.
+
                                 </div>
 
                             </div>
 
 
-                            <!-- ROLE INFO -->
+                            <!-- =================================================
+                                 ROLE INFORMATION
+                                 ================================================= -->
 
-                            <div class="role-info" id="roleInfo">
-                                <i class="fas fa-circle-info"></i>
-                                <span id="roleInfoText"></span>
+                            <div class="role-info"
+                                 id="roleInfo">
+
+                                <div class="role-info-icon">
+
+                                    <i class="bi bi-info-circle-fill"></i>
+
+                                </div>
+
+                                <div>
+
+                                    <strong id="roleInfoTitle">
+                                        Account Information
+                                    </strong>
+
+                                    <span id="roleInfoText"></span>
+
+                                </div>
+
                             </div>
 
 
-                            <!-- SIGNATURE -->
+                            <!-- =================================================
+                                 DIGITAL SIGNATURE
+                                 ================================================= -->
 
                             <div class="signature-section">
 
-                                <div class="signature-label">
+                                <div class="signature-heading">
 
-                                    <span>
-                                        Digital Signature <span class="required">*</span>
-                                    </span>
+                                    <div>
 
-                                    <span class="signature-help">
-                                        Sign inside the box below
+                                        <label>
+
+                                            Digital Signature
+
+                                            <span class="required">
+                                                *
+                                            </span>
+
+                                        </label>
+
+                                        <p>
+                                            Capture the user's handwritten signature.
+                                        </p>
+
+                                    </div>
+
+
+                                    <span class="signature-required">
+
+                                        <i class="bi bi-pen"></i>
+
+                                        Required
+
                                     </span>
 
                                 </div>
 
+
                                 <div class="signature-container">
 
-                                    <canvas id="signaturePad"></canvas>
+                                    <div class="signature-canvas-area">
+
+                                        <div class="signature-placeholder"
+                                             id="signaturePlaceholder">
+
+                                            <i class="bi bi-pen"></i>
+
+                                            <span>
+                                                Sign inside this area
+                                            </span>
+
+                                        </div>
+
+                                        <canvas id="signaturePad"></canvas>
+
+                                    </div>
+
 
                                     <div class="signature-footer">
 
                                         <div class="signature-status">
-                                            <i class="fas fa-pen"></i>
-                                            <span>Signature will be securely saved with the account</span>
+
+                                            <span class="signature-status-icon">
+
+                                                <i class="bi bi-shield-check"></i>
+
+                                            </span>
+
+                                            <span>
+                                                Signature will be securely associated
+                                                with this account.
+                                            </span>
+
                                         </div>
 
-                                        <button type="button" class="clear-signature" id="clearSignature">
-                                            Clear Signature
+
+                                        <button type="button"
+                                                class="clear-signature"
+                                                id="clearSignature">
+
+                                            <i class="bi bi-eraser"></i>
+
+                                            Clear
+
                                         </button>
 
                                     </div>
@@ -847,41 +752,113 @@
                             </div>
 
 
-                            <!-- INFO -->
+                            <!-- =================================================
+                                 GENERAL INFORMATION
+                                 ================================================= -->
 
                             <div class="info-box">
-                                <i class="fas fa-circle-info"></i>
-                                <span>
-                                    After registration, the system will automatically generate the
-                                    user's username and password. The login credentials will be
-                                    sent to the email address provided above. HOD accounts require
-                                    a department. Management accounts require an office to be
-                                    selected. Lecturer accounts are created by an HOD, not here.
-                                </span>
+
+                                <div class="info-box-icon">
+
+                                    <i class="bi bi-info-circle-fill"></i>
+
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Account Creation
+                                    </strong>
+
+                                    <p>
+                                        After registration, the system will
+                                        automatically generate the user's username
+                                        and password. Login credentials will be
+                                        sent to the email address provided above.
+                                    </p>
+
+                                    <p>
+                                        HOD accounts require a department.
+                                        Management accounts require a management
+                                        office. Lecturer accounts are created by
+                                        an HOD and are not registered here.
+                                    </p>
+
+                                </div>
+
                             </div>
 
                         </div>
 
 
+                        <!-- =================================================
+                             FORM ACTIONS
+                             ================================================= -->
+
                         <div class="form-actions">
 
-                            <a href="/DEAN" class="cancel-button">
+                            <a href="/DEAN"
+                               class="cancel-button">
+
+                                <i class="bi bi-x-lg"></i>
+
                                 Cancel
+
                             </a>
 
-                            <button type="submit" class="action-btn">
-                                <i class="fas fa-user-check"></i>
+
+                            <button type="submit"
+                                    class="create-button">
+
+                                <i class="bi bi-person-check-fill"></i>
+
                                 Create User
+
                             </button>
 
                         </div>
 
 
-                        <input type="hidden" asp-for="SignatureData" id="signatureData" />
+                        <!-- =================================================
+                             HIDDEN SIGNATURE DATA
+                             ================================================= -->
+
+                        <input type="hidden"
+                               asp-for="SignatureData"
+                               id="signatureData" />
 
                     </form>
 
-                </div>
+                </section>
+
+
+                <!-- =================================================
+                     FOOTER
+                     ================================================= -->
+
+                <footer class="portal-footer">
+
+                    <div>
+
+                        <strong>
+                            UNILAK Portal
+                        </strong>
+
+                        <span>
+                            Academic Staff Engagement &amp; Claim Processing System
+                        </span>
+
+                    </div>
+
+
+                    <div class="footer-right">
+
+                        © @DateTime.Now.Year
+                        University of Lay Adventists of Kigali
+
+                    </div>
+
+                </footer>
 
             </main>
 
@@ -890,163 +867,472 @@
     </div>
 
 
+    <!-- =========================================================
+         JAVASCRIPT
+         ========================================================= -->
+
     <script>
 
-        const roleSelect = document.getElementById("roleSelect");
-        const departmentGroup = document.getElementById("departmentGroup");
-        const departmentInput = document.getElementById("departmentInput");
-        const managementTitleGroup = document.getElementById("managementTitleGroup");
-        const managementTitleInput = document.getElementById("managementTitleInput");
-        const roleInfo = document.getElementById("roleInfo");
-        const roleInfoText = document.getElementById("roleInfoText");
+        /* =========================================================
+           ROLE FIELD MANAGEMENT
+           ========================================================= */
+
+        const roleSelect =
+            document.getElementById("roleSelect");
+
+        const departmentGroup =
+            document.getElementById("departmentGroup");
+
+        const departmentInput =
+            document.getElementById("departmentInput");
+
+        const managementTitleGroup =
+            document.getElementById("managementTitleGroup");
+
+        const managementTitleInput =
+            document.getElementById("managementTitleInput");
+
+        const roleInfo =
+            document.getElementById("roleInfo");
+
+        const roleInfoTitle =
+            document.getElementById("roleInfoTitle");
+
+        const roleInfoText =
+            document.getElementById("roleInfoText");
+
 
         function updateRoleFields() {
 
             const role = roleSelect.value;
 
-            departmentGroup.style.display = "none";
-            managementTitleGroup.style.display = "none";
-            roleInfo.style.display = "none";
+
+            /* Reset fields */
+
+            departmentGroup.classList.remove("visible");
+
+            managementTitleGroup.classList.remove("visible");
+
+            roleInfo.classList.remove("visible");
 
             departmentInput.required = false;
+
             managementTitleInput.required = false;
 
+
+            /* HOD */
+
             if (role === "HOD") {
-                departmentGroup.style.display = "flex";
+
+                departmentGroup.classList.add("visible");
+
                 departmentInput.required = true;
-                roleInfo.style.display = "flex";
-                roleInfoText.textContent = "A Head of Department account requires the department they manage.";
+
+                roleInfoTitle.textContent =
+                    "Head of Department Account";
+
+                roleInfoText.textContent =
+                    "This account will be associated with the selected department and will be used by the HOD to manage departmental academic activities.";
+
+                roleInfo.classList.add("visible");
+
             }
+
+
+            /* Dean */
+
             else if (role === "Dean") {
-                roleInfo.style.display = "flex";
-                roleInfoText.textContent = "This creates the initial Dean account for the system. This option only appears once, before any Dean exists.";
+
+                roleInfoTitle.textContent =
+                    "Initial Dean Account";
+
+                roleInfoText.textContent =
+                    "This creates the initial Dean account for the system. This option is only available during the initial system setup.";
+
+                roleInfo.classList.add("visible");
+
             }
+
+
+            /* Management */
+
             else if (role === "Management") {
-                managementTitleGroup.style.display = "flex";
+
+                managementTitleGroup.classList.add("visible");
+
                 managementTitleInput.required = true;
-                roleInfo.style.display = "flex";
-                roleInfoText.textContent = "A Management account represents one specific office — HR Officer, DVCAR, Vice Chancellor, Exam Office, or Director of Quality.";
+
+                roleInfoTitle.textContent =
+                    "Management Account";
+
+                roleInfoText.textContent =
+                    "This account represents one specific management office. Select the office that this user will represent.";
+
+                roleInfo.classList.add("visible");
+
             }
+
         }
 
-        roleSelect.addEventListener("change", updateRoleFields);
+
+        roleSelect.addEventListener(
+            "change",
+            updateRoleFields
+        );
+
         updateRoleFields();
 
 
-        /* SIGNATURE PAD */
+        /* =========================================================
+           SIGNATURE PAD
+           ========================================================= */
 
-        const canvas = document.getElementById("signaturePad");
-        const ctx = canvas.getContext("2d");
+        const canvas =
+            document.getElementById("signaturePad");
+
+        const ctx =
+            canvas.getContext("2d");
+
+        const placeholder =
+            document.getElementById("signaturePlaceholder");
+
         let drawing = false;
+
         let hasSignature = false;
 
-        function resizeCanvas() {
-            const rect = canvas.getBoundingClientRect();
-            const ratio = window.devicePixelRatio || 1;
-            const existingSignature = hasSignature ? canvas.toDataURL("image/png") : null;
 
-            canvas.width = rect.width * ratio;
-            canvas.height = rect.height * ratio;
-            ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        function resizeCanvas() {
+
+            const rect =
+                canvas.getBoundingClientRect();
+
+            const ratio =
+                window.devicePixelRatio || 1;
+
+            const existingSignature =
+                hasSignature
+                    ? canvas.toDataURL("image/png")
+                    : null;
+
+
+            canvas.width =
+                rect.width * ratio;
+
+            canvas.height =
+                rect.height * ratio;
+
+
+            ctx.setTransform(
+                ratio,
+                0,
+                0,
+                ratio,
+                0,
+                0
+            );
+
+
             ctx.lineWidth = 2;
+
             ctx.lineCap = "round";
+
             ctx.lineJoin = "round";
-            ctx.strokeStyle = "#0f2b4a";
+
+            ctx.strokeStyle = "#0f2742";
+
 
             if (existingSignature) {
-                const image = new Image();
+
+                const image =
+                    new Image();
+
                 image.onload = function () {
-                    ctx.drawImage(image, 0, 0, rect.width, rect.height);
+
+                    ctx.drawImage(
+                        image,
+                        0,
+                        0,
+                        rect.width,
+                        rect.height
+                    );
+
                 };
-                image.src = existingSignature;
+
+                image.src =
+                    existingSignature;
+
             }
+
         }
+
 
         resizeCanvas();
-        window.addEventListener("resize", resizeCanvas);
+
+        window.addEventListener(
+            "resize",
+            resizeCanvas
+        );
+
 
         function getPosition(e) {
-            const rect = canvas.getBoundingClientRect();
-            if (e.touches && e.touches.length > 0) {
-                return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+
+            const rect =
+                canvas.getBoundingClientRect();
+
+
+            if (
+                e.touches &&
+                e.touches.length > 0
+            ) {
+
+                return {
+
+                    x:
+                        e.touches[0].clientX -
+                        rect.left,
+
+                    y:
+                        e.touches[0].clientY -
+                        rect.top
+
+                };
+
             }
-            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+
+
+            return {
+
+                x:
+                    e.clientX -
+                    rect.left,
+
+                y:
+                    e.clientY -
+                    rect.top
+
+            };
+
         }
+
 
         function startDrawing(e) {
+
             e.preventDefault();
+
             drawing = true;
+
             hasSignature = true;
-            const position = getPosition(e);
+
+            placeholder.classList.add("hidden");
+
+            const position =
+                getPosition(e);
+
             ctx.beginPath();
-            ctx.moveTo(position.x, position.y);
+
+            ctx.moveTo(
+                position.x,
+                position.y
+            );
+
         }
+
 
         function draw(e) {
-            if (!drawing) return;
+
+            if (!drawing) {
+                return;
+            }
+
             e.preventDefault();
-            const position = getPosition(e);
-            ctx.lineTo(position.x, position.y);
+
+            const position =
+                getPosition(e);
+
+            ctx.lineTo(
+                position.x,
+                position.y
+            );
+
             ctx.stroke();
+
         }
+
 
         function stopDrawing() {
-            if (!drawing) return;
+
+            if (!drawing) {
+                return;
+            }
+
             drawing = false;
-            document.getElementById("signatureData").value = canvas.toDataURL("image/png");
+
+            document.getElementById(
+                "signatureData"
+            ).value =
+                canvas.toDataURL("image/png");
+
         }
 
-        canvas.addEventListener("mousedown", startDrawing);
-        canvas.addEventListener("mousemove", draw);
-        canvas.addEventListener("mouseup", stopDrawing);
-        canvas.addEventListener("mouseleave", stopDrawing);
-        canvas.addEventListener("touchstart", startDrawing, { passive: false });
-        canvas.addEventListener("touchmove", draw, { passive: false });
-        canvas.addEventListener("touchend", stopDrawing);
 
-        document.getElementById("clearSignature").addEventListener("click", function () {
-            const rect = canvas.getBoundingClientRect();
-            ctx.clearRect(0, 0, rect.width, rect.height);
-            hasSignature = false;
-            document.getElementById("signatureData").value = "";
-        });
+        canvas.addEventListener(
+            "mousedown",
+            startDrawing
+        );
+
+        canvas.addEventListener(
+            "mousemove",
+            draw
+        );
+
+        canvas.addEventListener(
+            "mouseup",
+            stopDrawing
+        );
+
+        canvas.addEventListener(
+            "mouseleave",
+            stopDrawing
+        );
 
 
-        /* FORM SUBMISSION */
+        canvas.addEventListener(
+            "touchstart",
+            startDrawing,
+            { passive: false }
+        );
 
-        document.getElementById("registerForm").addEventListener("submit", function (e) {
+        canvas.addEventListener(
+            "touchmove",
+            draw,
+            { passive: false }
+        );
 
-            const role = roleSelect.value;
+        canvas.addEventListener(
+            "touchend",
+            stopDrawing
+        );
 
-            if (!role) {
-                e.preventDefault();
-                alert("Please select the user's system role.");
-                roleSelect.focus();
-                return;
-            }
 
-            if (!hasSignature) {
-                e.preventDefault();
-                alert("Please provide the user's digital signature.");
-                return;
-            }
+        /* =========================================================
+           CLEAR SIGNATURE
+           ========================================================= */
 
-            if (role === "HOD" && !departmentInput.value.trim()) {
-                e.preventDefault();
-                alert("Please enter the HOD's department.");
-                departmentInput.focus();
-                return;
-            }
+        document
+            .getElementById("clearSignature")
+            .addEventListener(
+                "click",
+                function () {
 
-            if (role === "Management" && !managementTitleInput.value) {
-                e.preventDefault();
-                alert("Please select the Management office.");
-                managementTitleInput.focus();
-                return;
-            }
+                    const rect =
+                        canvas.getBoundingClientRect();
 
-            document.getElementById("signatureData").value = canvas.toDataURL("image/png");
-        });
+                    ctx.clearRect(
+                        0,
+                        0,
+                        rect.width,
+                        rect.height
+                    );
+
+                    hasSignature = false;
+
+                    placeholder.classList.remove(
+                        "hidden"
+                    );
+
+                    document.getElementById(
+                        "signatureData"
+                    ).value = "";
+
+                }
+            );
+
+
+        /* =========================================================
+           FORM VALIDATION
+           ========================================================= */
+
+        document
+            .getElementById("registerForm")
+            .addEventListener(
+                "submit",
+                function (e) {
+
+                    const role =
+                        roleSelect.value;
+
+
+                    if (!role) {
+
+                        e.preventDefault();
+
+                        alert(
+                            "Please select the user's system role."
+                        );
+
+                        roleSelect.focus();
+
+                        return;
+
+                    }
+
+
+                    if (!hasSignature) {
+
+                        e.preventDefault();
+
+                        alert(
+                            "Please provide the user's digital signature."
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (
+                        role === "HOD" &&
+                        !departmentInput.value.trim()
+                    ) {
+
+                        e.preventDefault();
+
+                        alert(
+                            "Please enter the HOD's department."
+                        );
+
+                        departmentInput.focus();
+
+                        return;
+
+                    }
+
+
+                    if (
+                        role === "Management" &&
+                        !managementTitleInput.value
+                    ) {
+
+                        e.preventDefault();
+
+                        alert(
+                            "Please select the Management office."
+                        );
+
+                        managementTitleInput.focus();
+
+                        return;
+
+                    }
+
+
+                    document.getElementById(
+                        "signatureData"
+                    ).value =
+                        canvas.toDataURL("image/png");
+
+                }
+            );
 
     </script>
 
