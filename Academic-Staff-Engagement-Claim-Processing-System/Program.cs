@@ -245,9 +245,10 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder(
         "/Shared");
 
-    // RegisterUser allows initial bootstrap check in code
+    // RegisterUser allows initial bootstrap check in code —
+    // the Dean is now the bootstrap role (see DEAN/RegisterUser.cshtml.cs).
     options.Conventions.AllowAnonymousToPage(
-        "/HOD/RegisterUser");
+        "/DEAN/RegisterUser");
 
     // Public pages
     options.Conventions.AllowAnonymousToPage(

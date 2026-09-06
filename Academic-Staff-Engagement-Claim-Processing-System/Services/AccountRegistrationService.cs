@@ -27,6 +27,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         public string SignatureData { get; set; } = string.Empty;
         public ManagementTitle? ManagementTitle { get; set; }
 
+        // Only meaningful when Role == "Lecturer". Which employment
+        // type the HOD selected for this lecturer — part-time or
+        // full-time. Defaults to PartTimeLecturer only if somehow
+        // left unset, but the page-level validation requires it.
+        public UserRole? LecturerType { get; set; }
+
         // Who is registering this account — used both for
         // Lecturer.SignatureCapturedByHodId attribution and for the
         // audit log. Comes from the authenticated caller, never a
@@ -99,6 +105,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     return Fail("The selected lecturer rank is invalid.");
 
                 lecturerRank = parsedRank;
+
+                if (request.LecturerType is null)
+                    return Fail("Please select whether this lecturer is part-time or full-time.");
             }
 
             if (role.Equals("HOD", StringComparison.OrdinalIgnoreCase) &&
@@ -187,7 +196,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     var lecturer = new LecturerModel(0, username, email)
                     {
                         Rank = lecturerRank,
-                        Type = UserRole.PartTimeLecturer
+                        Type = request.LecturerType!.Value
                     };
 
                     var hasher = new PasswordHasher<LecturerModel>();

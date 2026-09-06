@@ -45,6 +45,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         [BindProperty]
         public string SignatureData { get; set; } = string.Empty;
 
+        // "PartTimeLecturer" or "FullTimeLecturer" — bound as a string
+        // from the form's dropdown, parsed below.
+        [BindProperty]
+        public string LecturerType { get; set; } = string.Empty;
+
         public string? SuccessMessage { get; set; }
         public string? ErrorMessage { get; set; }
 

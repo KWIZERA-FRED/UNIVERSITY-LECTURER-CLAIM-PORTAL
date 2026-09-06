@@ -410,7 +410,7 @@
 
         .role-info {
             grid-column: 1 / -1;
-            display: none;
+            display: flex;
             align-items: flex-start;
             gap: 0.7rem;
             padding: 0.8rem 1rem;
@@ -778,7 +778,7 @@
                         <h1>Register New User</h1>
 
                         <p>
-                            Create a new staff portal account and capture their signature.
+                            Create a new Lecturer account (part-time or full-time) and capture their signature.
                         </p>
 
                     </div>
@@ -898,53 +898,56 @@
                                             id="roleSelect"
                                             required>
 
-                                        <option value="">
-                                            Select system role
-                                        </option>
-
-                                        <option value="Lecturer">
+                                        <option value="Lecturer" selected>
                                             Lecturer
                                         </option>
 
-                                        <option value="HOD">
-                                            Head of Department
-                                        </option>
-
-                                        <option value="Dean">
-                                            Dean
-                                        </option>
-
                                     </select>
+
+                                    <div class="field-help">
+                                        HODs can only create Lecturer accounts. Contact a Dean for HOD or Management accounts.
+                                    </div>
 
                                 </div>
 
                             </div>
 
 
-                            <!-- DEPARTMENT -->
+                            <!-- LECTURER TYPE -->
 
-                            <div class="form-group"
-                                 id="departmentGroup"
-                                 style="display:none;">
+                            <div class="form-group">
 
                                 <label>
-                                    Department <span class="required">*</span>
+                                    Employment Type <span class="required">*</span>
                                 </label>
 
                                 <div class="input-wrapper">
 
-                                    <i class="bi bi-building"></i>
+                                    <i class="bi bi-briefcase"></i>
 
-                                    <input type="text"
-                                           asp-for="Department"
-                                           id="departmentInput"
-                                           class="form-control"
-                                           placeholder="Enter department" />
+                                    <select asp-for="LecturerType"
+                                            id="lecturerTypeInput"
+                                            class="form-select"
+                                            required>
+
+                                        <option value="">
+                                            Select employment type
+                                        </option>
+
+                                        <option value="PartTimeLecturer">
+                                            Part-Time
+                                        </option>
+
+                                        <option value="FullTimeLecturer">
+                                            Full-Time
+                                        </option>
+
+                                    </select>
 
                                 </div>
 
                                 <div class="field-help">
-                                    Required only for Head of Department accounts.
+                                    Determines the lecturer's rate and contract type.
                                 </div>
 
                             </div>
@@ -953,8 +956,7 @@
                             <!-- GOVERNMENT ID -->
 
                             <div class="form-group"
-                                 id="governmentIdGroup"
-                                 style="display:none;">
+                                 id="governmentIdGroup">
 
                                 <label>
                                     Government ID <span class="required">*</span>
@@ -982,8 +984,7 @@
                             <!-- LECTURER RANK -->
 
                             <div class="form-group"
-                                 id="rankGroup"
-                                 style="display:none;">
+                                 id="rankGroup">
 
                                 <label>
                                     Academic Rank <span class="required">*</span>
@@ -1039,7 +1040,7 @@
 
                                 <i class="bi bi-info-circle-fill"></i>
 
-                                <span id="roleInfoText"></span>
+                                <span id="roleInfoText">A Lecturer account requires a Government ID, academic rank, and employment type (part-time or full-time).</span>
 
                             </div>
 
@@ -1103,7 +1104,7 @@
                                     After registration, the system will automatically generate
                                     the user's username and password. The login credentials
                                     will be sent to the email address provided above.
-                                    Lecturer accounts require a Government ID and academic rank.
+                                    Lecturer accounts require a Government ID, academic rank, and employment type.
                                 </span>
 
                             </div>
@@ -1157,130 +1158,18 @@
            ROLE-SPECIFIC FIELDS
         ============================================================ */
 
-        const roleSelect =
-            document.getElementById("roleSelect");
-
-        const departmentGroup =
-            document.getElementById("departmentGroup");
-
-        const departmentInput =
-            document.getElementById("departmentInput");
-
-        const governmentIdGroup =
-            document.getElementById("governmentIdGroup");
-
+        // Role is fixed to "Lecturer" on this page now — an HOD can
+        // only ever create Lecturer accounts — so the Government ID,
+        // academic rank, and employment type fields are always shown
+        // and always required. No role-switching logic needed anymore.
         const governmentIdInput =
             document.getElementById("governmentIdInput");
-
-        const rankGroup =
-            document.getElementById("rankGroup");
 
         const rankInput =
             document.getElementById("rankInput");
 
-        const roleInfo =
-            document.getElementById("roleInfo");
-
-        const roleInfoText =
-            document.getElementById("roleInfoText");
-
-
-        function updateRoleFields() {
-
-            const role =
-                roleSelect.value;
-
-            departmentGroup.style.display =
-                "none";
-
-            governmentIdGroup.style.display =
-                "none";
-
-            rankGroup.style.display =
-                "none";
-
-            roleInfo.style.display =
-                "none";
-
-
-            departmentInput.required =
-                false;
-
-            governmentIdInput.required =
-                false;
-
-            rankInput.required =
-                false;
-
-
-            /* ========================================================
-               HOD
-            ======================================================== */
-
-            if (role === "HOD") {
-
-                departmentGroup.style.display =
-                    "flex";
-
-                departmentInput.required =
-                    true;
-
-                roleInfo.style.display =
-                    "flex";
-
-                roleInfoText.textContent =
-                    "A Head of Department account requires the department they manage.";
-            }
-
-
-            /* ========================================================
-               LECTURER
-            ======================================================== */
-
-            else if (role === "Lecturer") {
-
-                governmentIdGroup.style.display =
-                    "flex";
-
-                rankGroup.style.display =
-                    "flex";
-
-                governmentIdInput.required =
-                    true;
-
-                rankInput.required =
-                    true;
-
-                roleInfo.style.display =
-                    "flex";
-
-                roleInfoText.textContent =
-                    "A Lecturer account requires a Government ID and academic rank.";
-            }
-
-
-            /* ========================================================
-               DEAN
-            ======================================================== */
-
-            else if (role === "Dean") {
-
-                roleInfo.style.display =
-                    "flex";
-
-                roleInfoText.textContent =
-                    "A Dean account does not require a department, Government ID, or academic rank.";
-            }
-        }
-
-
-        roleSelect.addEventListener(
-            "change",
-            updateRoleFields
-        );
-
-
-        updateRoleFields();
+        const lecturerTypeInput =
+            document.getElementById("lecturerTypeInput");
 
 
         /* ============================================================
@@ -1549,28 +1438,6 @@
             "submit",
             function (e) {
 
-                const role =
-                    roleSelect.value;
-
-
-                /* ----------------------------------------------------
-                   ROLE
-                ---------------------------------------------------- */
-
-                if (!role) {
-
-                    e.preventDefault();
-
-                    alert(
-                        "Please select the user's system role."
-                    );
-
-                    roleSelect.focus();
-
-                    return;
-                }
-
-
                 /* ----------------------------------------------------
                    SIGNATURE
                 ---------------------------------------------------- */
@@ -1588,34 +1455,10 @@
 
 
                 /* ----------------------------------------------------
-                   HOD DEPARTMENT
+                   GOVERNMENT ID
                 ---------------------------------------------------- */
 
-                if (
-                    role === "HOD" &&
-                    !departmentInput.value.trim()
-                ) {
-
-                    e.preventDefault();
-
-                    alert(
-                        "Please enter the HOD's department."
-                    );
-
-                    departmentInput.focus();
-
-                    return;
-                }
-
-
-                /* ----------------------------------------------------
-                   LECTURER GOVERNMENT ID
-                ---------------------------------------------------- */
-
-                if (
-                    role === "Lecturer" &&
-                    !governmentIdInput.value.trim()
-                ) {
+                if (!governmentIdInput.value.trim()) {
 
                     e.preventDefault();
 
@@ -1630,13 +1473,10 @@
 
 
                 /* ----------------------------------------------------
-                   LECTURER RANK
+                   ACADEMIC RANK
                 ---------------------------------------------------- */
 
-                if (
-                    role === "Lecturer" &&
-                    !rankInput.value
-                ) {
+                if (!rankInput.value) {
 
                     e.preventDefault();
 
@@ -1645,6 +1485,24 @@
                     );
 
                     rankInput.focus();
+
+                    return;
+                }
+
+
+                /* ----------------------------------------------------
+                   EMPLOYMENT TYPE
+                ---------------------------------------------------- */
+
+                if (!lecturerTypeInput.value) {
+
+                    e.preventDefault();
+
+                    alert(
+                        "Please select whether this lecturer is part-time or full-time."
+                    );
+
+                    lecturerTypeInput.focus();
 
                     return;
                 }

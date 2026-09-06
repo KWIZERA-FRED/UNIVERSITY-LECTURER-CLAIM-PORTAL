@@ -607,7 +607,7 @@
                         </h1>
 
                         <p>
-                            Create a new staff portal account and capture their signature.
+                            Create a new HOD or Management account and capture their signature.
                         </p>
 
                     </div>
@@ -631,6 +631,18 @@
                 {
                     <div class="error-message">
                         @Model.ErrorMessage
+                    </div>
+                }
+
+                @if (Model.IsBootstrapMode)
+                {
+                    <div class="info-box" style="margin-bottom:1.5rem;">
+                        <i class="fas fa-circle-info"></i>
+                        <span>
+                            No Dean account exists yet. This first registration must create the
+                            initial Dean account — after that, this page will only allow creating
+                            HOD and Management accounts.
+                        </span>
                     </div>
                 }
 
@@ -697,21 +709,22 @@
                                         Select system role
                                     </option>
 
-                                    <option value="Lecturer">
-                                        Lecturer
-                                    </option>
+                                    @if (Model.IsBootstrapMode)
+                                    {
+                                        <option value="Dean">
+                                            Dean (initial system account)
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="HOD">
+                                            Head of Department
+                                        </option>
 
-                                    <option value="HOD">
-                                        Head of Department
-                                    </option>
-
-                                    <option value="Dean">
-                                        Dean
-                                    </option>
-
-                                    <option value="Management">
-                                        Management
-                                    </option>
+                                        <option value="Management">
+                                            Management
+                                        </option>
+                                    }
 
                                 </select>
 
@@ -736,76 +749,6 @@
 
                                 <div class="field-help">
                                     Required only for Head of Department accounts.
-                                </div>
-
-                            </div>
-
-
-                            <!-- GOVERNMENT ID -->
-
-                            <div class="form-group"
-                                 id="governmentIdGroup"
-                                 style="display:none;">
-
-                                <label>
-                                    Government ID <span class="required">*</span>
-                                </label>
-
-                                <input type="text"
-                                       asp-for="GovernmentId"
-                                       id="governmentIdInput"
-                                       class="form-control"
-                                       placeholder="Enter government ID" />
-
-                                <div class="field-help">
-                                    Required when registering a Lecturer account.
-                                </div>
-
-                            </div>
-
-
-                            <!-- LECTURER RANK -->
-
-                            <div class="form-group"
-                                 id="rankGroup"
-                                 style="display:none;">
-
-                                <label>
-                                    Academic Rank <span class="required">*</span>
-                                </label>
-
-                                <select asp-for="Rank"
-                                        id="rankInput"
-                                        class="form-select">
-
-                                    <option value="">
-                                        Select academic rank
-                                    </option>
-
-                                    <option value="AssistantLecturer">
-                                        Assistant Lecturer
-                                    </option>
-
-                                    <option value="Lecturer">
-                                        Lecturer
-                                    </option>
-
-                                    <option value="SeniorLecturer">
-                                        Senior Lecturer
-                                    </option>
-
-                                    <option value="AssociateProfessor">
-                                        Associate Professor
-                                    </option>
-
-                                    <option value="Professor">
-                                        Professor
-                                    </option>
-
-                                </select>
-
-                                <div class="field-help">
-                                    Required when registering a Lecturer account.
                                 </div>
 
                             </div>
@@ -839,6 +782,14 @@
 
                                     <option value="ViceChancellor">
                                         Vice Chancellor
+                                    </option>
+
+                                    <option value="ExamOffice">
+                                        Exam Office
+                                    </option>
+
+                                    <option value="DirectorOfQuality">
+                                        Director of Quality
                                     </option>
 
                                 </select>
@@ -903,9 +854,9 @@
                                 <span>
                                     After registration, the system will automatically generate the
                                     user's username and password. The login credentials will be
-                                    sent to the email address provided above. Lecturer accounts
-                                    require a Government ID and academic rank. Management accounts
-                                    require an office to be selected.
+                                    sent to the email address provided above. HOD accounts require
+                                    a department. Management accounts require an office to be
+                                    selected. Lecturer accounts are created by an HOD, not here.
                                 </span>
                             </div>
 
@@ -944,10 +895,6 @@
         const roleSelect = document.getElementById("roleSelect");
         const departmentGroup = document.getElementById("departmentGroup");
         const departmentInput = document.getElementById("departmentInput");
-        const governmentIdGroup = document.getElementById("governmentIdGroup");
-        const governmentIdInput = document.getElementById("governmentIdInput");
-        const rankGroup = document.getElementById("rankGroup");
-        const rankInput = document.getElementById("rankInput");
         const managementTitleGroup = document.getElementById("managementTitleGroup");
         const managementTitleInput = document.getElementById("managementTitleInput");
         const roleInfo = document.getElementById("roleInfo");
@@ -958,14 +905,10 @@
             const role = roleSelect.value;
 
             departmentGroup.style.display = "none";
-            governmentIdGroup.style.display = "none";
-            rankGroup.style.display = "none";
             managementTitleGroup.style.display = "none";
             roleInfo.style.display = "none";
 
             departmentInput.required = false;
-            governmentIdInput.required = false;
-            rankInput.required = false;
             managementTitleInput.required = false;
 
             if (role === "HOD") {
@@ -974,23 +917,15 @@
                 roleInfo.style.display = "flex";
                 roleInfoText.textContent = "A Head of Department account requires the department they manage.";
             }
-            else if (role === "Lecturer") {
-                governmentIdGroup.style.display = "flex";
-                rankGroup.style.display = "flex";
-                governmentIdInput.required = true;
-                rankInput.required = true;
-                roleInfo.style.display = "flex";
-                roleInfoText.textContent = "A Lecturer account requires a Government ID and academic rank.";
-            }
             else if (role === "Dean") {
                 roleInfo.style.display = "flex";
-                roleInfoText.textContent = "A Dean account does not require a department, Government ID, or academic rank.";
+                roleInfoText.textContent = "This creates the initial Dean account for the system. This option only appears once, before any Dean exists.";
             }
             else if (role === "Management") {
                 managementTitleGroup.style.display = "flex";
                 managementTitleInput.required = true;
                 roleInfo.style.display = "flex";
-                roleInfoText.textContent = "A Management account represents one specific office — HR Officer, DVCAR, or Vice Chancellor.";
+                roleInfoText.textContent = "A Management account represents one specific office — HR Officer, DVCAR, Vice Chancellor, Exam Office, or Director of Quality.";
             }
         }
 
@@ -1100,20 +1035,6 @@
                 e.preventDefault();
                 alert("Please enter the HOD's department.");
                 departmentInput.focus();
-                return;
-            }
-
-            if (role === "Lecturer" && !governmentIdInput.value.trim()) {
-                e.preventDefault();
-                alert("Please enter the lecturer's Government ID.");
-                governmentIdInput.focus();
-                return;
-            }
-
-            if (role === "Lecturer" && !rankInput.value) {
-                e.preventDefault();
-                alert("Please select the lecturer's academic rank.");
-                rankInput.focus();
                 return;
             }
 
