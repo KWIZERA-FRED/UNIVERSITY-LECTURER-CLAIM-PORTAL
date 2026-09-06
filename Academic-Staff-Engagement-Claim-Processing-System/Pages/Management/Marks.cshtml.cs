@@ -14,15 +14,21 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
         private readonly ApplicationDbContext _context;
         private readonly MarksSigningService _marksService;
 
-        public MarksModel(ApplicationDbContext context, MarksSigningService marksService)
+        public MarksModel(
+            ApplicationDbContext context,
+            MarksSigningService marksService)
         {
             _context = context;
             _marksService = marksService;
         }
 
-        public List<PendingMarksRow> PendingSubmissions { get; set; } = new();
+        public List<PendingMarksRow> PendingSubmissions { get; set; }
+            = new();
+
         public MarksReviewDto? SelectedSubmission { get; set; }
+
         public string? ErrorMessage { get; set; }
+
         public string? SuccessMessage { get; set; }
 
         [BindProperty(SupportsGet = true)]
@@ -34,139 +40,264 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
         public class PendingMarksRow
         {
             public int Id { get; set; }
-            public string Reference { get; set; } = string.Empty;
-            public string LecturerName { get; set; } = string.Empty;
-            public string CourseTitle { get; set; } = string.Empty;
-            public string AcademicYear { get; set; } = string.Empty;
+
+            public string Reference { get; set; }
+                = string.Empty;
+
+            public string LecturerName { get; set; }
+                = string.Empty;
+
+            public string CourseTitle { get; set; }
+                = string.Empty;
+
+            public string AcademicYear { get; set; }
+                = string.Empty;
+
             public DateTime SubmittedAtUtc { get; set; }
         }
 
         public class MarksReviewDto
         {
             public int Id { get; set; }
-            public string Reference { get; set; } = string.Empty;
-            public string LecturerName { get; set; } = string.Empty;
-            public string CourseTitle { get; set; } = string.Empty;
-            public string FileName { get; set; } = string.Empty;
+
+            public string Reference { get; set; }
+                = string.Empty;
+
+            public string LecturerName { get; set; }
+                = string.Empty;
+
+            public string CourseTitle { get; set; }
+                = string.Empty;
+
+            public string FileName { get; set; }
+                = string.Empty;
         }
+
+        // ============================================================
+        // GET
+        // ============================================================
 
         public async Task<IActionResult> OnGetAsync()
         {
             if (!await IsExamOfficeAsync())
+            {
                 return RedirectToPage("/ManagementDashboard");
+            }
 
             await LoadPendingListAsync();
 
             if (SubmissionId.HasValue)
             {
-                var s = await _context.MarksSubmissions
-                    .AsNoTracking()
-                    .Include(ms => ms.Lecturer)
-                    .Include(ms => ms.Course)
-                    .FirstOrDefaultAsync(ms => ms.Id == SubmissionId.Value && ms.Status == MarksSubmissionStatus.Pending);
+                var submission =
+                    await _context.MarksSubmissions
+                        .AsNoTracking()
+                        .Include(ms => ms.Lecturer)
+                        .Include(ms => ms.Course)
+                        .FirstOrDefaultAsync(ms =>
+                            ms.Id == SubmissionId.Value &&
+                            ms.Status ==
+                            MarksSubmissionStatus.Pending);
 
-                if (s is null)
+                if (submission is null)
                 {
-                    ErrorMessage = "That submission could not be found, or has already been reviewed.";
+                    ErrorMessage =
+                        "That submission could not be found, or has already been reviewed.";
                 }
                 else
                 {
-                    SelectedSubmission = new MarksReviewDto
-                    {
-                        Id = s.Id,
-                        Reference = s.SubmissionReference,
-                        LecturerName = s.Lecturer.UserName,
-                        CourseTitle = s.Course.Title,
-                        FileName = s.FileName
-                    };
+                    SelectedSubmission =
+                        new MarksReviewDto
+                        {
+                            Id = submission.Id,
+                            Reference =
+                                submission.SubmissionReference,
+                            LecturerName =
+                                submission.Lecturer.UserName,
+                            CourseTitle =
+                                submission.Course.Title,
+                            FileName =
+                                submission.FileName
+                        };
                 }
             }
 
             return Page();
         }
 
+        // ============================================================
+        // APPROVE
+        // ============================================================
+
         public async Task<IActionResult> OnPostApproveAsync()
         {
-            if (!await IsExamOfficeAsync() || !SubmissionId.HasValue)
+            if (!await IsExamOfficeAsync() ||
+                !SubmissionId.HasValue)
+            {
                 return RedirectToPage("/ManagementDashboard");
+            }
 
-            var (actorId, actorUsername, ipAddress) = GetActorContext();
+            var (actorId, actorUsername, ipAddress) =
+                GetActorContext();
 
-            var result = await _marksService.ReviewAsync(
-                SubmissionId.Value, true, null, actorId, actorUsername, ipAddress);
+            var result =
+                await _marksService.ReviewAsync(
+                    SubmissionId.Value,
+                    true,
+                    null,
+                    actorId,
+                    actorUsername,
+                    ipAddress);
 
             if (!result.Succeeded)
+            {
                 ErrorMessage = result.ErrorMessage;
+            }
             else
-                SuccessMessage = "Marks signed. The lecturer can now submit a claim for this course.";
+            {
+                SuccessMessage =
+                    "Marks signed. The lecturer can now submit a claim for this course.";
+            }
 
             await LoadPendingListAsync();
+
             return Page();
         }
+
+        // ============================================================
+        // DECLINE
+        // ============================================================
 
         public async Task<IActionResult> OnPostDeclineAsync()
         {
-            if (!await IsExamOfficeAsync() || !SubmissionId.HasValue)
+            if (!await IsExamOfficeAsync() ||
+                !SubmissionId.HasValue)
+            {
                 return RedirectToPage("/ManagementDashboard");
+            }
 
             if (string.IsNullOrWhiteSpace(DeclineReason))
             {
-                ErrorMessage = "Please provide a reason for declining this submission.";
+                ErrorMessage =
+                    "Please provide a reason for declining this submission.";
+
                 await LoadPendingListAsync();
+
                 return Page();
             }
 
-            var (actorId, actorUsername, ipAddress) = GetActorContext();
+            var (actorId, actorUsername, ipAddress) =
+                GetActorContext();
 
-            var result = await _marksService.ReviewAsync(
-                SubmissionId.Value, false, DeclineReason, actorId, actorUsername, ipAddress);
+            var result =
+                await _marksService.ReviewAsync(
+                    SubmissionId.Value,
+                    false,
+                    DeclineReason,
+                    actorId,
+                    actorUsername,
+                    ipAddress);
 
             if (!result.Succeeded)
+            {
                 ErrorMessage = result.ErrorMessage;
+            }
             else
-                SuccessMessage = "Marks submission declined.";
+            {
+                SuccessMessage =
+                    "Marks submission declined.";
+            }
 
             await LoadPendingListAsync();
+
             return Page();
         }
 
+        // ============================================================
+        // EXAM OFFICE AUTHORIZATION
+        // ============================================================
+
         private async Task<bool> IsExamOfficeAsync()
         {
-            var username = User.Identity?.Name;
+            var username =
+                User.Identity?.Name;
+
             if (string.IsNullOrWhiteSpace(username))
+            {
                 return false;
+            }
 
             return await _context.ManagementAccounts
                 .AsNoTracking()
-                .AnyAsync(m => m.UserName == username && m.IsActive && m.Title == ManagementTitle.ExamOffice);
+                .AnyAsync(m =>
+                    m.UserName == username &&
+                    m.IsActive &&
+                    m.Title ==
+                        ManagementTitle.ExamOffice);
         }
+
+        // ============================================================
+        // LOAD PENDING MARKS
+        // ============================================================
 
         private async Task LoadPendingListAsync()
         {
-            PendingSubmissions = await _context.MarksSubmissions
-                .AsNoTracking()
-                .Where(ms => ms.Status == MarksSubmissionStatus.Pending)
-                .Include(ms => ms.Lecturer)
-                .Include(ms => ms.Course)
-                .OrderBy(ms => ms.SubmittedAtUtc)
-                .Select(ms => new PendingMarksRow
-                {
-                    Id = ms.Id,
-                    Reference = ms.SubmissionReference,
-                    LecturerName = ms.Lecturer.UserName,
-                    CourseTitle = ms.Course.Title,
-                    AcademicYear = ms.AcademicYear,
-                    SubmittedAtUtc = ms.SubmittedAtUtc
-                })
-                .ToListAsync();
+            PendingSubmissions =
+                await _context.MarksSubmissions
+                    .AsNoTracking()
+                    .Where(ms =>
+                        ms.Status ==
+                        MarksSubmissionStatus.Pending)
+                    .Include(ms => ms.Lecturer)
+                    .Include(ms => ms.Course)
+                    .OrderBy(ms => ms.SubmittedAtUtc)
+                    .Select(ms =>
+                        new PendingMarksRow
+                        {
+                            Id = ms.Id,
+
+                            Reference =
+                                ms.SubmissionReference,
+
+                            LecturerName =
+                                ms.Lecturer.UserName,
+
+                            CourseTitle =
+                                ms.Course.Title,
+
+                            AcademicYear =
+                                ms.AcademicYear,
+
+                            SubmittedAtUtc =
+                                ms.SubmittedAtUtc
+                        })
+                    .ToListAsync();
         }
 
-        private (int actorId, string actorUsername, string? ipAddress) GetActorContext()
+        // ============================================================
+        // ACTOR CONTEXT
+        // ============================================================
+
+        private (
+            int actorId,
+            string actorUsername,
+            string? ipAddress) GetActorContext()
         {
-            int.TryParse(User.FindFirst("UserId")?.Value, out int actorId);
-            string actorUsername = User.Identity?.Name ?? "Unknown";
-            string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            return (actorId, actorUsername, ipAddress);
+            int.TryParse(
+                User.FindFirst("UserId")?.Value,
+                out int actorId);
+
+            string actorUsername =
+                User.Identity?.Name ?? "Unknown";
+
+            string? ipAddress =
+                HttpContext.Connection
+                    .RemoteIpAddress?
+                    .ToString();
+
+            return (
+                actorId,
+                actorUsername,
+                ipAddress);
         }
     }
 }

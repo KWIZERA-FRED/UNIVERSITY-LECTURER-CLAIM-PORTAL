@@ -27,94 +27,103 @@ public sealed class ClaimSubmissionService
         if (hoursClaimed <= 0)
             return ClaimSubmissionResult.Fail("Claimed hours must be greater than zero.");
 
-        await using var transaction = await _context.Database.BeginTransactionAsync();
+        var strategy = _context.Database.CreateExecutionStrategy();
 
-        try
+        return await strategy.ExecuteAsync(async () =>
         {
-            var assignment = await _context.CourseAssignments
-                .Include(a => a.Lecturer)
-                .FirstOrDefaultAsync(a => a.Id == courseAssignmentId && a.LecturerId == lecturerId && a.IsActive);
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            if (assignment is null)
-                return ClaimSubmissionResult.Fail("The selected course assignment does not belong to you or is no longer active.");
-
-            if (!assignment.IsApproved)
-                return ClaimSubmissionResult.Fail("The course assignment has not been approved by the HOD.");
-
-            if (hoursClaimed != assignment.AllocatedHours)
-                return ClaimSubmissionResult.Fail("A claim must cover the verified allocated teaching hours for this assignment.");
-
-            var contract = await _context.Contracts
-                .Include(c => c.CourseAssignment)
-                .FirstOrDefaultAsync(c => c.LecturerId == lecturerId && c.CourseAssignmentId == courseAssignmentId && c.Status == ContractStatus.Active);
-
-            if (contract is null)
-                return ClaimSubmissionResult.Fail("A fully signed active contract is required before a claim can be submitted.");
-
-            var requiredContractSignatures = new[]
+            try
             {
-                SignerRole.Lecturer, SignerRole.Dean, SignerRole.HROfficer,
-                SignerRole.DVCAR, SignerRole.ViceChancellor
-            };
+                var assignment = await _context.CourseAssignments
+                    .Include(a => a.Lecturer)
+                    .FirstOrDefaultAsync(a => a.Id == courseAssignmentId && a.LecturerId == lecturerId && a.IsActive);
 
-            var completedSignatures = await _context.ContractSignatures
-                .Where(s => s.ContractId == contract.Id && s.Decision == SignatureDecision.Signed)
-                .Select(s => s.SignerRole)
-                .ToListAsync();
+                if (assignment is null)
+                    return ClaimSubmissionResult.Fail("The selected course assignment does not belong to you or is no longer active.");
 
-            if (requiredContractSignatures.Except(completedSignatures).Any())
-                return ClaimSubmissionResult.Fail("The contract is not fully signed.");
+                if (!assignment.IsApproved)
+                    return ClaimSubmissionResult.Fail("The course assignment has not been approved by the HOD.");
 
-            var approvedMarks = await _context.MarksSubmissions.AnyAsync(m =>
-                m.LecturerId == lecturerId &&
-                m.CourseAssignmentId == courseAssignmentId &&
-                m.Status == MarksSubmissionStatus.Signed);
+                if (hoursClaimed != assignment.AllocatedHours)
+                    return ClaimSubmissionResult.Fail("A claim must cover the verified allocated teaching hours for this assignment.");
 
-            if (!approvedMarks)
-                return ClaimSubmissionResult.Fail("Exam Office must sign the marks sheet before a claim can be submitted.");
+                var contract = await _context.Contracts
+                    .Include(c => c.CourseAssignment)
+                    .FirstOrDefaultAsync(c => c.LecturerId == lecturerId && c.CourseAssignmentId == courseAssignmentId && c.Status == ContractStatus.Active);
 
-            var existingOpenClaim = await _context.Claims.AnyAsync(c =>
-                c.CourseAssignmentId == courseAssignmentId &&
-                c.Status != ClaimStatus.Rejected && c.Status != ClaimStatus.Paid);
+                if (contract is null)
+                    return ClaimSubmissionResult.Fail("A fully signed active contract is required before a claim can be submitted.");
 
-            if (existingOpenClaim)
-                return ClaimSubmissionResult.Fail("An active claim already exists for this course assignment.");
+                var requiredContractSignatures = new[]
+                {
+                    SignerRole.Lecturer, SignerRole.Dean, SignerRole.HROfficer,
+                    SignerRole.DVCAR, SignerRole.ViceChancellor
+                };
 
-            var claim = new Claim(0, courseAssignmentId, contract.Id)
+                var completedSignatures = await _context.ContractSignatures
+                    .Where(s => s.ContractId == contract.Id && s.Decision == SignatureDecision.Signed)
+                    .Select(s => s.SignerRole)
+                    .ToListAsync();
+
+                if (requiredContractSignatures.Except(completedSignatures).Any())
+                    return ClaimSubmissionResult.Fail("The contract is not fully signed.");
+
+                var approvedMarks = await _context.MarksSubmissions.AnyAsync(m =>
+                    m.LecturerId == lecturerId &&
+                    m.CourseAssignmentId == courseAssignmentId &&
+                    m.Status == MarksSubmissionStatus.Signed);
+
+                if (!approvedMarks)
+                    return ClaimSubmissionResult.Fail("Exam Office must sign the marks sheet before a claim can be submitted.");
+
+                var existingOpenClaim = await _context.Claims.AnyAsync(c =>
+                    c.CourseAssignmentId == courseAssignmentId &&
+                    c.Status != ClaimStatus.Rejected && c.Status != ClaimStatus.Paid);
+
+                if (existingOpenClaim)
+                    return ClaimSubmissionResult.Fail("An active claim already exists for this course assignment.");
+
+                var claim = new Claim(0, courseAssignmentId, contract.Id)
+                {
+                    HoursClaimed = hoursClaimed,
+                    Description = (description ?? string.Empty).Trim(),
+                    Status = ClaimStatus.Submitted,
+                    SubmittedAtUtc = DateTime.UtcNow,
+                    UpdatedAtUtc = DateTime.UtcNow
+                };
+
+                _context.Claims.Add(claim);
+                await _context.SaveChangesAsync();
+
+                // Chain matches the current claim workflow: the requirements
+                // (claim letter, signed marks, signed contract) go to the
+                // HOD first, then Dean, then Director of Quality, then
+                // DVCAR — whose sign-off marks the claim ready for payment.
+                _context.ClaimApprovals.AddRange(
+                    new ClaimApproval(0, claim.Id, 1, ApprovalRole.HOD),
+                    new ClaimApproval(0, claim.Id, 2, ApprovalRole.Dean),
+                    new ClaimApproval(0, claim.Id, 3, ApprovalRole.DirectorOfQuality),
+                    new ClaimApproval(0, claim.Id, 4, ApprovalRole.DVCAR));
+
+                await _context.SaveChangesAsync();
+                await _auditLogger.LogAsync(AuditAction.ClaimSubmitted, actorUsername, "Lecturer", lecturerId,
+                    "Claim", claim.Id, $"Submitted claim for assignment {courseAssignmentId}.", ipAddress);
+
+                await transaction.CommitAsync();
+                return ClaimSubmissionResult.Success(claim.Id);
+            }
+            catch (DbUpdateConcurrencyException)
             {
-                HoursClaimed = hoursClaimed,
-                Description = (description ?? string.Empty).Trim(),
-                Status = ClaimStatus.Submitted,
-                SubmittedAtUtc = DateTime.UtcNow,
-                UpdatedAtUtc = DateTime.UtcNow
-            };
-
-            _context.Claims.Add(claim);
-            await _context.SaveChangesAsync();
-
-            _context.ClaimApprovals.AddRange(
-                new ClaimApproval(0, claim.Id, 1, ApprovalRole.Dean),
-                new ClaimApproval(0, claim.Id, 2, ApprovalRole.HROfficer),
-                new ClaimApproval(0, claim.Id, 3, ApprovalRole.DVCAR),
-                new ClaimApproval(0, claim.Id, 4, ApprovalRole.ViceChancellor));
-
-            await _context.SaveChangesAsync();
-            await _auditLogger.LogAsync(AuditAction.ClaimSubmitted, actorUsername, "Lecturer", lecturerId,
-                "Claim", claim.Id, $"Submitted claim for assignment {courseAssignmentId}.", ipAddress);
-
-            await transaction.CommitAsync();
-            return ClaimSubmissionResult.Success(claim.Id);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            await transaction.RollbackAsync();
-            return ClaimSubmissionResult.Fail("The assignment changed while your claim was being submitted. Please refresh and try again.");
-        }
-        catch
-        {
-            await transaction.RollbackAsync();
-            return ClaimSubmissionResult.Fail("The claim could not be submitted. No approval was created.");
-        }
+                await transaction.RollbackAsync();
+                return ClaimSubmissionResult.Fail("The assignment changed while your claim was being submitted. Please refresh and try again.");
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return ClaimSubmissionResult.Fail("The claim could not be submitted. No approval was created.");
+            }
+        });
     }
 }
 

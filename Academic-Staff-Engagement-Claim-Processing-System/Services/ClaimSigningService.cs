@@ -15,19 +15,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         public bool IsThisRolesTurn { get; set; }
         public string? BlockedReason { get; set; }
 
-        // Used to link out to the public QR/verification page, which already
-        // knows how to render the Contract and Claim Letter PDFs for this claim.
         public string QrCodeToken { get; set; } = string.Empty;
 
-        // Contract — snapshot the signing status so an approver isn't just
-        // trusting that "ContractId" exists; they can see it was actually signed.
         public bool ContractSigned { get; set; }
         public DateTime? ContractSignedAtUtc { get; set; }
 
-        // Marks — the Exam-Office-signed submission tied to this claim's course
-        // assignment. ClaimSubmissionService already guarantees one exists and
-        // is Signed before a claim can be created, so this should never be null
-        // in practice; it's nullable defensively.
         public int? MarksSubmissionId { get; set; }
         public string? MarksReference { get; set; }
         public string? MarksFileName { get; set; }
@@ -76,9 +68,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             if (thisStep is null)
                 return null;
 
-            // The signed marks submission for this claim's course assignment.
-            // ClaimSubmissionService only lets a claim be created once one exists
-            // with Status == Signed, so we pull the most recent signed one.
             var marks = await _context.MarksSubmissions
                 .Where(ms => ms.CourseAssignmentId == claim.CourseAssignmentId
                              && ms.Status == MarksSubmissionStatus.Signed)
@@ -133,78 +122,89 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         public async Task<ClaimSigningResult> ApproveAsync(
             int claimId, ApprovalRole role, int adminAccountId, string actorUsername, string actorRoleLabel, string? ipAddress)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            var strategy = _context.Database.CreateExecutionStrategy();
 
-            try
+            return await strategy.ExecuteAsync(async () =>
             {
-                var step = await _context.ClaimApprovals
-                    .Where(ca => ca.ClaimId == claimId && ca.ApprovalRole == role)
-                    .OrderBy(ca => ca.SequenceOrder)
-                    .FirstOrDefaultAsync();
+                using var transaction = await _context.Database.BeginTransactionAsync();
 
-                if (step is null)
+                try
                 {
-                    await transaction.RollbackAsync();
-                    return Fail("No approval step found for this role on this claim.");
-                }
+                    var step = await _context.ClaimApprovals
+                        .Where(ca => ca.ClaimId == claimId && ca.ApprovalRole == role)
+                        .OrderBy(ca => ca.SequenceOrder)
+                        .FirstOrDefaultAsync();
 
-                if (step.Decision != ApprovalDecision.Pending)
-                {
-                    await transaction.RollbackAsync();
-                    return Fail("This step has already been actioned.");
-                }
+                    if (step is null)
+                    {
+                        await transaction.RollbackAsync();
+                        return Fail("No approval step found for this role on this claim.");
+                    }
 
-                bool earlierStepsComplete = !await _context.ClaimApprovals
-                    .Where(ca => ca.ClaimId == claimId && ca.SequenceOrder < step.SequenceOrder)
-                    .AnyAsync(ca => ca.Decision != ApprovalDecision.Approved);
+                    if (step.Decision != ApprovalDecision.Pending)
+                    {
+                        await transaction.RollbackAsync();
+                        return Fail("This step has already been actioned.");
+                    }
 
-                if (!earlierStepsComplete)
-                {
-                    await transaction.RollbackAsync();
-                    return Fail("An earlier required approval on this claim is still pending.");
-                }
+                    bool earlierStepsComplete = !await _context.ClaimApprovals
+                        .Where(ca => ca.ClaimId == claimId && ca.SequenceOrder < step.SequenceOrder)
+                        .AnyAsync(ca => ca.Decision != ApprovalDecision.Approved);
 
-                var adminAccount = await _context.AdminAccounts.FirstOrDefaultAsync(a => a.Id == adminAccountId);
+                    if (!earlierStepsComplete)
+                    {
+                        await transaction.RollbackAsync();
+                        return Fail("An earlier required approval on this claim is still pending.");
+                    }
 
-                if (adminAccount is null || !IsAuthorizedApprover(adminAccount, role) || string.IsNullOrWhiteSpace(adminAccount.SignatureFileHash))
-                {
-                    await transaction.RollbackAsync();
-                    return Fail("Your account does not have a signature on file. Please contact an administrator.");
-                }
+                    var adminAccount = await _context.AdminAccounts.FirstOrDefaultAsync(a => a.Id == adminAccountId);
 
-                step.Approve(adminAccountId, adminAccount.SignatureFileHash);
-                await _context.SaveChangesAsync();
+                    if (adminAccount is null || string.IsNullOrWhiteSpace(adminAccount.SignatureFileHash))
+                    {
+                        await transaction.RollbackAsync();
+                        return Fail("Your account does not have a signature on file. Please contact an administrator.");
+                    }
 
-                bool anyStepsRemaining = await _context.ClaimApprovals
-                    .Where(ca => ca.ClaimId == claimId)
-                    .AnyAsync(ca => ca.Decision == ApprovalDecision.Pending);
+                    if (!await IsAuthorizedApproverAsync(claimId, adminAccount, role))
+                    {
+                        await transaction.RollbackAsync();
+                        return Fail("Your account is not authorized to approve this step.");
+                    }
 
-                if (!anyStepsRemaining)
-                {
-                    var claim = await _context.Claims.FirstAsync(c => c.Id == claimId);
-                    claim.Status = ClaimStatus.Approved;
+                    step.Approve(adminAccountId, adminAccount.SignatureFileHash);
                     await _context.SaveChangesAsync();
+
+                    bool anyStepsRemaining = await _context.ClaimApprovals
+                        .Where(ca => ca.ClaimId == claimId)
+                        .AnyAsync(ca => ca.Decision == ApprovalDecision.Pending);
+
+                    if (!anyStepsRemaining)
+                    {
+                        var claim = await _context.Claims.FirstAsync(c => c.Id == claimId);
+                        claim.Status = ClaimStatus.Approved;
+                        await _context.SaveChangesAsync();
+                    }
+
+                    await _auditLogger.LogAsync(
+                        AuditAction.ClaimApproved,
+                        actorUsername,
+                        actorRoleLabel,
+                        adminAccountId,
+                        "Claim",
+                        claimId,
+                        $"Approved as {role}",
+                        ipAddress);
+
+                    await transaction.CommitAsync();
+                    return new ClaimSigningResult { Succeeded = true };
                 }
-
-                await _auditLogger.LogAsync(
-                    AuditAction.ClaimApproved,
-                    actorUsername,
-                    actorRoleLabel,
-                    adminAccountId,
-                    "Claim",
-                    claimId,
-                    $"Approved as {role}",
-                    ipAddress);
-
-                await transaction.CommitAsync();
-                return new ClaimSigningResult { Succeeded = true };
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                Console.WriteLine($"CLAIM APPROVAL ERROR: {ex}");
-                return Fail("The approval could not be saved.");
-            }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    Console.WriteLine($"CLAIM APPROVAL ERROR: {ex}");
+                    return Fail("The approval could not be saved.");
+                }
+            });
         }
 
         // --------------------------------------------------------------
@@ -215,59 +215,98 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             int claimId, ApprovalRole role, int adminAccountId, string reason,
             string actorUsername, string actorRoleLabel, string? ipAddress)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            var strategy = _context.Database.CreateExecutionStrategy();
 
-            try
+            return await strategy.ExecuteAsync(async () =>
             {
-                var step = await _context.ClaimApprovals
-                    .Where(ca => ca.ClaimId == claimId && ca.ApprovalRole == role)
-                    .OrderBy(ca => ca.SequenceOrder)
-                    .FirstOrDefaultAsync();
+                using var transaction = await _context.Database.BeginTransactionAsync();
 
-                if (step is null || step.Decision != ApprovalDecision.Pending)
+                try
+                {
+                    var step = await _context.ClaimApprovals
+                        .Where(ca => ca.ClaimId == claimId && ca.ApprovalRole == role)
+                        .OrderBy(ca => ca.SequenceOrder)
+                        .FirstOrDefaultAsync();
+
+                    if (step is null || step.Decision != ApprovalDecision.Pending)
+                    {
+                        await transaction.RollbackAsync();
+                        return Fail("This step cannot be rejected.");
+                    }
+
+                    var adminAccount = await _context.AdminAccounts.FirstOrDefaultAsync(a => a.Id == adminAccountId);
+
+                    if (adminAccount is null || !await IsAuthorizedApproverAsync(claimId, adminAccount, role))
+                    {
+                        await transaction.RollbackAsync();
+                        return Fail("Your account is not authorized to reject this step.");
+                    }
+
+                    step.Reject(adminAccountId, reason);
+                    await _context.SaveChangesAsync();
+
+                    var claim = await _context.Claims.FirstAsync(c => c.Id == claimId);
+                    claim.Status = ClaimStatus.Rejected;
+                    await _context.SaveChangesAsync();
+
+                    await _auditLogger.LogAsync(
+                        AuditAction.ClaimRejected,
+                        actorUsername,
+                        actorRoleLabel,
+                        adminAccountId,
+                        "Claim",
+                        claimId,
+                        $"Rejected as {role}: {reason}",
+                        ipAddress);
+
+                    await transaction.CommitAsync();
+                    return new ClaimSigningResult { Succeeded = true };
+                }
+                catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return Fail("This step cannot be rejected.");
+                    Console.WriteLine($"CLAIM REJECTION ERROR: {ex}");
+                    return Fail("The rejection could not be saved.");
                 }
+            });
+        }
 
-                step.Reject(adminAccountId, reason);
-                await _context.SaveChangesAsync();
-
-                var claim = await _context.Claims.FirstAsync(c => c.Id == claimId);
-                claim.Status = ClaimStatus.Rejected;
-                await _context.SaveChangesAsync();
-
-                await _auditLogger.LogAsync(
-                    AuditAction.ClaimRejected,
-                    actorUsername,
-                    actorRoleLabel,
-                    adminAccountId,
-                    "Claim",
-                    claimId,
-                    $"Rejected as {role}: {reason}",
-                    ipAddress);
-
-                await transaction.CommitAsync();
-                return new ClaimSigningResult { Succeeded = true };
-            }
-            catch (Exception ex)
+        // --------------------------------------------------------------
+        // AUTHORIZATION
+        // --------------------------------------------------------------
+        // For HOD specifically, authorization isn't just "any active HOD" —
+        // it must be the exact HOD who approved the CourseAssignment behind
+        // this claim, since that's the person who actually knows the
+        // context needed to check the claim's requirements checklist.
+        private async Task<bool> IsAuthorizedApproverAsync(int claimId, Data.Models.AdminAccount account, ApprovalRole role)
+        {
+            switch (role)
             {
-                await transaction.RollbackAsync();
-                Console.WriteLine($"CLAIM REJECTION ERROR: {ex}");
-                return Fail("The rejection could not be saved.");
+                case ApprovalRole.HOD:
+                    if (account is not Data.Models.Hod)
+                        return false;
+
+                    int? approvingHodId = await _context.Claims
+                        .Where(c => c.Id == claimId)
+                        .Select(c => c.CourseAssignment.ApprovedByHodId)
+                        .FirstOrDefaultAsync();
+
+                    return approvingHodId.HasValue && approvingHodId.Value == account.Id;
+
+                case ApprovalRole.Dean:
+                    return account is Data.Models.Dean;
+
+                case ApprovalRole.DirectorOfQuality:
+                    return account is Data.Models.Management m1 && m1.Title == ManagementTitle.DirectorOfQuality;
+
+                case ApprovalRole.DVCAR:
+                    return account is Data.Models.Management m2 && m2.Title == ManagementTitle.DVCAR;
+
+                default:
+                    return false;
             }
         }
 
-
-        private static bool IsAuthorizedApprover(Data.Models.AdminAccount account, ApprovalRole role) =>
-            role switch
-            {
-                ApprovalRole.Dean => account is Data.Models.Dean,
-                ApprovalRole.HROfficer => account is Data.Models.Management management && management.Title == ManagementTitle.HROfficer,
-                ApprovalRole.DVCAR => account is Data.Models.Management management && management.Title == ManagementTitle.DVCAR,
-                ApprovalRole.ViceChancellor => account is Data.Models.Management management && management.Title == ManagementTitle.ViceChancellor,
-                _ => false
-            };
         private static ClaimSigningResult Fail(string message) =>
             new() { Succeeded = false, ErrorMessage = message };
     }

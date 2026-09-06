@@ -174,14 +174,36 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             // should never undo an otherwise-successful account creation.
             // ------------------------------------------------------------
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            var strategy = _context.Database.CreateExecutionStrategy();
 
-            int createdId;
-            string entityType;
-            string accountTypeLabel;
+            var outcome = await strategy.ExecuteAsync(() => CreateAccountAsync(
+                role, username, email, department, lecturerRank, request, password,
+                signatureFilePath, signatureHash));
+
+            if (outcome.Failure is not null)
+                return outcome.Failure;
+
+            return await FinishAsync(email, name, username, password, outcome.AccountTypeLabel);
+        }
+
+        private sealed class CreateAccountOutcome
+        {
+            public AccountRegistrationResult? Failure { get; init; }
+            public string AccountTypeLabel { get; init; } = string.Empty;
+        }
+
+        private async Task<CreateAccountOutcome> CreateAccountAsync(
+            string role, string username, string email, string department, LecturerRank? lecturerRank,
+            AccountRegistrationRequest request, string password, string signatureFilePath, string signatureHash)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
+                int createdId;
+                string entityType;
+                string accountTypeLabel;
+
                 if (role.Equals("Lecturer", StringComparison.OrdinalIgnoreCase))
                 {
                     var registeringHod = await _context.Hods
@@ -190,7 +212,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     if (registeringHod is null)
                     {
                         await transaction.RollbackAsync();
-                        return Fail("A registering HOD account could not be found.");
+                        return new CreateAccountOutcome { Failure = Fail("A registering HOD account could not be found.") };
                     }
 
                     var lecturer = new LecturerModel(0, username, email)
@@ -201,7 +223,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
                     var hasher = new PasswordHasher<LecturerModel>();
                     lecturer.SetPasswordHash(hasher.HashPassword(lecturer, password));
-                    lecturer.SetGovernmentIdEncrypted(governmentId);
+                    lecturer.SetGovernmentIdEncrypted(request.GovernmentId.Trim());
                     lecturer.CaptureSignature(signatureFilePath, signatureHash, registeringHod.Id);
 
                     _context.Lecturers.Add(lecturer);
@@ -265,15 +287,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     request.IpAddress);
 
                 await transaction.CommitAsync();
+                return new CreateAccountOutcome { AccountTypeLabel = accountTypeLabel };
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
                 Console.WriteLine($"DATABASE ERROR: {ex}");
-                return Fail("The user account could not be saved to the database.");
+                return new CreateAccountOutcome { Failure = Fail("The user account could not be saved to the database.") };
             }
-
-            return await FinishAsync(email, name, username, password, accountTypeLabel);
         }
 
         private async Task<AccountRegistrationResult> FinishAsync(

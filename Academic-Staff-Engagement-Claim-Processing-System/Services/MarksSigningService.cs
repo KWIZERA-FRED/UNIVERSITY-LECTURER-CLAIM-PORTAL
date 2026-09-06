@@ -12,114 +12,61 @@ using static Academic_Staff_Engagement_Claim_Processing_System.Services.MarksSub
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 {
-    /// <summary>
-    /// Result returned when a marks submission is attempted.
-    /// </summary>
     public class MarksSubmissionResult
     {
         public bool Succeeded { get; set; }
-
         public string? SubmissionReference { get; set; }
-
         public string? ErrorMessage { get; set; }
 
-        public static MarksSubmissionResult Success(
-            string submissionReference)
+        public static MarksSubmissionResult Success(string reference)
         {
             return new MarksSubmissionResult
             {
                 Succeeded = true,
-                SubmissionReference = submissionReference
+                SubmissionReference = reference
             };
         }
+
         public class MarksReviewResult
         {
             public bool Succeeded { get; set; }
             public string? ErrorMessage { get; set; }
-        }
-        public static MarksSubmissionResult Fail(
-            string message)
-        {
-            return new MarksSubmissionResult
+
+            public static MarksReviewResult Success()
             {
-                Succeeded = false,
-                ErrorMessage = message
-            };
+                return new MarksReviewResult
+                {
+                    Succeeded = true
+                };
+            }
+
+            public static MarksReviewResult Fail(string error)
+            {
+                return new MarksReviewResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = error
+                };
+            }
         }
     }
 
-
-    /// <summary>
-    /// Handles the secure submission of lecturer marks.
-    ///
-    /// Responsibilities:
-    /// - Verify the authenticated lecturer
-    /// - Verify course ownership
-    /// - Validate academic period
-    /// - Validate uploaded Excel file
-    /// - Calculate SHA-256 integrity hash
-    /// - Store the file privately in Cloudflare R2
-    /// - Create the MarksSubmission database record
-    /// - Record an audit event
-    /// - Clean up the uploaded file if database persistence fails
-    /// </summary>
     public class MarksSigningService
     {
-        // ============================================================
-        // SECURITY / FILE LIMITS
-        // ============================================================
+        private readonly ApplicationDbContext _context;
+        private readonly AuditLogger _auditLogger;
+        private readonly IAmazonS3 _s3Client;
+        private readonly IConfiguration _configuration;
 
-        /*
-         * Maximum accepted upload size:
-         *
-         * 10 MB
-         *
-         * This protects the application from unnecessarily large
-         * uploads consuming server memory and storage.
-         */
-        private const long MaxFileSize =
-            10 * 1024 * 1024;
+        private const long MaxFileSize = 10 * 1024 * 1024;
 
-
-        /*
-         * Expected MIME type for modern Excel .xlsx files.
-         *
-         * This value is assigned by the SERVER.
-         * We do not trust the MIME type supplied by the browser.
-         */
-        private const string ExpectedContentType =
+        private const string ExpectedXlsxContentType =
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
-
-        /*
-         * XLSX files are ZIP/OpenXML packages.
-         *
-         * We place limits on the uncompressed package as an
-         * additional defense against ZIP-bomb style uploads.
-         */
         private const long MaxUncompressedPackageSize =
             50 * 1024 * 1024;
 
-
         private const int MaxZipEntries = 500;
-
-
-        // ============================================================
-        // DEPENDENCIES
-        // ============================================================
-
-        private readonly ApplicationDbContext _context;
-
-        private readonly AuditLogger _auditLogger;
-
-        private readonly IAmazonS3 _s3Client;
-
-        private readonly IConfiguration _configuration;
-
-
-        // ============================================================
-        // CONSTRUCTOR
-        // ============================================================
 
         public MarksSigningService(
             ApplicationDbContext context,
@@ -134,65 +81,162 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         }
 
         // ============================================================
-        // REVIEW (SIGN / DECLINE) MARKS SUBMISSION
+        // REVIEW / SIGN / DECLINE MARKS
         // ============================================================
 
         public async Task<MarksReviewResult> ReviewAsync(
             int marksSubmissionId,
             bool approve,
-            string? comment,
-            int managementId,
+            string? declineComment,
+            int actorId,
             string actorUsername,
             string? ipAddress)
         {
             if (marksSubmissionId <= 0)
-                return new MarksReviewResult { Succeeded = false, ErrorMessage = "Invalid marks submission." };
+            {
+                return MarksReviewResult.Fail(
+                    "Invalid marks submission.");
+            }
 
-            if (!approve && string.IsNullOrWhiteSpace(comment))
-                return new MarksReviewResult { Succeeded = false, ErrorMessage = "Please provide a reason for declining this submission." };
+            if (actorId <= 0)
+            {
+                return MarksReviewResult.Fail(
+                    "Invalid management account.");
+            }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            if (string.IsNullOrWhiteSpace(actorUsername))
+            {
+                return MarksReviewResult.Fail(
+                    "Invalid actor.");
+            }
+
+            if (!approve &&
+                string.IsNullOrWhiteSpace(declineComment))
+            {
+                return MarksReviewResult.Fail(
+                    "A decline comment is required when declining marks.");
+            }
+
+            // ========================================================
+            // AUTHORIZATION
+            // ONLY EXAM OFFICE CAN REVIEW MARKS
+            // ========================================================
+
+            var management =
+                await _context.ManagementAccounts
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(m =>
+                        m.Id == actorId &&
+                        m.IsActive &&
+                        m.Title == ManagementTitle.ExamOffice);
+
+            if (management is null)
+            {
+                return MarksReviewResult.Fail(
+                    "You are not authorized to review marks submissions.");
+            }
+
+            // ========================================================
+            // TRANSACTION
+            // ========================================================
+
+            var executionStrategy =
+                _context.Database.CreateExecutionStrategy();
 
             try
             {
-                var submission = await _context.MarksSubmissions
-                    .Include(ms => ms.Course)
-                    .FirstOrDefaultAsync(ms =>
-                        ms.Id == marksSubmissionId &&
-                        ms.Status == MarksSubmissionStatus.Pending);
+                return await executionStrategy.ExecuteAsync(
+                    async () =>
+                    {
+                        await using var transaction =
+                            await _context.Database.BeginTransactionAsync();
 
-                if (submission is null)
-                {
-                    await transaction.RollbackAsync();
-                    return new MarksReviewResult { Succeeded = false, ErrorMessage = "This submission is not available for review." };
-                }
+                        try
+                        {
+                            var submission =
+                                await _context.MarksSubmissions
+                                    .Include(ms => ms.Course)
+                                    .FirstOrDefaultAsync(ms =>
+                                        ms.Id == marksSubmissionId);
 
-                submission.Status = approve ? MarksSubmissionStatus.Signed : MarksSubmissionStatus.Declined;
-                submission.ReviewedByManagementId = managementId;
-                submission.ReviewedAtUtc = DateTime.UtcNow;
-                submission.ReviewComment = comment;
+                            if (submission is null)
+                            {
+                                await transaction.RollbackAsync();
 
-                await _context.SaveChangesAsync();
+                                return MarksReviewResult.Fail(
+                                    "Marks submission was not found.");
+                            }
 
-                await _auditLogger.LogAsync(
-                    approve ? AuditAction.MarksSigned : AuditAction.MarksDeclined,
-                    actorUsername,
-                    "Management",
-                    managementId,
-                    "MarksSubmission",
-                    submission.Id,
-                    approve
-                        ? $"Marks signed for {submission.Course.Code} ({submission.AcademicYear}, {submission.Semester})."
-                        : $"Marks declined for {submission.Course.Code}: {comment}",
-                    ipAddress);
+                            if (submission.Status !=
+                                MarksSubmissionStatus.Pending)
+                            {
+                                await transaction.RollbackAsync();
 
-                await transaction.CommitAsync();
-                return new MarksReviewResult { Succeeded = true };
+                                return MarksReviewResult.Fail(
+                                    "Only pending marks submissions can be reviewed.");
+                            }
+
+                            // ====================================================
+                            // APPLY DECISION
+                            // ====================================================
+
+                            if (approve)
+                            {
+                                submission.Status =
+                                    MarksSubmissionStatus.Signed;
+
+                                submission.ReviewComment = null;
+                            }
+                            else
+                            {
+                                submission.Status =
+                                    MarksSubmissionStatus.Declined;
+
+                                submission.ReviewComment =
+                                    declineComment!.Trim();
+                            }
+
+                            submission.ReviewedByManagementId =
+                                management.Id;
+
+                            submission.ReviewedAtUtc =
+                                DateTime.UtcNow;
+
+                            await _context.SaveChangesAsync();
+
+                            // ====================================================
+                            // AUDIT
+                            // ====================================================
+
+                            await _auditLogger.LogAsync(
+                                approve
+                                    ? AuditAction.MarksSigned
+                                    : AuditAction.MarksDeclined,
+                                actorUsername,
+                                "Management",
+                                actorId,
+                                nameof(MarksSubmission),
+                                submission.Id,
+                                approve
+                                    ? "Marks submission signed by Exam Office."
+                                    : "Marks submission declined by Exam Office.",
+                                ipAddress);
+
+                            await transaction.CommitAsync();
+
+                            return MarksReviewResult.Success();
+                        }
+                        catch
+                        {
+                            await transaction.RollbackAsync();
+                            throw;
+                        }
+                    });
             }
             catch
             {
-                await transaction.RollbackAsync();
-                return new MarksReviewResult { Succeeded = false, ErrorMessage = "The review could not be saved." };
+                return MarksReviewResult.Fail(
+                    "The marks review could not be completed. Please try again.");
             }
         }
 
@@ -205,48 +249,54 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             int courseAssignmentId,
             string academicYear,
             Semester semester,
-            IFormFile marksFile,
+            IFormFile file,
             string actorUsername,
             string? ipAddress)
         {
-            // ========================================================
-            // BASIC SECURITY VALIDATION
-            // ========================================================
-
             if (lecturerId <= 0)
             {
-                return MarksSubmissionResult.Fail(
-                    "Invalid lecturer account.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Invalid lecturer."
+                };
             }
-
 
             if (courseAssignmentId <= 0)
             {
-                return MarksSubmissionResult.Fail(
-                    "Invalid course assignment.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Invalid course assignment."
+                };
             }
-
 
             if (string.IsNullOrWhiteSpace(academicYear))
             {
-                return MarksSubmissionResult.Fail(
-                    "Academic year is required.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Academic year is required."
+                };
             }
 
-
-            if (marksFile == null || marksFile.Length == 0)
+            if (file is null || file.Length <= 0)
             {
-                return MarksSubmissionResult.Fail(
-                    "Please upload the Excel marks sheet.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Please select an XLSX file."
+                };
             }
-
 
             if (string.IsNullOrWhiteSpace(actorUsername))
             {
-                return MarksSubmissionResult.Fail(
-                    "The authenticated lecturer could not be identified.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Invalid actor."
+                };
             }
-
 
             // ========================================================
             // NORMALIZE ACADEMIC YEAR
@@ -254,122 +304,94 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
             academicYear = academicYear.Trim();
 
-
             // ========================================================
             // VALIDATE SEMESTER
             // ========================================================
 
-            if (!Enum.IsDefined(
-                    typeof(Semester),
-                    semester))
+            if (!Enum.IsDefined(typeof(Semester), semester))
             {
-                return MarksSubmissionResult.Fail(
-                    "Invalid semester.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Invalid semester."
+                };
             }
 
-
             // ========================================================
-            // FILE SIZE VALIDATION
+            // FILE SIZE
             // ========================================================
 
-            if (marksFile.Length > MaxFileSize)
+            if (file.Length > MaxFileSize)
             {
-                return MarksSubmissionResult.Fail(
-                    "The Excel file cannot be larger than 10 MB.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "The marks file exceeds the maximum allowed size of 10 MB."
+                };
             }
 
-
             // ========================================================
-            // SANITIZE ORIGINAL FILE NAME
+            // FILE NAME
             // ========================================================
 
-            /*
-             * Path.GetFileName() prevents an uploaded filename such as:
-             *
-             * ../../some-file.xlsx
-             *
-             * from being treated as a server path.
-             */
+            var safeFileName =
+                Path.GetFileName(file.FileName);
 
-            var originalFileName =
-                Path.GetFileName(marksFile.FileName);
-
-
-            if (string.IsNullOrWhiteSpace(originalFileName))
+            if (string.IsNullOrWhiteSpace(safeFileName))
             {
-                return MarksSubmissionResult.Fail(
-                    "The uploaded file has an invalid filename.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Invalid file name."
+                };
             }
 
-
-            // ========================================================
-            // EXTENSION VALIDATION
-            // ========================================================
-
-            var extension =
-                Path.GetExtension(originalFileName)
-                    .ToLowerInvariant();
-
-
-            if (extension != ".xlsx")
+            if (safeFileName.Length > 255)
             {
-                return MarksSubmissionResult.Fail(
-                    "Only .xlsx Excel files are accepted.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "The file name is too long."
+                };
             }
 
-
-            // ========================================================
-            // FILE NAME LENGTH
-            // ========================================================
-
-            if (originalFileName.Length > 255)
+            if (!string.Equals(
+                    Path.GetExtension(safeFileName),
+                    ".xlsx",
+                    StringComparison.OrdinalIgnoreCase))
             {
-                return MarksSubmissionResult.Fail(
-                    "The uploaded filename is too long.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Only XLSX files are allowed."
+                };
             }
 
-
             // ========================================================
-            // AUTHENTICATED LECTURER
+            // LOAD LECTURER
             // ========================================================
-
-            /*
-             * IMPORTANT:
-             *
-             * lecturerId must come from the authenticated UserId claim.
-             *
-             * This service still verifies the ID against the database.
-             *
-             * We never trust a CourseAssignment's LecturerId supplied
-             * independently by the browser.
-             */
 
             var lecturer =
                 await _context.Lecturers
+                    .AsNoTracking()
                     .FirstOrDefaultAsync(l =>
                         l.Id == lecturerId &&
                         l.IsActive);
 
-
-            if (lecturer == null)
+            if (lecturer is null)
             {
-                return MarksSubmissionResult.Fail(
-                    "Your lecturer account could not be verified.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "Lecturer account was not found or is inactive."
+                };
             }
 
-
             // ========================================================
-            // COURSE ASSIGNMENT OWNERSHIP
+            // LOAD COURSE ASSIGNMENT
             // ========================================================
-
-            /*
-             * The lecturer must:
-             *
-             * 1. Own the assignment
-             * 2. Have an active assignment
-             * 3. Have an approved assignment
-             * 4. Belong to an active course
-             */
 
             var assignment =
                 await _context.CourseAssignments
@@ -377,71 +399,103 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     .Include(ca => ca.Course)
                     .FirstOrDefaultAsync(ca =>
                         ca.Id == courseAssignmentId &&
-                        ca.LecturerId == lecturerId &&
-                        ca.IsActive &&
-                        ca.IsApproved &&
-                        ca.Course.IsActive);
+                        ca.LecturerId == lecturerId);
 
-
-            if (assignment == null)
+            if (assignment is null)
             {
-                return MarksSubmissionResult.Fail(
-                    "You are not assigned to the selected course.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "The course assignment does not belong to this lecturer."
+                };
             }
 
+            if (!assignment.IsActive)
+            {
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "This course assignment is no longer active."
+                };
+            }
+
+            if (!assignment.IsApproved)
+            {
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "The course assignment has not been approved."
+                };
+            }
+
+            if (assignment.Course is null ||
+                !assignment.Course.IsActive)
+            {
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "The assigned course is not active."
+                };
+            }
 
             // ========================================================
-            // ACADEMIC YEAR VALIDATION
+            // VERIFY ACADEMIC YEAR
             // ========================================================
 
             if (!string.Equals(
                     assignment.AcademicYear,
                     academicYear,
-                    StringComparison.Ordinal))
+                    StringComparison.OrdinalIgnoreCase))
             {
-                return MarksSubmissionResult.Fail(
-                    "The selected academic year does not match your course assignment.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "The academic year does not match the course assignment."
+                };
             }
 
-
             // ========================================================
-            // SEMESTER VALIDATION
+            // VERIFY SEMESTER
             // ========================================================
 
             if (assignment.Semester != semester)
             {
-                return MarksSubmissionResult.Fail(
-                    "The selected semester does not match your course assignment.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "The semester does not match the course assignment."
+                };
             }
 
-
             // ========================================================
-            // DUPLICATE PENDING SUBMISSION CHECK
+            // PREVENT DUPLICATE PENDING SUBMISSIONS
             // ========================================================
 
-            /*
-             * Prevent the same lecturer from creating multiple pending
-             * submissions for the same course assignment and academic
-             * period.
-             */
-
-            bool pendingSubmissionExists =
+            var duplicatePending =
                 await _context.MarksSubmissions
                     .AsNoTracking()
                     .AnyAsync(ms =>
                         ms.LecturerId == lecturerId &&
                         ms.CourseAssignmentId == courseAssignmentId &&
                         ms.AcademicYear == academicYear &&
-                        ms.Semester == semester &&
-                        ms.Status == MarksSubmissionStatus.Pending);
+                        ms.Status ==
+                        MarksSubmissionStatus.Pending);
 
-
-            if (pendingSubmissionExists)
+            if (duplicatePending)
             {
-                return MarksSubmissionResult.Fail(
-                    "You already have a marks submission waiting for review for this course.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "There is already a pending marks submission for this course."
+                };
             }
-
 
             // ========================================================
             // READ FILE
@@ -449,383 +503,299 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
             byte[] fileBytes;
 
-
-            try
+            await using (var memoryStream = new MemoryStream())
             {
-                await using var input =
-                    marksFile.OpenReadStream();
+                await file.CopyToAsync(memoryStream);
 
-                await using var memory =
-                    new MemoryStream();
-
-                await input.CopyToAsync(memory);
-
-                fileBytes = memory.ToArray();
+                fileBytes = memoryStream.ToArray();
             }
-            catch
-            {
-                return MarksSubmissionResult.Fail(
-                    "The uploaded file could not be read.");
-            }
-
-
-            // ========================================================
-            // DOUBLE-CHECK FILE SIZE
-            // ========================================================
-
-            /*
-             * We check both the IFormFile length and the actual byte
-             * array length.
-             */
 
             if (fileBytes.LongLength > MaxFileSize)
             {
-                return MarksSubmissionResult.Fail(
-                    "The Excel file cannot be larger than 10 MB.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "The uploaded file exceeds the maximum allowed size."
+                };
             }
 
-
             // ========================================================
-            // XLSX SIGNATURE VALIDATION
+            // XLSX MAGIC-BYTE VALIDATION
             // ========================================================
 
             if (!IsValidXlsxSignature(fileBytes))
             {
-                return MarksSubmissionResult.Fail(
-                    "The uploaded file is not a valid .xlsx workbook.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "The uploaded file is not a valid XLSX package."
+                };
             }
 
-
             // ========================================================
-            // OPENXML PACKAGE VALIDATION
+            // ZIP PACKAGE VALIDATION
             // ========================================================
 
             if (!IsSafeXlsxPackage(fileBytes))
             {
-                return MarksSubmissionResult.Fail(
-                    "The uploaded Excel workbook is invalid or unsafe.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "The XLSX package failed security validation."
+                };
             }
 
-
             // ========================================================
-            // SHA-256 FILE HASH
-            // ========================================================
-
-            string fileHash;
-
-
-            using (var sha256 =
-                   SHA256.Create())
-            {
-                byte[] hash =
-                    sha256.ComputeHash(fileBytes);
-
-                fileHash =
-                    Convert.ToHexString(hash)
-                        .ToLowerInvariant();
-            }
-
-
-            // ========================================================
-            // SERVER-GENERATED SUBMISSION REFERENCE
+            // SHA-256 HASH
             // ========================================================
 
-            /*
-             * The browser does not control this reference.
-             *
-             * Example:
-             *
-             * MRK-20260831-7a8f...
-             */
+            var fileHashBytes =
+                SHA256.HashData(fileBytes);
 
-            string submissionReference =
+            var fileHash =
+                Convert.ToHexString(fileHashBytes)
+                    .ToLowerInvariant();
+
+            // ========================================================
+            // SUBMISSION REFERENCE
+            // ========================================================
+
+            var submissionReference =
                 $"MRK-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid():N}";
 
-
             // ========================================================
-            // SERVER-GENERATED R2 OBJECT KEY
-            // ========================================================
-
-            /*
-             * Never use the user's original filename as the storage key.
-             *
-             * This prevents:
-             *
-             * - path traversal
-             * - predictable object names
-             * - filename collisions
-             */
-
-            string storageKey =
-                $"marks/{DateTime.UtcNow:yyyy/MM/dd}/" +
-                $"{Guid.NewGuid():N}.xlsx";
-
-
-            // ========================================================
-            // R2 BUCKET
+            // R2 OBJECT KEY
             // ========================================================
 
-            string? bucketName =
+            var objectKey =
+                $"marks/{DateTime.UtcNow:yyyy/MM/dd}/{Guid.NewGuid():N}.xlsx";
+
+            var bucketName =
                 _configuration["R2:BucketName"];
-
 
             if (string.IsNullOrWhiteSpace(bucketName))
             {
-                return MarksSubmissionResult.Fail(
-                    "Secure file storage is not configured.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "Storage configuration is missing."
+                };
             }
 
-
-            // ========================================================
-            // UPLOAD + DATABASE PERSISTENCE
-            // ========================================================
-
-            bool fileUploaded = false;
-
+            var uploadedToStorage = false;
 
             try
             {
                 // ====================================================
-                // UPLOAD TO PRIVATE R2
+                // UPLOAD TO R2
                 // ====================================================
 
                 await using var uploadStream =
                     new MemoryStream(fileBytes);
 
-
                 var putRequest =
                     new PutObjectRequest
                     {
-                        BucketName =
-                            bucketName,
-
-                        Key =
-                            storageKey,
-
-                        InputStream =
-                            uploadStream,
-
-                        /*
-                         * The object must not be public.
-                         */
-                        CannedACL =
-                            S3CannedACL.Private,
-
-                        /*
-                         * Use the server-defined MIME type.
-                         */
-                        ContentType =
-                            ExpectedContentType,
-
-                        AutoCloseStream =
-                            false
+                        BucketName = bucketName,
+                        Key = objectKey,
+                        InputStream = uploadStream,
+                        ContentType = ExpectedXlsxContentType,
+                        AutoCloseStream = false
                     };
 
-
-                /*
-                 * Store integrity metadata alongside the object.
-                 */
                 putRequest.Metadata["file-hash"] =
                     fileHash;
 
                 putRequest.Metadata["submission-reference"] =
                     submissionReference;
 
+                await _s3Client.PutObjectAsync(putRequest);
 
-                await _s3Client.PutObjectAsync(
-                    putRequest);
-
-
-                fileUploaded = true;
-
+                uploadedToStorage = true;
 
                 // ====================================================
                 // DATABASE TRANSACTION
                 // ====================================================
 
-                await using var transaction =
-                    await _context.Database
-                        .BeginTransactionAsync();
+                var executionStrategy =
+                    _context.Database.CreateExecutionStrategy();
 
+                await executionStrategy.ExecuteAsync(
+                    async () =>
+                    {
+                        await using var transaction =
+                            await _context.Database.BeginTransactionAsync();
 
-                try
-                {
-                    // =================================================
-                    // CREATE SUBMISSION
-                    // =================================================
-
-                    var submission =
-                        new MarksSubmission
+                        try
                         {
-                            SubmissionReference =
-                                submissionReference,
+                            var submission =
+                                new MarksSubmission
+                                {
+                                    SubmissionReference =
+                                        submissionReference,
 
-                            LecturerId =
-                                lecturer.Id,
+                                    LecturerId =
+                                        lecturerId,
 
-                            CourseAssignmentId =
-                                assignment.Id,
+                                    CourseAssignmentId =
+                                        courseAssignmentId,
 
-                            CourseId =
-                                assignment.CourseId,
+                                    CourseId =
+                                        assignment.CourseId,
 
-                            AcademicYear =
-                                assignment.AcademicYear,
+                                    AcademicYear =
+                                        academicYear,
 
-                            Semester =
-                                assignment.Semester,
+                                    Semester =
+                                        semester,
 
-                            FileName =
-                                originalFileName,
+                                    FileName =
+                                        safeFileName,
 
-                            FilePath =
-                                storageKey,
+                                    FilePath =
+                                        objectKey,
 
-                            FileHash =
-                                fileHash,
+                                    FileHash =
+                                        fileHash,
 
-                            ContentType =
-                                ExpectedContentType,
+                                    ContentType =
+                                        ExpectedXlsxContentType,
 
-                            FileSizeBytes =
-                                fileBytes.LongLength,
+                                    Status =
+                                        MarksSubmissionStatus.Pending,
 
-                            SubmittedAtUtc =
-                                DateTime.UtcNow,
+                                    SubmittedAtUtc =
+                                        DateTime.UtcNow
+                                };
 
-                            Status =
-                                MarksSubmissionStatus.Pending
-                        };
+                            _context.MarksSubmissions.Add(submission);
 
+                            await _context.SaveChangesAsync();
 
-                    _context.MarksSubmissions.Add(
-                        submission);
+                            // ====================================================
+                            // AUDIT
+                            // ====================================================
 
+                            await _auditLogger.LogAsync(
+                                AuditAction.MarksSubmitted,
+                                actorUsername,
+                                "Lecturer",
+                                lecturerId,
+                                nameof(MarksSubmission),
+                                submission.Id,
+                                "Marks submitted successfully.",
+                                ipAddress);
 
-                    // =================================================
-                    // SAVE
-                    // =================================================
+                            await transaction.CommitAsync();
+                        }
+                        catch
+                        {
+                            await transaction.RollbackAsync();
+                            throw;
+                        }
+                    });
 
-                    await _context.SaveChangesAsync();
-
-
-                    // =================================================
-                    // COMMIT DATABASE TRANSACTION
-                    // =================================================
-
-                    await transaction.CommitAsync();
-
-
-                    // =================================================
-                    // AUDIT
-                    // =================================================
-
-                    /*
-                     * IMPORTANT:
-                     *
-                     * Use the actual database-generated submission.Id.
-                     *
-                     * Do NOT use GetHashCode() because hash codes are not
-                     * stable identifiers.
-                     */
-
-                    await _auditLogger.LogAsync(
-                        AuditAction.MarksSubmitted,
-                        actorUsername,
-                        "Lecturer",
-                        lecturer.Id,
-                        "MarksSubmission",
-                        submission.Id,
-                        $"Marks submitted for " +
-                        $"{assignment.Course.Code} " +
-                        $"for {assignment.AcademicYear}, " +
-                        $"{assignment.Semester}.",
-                        ipAddress);
-
-
-                    // =================================================
-                    // SUCCESS
-                    // =================================================
-
-                    return MarksSubmissionResult.Success(
-                        submissionReference);
-                }
-                catch
+                return new MarksSubmissionResult
                 {
-                    // =================================================
-                    // DATABASE ROLLBACK
-                    // =================================================
-
-                    await transaction.RollbackAsync();
-
-                    throw;
-                }
+                    Succeeded = true,
+                    SubmissionReference =
+                        submissionReference
+                };
             }
             catch
             {
                 // ====================================================
-                // DELETE ORPHANED R2 OBJECT
+                // CLEAN UP ORPHANED R2 OBJECT
                 // ====================================================
 
-                /*
-                 * If R2 upload succeeded but database persistence failed,
-                 * remove the uploaded object.
-                 *
-                 * This prevents abandoned marks files from accumulating
-                 * in storage.
-                 */
-
-                if (fileUploaded)
+                if (uploadedToStorage)
                 {
                     try
                     {
                         await _s3Client.DeleteObjectAsync(
                             new DeleteObjectRequest
                             {
-                                BucketName =
-                                    bucketName,
-
-                                Key =
-                                    storageKey
+                                BucketName = bucketName,
+                                Key = objectKey
                             });
                     }
                     catch
                     {
-                        /*
-                         * Do not expose cleanup errors to the lecturer.
-                         *
-                         * The original operation already failed.
-                         */
+                        // Deliberately ignored.
+                        // The original failure must remain the
+                        // returned error.
                     }
                 }
 
-
-                return MarksSubmissionResult.Fail(
-                    "The marks submission could not be completed. Please try again.");
+                return new MarksSubmissionResult
+                {
+                    Succeeded = false,
+                    ErrorMessage =
+                        "The marks submission could not be completed. Please try again."
+                };
             }
         }
 
+        // ============================================================
+        // SIGNED FILE DOWNLOAD URL
+        // ============================================================
+
+        public async Task<string?> GetSignedFileDownloadUrlAsync(
+            int marksSubmissionId)
+        {
+            if (marksSubmissionId <= 0)
+            {
+                return null;
+            }
+
+            var submission =
+                await _context.MarksSubmissions
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(ms =>
+                        ms.Id == marksSubmissionId &&
+                        ms.Status == MarksSubmissionStatus.Signed);
+
+            if (submission is null)
+            {
+                return null;
+            }
+
+            var bucketName =
+                _configuration["R2:BucketName"];
+
+            if (string.IsNullOrWhiteSpace(bucketName))
+            {
+                return null;
+            }
+
+            var request =
+                new GetPreSignedUrlRequest
+                {
+                    BucketName = bucketName,
+                    Key = submission.FilePath,
+                    Verb = HttpVerb.GET,
+                    Expires =
+                        DateTime.UtcNow.AddMinutes(5)
+                };
+
+            return _s3Client.GetPreSignedURL(request);
+        }
 
         // ============================================================
-        // XLSX SIGNATURE VALIDATION
+        // XLSX MAGIC-BYTE VALIDATION
         // ============================================================
 
         private static bool IsValidXlsxSignature(
             byte[] fileBytes)
         {
-            /*
-             * XLSX is an OpenXML ZIP package.
-             *
-             * Standard ZIP local-file header:
-             *
-             * 50 4B 03 04
-             */
-
             if (fileBytes.Length < 4)
             {
                 return false;
             }
-
 
             return fileBytes[0] == 0x50 &&
                    fileBytes[1] == 0x4B &&
@@ -833,9 +803,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                    fileBytes[3] == 0x04;
         }
 
-
         // ============================================================
-        // OPENXML / ZIP PACKAGE VALIDATION
+        // SAFE XLSX ZIP VALIDATION
         // ============================================================
 
         private static bool IsSafeXlsxPackage(
@@ -843,88 +812,58 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         {
             try
             {
-                using var memoryStream =
-                    new MemoryStream(
-                        fileBytes,
-                        writable: false);
-
+                using var stream =
+                    new MemoryStream(fileBytes);
 
                 using var archive =
                     new ZipArchive(
-                        memoryStream,
+                        stream,
                         ZipArchiveMode.Read,
                         leaveOpen: false);
 
-
-                // ----------------------------------------------------
-                // ENTRY COUNT
-                // ----------------------------------------------------
-
-                if (archive.Entries.Count >
-                    MaxZipEntries)
+                if (archive.Entries.Count > MaxZipEntries)
                 {
                     return false;
                 }
 
+                long totalUncompressedSize = 0;
 
-                bool hasContentTypes =
-                    false;
-
-                bool hasWorkbook =
-                    false;
-
-                long totalUncompressedSize =
-                    0;
-
-
-                // ----------------------------------------------------
-                // INSPECT ZIP ENTRIES
-                // ----------------------------------------------------
+                bool hasContentTypes = false;
+                bool hasWorkbook = false;
 
                 foreach (var entry in archive.Entries)
                 {
-                    /*
-                     * Reject suspicious entry paths.
-                     */
+                    var fullName =
+                        entry.FullName.Replace('\\', '/');
 
-                    if (string.IsNullOrWhiteSpace(
-                            entry.FullName))
+                    // =================================================
+                    // PATH TRAVERSAL PROTECTION
+                    // =================================================
+
+                    if (fullName.StartsWith("/") ||
+                        fullName.Contains("../") ||
+                        fullName.Contains("/..") ||
+                        fullName.Contains(":/") ||
+                        fullName.Contains(":\\"))
                     {
                         return false;
                     }
 
-
-                    string normalizedPath =
-                        entry.FullName
-                            .Replace('\\', '/');
-
-
-                    if (normalizedPath.StartsWith("/") ||
-                        normalizedPath.Contains("../") ||
-                        normalizedPath.Contains("/..") ||
-                        normalizedPath.Contains(":/"))
+                    if (fullName.Contains('\0'))
                     {
                         return false;
                     }
 
-
-                    /*
-                     * Directory entries have zero length and are fine.
-                     */
+                    // =================================================
+                    // ZIP BOMB PROTECTION
+                    // =================================================
 
                     if (entry.Length < 0)
                     {
                         return false;
                     }
 
-
-                    /*
-                     * Protect against excessive decompression.
-                     */
-
-                    totalUncompressedSize +=
-                        entry.Length;
-
+                    totalUncompressedSize += entry.Length;
 
                     if (totalUncompressedSize >
                         MaxUncompressedPackageSize)
@@ -932,18 +871,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                         return false;
                     }
 
-
                     if (string.Equals(
-                            normalizedPath,
+                            fullName,
                             "[Content_Types].xml",
                             StringComparison.OrdinalIgnoreCase))
                     {
                         hasContentTypes = true;
                     }
 
-
                     if (string.Equals(
-                            normalizedPath,
+                            fullName,
                             "xl/workbook.xml",
                             StringComparison.OrdinalIgnoreCase))
                     {
@@ -951,61 +888,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     }
                 }
 
-
-                /*
-                 * A legitimate XLSX workbook should contain both
-                 * OpenXML content types and the workbook definition.
-                 */
-
-                return hasContentTypes &&
-                       hasWorkbook;
+                return hasContentTypes && hasWorkbook;
             }
             catch
             {
-                /*
-                 * Any invalid ZIP/OpenXML structure is rejected.
-                 */
-
                 return false;
             }
-        }
-        // ============================================================
-        // SECURE DOWNLOAD LINK FOR A SIGNED MARKS FILE
-        // ============================================================
-
-        /*
-         * Returns a short-lived presigned URL so an authorized reviewer
-         * (Exam Office during review, or an approver further down the
-         * claim chain such as the Dean) can open the actual uploaded
-         * spreadsheet, not just its file name.
-         *
-         * Only ever issued for submissions that are Signed — a Pending
-         * or Declined submission has no business being downloaded from
-         * a claim-review screen.
-         */
-        public async Task<string?> GetSignedFileDownloadUrlAsync(int marksSubmissionId)
-        {
-            var submission = await _context.MarksSubmissions
-                .AsNoTracking()
-                .FirstOrDefaultAsync(ms => ms.Id == marksSubmissionId
-                                            && ms.Status == MarksSubmissionStatus.Signed);
-
-            if (submission is null)
-                return null;
-
-            string? bucketName = _configuration["R2:BucketName"];
-            if (string.IsNullOrWhiteSpace(bucketName))
-                return null;
-
-            var request = new GetPreSignedUrlRequest
-            {
-                BucketName = bucketName,
-                Key = submission.FilePath,
-                Expires = DateTime.UtcNow.AddMinutes(5),
-                Verb = HttpVerb.GET
-            };
-
-            return _s3Client.GetPreSignedURL(request);
         }
     }
 }

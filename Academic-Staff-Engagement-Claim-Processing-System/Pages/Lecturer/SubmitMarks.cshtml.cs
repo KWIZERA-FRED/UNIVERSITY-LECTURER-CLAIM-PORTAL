@@ -45,8 +45,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
         // DISPLAY
         // ============================================================
 
-        public string LecturerName { get; private set; }
-            = string.Empty;
+        public string LecturerName { get; private set; } = string.Empty;
 
         public List<CourseAssignment> Assignments { get; private set; }
             = new();
@@ -64,7 +63,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
             var lecturer = await GetAuthenticatedLecturerAsync();
 
             if (lecturer == null)
+            {
                 return Forbid();
+            }
 
             LecturerName = lecturer.UserName;
 
@@ -77,12 +78,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
         // POST
         // ============================================================
 
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync()
         {
             var lecturer = await GetAuthenticatedLecturerAsync();
 
             if (lecturer == null)
+            {
                 return Forbid();
+            }
 
             LecturerName = lecturer.UserName;
 
@@ -176,7 +180,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
         // GET AUTHENTICATED LECTURER
         // ============================================================
 
-        private async Task<Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer?> GetAuthenticatedLecturerAsync()
+        private async Task<
+            Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer?>
+            GetAuthenticatedLecturerAsync()
         {
             /*
              * Login.cshtml.cs creates this claim:
@@ -189,7 +195,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
             var userIdValue = User.FindFirstValue("UserId");
 
-            if (!int.TryParse(userIdValue, out int lecturerId))
+            if (!int.TryParse(
+                    userIdValue,
+                    out int lecturerId))
             {
                 return null;
             }
