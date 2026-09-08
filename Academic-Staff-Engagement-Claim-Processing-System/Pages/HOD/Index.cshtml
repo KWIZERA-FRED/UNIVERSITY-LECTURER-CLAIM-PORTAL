@@ -1,6 +1,7 @@
 ﻿@page
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.IndexModel
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
+
 @{
     Layout = null;
     ViewData["Title"] = "HOD Dashboard";
@@ -8,878 +9,255 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="utf-8" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>@ViewData["Title"] · UNILAK ASECPS</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
+          rel="stylesheet" />
 
     <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <style>
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: "Plus Jakarta Sans", "Poppins", sans-serif;
-            background: #f8fafc;
-            color: #1e293b;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        a {
-            text-decoration: none;
-        }
-
-        /* =========================================================
-           TOP HEADER
-        ========================================================== */
-
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            z-index: 1000;
-            background: rgba(10, 25, 47, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .navbar-container {
-            height: 100%;
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .navbar-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .navbar-logo {
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-            transition: transform 0.3s ease;
-        }
-
-        .logo-link:hover .navbar-logo {
-            transform: scale(1.05);
-        }
-
-        .navbar-brand {
-            color: #ffffff;
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-        }
-
-        .navbar-brand span {
-            color: #64748b;
-            font-weight: 400;
-        }
-
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .role {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #cbd5e1;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .role i {
-            color: #34d399;
-        }
-
-        .logout-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 9px 18px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .logout-btn:hover {
-            background: #ffffff;
-            color: #0f172a;
-            border-color: #ffffff;
-        }
-
-        /* =========================================================
-           APP
-        ========================================================== */
-
-        .app {
-            min-height: 100vh;
-            padding-top: 80px;
-            display: flex;
-        }
-
-        /* =========================================================
-           SIDEBAR
-        ========================================================== */
-
-        .sidebar {
-            position: fixed;
-            top: 80px;
-            left: 0;
-            bottom: 0;
-            width: 245px;
-            background: #ffffff;
-            border-right: 1px solid #e2e8f0;
-            padding: 32px 16px;
-            overflow-y: auto;
-            z-index: 900;
-        }
-
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .sidebar-link {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 13px;
-            padding: 12px 14px;
-            border-radius: 10px;
-            color: #64748b;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .sidebar-link i {
-            width: 20px;
-            color: #94a3b8;
-            font-size: 17px;
-            transition: color 0.2s ease;
-        }
-
-        .sidebar-link:hover {
-            color: #0f172a;
-            background: #f8fafc;
-        }
-
-        .sidebar-link:hover i {
-            color: #059669;
-        }
-
-        .sidebar-link.active {
-            color: #059669;
-            background: #ecfdf5;
-            font-weight: 600;
-        }
-
-        .sidebar-link.active i {
-            color: #059669;
-        }
-
-        .sidebar-link.active::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 50%;
-            width: 3px;
-            height: 24px;
-            transform: translateY(-50%);
-            border-radius: 0 4px 4px 0;
-            background: #059669;
-        }
-
-        /* =========================================================
-           MAIN
-        ========================================================== */
-
-        .main {
-            width: calc(100% - 245px);
-            margin-left: 245px;
-            min-height: calc(100vh - 80px);
-            padding: 48px 40px 70px;
-        }
-
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* =========================================================
-           PAGE HEADER
-        ========================================================== */
-
-        .page-header {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .page-label {
-            display: inline-block;
-            margin-bottom: 10px;
-            color: #059669;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 2px;
-        }
-
-        .page-header h1 {
-            color: #0f172a;
-            font-size: clamp(28px, 4vw, 38px);
-            font-weight: 700;
-            letter-spacing: -0.8px;
-            margin-bottom: 8px;
-        }
-
-        .page-header p {
-            color: #64748b;
-            font-size: 15px;
-        }
-
-        /* =========================================================
-           STATISTICS
-        ========================================================== */
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            padding: 26px;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            border-color: #cbd5e1;
-            box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.08);
-        }
-
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 18px;
-            border-radius: 12px;
-            color: #059669;
-            background: #ecfdf5;
-            font-size: 22px;
-        }
-
-        .stat-number {
-            color: #0f172a;
-            font-size: 30px;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #64748b;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        /* =========================================================
-           CARDS
-        ========================================================== */
-
-        .card {
-            margin-bottom: 28px;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.06);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            padding: 24px 28px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .card-title {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-        }
-
-        .card-icon {
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            color: #059669;
-            background: #ecfdf5;
-            font-size: 19px;
-        }
-
-        .card-title h2 {
-            color: #0f172a;
-            font-size: 17px;
-            font-weight: 700;
-        }
-
-        .card-title p {
-            color: #64748b;
-            font-size: 12px;
-            margin-top: 2px;
-        }
-
-        /* =========================================================
-           TABLE
-        ========================================================== */
-
-        .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        thead {
-            background: #f8fafc;
-        }
-
-        th {
-            padding: 14px 20px;
-            color: #64748b;
-            font-size: 11px;
-            font-weight: 700;
-            text-align: left;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            border-bottom: 1px solid #e2e8f0;
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 17px 20px;
-            color: #475569;
-            border-bottom: 1px solid #f1f5f9;
-            vertical-align: middle;
-        }
-
-        tbody tr {
-            transition: background 0.2s ease;
-        }
-
-        tbody tr:hover {
-            background: #f8fafc;
-        }
-
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .id {
-            color: #0f172a;
-            font-weight: 700;
-        }
-
-        .lecturer {
-            color: #0f172a;
-            font-weight: 600;
-        }
-
-        .course {
-            color: #64748b;
-        }
-
-        /* =========================================================
-           BADGES
-        ========================================================== */
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 11px;
-            border-radius: 100px;
-            font-size: 11px;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .badge-pending {
-            color: #92400e;
-            background: #fffbeb;
-            border: 1px solid #fde68a;
-        }
-
-        .badge-review {
-            color: #1d4ed8;
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-        }
-
-        .badge-approved {
-            color: #047857;
-            background: #ecfdf5;
-            border: 1px solid #a7f3d0;
-        }
-
-        .badge-rejected {
-            color: #b91c1c;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-        }
-
-        .badge-paid {
-            color: #6d28d9;
-            background: #f5f3ff;
-            border: 1px solid #ddd6fe;
-        }
-
-        /* =========================================================
-           BUTTONS
-        ========================================================== */
-
-        .action-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            padding: 8px 15px;
-            border-radius: 8px;
-            color: #ffffff;
-            background: #059669;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .action-btn:hover {
-            background: #047857;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(5, 150, 105, 0.25);
-        }
-
-        .action-btn.outline {
-            color: #059669;
-            background: #ffffff;
-            border: 1px solid #a7f3d0;
-        }
-
-        .action-btn.outline:hover {
-            color: #ffffff;
-            background: #059669;
-            border-color: #059669;
-        }
-
-        /* =========================================================
-           EMPTY STATE
-        ========================================================== */
-
-        .empty-state {
-            padding: 35px 20px;
-            text-align: center;
-            color: #94a3b8;
-        }
-
-        .empty-state i {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        .empty-state p {
-            font-size: 13px;
-        }
-
-        /* =========================================================
-           FOOTER
-        ========================================================== */
-
-        .footer {
-            margin-left: 245px;
-            padding: 30px 40px;
-            color: #94a3b8;
-            background: #020617;
-            border-top: 1px solid #1e293b;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-        }
-
-        .footer-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .footer-logo {
-            width: 38px;
-            height: 38px;
-            object-fit: contain;
-        }
-
-        .footer-brand h3 {
-            color: #f8fafc;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .footer-brand p {
-            color: #64748b;
-            font-size: 11px;
-        }
-
-        .footer-right {
-            color: #64748b;
-            font-size: 11px;
-            text-align: right;
-        }
-
-        /* =========================================================
-           RESPONSIVE
-        ========================================================== */
-
-        @@media (max-width: 1100px) {
-
-            .stat-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @@media (max-width: 800px) {
-
-            .navbar {
-                height: 70px;
-            }
-
-            .app {
-                padding-top: 70px;
-            }
-
-            .sidebar {
-                top: 70px;
-                width: 210px;
-            }
-
-            .main {
-                width: calc(100% - 210px);
-                margin-left: 210px;
-                padding: 35px 25px 60px;
-            }
-
-            .footer {
-                margin-left: 210px;
-            }
-
-            .navbar-container {
-                padding: 0 20px;
-            }
-
-            .navbar-logo {
-                width: 42px;
-                height: 42px;
-            }
-
-            .navbar-brand {
-                font-size: 17px;
-            }
-
-            .role {
-                display: none;
-            }
-        }
-
-        @@media (max-width: 650px) {
-
-            .navbar-brand {
-                display: none;
-            }
-
-            .navbar-right {
-                margin-left: auto;
-            }
-
-            .sidebar {
-                position: relative;
-                top: auto;
-                width: 100%;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid #e2e8f0;
-                padding: 15px;
-            }
-
-            .app {
-                display: block;
-            }
-
-            .sidebar-menu {
-                flex-direction: row;
-                overflow-x: auto;
-            }
-
-            .sidebar-link {
-                flex-shrink: 0;
-            }
-
-            .main {
-                width: 100%;
-                margin-left: 0;
-                padding: 30px 15px 50px;
-            }
-
-            .footer {
-                margin-left: 0;
-                padding: 25px 15px;
-            }
-
-            .page-header {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .footer-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .footer-right {
-                text-align: center;
-            }
-        }
-
-        @@media (max-width: 480px) {
-
-            .stat-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .logout-btn span {
-                display: none;
-            }
-
-            .logout-btn {
-                padding: 9px 12px;
-            }
-
-            .card-header {
-                padding: 20px;
-            }
-
-            .card-title h2 {
-                font-size: 15px;
-            }
-        }
-
-    </style>
-
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/HOD/dashboard.css"
+          asp-append-version="true" />
 </head>
 
 <body>
 
-    <!-- =========================================================
-         HEADER
-    ========================================================== -->
+    <!-- ============================================================
+         TOP NAVIGATION
+    ============================================================= -->
 
-    <nav class="navbar">
+    <header class="navbar">
 
         <div class="navbar-container">
 
             <div class="navbar-left">
 
-                <a href="/" class="logo-link">
+                <a href="/" class="brand-link">
 
                     <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
                          alt="UNILAK Logo"
                          class="navbar-logo" />
 
-                </a>
+                    <div class="brand-text">
+                        <strong>UNILAK</strong>
+                        <span>ASECPS</span>
+                    </div>
 
-                <a href="/" class="navbar-brand">
-                    UNILAK <span>ASECPS</span>
                 </a>
 
             </div>
 
             <div class="navbar-right">
 
-                <div class="role">
+                <div class="user-context">
 
-                    <i class="bi bi-person-workspace"></i>
+                    <div class="user-context-icon">
+                        <i class="bi bi-person-workspace"></i>
+                    </div>
 
-                    <span>
-                        @Model.HodName · @Model.HodDepartment
-                    </span>
+                    <div class="user-context-text">
+
+                        <strong>@Model.HodName</strong>
+
+                        <span>
+                            Head of Department · @Model.HodDepartment
+                        </span>
+
+                    </div>
 
                 </div>
 
                 <a href="/Login" class="logout-btn">
-
                     <i class="bi bi-box-arrow-right"></i>
-
-                    <span>
-                        Logout
-                    </span>
-
+                    <span>Logout</span>
                 </a>
 
             </div>
 
         </div>
 
-    </nav>
+    </header>
 
 
-    <!-- =========================================================
-         APP
-    ========================================================== -->
+    <!-- ============================================================
+         APPLICATION
+    ============================================================= -->
 
     <div class="app">
 
-        <!-- =====================================================
+        <!-- ========================================================
              SIDEBAR
-        ====================================================== -->
+        ========================================================= -->
 
         <aside class="sidebar">
 
+            <div class="sidebar-heading">
+                <span>MAIN MENU</span>
+            </div>
+
             <nav class="sidebar-menu">
 
-                <a href="/HOD"
-                   class="sidebar-link active">
+                <a href="/HOD" class="sidebar-link active">
 
-                    <i class="bi bi-grid-fill"></i>
+                    <i class="bi bi-grid-1x2-fill"></i>
 
-                    <span>
-                        Dashboard
-                    </span>
+                    <span>Dashboard</span>
 
                 </a>
 
-                <a href="/HOD/Claims"
-                   class="sidebar-link">
-
-                    <i class="bi bi-cash-coin"></i>
-
-                    <span>
-                        Claims
-                    </span>
-
-                </a>
-
-                <a href="/HOD/Staff"
-                   class="sidebar-link">
+                <a href="/HOD/Staff" class="sidebar-link">
 
                     <i class="bi bi-people-fill"></i>
 
-                    <span>
-                        Staff Management
-                    </span>
+                    <span>Staff Management</span>
+
+                </a>
+
+                <a href="/HOD/AssignCourse" class="sidebar-link">
+
+                    <i class="bi bi-journal-plus"></i>
+
+                    <span>Course Assignments</span>
+
+                </a>
+
+                <a href="/HOD/Contracts" class="sidebar-link">
+
+                    <i class="bi bi-file-earmark-text-fill"></i>
+
+                    <span>Contracts</span>
+
+                    @if (Model.ContractsToSign > 0)
+                    {
+                        <span class="sidebar-count">
+                            @Model.ContractsToSign
+                        </span>
+                    }
+
+                </a>
+
+                <a href="/HOD/Claims" class="sidebar-link">
+
+                    <i class="bi bi-cash-stack"></i>
+
+                    <span>Claims</span>
+
+                    @if (Model.ClaimsReceived > 0)
+                    {
+                        <span class="sidebar-count">
+                            @Model.ClaimsReceived
+                        </span>
+                    }
 
                 </a>
 
             </nav>
 
+
+            <div class="sidebar-divider"></div>
+
+
+            <!-- QUICK ACCESS -->
+
+            <div class="sidebar-heading">
+                <span>QUICK ACCESS</span>
+            </div>
+
+            <nav class="sidebar-menu">
+
+                <a href="/HOD/Staff" class="sidebar-link secondary-link">
+
+                    <i class="bi bi-person-lines-fill"></i>
+
+                    <span>Academic Staff</span>
+
+                </a>
+
+                <a href="/HOD/AssignCourse" class="sidebar-link secondary-link">
+
+                    <i class="bi bi-plus-circle"></i>
+
+                    <span>Assign a Course</span>
+
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+                <div class="sidebar-system">
+
+                    <div class="system-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+
+                    <div>
+                        <strong>Secure Portal</strong>
+                        <span>UNILAK Academic Services</span>
+                    </div>
+
+                </div>
+
+            </div>
+
         </aside>
 
 
-        <!-- =====================================================
-             MAIN
-        ====================================================== -->
+        <!-- ========================================================
+             MAIN CONTENT
+        ========================================================= -->
 
         <main class="main">
 
             <div class="main-container">
 
                 <!-- =================================================
-                     PAGE HEADER
+                     PAGE INTRO
                 ================================================== -->
 
-                <section class="page-header">
+                <section class="page-intro">
 
                     <div>
 
-                        <span class="page-label">
+                        <span class="eyebrow">
                             HOD PORTAL
                         </span>
 
                         <h1>
-                            Welcome, @Model.HodName!
+                            Department Overview
                         </h1>
 
                         <p>
-                            Manage academic staff engagements, contracts and payment claims for
-                            @Model.HodDepartment.
+                            Monitor academic staff, course assignments and
+                            contract activities within
+                            <strong>@Model.HodDepartment</strong>.
                         </p>
+
+                    </div>
+
+                    <div class="date-card">
+
+                        <div class="date-icon">
+                            <i class="bi bi-calendar3"></i>
+                        </div>
+
+                        <div>
+                            <span>Today</span>
+
+                            <strong>
+                                @DateTime.Now.ToString("dd MMM yyyy")
+                            </strong>
+                        </div>
 
                     </div>
 
@@ -887,77 +265,28 @@
 
 
                 <!-- =================================================
-                     STATISTICS
+                     KPI CARDS
                 ================================================== -->
 
-                <section class="stat-grid">
+                <section class="stats-grid">
+
+                    <!-- STAFF -->
 
                     <div class="stat-card">
 
-                        <div class="stat-icon">
+                        <div class="stat-top">
 
-                            <i class="bi bi-file-earmark-check-fill"></i>
+                            <div class="stat-icon staff-icon">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
 
-                        </div>
-
-                        <div class="stat-number">
-                            @Model.ContractsToSign
-                        </div>
-
-                        <div class="stat-label">
-                            Contracts to Sign
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-icon">
-
-                            <i class="bi bi-file-earmark-text-fill"></i>
+                            <span class="stat-context">
+                                Department
+                            </span>
 
                         </div>
 
-                        <div class="stat-number">
-                            @Model.ContractsToReview
-                        </div>
-
-                        <div class="stat-label">
-                            Contracts to Review
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-icon">
-
-                            <i class="bi bi-cash-stack"></i>
-
-                        </div>
-
-                        <div class="stat-number">
-                            @Model.ClaimsReceived
-                        </div>
-
-                        <div class="stat-label">
-                            Claims Received
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-icon">
-
-                            <i class="bi bi-people-fill"></i>
-
-                        </div>
-
-                        <div class="stat-number">
+                        <div class="stat-value">
                             @Model.AcademicStaff
                         </div>
 
@@ -965,36 +294,301 @@
                             Academic Staff
                         </div>
 
+                        <div class="stat-footer">
+                            <a href="/HOD/Staff">
+                                Manage staff
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONTRACTS -->
+
+                    <div class="stat-card">
+
+                        <div class="stat-top">
+
+                            <div class="stat-icon contract-icon">
+                                <i class="bi bi-file-earmark-check-fill"></i>
+                            </div>
+
+                            @if (Model.ContractsToSign > 0)
+                            {
+                                <span class="status-indicator attention">
+                                    Action required
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-indicator complete">
+                                    Up to date
+                                </span>
+                            }
+
+                        </div>
+
+                        <div class="stat-value">
+                            @Model.ContractsToSign
+                        </div>
+
+                        <div class="stat-label">
+                            Contracts Requiring Action
+                        </div>
+
+                        <div class="stat-footer">
+                            <a href="/HOD/Contracts">
+                                Review contracts
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+
+                    </div>
+
+
+                    <!-- CLAIMS -->
+
+                    <div class="stat-card">
+
+                        <div class="stat-top">
+
+                            <div class="stat-icon claims-icon">
+                                <i class="bi bi-cash-stack"></i>
+                            </div>
+
+                            @if (Model.ClaimsReceived > 0)
+                            {
+                                <span class="status-indicator attention">
+                                    Pending
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-indicator complete">
+                                    Clear
+                                </span>
+                            }
+
+                        </div>
+
+                        <div class="stat-value">
+                            @Model.ClaimsReceived
+                        </div>
+
+                        <div class="stat-label">
+                            Claims Awaiting Review
+                        </div>
+
+                        <div class="stat-footer">
+                            <a href="/HOD/Claims">
+                                Review claims
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACTIVE CONTRACTS -->
+
+                    <div class="stat-card">
+
+                        <div class="stat-top">
+
+                            <div class="stat-icon active-icon">
+                                <i class="bi bi-file-earmark-lock-fill"></i>
+                            </div>
+
+                            <span class="stat-context">
+                                Department
+                            </span>
+
+                        </div>
+
+                        <div class="stat-value">
+                            @Model.ContractsToReview
+                        </div>
+
+                        <div class="stat-label">
+                            Active Contracts
+                        </div>
+
+                        <div class="stat-footer">
+                            <a href="/HOD/Contracts">
+                                View contracts
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+
                     </div>
 
                 </section>
 
 
                 <!-- =================================================
-                     CONTRACTS
+                     MAIN TWO-COLUMN AREA
                 ================================================== -->
 
-                <section class="card">
+                <section class="dashboard-grid">
 
-                    <div class="card-header">
 
-                        <div class="card-title">
+                    <!-- =============================================
+                         CONTRACT WORKFLOW
+                    ============================================== -->
 
-                            <div class="card-icon">
+                    <div class="panel workflow-panel">
 
-                                <i class="bi bi-file-earmark-check-fill"></i>
+                        <div class="panel-header">
+
+                            <div class="panel-heading">
+
+                                <div class="panel-icon">
+                                    <i class="bi bi-diagram-3-fill"></i>
+                                </div>
+
+                                <div>
+
+                                    <h2>
+                                        Contract Workflow
+                                    </h2>
+
+                                    <p>
+                                        Academic engagement contract lifecycle
+                                    </p>
+
+                                </div>
 
                             </div>
 
-                            <div>
+                            <a href="/HOD/Contracts" class="panel-link">
+                                Manage
+                                <i class="bi bi-arrow-up-right"></i>
+                            </a>
 
-                                <h2>
-                                    Contracts Awaiting Your Signature
-                                </h2>
+                        </div>
 
-                                <p>
-                                    Contracts requiring HOD approval and signature
-                                </p>
+
+                        <div class="workflow">
+
+                            <!-- LECTURER -->
+
+                            <div class="workflow-step">
+
+                                <div class="workflow-node completed">
+                                    <i class="bi bi-person-check-fill"></i>
+                                </div>
+
+                                <div class="workflow-content">
+                                    <strong>Lecturer</strong>
+                                    <span>Contract initiated and signed</span>
+                                </div>
+
+                            </div>
+
+
+                            <div class="workflow-line"></div>
+
+
+                            <!-- DEAN -->
+
+                            <div class="workflow-step">
+
+                                <div class="workflow-node current">
+                                    <i class="bi bi-building"></i>
+                                </div>
+
+                                <div class="workflow-content">
+                                    <strong>Dean</strong>
+
+                                    @if (Model.ContractsToSign > 0)
+                                    {
+                                        <span class="workflow-alert">
+                                            @Model.ContractsToSign requiring action
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>Department approval stage</span>
+                                    }
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="workflow-line"></div>
+
+
+                            <!-- HR -->
+
+                            <div class="workflow-step">
+
+                                <div class="workflow-node">
+                                    <i class="bi bi-person-badge"></i>
+                                </div>
+
+                                <div class="workflow-content">
+                                    <strong>HR Officer</strong>
+                                    <span>Human resources verification</span>
+                                </div>
+
+                            </div>
+
+
+                            <div class="workflow-line"></div>
+
+
+                            <!-- DVCAR -->
+
+                            <div class="workflow-step">
+
+                                <div class="workflow-node">
+                                    <i class="bi bi-mortarboard-fill"></i>
+                                </div>
+
+                                <div class="workflow-content">
+                                    <strong>DVCAR</strong>
+                                    <span>Academic administration approval</span>
+                                </div>
+
+                            </div>
+
+
+                            <div class="workflow-line"></div>
+
+
+                            <!-- VC -->
+
+                            <div class="workflow-step">
+
+                                <div class="workflow-node">
+                                    <i class="bi bi-award-fill"></i>
+                                </div>
+
+                                <div class="workflow-content">
+                                    <strong>Vice Chancellor</strong>
+                                    <span>Final institutional approval</span>
+                                </div>
+
+                            </div>
+
+
+                            <div class="workflow-line"></div>
+
+
+                            <!-- ACTIVE -->
+
+                            <div class="workflow-step">
+
+                                <div class="workflow-node final">
+                                    <i class="bi bi-check-lg"></i>
+                                </div>
+
+                                <div class="workflow-content">
+                                    <strong>ACTIVE</strong>
+                                    <span>Contract becomes effective</span>
+                                </div>
 
                             </div>
 
@@ -1003,39 +597,186 @@
                     </div>
 
 
-                    <div class="table-wrapper">
+                    <!-- =============================================
+                         QUICK ACTIONS
+                    ============================================== -->
 
-                        @if (Model.ContractsAwaitingSignature.Any())
-                        {
+                    <div class="panel actions-panel">
+
+                        <div class="panel-header">
+
+                            <div class="panel-heading">
+
+                                <div class="panel-icon">
+                                    <i class="bi bi-lightning-charge-fill"></i>
+                                </div>
+
+                                <div>
+
+                                    <h2>
+                                        Quick Actions
+                                    </h2>
+
+                                    <p>
+                                        Common department tasks
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="quick-actions">
+
+                            <a href="/HOD/Staff" class="quick-action">
+
+                                <div class="quick-action-icon">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+
+                                <div class="quick-action-content">
+
+                                    <strong>Manage Staff</strong>
+
+                                    <span>
+                                        View and manage academic staff
+                                    </span>
+
+                                </div>
+
+                                <i class="bi bi-chevron-right action-arrow"></i>
+
+                            </a>
+
+
+                            <a href="/HOD/AssignCourse" class="quick-action">
+
+                                <div class="quick-action-icon">
+                                    <i class="bi bi-journal-plus"></i>
+                                </div>
+
+                                <div class="quick-action-content">
+
+                                    <strong>Assign Course</strong>
+
+                                    <span>
+                                        Allocate courses to lecturers
+                                    </span>
+
+                                </div>
+
+                                <i class="bi bi-chevron-right action-arrow"></i>
+
+                            </a>
+
+
+                            <a href="/HOD/Contracts" class="quick-action">
+
+                                <div class="quick-action-icon">
+                                    <i class="bi bi-file-earmark-check"></i>
+                                </div>
+
+                                <div class="quick-action-content">
+
+                                    <strong>Review Contracts</strong>
+
+                                    <span>
+                                        Process department contracts
+                                    </span>
+
+                                </div>
+
+                                <i class="bi bi-chevron-right action-arrow"></i>
+
+                            </a>
+
+
+                            <a href="/HOD/Claims" class="quick-action">
+
+                                <div class="quick-action-icon">
+                                    <i class="bi bi-cash-stack"></i>
+                                </div>
+
+                                <div class="quick-action-content">
+
+                                    <strong>Review Claims</strong>
+
+                                    <span>
+                                        Review submitted payment claims
+                                    </span>
+
+                                </div>
+
+                                <i class="bi bi-chevron-right action-arrow"></i>
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     CONTRACTS REQUIRING ACTION
+                ================================================== -->
+
+                <section class="panel table-panel">
+
+                    <div class="panel-header">
+
+                        <div class="panel-heading">
+
+                            <div class="panel-icon">
+                                <i class="bi bi-file-earmark-check-fill"></i>
+                            </div>
+
+                            <div>
+
+                                <h2>
+                                    Contracts Requiring Your Attention
+                                </h2>
+
+                                <p>
+                                    Contracts currently associated with your department
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <a href="/HOD/Contracts" class="panel-link">
+                            View all
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+
+                    </div>
+
+
+                    @if (Model.ContractsAwaitingSignature.Any())
+                    {
+                        <div class="table-wrapper">
+
                             <table>
 
                                 <thead>
 
                                     <tr>
 
-                                        <th>
-                                            Contract ID
-                                        </th>
+                                        <th>Contract</th>
 
-                                        <th>
-                                            Lecturer
-                                        </th>
+                                        <th>Lecturer</th>
 
-                                        <th>
-                                            Course
-                                        </th>
+                                        <th>Course</th>
 
-                                        <th>
-                                            Hours
-                                        </th>
+                                        <th>Hours</th>
 
-                                        <th>
-                                            Status
-                                        </th>
+                                        <th>Status</th>
 
-                                        <th>
-                                            Action
-                                        </th>
+                                        <th></th>
 
                                     </tr>
 
@@ -1048,41 +789,50 @@
                                         <tr>
 
                                             <td>
-
-                                                <span class="id">
+                                                <span class="record-id">
                                                     C@contract.Id.ToString("D3")
                                                 </span>
-
                                             </td>
 
                                             <td>
 
-                                                <span class="lecturer">
-                                                    @contract.LecturerName
-                                                </span>
+                                                <div class="person-cell">
+
+                                                    <div class="avatar">
+                                                        @GetInitials(contract.LecturerName)
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>
+                                                            @contract.LecturerName
+                                                        </strong>
+
+                                                        <span>
+                                                            Academic Staff
+                                                        </span>
+                                                    </div>
+
+                                                </div>
 
                                             </td>
 
                                             <td>
-
-                                                <span class="course">
+                                                <span class="course-name">
                                                     @contract.CourseTitle
                                                 </span>
-
                                             </td>
 
                                             <td>
-                                                @contract.Hours.ToString("0.##")h
+                                                <span class="hours">
+                                                    @contract.Hours.ToString("0.##")h
+                                                </span>
                                             </td>
 
                                             <td>
 
-                                                <span class="badge badge-pending">
-
+                                                <span class="status-badge pending">
                                                     <i class="bi bi-clock"></i>
-
-                                                    @contract.Status
-
+                                                    Pending
                                                 </span>
 
                                             </td>
@@ -1090,11 +840,11 @@
                                             <td>
 
                                                 <a href="/HOD/Contracts?ContractId=@contract.Id"
-                                                       class="action-btn">
-
-                                                    <i class="bi bi-eye"></i>
+                                                   class="table-action">
 
                                                     Review
+
+                                                    <i class="bi bi-arrow-right"></i>
 
                                                 </a>
 
@@ -1106,225 +856,274 @@
                                 </tbody>
 
                             </table>
-                        }
-                        else
-                        {
-                            <div class="empty-state">
 
-                                <i class="bi bi-check-circle"></i>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
 
-                                <p>
-                                    There are no contracts awaiting your signature.
-                                </p>
-
+                            <div class="empty-icon">
+                                <i class="bi bi-check2-circle"></i>
                             </div>
-                        }
 
-                    </div>
+                            <h3>
+                                No contracts require your attention
+                            </h3>
+
+                            <p>
+                                Your department currently has no contracts
+                                awaiting HOD action.
+                            </p>
+
+                            <a href="/HOD/Contracts" class="empty-action">
+                                View contracts
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+
+                        </div>
+                    }
 
                 </section>
 
 
                 <!-- =================================================
-                     RECENT CLAIMS
+                     LOWER INFORMATION GRID
                 ================================================== -->
 
-                <section class="card">
+                <section class="lower-grid">
 
-                    <div class="card-header">
 
-                        <div class="card-title">
+                    <!-- DEPARTMENT RESPONSIBILITIES -->
 
-                            <div class="card-icon">
+                    <div class="panel responsibilities-panel">
 
-                                <i class="bi bi-cash-coin"></i>
+                        <div class="panel-header">
 
-                            </div>
+                            <div class="panel-heading">
 
-                            <div>
+                                <div class="panel-icon">
+                                    <i class="bi bi-clipboard-check-fill"></i>
+                                </div>
 
-                                <h2>
-                                    Recent Claims
-                                </h2>
+                                <div>
 
-                                <p>
-                                    Payment claims submitted by academic staff
-                                </p>
+                                    <h2>
+                                        Department Responsibilities
+                                    </h2>
+
+                                    <p>
+                                        Key activities under your supervision
+                                    </p>
+
+                                </div>
 
                             </div>
 
                         </div>
 
-                        <a href="/HOD/Claims"
-                           class="action-btn outline">
 
-                            View All
+                        <div class="responsibility-list">
 
-                            <i class="bi bi-arrow-right"></i>
+                            <div class="responsibility-item">
 
-                        </a>
+                                <div class="responsibility-icon">
+                                    <i class="bi bi-people"></i>
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Academic Staff
+                                    </strong>
+
+                                    <span>
+                                        Maintain lecturer records and engagement
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="responsibility-item">
+
+                                <div class="responsibility-icon">
+                                    <i class="bi bi-journal-check"></i>
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Course Assignments
+                                    </strong>
+
+                                    <span>
+                                        Monitor course allocations and workload
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="responsibility-item">
+
+                                <div class="responsibility-icon">
+                                    <i class="bi bi-file-earmark-check"></i>
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Contract Review
+                                    </strong>
+
+                                    <span>
+                                        Process departmental contract approvals
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="responsibility-item">
+
+                                <div class="responsibility-icon">
+                                    <i class="bi bi-cash-coin"></i>
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Claim Review
+                                    </strong>
+
+                                    <span>
+                                        Review eligible academic staff claims
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     </div>
 
 
-                    <div class="table-wrapper">
+                    <!-- RECENT CLAIMS -->
+
+                    <div class="panel claims-panel">
+
+                        <div class="panel-header">
+
+                            <div class="panel-heading">
+
+                                <div class="panel-icon">
+                                    <i class="bi bi-receipt-cutoff"></i>
+                                </div>
+
+                                <div>
+
+                                    <h2>
+                                        Recent Claims
+                                    </h2>
+
+                                    <p>
+                                        Latest department submissions
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <a href="/HOD/Claims" class="panel-link">
+                                View all
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+
+                        </div>
+
 
                         @if (Model.RecentClaims.Any())
                         {
-                            <table>
+                            <div class="claim-list">
 
-                                <thead>
+                                @foreach (var claim in Model.RecentClaims.Take(5))
+                                {
+                                    <div class="claim-item">
 
-                                    <tr>
+                                        <div class="claim-avatar">
+                                            @GetInitials(claim.LecturerName)
+                                        </div>
 
-                                        <th>
-                                            Claim ID
-                                        </th>
+                                        <div class="claim-info">
 
-                                        <th>
-                                            Lecturer
-                                        </th>
+                                            <strong>
+                                                @claim.LecturerName
+                                            </strong>
 
-                                        <th>
-                                            Contract
-                                        </th>
+                                            <span>
+                                                Claim CL@claim.Id.ToString("D3")
+                                                · Contract C@claim.ContractId.ToString("D3")
+                                            </span>
 
-                                        <th>
-                                            Status
-                                        </th>
+                                        </div>
 
-                                        <th>
-                                            Action
-                                        </th>
-
-                                    </tr>
-
-                                </thead>
-
-                                <tbody>
-
-                                    @foreach (var claim in Model.RecentClaims)
-                                    {
-                                        <tr>
-
-                                            <td>
-
-                                                <span class="id">
-                                                    CL@claim.Id.ToString("D3")
-                                                </span>
-
-                                            </td>
-
-                                            <td>
-
-                                                <span class="lecturer">
-                                                    @claim.LecturerName
-                                                </span>
-
-                                            </td>
-
-                                            <td>
-                                                C@claim.ContractId.ToString("D3")
-                                            </td>
-
-                                            <td>
-
-                                                @switch (claim.Status)
-                                                {
-                                                    case ClaimStatus.PendingHODApproval:
-                                                    case ClaimStatus.Submitted:
-                                                    {
-                                                        <span class="badge badge-review">
-
-                                                            <i class="bi bi-eye"></i>
-
-                                                            @claim.Status
-
-                                                        </span>
-
-                                                        break;
-                                                    }
-
-                                                    case ClaimStatus.Approved:
-                                                    {
-                                                        <span class="badge badge-approved">
-
-                                                            <i class="bi bi-check-circle"></i>
-
-                                                            Approved
-
-                                                        </span>
-
-                                                        break;
-                                                    }
-
-                                                    case ClaimStatus.Rejected:
-                                                    {
-                                                        <span class="badge badge-rejected">
-
-                                                            <i class="bi bi-x-circle"></i>
-
-                                                            Rejected
-
-                                                        </span>
-
-                                                        break;
-                                                    }
-
-                                                    case ClaimStatus.Paid:
-                                                    {
-                                                        <span class="badge badge-paid">
-
-                                                            <i class="bi bi-cash-stack"></i>
-
-                                                            Paid
-
-                                                        </span>
-
-                                                        break;
-                                                    }
-
-                                                    default:
-                                                    {
-                                                        <span class="badge badge-review">
-                                                            @claim.Status
-                                                        </span>
-
-                                                        break;
-                                                    }
-                                                }
-
-                                            </td>
-
-                                            <td>
-
-                                                <a href="/HOD/Claims"
-                                                   class="action-btn outline">
-
+                                        @switch (claim.Status)
+                                        {
+                                            case ClaimStatus.PendingHODApproval:
+                                            case ClaimStatus.Submitted:
+                                                <span class="status-badge review">
                                                     <i class="bi bi-eye"></i>
+                                                    Review
+                                                </span>
+                                                break;
 
-                                                    View
+                                            case ClaimStatus.Approved:
+                                                <span class="status-badge approved">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    Approved
+                                                </span>
+                                                break;
 
-                                                </a>
+                                            case ClaimStatus.Rejected:
+                                                <span class="status-badge rejected">
+                                                    <i class="bi bi-x-circle"></i>
+                                                    Rejected
+                                                </span>
+                                                break;
 
-                                            </td>
+                                            case ClaimStatus.Paid:
+                                                <span class="status-badge paid">
+                                                    <i class="bi bi-cash"></i>
+                                                    Paid
+                                                </span>
+                                                break;
 
-                                        </tr>
-                                    }
+                                            default:
+                                                <span class="status-badge review">
+                                                    @claim.Status
+                                                </span>
+                                                break;
+                                        }
 
-                                </tbody>
+                                    </div>
+                                }
 
-                            </table>
+                            </div>
                         }
                         else
                         {
-                            <div class="empty-state">
+                            <div class="compact-empty">
 
                                 <i class="bi bi-inbox"></i>
 
-                                <p>
-                                    No claims have been received for your department.
-                                </p>
+                                <span>
+                                    No recent claims for this department.
+                                </span>
 
                             </div>
                         }
@@ -1340,9 +1139,9 @@
     </div>
 
 
-    <!-- =========================================================
+    <!-- ============================================================
          FOOTER
-    ========================================================== -->
+    ============================================================= -->
 
     <footer class="footer">
 
@@ -1356,13 +1155,13 @@
 
                 <div>
 
-                    <h3>
+                    <strong>
                         UNILAK Portal
-                    </h3>
+                    </strong>
 
-                    <p>
+                    <span>
                         Academic Staff Engagement & Claim Processing System
-                    </p>
+                    </span>
 
                 </div>
 
@@ -1370,7 +1169,13 @@
 
             <div class="footer-right">
 
-                © @DateTime.Now.Year University of Lay Adventists of Kigali
+                <span>
+                    © @DateTime.Now.Year University of Lay Adventists of Kigali
+                </span>
+
+                <span>
+                    HOD Portal
+                </span>
 
             </div>
 
@@ -1379,5 +1184,21 @@
     </footer>
 
 </body>
-
 </html>
+
+@functions
+{
+    private static string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return "—";
+
+        var parts = name
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length == 1)
+            return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpperInvariant();
+
+        return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
+    }
+}

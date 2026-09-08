@@ -1,6 +1,7 @@
 ﻿@page
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ContractPreviewModel
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
+
 @{
     Layout = null;
     ViewData["Title"] = "Contract Preview";
@@ -9,129 +10,415 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Contract Preview · UNILAK ASECPS</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-<style>
-    * { box-sizing: border-box; }
-    :root {
-        --primary: #0f2b4a;
-        --primary-light: #1a3f64;
-        --accent: #2a7f5e;
-        --accent-light: #e1f0e8;
-        --bg: #f0f4fa;
-        --card: #ffffff;
-        --border: #dce4ed;
-        --text: #1a2634;
-        --text-muted: #4d6278;
-        --warning: #856404;
-        --warning-light: #fff3cd;
-        --radius: 16px;
-        --shadow: 0 12px 30px -10px rgba(0,20,40,0.12);
-    }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
-        font-family: 'Segoe UI', system-ui, sans-serif; }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 3rem; }
-    .top-bar {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-bottom: 1.5rem;
-    }
-    .top-bar a {
-        text-decoration: none; color: var(--primary); font-weight: 600;
-        font-size: 0.85rem;
-    }
-    .top-bar a i { margin-right: 0.4rem; }
-    .summary-card {
-        background: var(--primary); color: white; border-radius: var(--radius);
-        padding: 1.5rem 1.7rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
-    }
-    .summary-card h1 { margin: 0 0 0.3rem; font-size: 1.3rem; }
-    .summary-card p { margin: 0; opacity: 0.8; font-size: 0.85rem; }
-    .summary-grid {
-        display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
-        margin-top: 1.2rem;
-    }
-    .summary-item strong {
-        display: block; font-size: 0.68rem; text-transform: uppercase;
-        letter-spacing: 0.4px; opacity: 0.65; margin-bottom: 0.2rem;
-    }
-    .summary-item span { font-size: 0.9rem; }
-    .badge {
-        display: inline-block; padding: 0.25rem 0.7rem; border-radius: 30px;
-        font-size: 0.7rem; font-weight: 600; background: var(--warning-light);
-        color: var(--warning);
-    }
-    .card {
-        background: var(--card); border: 1px solid var(--border);
-        border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);
-    }
-    .card h2 {
-        margin: 0 0 1rem; font-size: 0.95rem; color: var(--primary);
-    }
-    .contract-text {
-        white-space: pre-wrap; font-family: 'Courier New', monospace;
-        font-size: 0.82rem; line-height: 1.6; color: var(--text);
-        background: #f8fafc; border: 1px solid var(--border); border-radius: 10px;
-        padding: 1.5rem; max-height: 600px; overflow-y: auto;
-    }
-    .error {
-        background: #fdecec; border-left: 4px solid #b42318; padding: 1rem;
-        border-radius: 8px; color: #b42318; font-size: 0.85rem;
-    }
-</style>
-</head>
-<body>
-<div class="wrap">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <title>Contract Preview · UNILAK ASECPS</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <!-- Contract Preview CSS -->
+    <link rel="stylesheet"
+          href="~/css/HOD/contract-preview.css"
+          asp-append-version="true" />
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <!-- =========================================================
+         TOP NAVIGATION
+         ========================================================= -->
     <div class="top-bar">
-        <a href="/HOD"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
-        <a href="/HOD/AssignCourse"><i class="fas fa-plus"></i> Assign Another Course</a>
+
+        <a href="/HOD" class="top-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+        </a>
+
+        <div class="top-actions">
+
+            <a href="/HOD/AssignCourse" class="top-link">
+                <i class="fas fa-plus"></i>
+                Assign Another Course
+            </a>
+
+            @if (Model.ErrorMessage == null)
+            {
+                <button type="button"
+                        class="print-button"
+                        onclick="window.print()">
+                    <i class="fas fa-print"></i>
+                    Print Contract
+                </button>
+            }
+
+        </div>
+
     </div>
+
 
     @if (Model.ErrorMessage != null)
     {
-        <div class="error">@Model.ErrorMessage</div>
+        <!-- =====================================================
+             ERROR
+             ===================================================== -->
+
+        <div class="error-card">
+
+            <div class="error-icon">
+                <i class="fas fa-circle-exclamation"></i>
+            </div>
+
+            <div>
+                <h2>Contract Not Found</h2>
+                <p>@Model.ErrorMessage</p>
+            </div>
+
+        </div>
     }
     else
     {
-        <div class="summary-card">
-            <h1>Contract Generated</h1>
-            <p>This contract has been created and is now pending the signature workflow.</p>
+
+        <!-- =====================================================
+             CONTRACT SUMMARY
+             ===================================================== -->
+
+        <section class="summary-card">
+
+            <div class="summary-header">
+
+                <div>
+                    <span class="eyebrow">
+                        CONTRACT GENERATED
+                    </span>
+
+                    <h1>Employment Contract</h1>
+
+                    <p>
+                        The contract has been created successfully and
+                        is now pending the signature workflow.
+                    </p>
+                </div>
+
+                <div class="contract-status">
+                    <span class="status-label">Status</span>
+                    <span class="status-badge">
+                        @Model.Status
+                    </span>
+                </div>
+
+            </div>
+
 
             <div class="summary-grid">
+
+                <!-- Lecturer -->
                 <div class="summary-item">
-                    <strong>Lecturer</strong>
-                    <span>@Model.LecturerName</span>
+
+                    <div class="summary-icon green">
+                        <i class="fas fa-user"></i>
+                    </div>
+
+                    <div>
+                        <span class="summary-label">Lecturer</span>
+                        <strong>@Model.LecturerName</strong>
+                    </div>
+
                 </div>
+
+
+                <!-- Course -->
                 <div class="summary-item">
-                    <strong>Course</strong>
-                    <span>@Model.CourseCode — @Model.CourseTitle</span>
+
+                    <div class="summary-icon blue">
+                        <i class="fas fa-book"></i>
+                    </div>
+
+                    <div>
+                        <span class="summary-label">Course</span>
+                        <strong>
+                            @Model.CourseCode — @Model.CourseTitle
+                        </strong>
+                    </div>
+
                 </div>
+
+
+                <!-- Academic Year -->
                 <div class="summary-item">
-                    <strong>Status</strong>
-                    <span class="badge">@Model.Status</span>
+
+                    <div class="summary-icon purple">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+
+                    <div>
+                        <span class="summary-label">Academic Year</span>
+                        <strong>
+                            @Model.AcademicYear
+                        </strong>
+                    </div>
+
                 </div>
+
+
+                <!-- Semester -->
                 <div class="summary-item">
-                    <strong>Academic Year</strong>
-                    <span>@Model.AcademicYear, @Model.Semester</span>
+
+                    <div class="summary-icon orange">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+
+                    <div>
+                        <span class="summary-label">Semester</span>
+                        <strong>
+                            @Model.Semester
+                        </strong>
+                    </div>
+
                 </div>
+
+
+                <!-- Campus -->
                 <div class="summary-item">
-                    <strong>Campus / Session</strong>
-                    <span>@Model.Campus, @Model.Session</span>
+
+                    <div class="summary-icon cyan">
+                        <i class="fas fa-building"></i>
+                    </div>
+
+                    <div>
+                        <span class="summary-label">Campus</span>
+                        <strong>
+                            @Model.Campus
+                        </strong>
+                    </div>
+
                 </div>
+
+
+                <!-- Session -->
                 <div class="summary-item">
-                    <strong>Hours / Rate</strong>
-                    <span>@Model.AllocatedHours.ToString("0.##")h @@ @Model.RatePerHour.ToString("N0") RWF/h</span>                </div>
+
+                    <div class="summary-icon red">
+                        <i class="fas fa-clock"></i>
+                    </div>
+
+                    <div>
+                        <span class="summary-label">Session</span>
+                        <strong>
+                            @Model.Session
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <!-- Hours -->
+                <div class="summary-item">
+
+                    <div class="summary-icon green">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+
+                    <div>
+                        <span class="summary-label">Allocated Hours</span>
+                        <strong>
+                            @Model.AllocatedHours.ToString("0.##") hours
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <!-- Rate -->
+                <div class="summary-item">
+
+                    <div class="summary-icon blue">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+
+                    <div>
+                        <span class="summary-label">Hourly Rate</span>
+                        <strong>
+                            @Model.RatePerHour.ToString("N0") RWF/hour
+                        </strong>
+                    </div>
+
+                </div>
+
             </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             SIGNATURE WORKFLOW
+             ===================================================== -->
+
+        <section class="workflow-card">
+
+            <div class="workflow-heading">
+
+                <div class="section-icon">
+                    <i class="fas fa-signature"></i>
+                </div>
+
+                <div>
+                    <h2>Contract Signature Workflow</h2>
+
+                    <p>
+                        The contract must be signed in the following
+                        order.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="workflow">
+
+                <div class="workflow-step active">
+                    <span class="step-number">1</span>
+                    <div>
+                        <strong>Lecturer</strong>
+                        <span>First signature</span>
+                    </div>
+                </div>
+
+                <div class="workflow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <div class="workflow-step">
+                    <span class="step-number">2</span>
+                    <div>
+                        <strong>Dean</strong>
+                        <span>Faculty approval</span>
+                    </div>
+                </div>
+
+                <div class="workflow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <div class="workflow-step">
+                    <span class="step-number">3</span>
+                    <div>
+                        <strong>HR Officer</strong>
+                        <span>HR verification</span>
+                    </div>
+                </div>
+
+                <div class="workflow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <div class="workflow-step">
+                    <span class="step-number">4</span>
+                    <div>
+                        <strong>DVCAR</strong>
+                        <span>Academic review</span>
+                    </div>
+                </div>
+
+                <div class="workflow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <div class="workflow-step">
+                    <span class="step-number">5</span>
+                    <div>
+                        <strong>Vice Chancellor</strong>
+                        <span>Final approval</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             OFFICIAL CONTRACT DOCUMENT
+             ===================================================== -->
+
+        <section class="document-section">
+
+            <div class="document-toolbar">
+
+                <div class="document-title">
+
+                    <div class="document-icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+
+                    <div>
+                        <h2>Official Contract Document</h2>
+                        <p>
+                            Generated employment contract
+                        </p>
+                    </div>
+
+                </div>
+
+                <button type="button"
+                        class="toolbar-print"
+                        onclick="window.print()">
+                    <i class="fas fa-print"></i>
+                    Print
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 IMPORTANT:
+                 ContractContent contains trusted,
+                 server-generated HTML.
+                 ================================================= -->
+
+            <div class="document-container">
+
+                <div class="contract-document">
+                    @Html.Raw(Model.ContractContent)
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             FOOTER NOTE
+             ===================================================== -->
+
+        <div class="information-note">
+
+            <div class="information-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+
+            <div>
+                <strong>Signature process</strong>
+
+                <p>
+                    This contract follows the official ASECPS approval
+                    sequence:
+                    Lecturer → Dean → HR Officer → DVCAR →
+                    Vice Chancellor.
+                    Each officer must complete their step before the
+                    contract proceeds to the next stage.
+                </p>
+            </div>
+
         </div>
 
-        <div class="card">
-            <h2><i class="fas fa-file-contract"></i> Contract Document</h2>
-            <div class="contract-text">@Model.ContractContent</div>
-        </div>
     }
 
 </div>
+
 </body>
 </html>

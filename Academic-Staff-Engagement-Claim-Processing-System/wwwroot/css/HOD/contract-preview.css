@@ -1,0 +1,922 @@
+/* ============================================================
+   CONTRACT PREVIEW
+   Academic Staff Engagement Claim Processing System
+   UNILAK
+   ============================================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --navy: #071a33;
+    --navy-light: #0f2b4a;
+    --green: #047857;
+    --green-light: #ecfdf5;
+    --green-border: #a7f3d0;
+    --blue: #2563eb;
+    --blue-light: #eff6ff;
+    --purple: #7c3aed;
+    --purple-light: #f5f3ff;
+    --orange: #d97706;
+    --orange-light: #fffbeb;
+    --cyan: #0891b2;
+    --cyan-light: #ecfeff;
+    --red: #b91c1c;
+    --red-light: #fef2f2;
+    --page-bg: #f8fafc;
+    --white: #ffffff;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --muted: #64748b;
+    --shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+    --shadow-large: 0 15px 40px rgba(15, 23, 42, 0.10);
+}
+
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    background: var(--page-bg);
+    color: var(--text);
+    font-family: "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif;
+}
+
+.page-wrapper {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 32px 30px 60px;
+}
+
+
+/* ============================================================
+   TOP BAR
+   ============================================================ */
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.top-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--navy);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+    .top-link:hover {
+        color: var(--green);
+        transform: translateY(-1px);
+    }
+
+    .top-link i {
+        font-size: 13px;
+    }
+
+.print-button,
+.toolbar-print {
+    border: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+    .print-button:hover,
+    .toolbar-print:hover {
+        background: #065f46;
+        transform: translateY(-1px);
+    }
+
+
+/* ============================================================
+   ERROR
+   ============================================================ */
+
+.error-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    background: var(--red-light);
+    border: 1px solid #fecaca;
+    border-left: 4px solid var(--red);
+    border-radius: 12px;
+    padding: 22px;
+    color: var(--red);
+}
+
+.error-icon {
+    font-size: 22px;
+}
+
+.error-card h2 {
+    margin: 0 0 5px;
+    font-size: 17px;
+}
+
+.error-card p {
+    margin: 0;
+    color: #991b1b;
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   SUMMARY CARD
+   ============================================================ */
+
+.summary-card {
+    background: var(--navy);
+    color: white;
+    border-radius: 15px;
+    padding: 28px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow-large);
+}
+
+.summary-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 30px;
+    padding-bottom: 23px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.eyebrow {
+    display: inline-block;
+    margin-bottom: 7px;
+    color: #6ee7b7;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+}
+
+.summary-header h1 {
+    margin: 0 0 7px;
+    font-size: 24px;
+    line-height: 1.25;
+}
+
+.summary-header p {
+    margin: 0;
+    max-width: 650px;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.contract-status {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.status-label {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 13px;
+    border-radius: 30px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+
+/* ============================================================
+   SUMMARY GRID
+   ============================================================ */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 22px;
+    background: rgba(255, 255, 255, 0.10);
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+    padding: 15px 13px;
+    background: var(--navy);
+}
+
+.summary-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+    .summary-icon.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: #6ee7b7;
+    }
+
+    .summary-icon.blue {
+        background: rgba(59, 130, 246, 0.15);
+        color: #93c5fd;
+    }
+
+    .summary-icon.purple {
+        background: rgba(139, 92, 246, 0.15);
+        color: #c4b5fd;
+    }
+
+    .summary-icon.orange {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fcd34d;
+    }
+
+    .summary-icon.cyan {
+        background: rgba(6, 182, 212, 0.15);
+        color: #67e8f9;
+    }
+
+    .summary-icon.red {
+        background: rgba(239, 68, 68, 0.15);
+        color: #fca5a5;
+    }
+
+.summary-item > div:last-child {
+    min-width: 0;
+}
+
+.summary-label {
+    display: block;
+    margin-bottom: 3px;
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.summary-item strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   WORKFLOW CARD
+   ============================================================ */
+
+.workflow-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 23px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+}
+
+.workflow-heading {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 20px;
+}
+
+.section-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: var(--green-light);
+    color: var(--green);
+    font-size: 15px;
+}
+
+.workflow-heading h2 {
+    margin: 0 0 3px;
+    color: var(--navy);
+    font-size: 15px;
+}
+
+.workflow-heading p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+
+/* ============================================================
+   WORKFLOW STEPS
+   ============================================================ */
+
+.workflow {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.workflow-step {
+    flex: 1;
+    min-width: 135px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+    .workflow-step.active {
+        background: var(--green-light);
+        border-color: var(--green-border);
+    }
+
+.step-number {
+    width: 27px;
+    height: 27px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.workflow-step.active .step-number {
+    background: var(--green);
+    color: white;
+}
+
+.workflow-step strong {
+    display: block;
+    margin-bottom: 2px;
+    color: #1e293b;
+    font-size: 10px;
+}
+
+.workflow-step span:not(.step-number) {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.workflow-arrow {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    color: #94a3b8;
+    font-size: 10px;
+}
+
+
+/* ============================================================
+   DOCUMENT SECTION
+   ============================================================ */
+
+.document-section {
+    margin-bottom: 22px;
+}
+
+.document-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 13px;
+}
+
+.document-title {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.document-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: var(--blue-light);
+    color: var(--blue);
+    font-size: 15px;
+}
+
+.document-title h2 {
+    margin: 0 0 3px;
+    color: var(--navy);
+    font-size: 16px;
+}
+
+.document-title p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.toolbar-print {
+    background: white;
+    border: 1px solid var(--border);
+    color: var(--navy);
+}
+
+    .toolbar-print:hover {
+        background: #f8fafc;
+        color: var(--green);
+    }
+
+
+/* ============================================================
+   DOCUMENT CONTAINER
+   ============================================================ */
+
+.document-container {
+    background: #e9eef5;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 35px;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+}
+
+
+/* ============================================================
+   OFFICIAL CONTRACT PAPER
+   ============================================================ */
+
+.contract-document {
+    width: 100%;
+    max-width: 850px;
+    min-height: 1100px;
+    margin: 0 auto;
+    padding: 65px 70px;
+    background: white;
+    border: 1px solid #d9dee7;
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.10);
+    color: #111827;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+
+    /* ============================================================
+   STRUCTURED HTML GENERATED BY AssignCourse.cshtml.cs
+   ============================================================ */
+
+    .contract-document .official-contract {
+        width: 100%;
+    }
+
+    .contract-document .contract-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+        .contract-document .contract-header h1,
+        .contract-document .contract-header h2,
+        .contract-document .contract-header h3 {
+            margin: 0;
+            color: #111827;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        .contract-document .contract-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .contract-document .contract-header h2 {
+            margin-top: 5px;
+            font-size: 17px;
+        }
+
+        .contract-document .contract-header h3 {
+            margin-top: 15px;
+            font-size: 18px;
+            text-transform: uppercase;
+            text-decoration: underline;
+        }
+
+    .contract-document .contract-date {
+        margin-top: 15px;
+        font-size: 13px;
+    }
+
+
+    /* ============================================================
+   CONTRACT INTRODUCTION
+   ============================================================ */
+
+    .contract-document .contract-introduction {
+        margin-bottom: 20px;
+        text-align: justify;
+    }
+
+    .contract-document p {
+        margin: 0 0 12px;
+        text-align: justify;
+    }
+
+    .contract-document strong {
+        font-weight: 700;
+    }
+
+
+    /* ============================================================
+   APPOINTMENT DETAILS
+   ============================================================ */
+
+    .contract-document .appointment-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0 25px;
+        font-size: 13px;
+    }
+
+        .contract-document .appointment-table th,
+        .contract-document .appointment-table td {
+            border: 1px solid #444;
+            padding: 8px 10px;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .contract-document .appointment-table th {
+            width: 32%;
+            background: #f1f1f1;
+            font-weight: 700;
+        }
+
+
+    /* ============================================================
+   ARTICLES
+   ============================================================ */
+
+    .contract-document .article {
+        margin-top: 22px;
+        page-break-inside: avoid;
+    }
+
+    .contract-document .article-title {
+        margin: 0 0 8px;
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .contract-document .article p {
+        margin-bottom: 8px;
+    }
+
+    .contract-document .article ul,
+    .contract-document .article ol {
+        margin-top: 5px;
+        margin-bottom: 10px;
+        padding-left: 30px;
+    }
+
+    .contract-document .article li {
+        margin-bottom: 5px;
+        text-align: justify;
+    }
+
+
+    /* ============================================================
+   DECLARATION
+   ============================================================ */
+
+    .contract-document .declaration {
+        margin-top: 30px;
+        padding-top: 15px;
+        border-top: 1px solid #777;
+        page-break-inside: avoid;
+    }
+
+
+    /* ============================================================
+   SIGNATURE SECTION
+   ============================================================ */
+
+    .contract-document .signature-section {
+        margin-top: 35px;
+        page-break-inside: avoid;
+    }
+
+        .contract-document .signature-section h3 {
+            margin: 0 0 15px;
+            font-size: 15px;
+            text-align: center;
+            text-transform: uppercase;
+            text-decoration: underline;
+        }
+
+    .contract-document .signature-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+        .contract-document .signature-table th,
+        .contract-document .signature-table td {
+            border: 1px solid #555;
+            padding: 12px 10px;
+            vertical-align: bottom;
+        }
+
+        .contract-document .signature-table th {
+            background: #f2f2f2;
+            text-align: left;
+            font-weight: 700;
+        }
+
+    .contract-document .signature-line {
+        display: block;
+        min-height: 35px;
+        border-bottom: 1px solid #333;
+        margin-bottom: 5px;
+    }
+
+
+    /* ============================================================
+   CONTRACT FOOTER
+   ============================================================ */
+
+    .contract-document .contract-footer {
+        margin-top: 35px;
+        padding-top: 12px;
+        border-top: 1px solid #777;
+        text-align: center;
+        font-size: 10px;
+        color: #555;
+    }
+
+
+/* ============================================================
+   INFORMATION NOTE
+   ============================================================ */
+
+.information-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    background: var(--blue-light);
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 17px 18px;
+    color: #1e3a8a;
+}
+
+.information-icon {
+    padding-top: 2px;
+    font-size: 17px;
+}
+
+.information-note strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #1e40af;
+    font-size: 12px;
+}
+
+.information-note p {
+    margin: 0;
+    color: #1e40af;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1000px) {
+
+    .page-wrapper {
+        padding: 25px 20px 50px;
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .workflow-step {
+        min-width: 150px;
+    }
+
+    .document-container {
+        padding: 25px;
+    }
+
+    .contract-document {
+        padding: 50px;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .page-wrapper {
+        padding: 20px 14px 40px;
+    }
+
+    .top-bar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .top-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .summary-card {
+        padding: 21px;
+    }
+
+    .summary-header {
+        flex-direction: column;
+    }
+
+    .contract-status {
+        align-items: flex-start;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .workflow-card {
+        padding: 18px;
+    }
+
+    .workflow {
+        flex-direction: column;
+        overflow-x: visible;
+    }
+
+    .workflow-step {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .workflow-arrow {
+        width: 100%;
+        height: 22px;
+        transform: rotate(90deg);
+    }
+
+    .document-container {
+        padding: 12px;
+    }
+
+    .contract-document {
+        min-height: auto;
+        padding: 35px 25px;
+        font-size: 13px;
+    }
+
+        .contract-document .appointment-table,
+        .contract-document .signature-table {
+            font-size: 11px;
+        }
+
+            .contract-document .appointment-table th,
+            .contract-document .appointment-table td,
+            .contract-document .signature-table th,
+            .contract-document .signature-table td {
+                padding: 6px;
+            }
+}
+
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+
+@media print {
+
+    @page {
+        size: A4;
+        margin: 15mm;
+    }
+
+    html,
+    body {
+        background: white;
+    }
+
+    .page-wrapper {
+        max-width: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .top-bar,
+    .summary-card,
+    .workflow-card,
+    .document-toolbar,
+    .information-note {
+        display: none !important;
+    }
+
+    .document-section {
+        margin: 0;
+    }
+
+    .document-container {
+        padding: 0;
+        border: 0;
+        background: white;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    .contract-document {
+        width: 100%;
+        max-width: none;
+        min-height: auto;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        box-shadow: none;
+        font-size: 12pt;
+        line-height: 1.55;
+    }
+
+        .contract-document .article {
+            page-break-inside: avoid;
+        }
+
+        .contract-document .signature-section {
+            page-break-inside: avoid;
+        }
+
+        .contract-document .appointment-table,
+        .contract-document .signature-table {
+            page-break-inside: avoid;
+        }
+}
