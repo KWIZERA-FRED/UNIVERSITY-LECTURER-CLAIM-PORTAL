@@ -24,23 +24,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
             _signingService = signingService;
         }
 
-        // ============================================================
-        // CONTRACT LIST
-        // ============================================================
-
         public List<ContractRow> Contracts { get; set; } = new();
-
-        // ============================================================
-        // SELECTED CONTRACT
-        // ============================================================
 
         public ContractReviewDto? SelectedContract { get; set; }
 
-        public List<SignatureStepRow> SelectedSignatureSteps { get; set; } = new();
-
-        // ============================================================
-        // BINDINGS
-        // ============================================================
+        public List<SignatureStepRow> SelectedSignatureSteps { get; set; } =
+            new();
 
         [BindProperty(SupportsGet = true)]
         public int? ContractId { get; set; }
@@ -48,35 +37,37 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         [BindProperty]
         public string? DeclineReason { get; set; }
 
-        // ============================================================
-        // MESSAGES
-        // ============================================================
-
         public string? SuccessMessage { get; set; }
 
         public string? ErrorMessage { get; set; }
 
         // ============================================================
-        // CONTRACT LIST ROW
+        // CONTRACT ROW
         // ============================================================
 
         public class ContractRow
         {
             public int ContractId { get; set; }
 
-            public string LecturerName { get; set; } = string.Empty;
+            public string LecturerName { get; set; } =
+                string.Empty;
 
-            public string CourseTitle { get; set; } = string.Empty;
+            public string CourseTitle { get; set; } =
+                string.Empty;
 
-            public string Department { get; set; } = string.Empty;
+            public string Department { get; set; } =
+                string.Empty;
 
-            public string Version { get; set; } = string.Empty;
+            public string Version { get; set; } =
+                string.Empty;
 
             public ContractStatus Status { get; set; }
 
-            public string CurrentStage { get; set; } = string.Empty;
+            public string CurrentStage { get; set; } =
+                string.Empty;
 
-            public string CurrentStageCss { get; set; } = string.Empty;
+            public string CurrentStageCss { get; set; } =
+                string.Empty;
 
             public DateTime CreatedAtUtc { get; set; }
 
@@ -88,7 +79,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         }
 
         // ============================================================
-        // SIGNATURE TIMELINE ROW
+        // SIGNATURE STEP
         // ============================================================
 
         public class SignatureStepRow
@@ -99,17 +90,26 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
 
             public SignerRole SignerRole { get; set; }
 
-            public string RoleName { get; set; } = string.Empty;
+            public string RoleName { get; set; } =
+                string.Empty;
 
             public SignatureDecision Decision { get; set; }
 
-            public string DecisionName { get; set; } = string.Empty;
+            public string DecisionName { get; set; } =
+                string.Empty;
 
-            public string DecisionCss { get; set; } = string.Empty;
+            public string DecisionCss { get; set; } =
+                string.Empty;
 
             public DateTime? SignedAtUtc { get; set; }
 
             public string? Comments { get; set; }
+
+            // ========================================================
+            // NEW: ACTUAL SIGNATURE IMAGE
+            // ========================================================
+
+            public string? SignatureFilePath { get; set; }
 
             public bool IsCurrent { get; set; }
 
@@ -129,9 +129,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
             await LoadContractsAsync();
 
             if (ContractId.HasValue)
-            {
-                await LoadSelectedContractAsync(ContractId.Value);
-            }
+                await LoadSelectedContractAsync(
+                    ContractId.Value);
         }
 
         // ============================================================
@@ -142,34 +141,39 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         public async Task<IActionResult> OnPostSignAsync()
         {
             if (!ContractId.HasValue)
-            {
                 return RedirectToPage();
-            }
 
-            var (actorId, actorUsername, actorRole, ipAddress) =
-                GetActorContext();
-
-            var result = await _signingService.SignAsync(
-                ContractId.Value,
-                SignerRole.Dean,
+            var (
                 actorId,
                 actorUsername,
                 actorRole,
-                ipAddress);
+                ipAddress) = GetActorContext();
+
+            var result =
+                await _signingService.SignAsync(
+                    ContractId.Value,
+                    SignerRole.Dean,
+                    actorId,
+                    actorUsername,
+                    actorRole,
+                    ipAddress);
 
             if (!result.Succeeded)
             {
                 ErrorMessage =
-                    result.ErrorMessage ??
-                    "The contract could not be signed.";
+                    result.ErrorMessage
+                    ?? "The contract could not be signed.";
             }
             else
             {
-                SuccessMessage = "Contract signed successfully.";
+                SuccessMessage =
+                    "Contract signed successfully.";
             }
 
             await LoadContractsAsync();
-            await LoadSelectedContractAsync(ContractId.Value);
+
+            await LoadSelectedContractAsync(
+                ContractId.Value);
 
             return Page();
         }
@@ -182,209 +186,262 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         public async Task<IActionResult> OnPostDeclineAsync()
         {
             if (!ContractId.HasValue)
-            {
                 return RedirectToPage();
-            }
 
-            if (string.IsNullOrWhiteSpace(DeclineReason))
+            if (string.IsNullOrWhiteSpace(
+                    DeclineReason))
             {
                 ErrorMessage =
                     "Please provide a reason for declining this contract.";
 
                 await LoadContractsAsync();
-                await LoadSelectedContractAsync(ContractId.Value);
+
+                await LoadSelectedContractAsync(
+                    ContractId.Value);
 
                 return Page();
             }
 
-            var (actorId, actorUsername, actorRole, ipAddress) =
-                GetActorContext();
-
-            var result = await _signingService.DeclineAsync(
-                ContractId.Value,
-                SignerRole.Dean,
+            var (
                 actorId,
-                DeclineReason.Trim(),
                 actorUsername,
                 actorRole,
-                ipAddress);
+                ipAddress) = GetActorContext();
+
+            var result =
+                await _signingService.DeclineAsync(
+                    ContractId.Value,
+                    SignerRole.Dean,
+                    actorId,
+                    DeclineReason.Trim(),
+                    actorUsername,
+                    actorRole,
+                    ipAddress);
 
             if (!result.Succeeded)
             {
                 ErrorMessage =
-                    result.ErrorMessage ??
-                    "The contract could not be declined.";
+                    result.ErrorMessage
+                    ?? "The contract could not be declined.";
             }
             else
             {
-                SuccessMessage = "Contract declined successfully.";
+                SuccessMessage =
+                    "Contract declined successfully.";
             }
 
             await LoadContractsAsync();
-            await LoadSelectedContractAsync(ContractId.Value);
+
+            await LoadSelectedContractAsync(
+                ContractId.Value);
 
             return Page();
         }
 
         // ============================================================
-        // LOAD ALL CONTRACTS
+        // LOAD CONTRACTS
         // ============================================================
 
         private async Task LoadContractsAsync()
         {
-            var contracts = await _context.Contracts
-                .AsNoTracking()
-                .Include(c => c.Lecturer)
-                .Include(c => c.CourseAssignment)
-                    .ThenInclude(ca => ca!.Course)
-                .OrderByDescending(c => c.CreatedAtUtc)
-                .ToListAsync();
+            var contracts =
+                await _context.Contracts
+                    .AsNoTracking()
+                    .Include(c => c.Lecturer)
+                    .Include(c => c.CourseAssignment)
+                        .ThenInclude(ca => ca!.Course)
+                    .OrderByDescending(
+                        c => c.CreatedAtUtc)
+                    .ToListAsync();
 
-            var contractIds = contracts
-                .Select(c => c.Id)
-                .ToList();
+            var contractIds =
+                contracts
+                    .Select(c => c.Id)
+                    .ToList();
 
-            var signatures = await _context.ContractSignatures
-                .AsNoTracking()
-                .Where(cs => contractIds.Contains(cs.ContractId))
-                .OrderBy(cs => cs.ContractId)
-                .ThenBy(cs => cs.SequenceOrder)
-                .ToListAsync();
+            var signatures =
+                await _context.ContractSignatures
+                    .AsNoTracking()
+                    .Where(cs =>
+                        contractIds.Contains(cs.ContractId))
+                    .OrderBy(cs => cs.ContractId)
+                    .ThenBy(cs => cs.SequenceOrder)
+                    .ToListAsync();
 
-            Contracts = contracts
-                .Select(contract =>
-                {
-                    var contractSignatures = signatures
-                        .Where(cs => cs.ContractId == contract.Id)
-                        .OrderBy(cs => cs.SequenceOrder)
-                        .ToList();
-
-                    var currentStep =
-                        GetCurrentSignatureStep(contractSignatures);
-
-                    bool isDeclined =
-                        contractSignatures.Any(cs =>
-                            cs.Decision == SignatureDecision.Declined);
-
-                    bool isCompleted =
-                        contractSignatures.Count > 0 &&
-                        contractSignatures.All(cs =>
-                            cs.Decision == SignatureDecision.Signed);
-
-                    bool isAwaitingDean =
-                        contractSignatures.Any(cs =>
-                            cs.SignerRole == SignerRole.Dean &&
-                            cs.Decision == SignatureDecision.Pending) &&
-                        IsStepCurrentlyAvailable(
-                            contractSignatures,
-                            SignerRole.Dean);
-
-                    string currentStage =
-                        GetCurrentStage(
-                            contractSignatures,
-                            currentStep,
-                            isDeclined,
-                            isCompleted);
-
-                    return new ContractRow
+            Contracts =
+                contracts
+                    .Select(contract =>
                     {
-                        ContractId = contract.Id,
+                        var contractSignatures =
+                            signatures
+                                .Where(cs =>
+                                    cs.ContractId ==
+                                    contract.Id)
+                                .OrderBy(
+                                    cs => cs.SequenceOrder)
+                                .ToList();
 
-                        LecturerName =
-                            contract.Lecturer?.UserName ?? "Unknown",
+                        var currentStep =
+                            GetCurrentSignatureStep(
+                                contractSignatures);
 
-                        CourseTitle =
-                            contract.CourseAssignment?.Course?.Title
-                            ?? "—",
+                        bool isDeclined =
+                            contractSignatures.Any(
+                                cs =>
+                                    cs.Decision ==
+                                    SignatureDecision.Declined);
 
-                        Department =
-                            contract.CourseAssignment?.Course?.Department
-                            ?? "—",
+                        bool isCompleted =
+                            contractSignatures.Count > 0 &&
+                            contractSignatures.All(
+                                cs =>
+                                    cs.Decision ==
+                                    SignatureDecision.Signed);
 
-                        Version = contract.Version,
+                        bool isAwaitingDean =
+                            contractSignatures.Any(
+                                cs =>
+                                    cs.SignerRole ==
+                                        SignerRole.Dean &&
+                                    cs.Decision ==
+                                        SignatureDecision.Pending) &&
+                            IsStepCurrentlyAvailable(
+                                contractSignatures,
+                                SignerRole.Dean);
 
-                        Status = contract.Status,
-
-                        CurrentStage = currentStage,
-
-                        CurrentStageCss =
-                            GetStageCss(
+                        string currentStage =
+                            GetCurrentStage(
+                                contractSignatures,
                                 currentStep,
                                 isDeclined,
-                                isCompleted),
+                                isCompleted);
 
-                        CreatedAtUtc = contract.CreatedAtUtc,
+                        return new ContractRow
+                        {
+                            ContractId =
+                                contract.Id,
 
-                        IsAwaitingDean = isAwaitingDean,
+                            LecturerName =
+                                contract.Lecturer?.UserName
+                                ?? "Unknown",
 
-                        IsDeclined = isDeclined,
+                            CourseTitle =
+                                contract.CourseAssignment?.Course?.Title
+                                ?? "—",
 
-                        IsCompleted = isCompleted
-                    };
-                })
-                .ToList();
+                            Department =
+                                contract.CourseAssignment?.Course?.Department
+                                ?? "—",
+
+                            Version =
+                                contract.Version,
+
+                            Status =
+                                contract.Status,
+
+                            CurrentStage =
+                                currentStage,
+
+                            CurrentStageCss =
+                                GetStageCss(
+                                    currentStep,
+                                    isDeclined,
+                                    isCompleted),
+
+                            CreatedAtUtc =
+                                contract.CreatedAtUtc,
+
+                            IsAwaitingDean =
+                                isAwaitingDean,
+
+                            IsDeclined =
+                                isDeclined,
+
+                            IsCompleted =
+                                isCompleted
+                        };
+                    })
+                    .ToList();
         }
 
         // ============================================================
         // LOAD SELECTED CONTRACT
         // ============================================================
 
-        private async Task LoadSelectedContractAsync(int contractId)
+        private async Task LoadSelectedContractAsync(
+            int contractId)
         {
             SelectedContract =
-                await _signingService.GetContractForReviewAsync(
-                    contractId,
-                    SignerRole.Dean);
+                await _signingService
+                    .GetContractForReviewAsync(
+                        contractId,
+                        SignerRole.Dean);
 
             if (SelectedContract == null)
             {
                 ErrorMessage =
                     "That contract could not be found.";
 
-                SelectedSignatureSteps = new();
+                SelectedSignatureSteps =
+                    new();
 
                 return;
             }
 
             SelectedSignatureSteps =
-                await LoadSignatureTimelineAsync(contractId);
+                await LoadSignatureTimelineAsync(
+                    contractId);
         }
 
         // ============================================================
-        // LOAD SIGNATURE TIMELINE
+        // SIGNATURE TIMELINE
         // ============================================================
 
         private async Task<List<SignatureStepRow>>
-            LoadSignatureTimelineAsync(int contractId)
+            LoadSignatureTimelineAsync(
+                int contractId)
         {
-            var signatures = await _context.ContractSignatures
-                .AsNoTracking()
-                .Where(cs => cs.ContractId == contractId)
-                .OrderBy(cs => cs.SequenceOrder)
-                .ToListAsync();
+            var signatures =
+                await _context.ContractSignatures
+                    .AsNoTracking()
+                    .Where(cs =>
+                        cs.ContractId ==
+                        contractId)
+                    .OrderBy(
+                        cs => cs.SequenceOrder)
+                    .ToListAsync();
 
             bool hasDeclined =
-                signatures.Any(cs =>
-                    cs.Decision == SignatureDecision.Declined);
+                signatures.Any(
+                    cs =>
+                        cs.Decision ==
+                        SignatureDecision.Declined);
 
             bool allSigned =
                 signatures.Count > 0 &&
-                signatures.All(cs =>
-                    cs.Decision == SignatureDecision.Signed);
+                signatures.All(
+                    cs =>
+                        cs.Decision ==
+                        SignatureDecision.Signed);
 
             ContractSignature? currentStep = null;
 
-            if (!hasDeclined && !allSigned)
+            if (!hasDeclined &&
+                !allSigned)
             {
-                currentStep = signatures
-                    .FirstOrDefault(cs =>
-                        cs.Decision == SignatureDecision.Pending);
+                currentStep =
+                    signatures.FirstOrDefault(
+                        cs =>
+                            cs.Decision ==
+                            SignatureDecision.Pending);
             }
             else if (hasDeclined)
             {
-                currentStep = signatures
-                    .FirstOrDefault(cs =>
-                        cs.Decision == SignatureDecision.Declined);
+                currentStep =
+                    signatures.FirstOrDefault(
+                        cs =>
+                            cs.Decision ==
+                            SignatureDecision.Declined);
             }
 
             return signatures
@@ -404,7 +461,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
 
                     return new SignatureStepRow
                     {
-                        SignatureId = signature.Id,
+                        SignatureId =
+                            signature.Id,
 
                         SequenceOrder =
                             signature.SequenceOrder,
@@ -433,22 +491,33 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                         Comments =
                             signature.Comments,
 
+                        // ============================================
+                        // NEW
+                        // ============================================
+
+                        SignatureFilePath =
+                            signature.SignatureFilePath,
+
                         IsCurrent =
                             currentStep != null &&
-                            signature.Id == currentStep.Id,
+                            signature.Id ==
+                            currentStep.Id,
 
-                        IsSigned = isSigned,
+                        IsSigned =
+                            isSigned,
 
-                        IsPending = isPending,
+                        IsPending =
+                            isPending,
 
-                        IsDeclined = isDeclined
+                        IsDeclined =
+                            isDeclined
                     };
                 })
                 .ToList();
         }
 
         // ============================================================
-        // CURRENT SIGNATURE STEP
+        // CURRENT STEP
         // ============================================================
 
         private static ContractSignature?
@@ -456,35 +525,34 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                 List<ContractSignature> signatures)
         {
             if (signatures.Count == 0)
-            {
                 return null;
-            }
 
-            var declinedStep = signatures
-                .FirstOrDefault(cs =>
-                    cs.Decision == SignatureDecision.Declined);
+            var declinedStep =
+                signatures.FirstOrDefault(
+                    cs =>
+                        cs.Decision ==
+                        SignatureDecision.Declined);
 
             if (declinedStep != null)
-            {
                 return declinedStep;
-            }
 
-            var pendingStep = signatures
-                .FirstOrDefault(cs =>
-                    cs.Decision == SignatureDecision.Pending);
+            var pendingStep =
+                signatures.FirstOrDefault(
+                    cs =>
+                        cs.Decision ==
+                        SignatureDecision.Pending);
 
             if (pendingStep != null)
-            {
                 return pendingStep;
-            }
 
             return signatures
-                .OrderByDescending(cs => cs.SequenceOrder)
+                .OrderByDescending(
+                    cs => cs.SequenceOrder)
                 .FirstOrDefault();
         }
 
         // ============================================================
-        // CURRENT STAGE TEXT
+        // CURRENT STAGE
         // ============================================================
 
         private static string GetCurrentStage(
@@ -494,59 +562,67 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
             bool isCompleted)
         {
             if (signatures.Count == 0)
-            {
                 return "Not Started";
-            }
 
-            if (isDeclined && currentStep != null)
+            if (isDeclined &&
+                currentStep != null)
             {
-                return $"Declined by {FormatSignerRole(currentStep.SignerRole)}";
+                return
+                    $"Declined by " +
+                    $"{FormatSignerRole(currentStep.SignerRole)}";
             }
 
             if (isCompleted)
-            {
                 return "Completed";
-            }
 
-            var pendingStep = signatures
-                .FirstOrDefault(cs =>
-                    cs.Decision == SignatureDecision.Pending);
+            var pendingStep =
+                signatures.FirstOrDefault(
+                    cs =>
+                        cs.Decision ==
+                        SignatureDecision.Pending);
 
             if (pendingStep != null)
             {
-                return $"Awaiting {FormatSignerRole(pendingStep.SignerRole)}";
+                return
+                    $"Awaiting " +
+                    $"{FormatSignerRole(pendingStep.SignerRole)}";
             }
 
             return "In Progress";
         }
 
         // ============================================================
-        // CHECK WHETHER A ROLE'S STEP IS CURRENTLY AVAILABLE
+        // CHECK STEP AVAILABILITY
         // ============================================================
 
         private static bool IsStepCurrentlyAvailable(
             List<ContractSignature> signatures,
             SignerRole role)
         {
-            var step = signatures
-                .FirstOrDefault(cs =>
-                    cs.SignerRole == role);
+            var step =
+                signatures.FirstOrDefault(
+                    cs =>
+                        cs.SignerRole ==
+                        role);
 
             if (step == null ||
-                step.Decision != SignatureDecision.Pending)
+                step.Decision !=
+                SignatureDecision.Pending)
             {
                 return false;
             }
 
             return signatures
                 .Where(cs =>
-                    cs.SequenceOrder < step.SequenceOrder)
+                    cs.SequenceOrder <
+                    step.SequenceOrder)
                 .All(cs =>
-                    cs.Decision == SignatureDecision.Signed);
+                    cs.Decision ==
+                    SignatureDecision.Signed);
         }
 
         // ============================================================
-        // SIGNER ROLE DISPLAY
+        // ROLE
         // ============================================================
 
         private static string FormatSignerRole(
@@ -575,7 +651,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         }
 
         // ============================================================
-        // DECISION DISPLAY
+        // DECISION
         // ============================================================
 
         private static string FormatDecision(
@@ -630,25 +706,19 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
             bool isCompleted)
         {
             if (isDeclined)
-            {
                 return "declined";
-            }
 
             if (isCompleted)
-            {
                 return "completed";
-            }
 
             if (currentStep == null)
-            {
                 return "not-started";
-            }
 
             return "pending";
         }
 
         // ============================================================
-        // ACTOR CONTEXT
+        // ACTOR
         // ============================================================
 
         private (
@@ -663,11 +733,13 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                 out int actorId);
 
             string actorUsername =
-                User.Identity?.Name ?? "Unknown";
+                User.Identity?.Name ??
+                "Unknown";
 
             string actorRole =
-                User.FindFirst(ClaimTypes.Role)?.Value
-                ?? "Unknown";
+                User.FindFirst(
+                    ClaimTypes.Role)?.Value ??
+                "Unknown";
 
             string? ipAddress =
                 HttpContext.Connection

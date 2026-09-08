@@ -37,12 +37,18 @@ public class ContractsModel : PageModel
 
         var hod = await _context.Hods
             .AsNoTracking()
-            .FirstOrDefaultAsync(h => h.UserName == username && h.IsActive);
+            .FirstOrDefaultAsync(h =>
+                h.UserName == username &&
+                h.IsActive);
 
         if (hod is null)
             return RedirectToPage("/Login");
 
         HodDepartment = hod.Department;
+
+        // ============================================================
+        // LOAD CONTRACTS FOR THE HOD'S DEPARTMENT
+        // ============================================================
 
         var contracts = await _context.Contracts
             .AsNoTracking()
@@ -55,6 +61,10 @@ public class ContractsModel : PageModel
             .OrderByDescending(c => c.CreatedAtUtc)
             .ToListAsync();
 
+        // ============================================================
+        // LOAD SIGNATURES
+        // ============================================================
+
         var contractIds = contracts
             .Select(c => c.Id)
             .ToList();
@@ -65,6 +75,10 @@ public class ContractsModel : PageModel
             .OrderBy(s => s.SequenceOrder)
             .ToListAsync();
 
+        // ============================================================
+        // BUILD CONTRACT TABLE
+        // ============================================================
+
         Contracts = contracts
             .Select(c => new ContractRow
             {
@@ -72,7 +86,8 @@ public class ContractsModel : PageModel
 
                 Reference = $"CON-{c.Id:D6}",
 
-                LecturerName = c.Lecturer?.UserName ?? "—",
+                LecturerName =
+                    c.Lecturer?.UserName ?? "—",
 
                 CourseCode =
                     c.CourseAssignment?.Course?.Code ?? "—",
@@ -93,6 +108,10 @@ public class ContractsModel : PageModel
                     s.ContractId == c.Id)
             })
             .ToList();
+
+        // ============================================================
+        // LOAD SELECTED CONTRACT
+        // ============================================================
 
         if (ContractId.HasValue)
         {
@@ -118,6 +137,13 @@ public class ContractsModel : PageModel
 
                 CourseTitle =
                     contract.CourseAssignment?.Course?.Title ?? "—",
+
+                // ====================================================
+                // ACADEMIC YEAR
+                // ====================================================
+
+                AcademicYear =
+                    contract.CourseAssignment?.AcademicYear ?? "—",
 
                 Content =
                     contract.Content ?? string.Empty,
@@ -182,6 +208,13 @@ public class ContractsModel : PageModel
         public string LecturerName { get; init; } = string.Empty;
 
         public string CourseTitle { get; init; } = string.Empty;
+
+        // ============================================================
+        // ACADEMIC YEAR
+        // Used by Contracts.cshtml for the selected contract view.
+        // ============================================================
+
+        public string AcademicYear { get; init; } = string.Empty;
 
         public string Content { get; init; } = string.Empty;
 

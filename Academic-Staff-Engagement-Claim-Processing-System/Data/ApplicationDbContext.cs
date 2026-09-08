@@ -3,9 +3,11 @@ using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.EntityFrameworkCore;
 
+using ClaimModel =
+    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim;
 
-using ClaimModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim;
-using ContractModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract;
+using ContractModel =
+    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 {
@@ -43,6 +45,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
         public DbSet<Course> Courses => Set<Course>();
         public DbSet<CourseAssignment> CourseAssignments => Set<CourseAssignment>();
         public DbSet<MarksSubmission> MarksSubmissions => Set<MarksSubmission>();
+
         // ============================================================
         // CONTRACTS
         // ============================================================
@@ -57,18 +60,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
         public DbSet<ClaimModel> Claims => Set<ClaimModel>();
         public DbSet<ClaimApproval> ClaimApprovals => Set<ClaimApproval>();
 
-
-        // ============================================================
-        // MARKS
-        // ============================================================
-
         // ============================================================
         // TEMPLATES
         // ============================================================
 
         public DbSet<Template> Templates => Set<Template>();
-
-
 
         // ============================================================
         // AUDIT LOG
@@ -163,10 +159,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
             // MANAGEMENT
             // ========================================================
 
-            // Distinguishes which real office this account represents
-            // (HR Officer, DVCAR, Vice Chancellor) — see SignerRole for
-            // why these three are modeled as one account type with a
-            // Title rather than three separate TPH subclasses.
             modelBuilder.Entity<Management>()
                 .Property(m => m.Title)
                 .HasConversion<int>()
@@ -200,8 +192,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
             modelBuilder.Entity<Lecturer>()
                 .Property(l => l.GovernmentIdEncrypted)
                 .HasConversion(
-                    plainOrCipher => _governmentIdProtector.Encrypt(plainOrCipher),
-                    cipher => _governmentIdProtector.Decrypt(cipher))
+                    plainOrCipher =>
+                        _governmentIdProtector.Encrypt(plainOrCipher),
+
+                    cipher =>
+                        _governmentIdProtector.Decrypt(cipher))
                 .IsRequired();
 
             modelBuilder.Entity<Lecturer>()
@@ -399,6 +394,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .Property(cs => cs.SignatureHash)
                 .HasMaxLength(256);
 
+            // Stores the exact signature image used for this
+            // particular contract-signing event.
+            modelBuilder.Entity<ContractSignature>()
+                .Property(cs => cs.SignatureFilePath)
+                .HasMaxLength(500);
+
             modelBuilder.Entity<ContractSignature>()
                 .Property(cs => cs.Comments)
                 .HasColumnType("nvarchar(max)");
@@ -516,7 +517,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .IsUnique();
 
             modelBuilder.Entity<MarksSubmission>()
-                .HasIndex(ms => new { ms.LecturerId, ms.CourseAssignmentId, ms.AcademicYear });
+                .HasIndex(ms => new
+                {
+                    ms.LecturerId,
+                    ms.CourseAssignmentId,
+                    ms.AcademicYear
+                });
 
             // ========================================================
             // AUDIT LOG
@@ -552,17 +558,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .Property(a => a.IpAddress)
                 .HasMaxLength(45);
 
-            // Deliberately NOT a RowVersion / concurrency token — this
-            // table is insert-only, rows are never updated, so there's
-            // nothing to protect against concurrent overwrites.
+            // Deliberately NOT a RowVersion / concurrency token —
+            // this table is insert-only, rows are never updated.
 
-            // Query pattern is almost always "recent activity" or
-            // "activity for this entity" — index both.
             modelBuilder.Entity<AuditLog>()
                 .HasIndex(a => a.OccurredAtUtc);
 
             modelBuilder.Entity<AuditLog>()
-                .HasIndex(a => new { a.EntityType, a.EntityId });
+                .HasIndex(a => new
+                {
+                    a.EntityType,
+                    a.EntityId
+                });
         }
     }
 }

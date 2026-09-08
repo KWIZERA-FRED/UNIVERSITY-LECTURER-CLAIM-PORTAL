@@ -1,3 +1,4 @@
+
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
@@ -5,25 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 {
-    public class ContractReviewDto
-    {
-        public int ContractId { get; set; }
-        public string LecturerName { get; set; } = string.Empty;
-        public string CourseTitle { get; set; } = string.Empty;
-        public string Department { get; set; } = string.Empty;
-        public decimal AllocatedHours { get; set; }
-        public string ContractContent { get; set; } = string.Empty;
-        public int SignatureStepId { get; set; }
-        public bool IsThisRolesTurn { get; set; }
-        public string? BlockedReason { get; set; }
-    }
-
-    public class ContractSigningResult
-    {
-        public bool Succeeded { get; set; }
-        public string? ErrorMessage { get; set; }
-    }
-
     public class ContractSigningService
     {
         private readonly ApplicationDbContext _context;
@@ -37,82 +19,109 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             _auditLogger = auditLogger;
         }
 
-        // ==============================================================
-        // LOAD ONE CONTRACT FOR REVIEW BY A GIVEN ROLE
-        // ==============================================================
+        // ============================================================
+        // GET CONTRACT FOR REVIEW
+        // ============================================================
 
         public async Task<ContractReviewDto?> GetContractForReviewAsync(
             int contractId,
             SignerRole role)
         {
             var contract = await _context.Contracts
+                .AsNoTracking()
                 .Include(c => c.Lecturer)
                 .Include(c => c.CourseAssignment)
-                    .ThenInclude(ca => ca!.Course)
+                    .ThenInclude(a => a!.Course)
                 .FirstOrDefaultAsync(c => c.Id == contractId);
 
-            if (contract is null)
+            if (contract == null)
                 return null;
 
-            var thisStep = await _context.ContractSignatures
-                .Where(cs =>
-                    cs.ContractId == contractId &&
-                    cs.SignerRole == role)
-                .OrderBy(cs => cs.SequenceOrder)
-                .FirstOrDefaultAsync();
+            var signatures = await _context.ContractSignatures
+                .AsNoTracking()
+                .Where(s => s.ContractId == contractId)
+                .OrderBy(s => s.SequenceOrder)
+                .ToListAsync();
 
-            if (thisStep is null)
-                return null;
+            var roleStep = signatures.FirstOrDefault(
+                s => s.SignerRole == role);
 
-            var dto = new ContractReviewDto
+            bool isThisRolesTurn =
+                roleStep != null &&
+                roleStep.Decision == SignatureDecision.Pending &&
+                signatures
+                    .Where(s =>
+                        s.SequenceOrder < roleStep.SequenceOrder)
+                    .All(s =>
+                        s.Decision == SignatureDecision.Signed);
+
+            string? blockedReason = null;
+
+            if (roleStep == null)
             {
-                ContractId = contract.Id,
-                LecturerName = contract.Lecturer.UserName,
-                CourseTitle = contract.CourseAssignment?.Course.Title ?? "—",
-                Department = contract.CourseAssignment?.Course.Department ?? "—",
-                AllocatedHours = contract.CourseAssignment?.AllocatedHours ?? 0,
-                ContractContent = contract.Content,
-                SignatureStepId = thisStep.Id
-            };
-
-            // ----------------------------------------------------------
-            // This role has already acted on the contract
-            // ----------------------------------------------------------
-
-            if (thisStep.Decision != SignatureDecision.Pending)
+                blockedReason =
+                    "No signature step exists for this role.";
+            }
+            else if (roleStep.Decision == SignatureDecision.Signed)
             {
-                dto.IsThisRolesTurn = false;
-                dto.BlockedReason =
-                    $"This step has already been {thisStep.Decision.ToString().ToLower()}.";
+                blockedReason =
+                    "This contract has already been signed by this role.";
+            }
+            else if (roleStep.Decision == SignatureDecision.Declined)
+            {
+                blockedReason =
+                    "This contract has been declined.";
+            }
+            else if (!isThisRolesTurn)
+            {
+                var previousStep = signatures
+                    .Where(s =>
+                        s.SequenceOrder < roleStep.SequenceOrder &&
+                        s.Decision != SignatureDecision.Signed)
+                    .OrderBy(s => s.SequenceOrder)
+                    .FirstOrDefault();
 
-                return dto;
+                if (previousStep != null)
+                {
+                    blockedReason =
+                        $"Waiting for {FormatSignerRole(previousStep.SignerRole)} to sign.";
+                }
             }
 
-            // ----------------------------------------------------------
-            // Make sure every earlier signature step is complete
-            // ----------------------------------------------------------
+            return new ContractReviewDto
+            {
+                ContractId = contract.Id,
 
-            bool earlierStepsComplete =
-                !await _context.ContractSignatures
-                    .Where(cs =>
-                        cs.ContractId == contractId &&
-                        cs.SequenceOrder < thisStep.SequenceOrder)
-                    .AnyAsync(cs =>
-                        cs.Decision != SignatureDecision.Signed);
+                LecturerName =
+                    contract.Lecturer?.UserName ?? "Unknown",
 
-            dto.IsThisRolesTurn = earlierStepsComplete;
+                CourseTitle =
+                    contract.CourseAssignment?.Course?.Title ?? "—",
 
-            dto.BlockedReason = earlierStepsComplete
-                ? null
-                : "An earlier required signature on this contract is still pending.";
+                Department =
+                    contract.CourseAssignment?.Course?.Department ?? "—",
 
-            return dto;
+                AllocatedHours =
+                    contract.CourseAssignment?.AllocatedHours ?? 0,
+
+                ContractContent =
+                    contract.Content ?? string.Empty,
+
+                SignatureStepId =
+                    roleStep?.Id,
+
+                IsThisRolesTurn =
+                    isThisRolesTurn,
+
+                BlockedReason =
+                    blockedReason
+            };
         }
 
-        // ==============================================================
-        // SIGN AS LECTURER
+        // ============================================================
+        // LECTURER SIGN
         //
-        // Required contract sequence:
+        // Workflow starts here:
         //
         // Lecturer
         //     ↓
@@ -125,676 +134,786 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         // Vice Chancellor
         //     ↓
         // ACTIVE
-        // ==============================================================
+        // ============================================================
 
-        public async Task<ContractSigningResult> SignAsLecturerAsync(
+        public async Task<SigningResult> SignAsLecturerAsync(
             int contractId,
             int lecturerId,
             string actorUsername,
             string? ipAddress)
         {
-            var strategy = _context.Database.CreateExecutionStrategy();
+            var strategy =
+                _context.Database.CreateExecutionStrategy();
 
-            return await strategy.ExecuteAsync(async () =>
+            try
             {
-                await using var transaction =
-                    await _context.Database.BeginTransactionAsync();
-
-                try
+                return await strategy.ExecuteAsync(async () =>
                 {
-                    // --------------------------------------------------
-                    // Verify lecturer
-                    // --------------------------------------------------
+                    await using var transaction =
+                        await _context.Database.BeginTransactionAsync();
 
-                    var lecturer = await _context.Lecturers
-                        .FirstOrDefaultAsync(l =>
-                            l.Id == lecturerId &&
-                            l.IsActive);
-
-                    if (lecturer is null)
+                    try
                     {
-                        await transaction.RollbackAsync();
-                        return Fail("The lecturer account is not active.");
-                    }
-
-                    // --------------------------------------------------
-                    // Verify contract belongs to this lecturer
-                    // --------------------------------------------------
-
-                    var contract = await _context.Contracts
-                        .FirstOrDefaultAsync(c =>
-                            c.Id == contractId &&
-                            c.LecturerId == lecturerId);
-
-                    if (contract is null)
-                    {
-                        await transaction.RollbackAsync();
-                        return Fail(
-                            "This contract does not belong to the current lecturer.");
-                    }
-
-                    // --------------------------------------------------
-                    // Contract must still be awaiting signatures
-                    // --------------------------------------------------
-
-                    if (contract.Status != ContractStatus.PendingSignature)
-                    {
-                        await transaction.RollbackAsync();
-                        return Fail(
-                            "This contract is no longer available for signing.");
-                    }
-
-                    // --------------------------------------------------
-                    // Lecturer must have a captured signature
-                    // --------------------------------------------------
-
-                    if (string.IsNullOrWhiteSpace(lecturer.SignatureFileHash))
-                    {
-                        await transaction.RollbackAsync();
-                        return Fail(
-                            "A verified signature must be captured before you can sign a contract.");
-                    }
-
-                    // --------------------------------------------------
-                    // Find lecturer signature step
-                    // --------------------------------------------------
-
-                    var step = await _context.ContractSignatures
-                        .Where(cs =>
-                            cs.ContractId == contractId &&
-                            cs.SignerRole == SignerRole.Lecturer)
-                        .OrderBy(cs => cs.SequenceOrder)
-                        .FirstOrDefaultAsync();
-
-                    if (step is null)
-                    {
-                        await transaction.RollbackAsync();
-                        return Fail(
-                            "The lecturer signature step was not found for this contract.");
-                    }
-
-                    // --------------------------------------------------
-                    // Prevent duplicate signing
-                    // --------------------------------------------------
-
-                    if (step.Decision != SignatureDecision.Pending)
-                    {
-                        await transaction.RollbackAsync();
-                        return Fail(
-                            "The lecturer has already actioned this contract.");
-                    }
-
-                    // --------------------------------------------------
-                    // Lecturer must be the FIRST signature step
-                    // --------------------------------------------------
-
-                    bool earlierStepsExist =
-                        await _context.ContractSignatures
-                            .AnyAsync(cs =>
-                                cs.ContractId == contractId &&
-                                cs.SequenceOrder < step.SequenceOrder);
-
-                    if (earlierStepsExist)
-                    {
-                        await transaction.RollbackAsync();
-                        return Fail(
-                            "The lecturer signature must be the first step in the contract signing process.");
-                    }
-
-                    // --------------------------------------------------
-                    // Sign as lecturer
-                    // --------------------------------------------------
-
-                    step.SignAsLecturer(
-                        lecturerId,
-                        lecturer.SignatureFileHash);
-
-                    // IMPORTANT:
-                    //
-                    // Do NOT call contract.StampSignature() here.
-                    //
-                    // StampSignature() changes the contract status to
-                    // Active, which must only happen after the Vice
-                    // Chancellor completes the final signature.
-                    //
-                    // The lecturer signature is stored in the
-                    // ContractSignature record instead.
-
-                    await _context.SaveChangesAsync();
-
-                    // --------------------------------------------------
-                    // Audit
-                    // --------------------------------------------------
-
-                    await _auditLogger.LogAsync(
-                        AuditAction.ContractSigned,
-                        actorUsername,
-                        "Lecturer",
-                        lecturerId,
-                        "Contract",
-                        contractId,
-                        "Lecturer signed the contract.",
-                        ipAddress);
-
-                    await transaction.CommitAsync();
-
-                    return new ContractSigningResult
-                    {
-                        Succeeded = true
-                    };
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-
-                    Console.WriteLine(
-                        $"CONTRACT LECTURER SIGNING ERROR: {ex}");
-
-                    return Fail(
-                        "The contract signature could not be saved.");
-                }
-            });
-        }
-
-        // ==============================================================
-        // SIGN AS ADMIN
-        //
-        // Allowed administrative signature roles:
-        //
-        // Dean
-        // HR Officer
-        // DVCAR
-        // Vice Chancellor
-        // ==============================================================
-
-        public async Task<ContractSigningResult> SignAsync(
-            int contractId,
-            SignerRole role,
-            int adminAccountId,
-            string actorUsername,
-            string actorRoleLabel,
-            string? ipAddress)
-        {
-            var strategy = _context.Database.CreateExecutionStrategy();
-
-            return await strategy.ExecuteAsync(async () =>
-            {
-                await using var transaction =
-                    await _context.Database.BeginTransactionAsync();
-
-                try
-                {
-                    // --------------------------------------------------
-                    // Lecturer cannot use the admin signing method
-                    // --------------------------------------------------
-
-                    if (role == SignerRole.Lecturer)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "Lecturers must use the lecturer signing process.");
-                    }
-
-                    // --------------------------------------------------
-                    // Find contract
-                    // --------------------------------------------------
-
-                    var contract = await _context.Contracts
-                        .FirstOrDefaultAsync(c => c.Id == contractId);
-
-                    if (contract is null)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "The contract could not be found.");
-                    }
-
-                    // --------------------------------------------------
-                    // Contract must still be in signing process
-                    // --------------------------------------------------
-
-                    if (contract.Status != ContractStatus.PendingSignature)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "This contract is no longer available for signing.");
-                    }
-
-                    // --------------------------------------------------
-                    // Find signature step for this role
-                    // --------------------------------------------------
-
-                    var step = await _context.ContractSignatures
-                        .Where(cs =>
-                            cs.ContractId == contractId &&
-                            cs.SignerRole == role)
-                        .OrderBy(cs => cs.SequenceOrder)
-                        .FirstOrDefaultAsync();
-
-                    if (step is null)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "No signature step was found for this role on this contract.");
-                    }
-
-                    // --------------------------------------------------
-                    // Prevent duplicate signing
-                    // --------------------------------------------------
-
-                    if (step.Decision != SignatureDecision.Pending)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "This signature step has already been actioned.");
-                    }
-
-                    // --------------------------------------------------
-                    // STRICT SEQUENCE CHECK
-                    //
-                    // Every previous signature must be Signed.
-                    // --------------------------------------------------
-
-                    bool earlierStepsComplete =
-                        !await _context.ContractSignatures
-                            .Where(cs =>
-                                cs.ContractId == contractId &&
-                                cs.SequenceOrder < step.SequenceOrder)
-                            .AnyAsync(cs =>
-                                cs.Decision != SignatureDecision.Signed);
-
-                    if (!earlierStepsComplete)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "An earlier required signature on this contract is still pending.");
-                    }
-
-                    // --------------------------------------------------
-                    // Find the actual admin account
-                    // --------------------------------------------------
-
-                    var adminAccount =
-                        await _context.AdminAccounts
-                            .FirstOrDefaultAsync(a =>
-                                a.Id == adminAccountId);
-
-                    if (adminAccount is null)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "The administrator account could not be found.");
-                    }
-
-                    // --------------------------------------------------
-                    // STRICT ROLE AUTHORIZATION
-                    //
-                    // The account's actual type/title must match the
-                    // requested signature role.
-                    // --------------------------------------------------
-
-                    if (!IsAuthorizedSigner(adminAccount, role))
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "Your account is not authorized to sign this contract step.");
-                    }
-
-                    // --------------------------------------------------
-                    // Signer must have a verified signature
-                    // --------------------------------------------------
-
-                    if (string.IsNullOrWhiteSpace(
-                        adminAccount.SignatureFileHash))
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "A verified signature must be available before signing.");
-                    }
-
-                    // --------------------------------------------------
-                    // Sign the step
-                    // --------------------------------------------------
-
-                    step.SignAsAdmin(
-                        adminAccountId,
-                        adminAccount.SignatureFileHash);
-
-                    await _context.SaveChangesAsync();
-
-                    // --------------------------------------------------
-                    // Determine whether this was the FINAL step
-                    // --------------------------------------------------
-
-                    bool anyStepsRemaining =
-                        await _context.ContractSignatures
-                            .AnyAsync(cs =>
-                                cs.ContractId == contractId &&
-                                cs.Decision == SignatureDecision.Pending);
-
-                    // --------------------------------------------------
-                    // Contract becomes ACTIVE only after all five
-                    // required signatures have been completed.
-                    //
-                    // Lecturer → Dean → HR → DVCAR → VC
-                    // --------------------------------------------------
-
-                    if (!anyStepsRemaining)
-                    {
-                        var finalStep = await _context.ContractSignatures
-                            .Where(cs =>
-                                cs.ContractId == contractId)
-                            .OrderByDescending(cs => cs.SequenceOrder)
-                            .FirstOrDefaultAsync();
-
-                        if (finalStep is null ||
-                            finalStep.SignerRole != SignerRole.ViceChancellor ||
-                            finalStep.Decision != SignatureDecision.Signed)
+                        // ====================================================
+                        // GET LECTURER
+                        // ====================================================
+
+                        var lecturer =
+                            await _context.Lecturers
+                                .FirstOrDefaultAsync(l =>
+                                    l.Id == lecturerId &&
+                                    l.IsActive);
+
+                        if (lecturer == null)
                         {
-                            await transaction.RollbackAsync();
-
-                            return Fail(
-                                "The contract cannot become active because the Vice Chancellor signature has not been completed.");
+                            return SigningResult.Failed(
+                                "The lecturer account could not be found.");
                         }
 
-                        contract.Status = ContractStatus.Active;
-                        contract.UpdatedAtUtc = DateTime.UtcNow;
+                        // ====================================================
+                        // VERIFY LECTURER SIGNATURE
+                        // ====================================================
+
+                        if (string.IsNullOrWhiteSpace(
+                                lecturer.SignatureFilePath))
+                        {
+                            return SigningResult.Failed(
+                                "You cannot sign because your signature has not been captured.");
+                        }
+
+                        if (string.IsNullOrWhiteSpace(
+                                lecturer.SignatureFileHash))
+                        {
+                            return SigningResult.Failed(
+                                "Your signature hash is missing. Please contact the HOD.");
+                        }
+
+                        // ====================================================
+                        // GET CONTRACT
+                        // ====================================================
+
+                        var contract =
+                            await _context.Contracts
+                                .FirstOrDefaultAsync(c =>
+                                    c.Id == contractId &&
+                                    c.LecturerId == lecturerId);
+
+                        if (contract == null)
+                        {
+                            return SigningResult.Failed(
+                                "The contract could not be found.");
+                        }
+
+                        // ====================================================
+                        // VERIFY CONTRACT STATUS
+                        // ====================================================
+
+                        if (contract.Status !=
+                            ContractStatus.PendingSignature)
+                        {
+                            return SigningResult.Failed(
+                                "This contract is not awaiting signatures.");
+                        }
+
+                        // ====================================================
+                        // GET LECTURER SIGNATURE STEP
+                        // ====================================================
+
+                        var step =
+                            await _context.ContractSignatures
+                                .FirstOrDefaultAsync(s =>
+                                    s.ContractId == contractId &&
+                                    s.SignerRole ==
+                                        SignerRole.Lecturer);
+
+                        if (step == null)
+                        {
+                            return SigningResult.Failed(
+                                "The Lecturer signature step could not be found.");
+                        }
+
+                        if (step.Decision !=
+                            SignatureDecision.Pending)
+                        {
+                            return SigningResult.Failed(
+                                "The Lecturer signature step has already been processed.");
+                        }
+
+                        // ====================================================
+                        // STRICT FIRST STEP VALIDATION
+                        // ====================================================
+
+                        var previousSteps =
+                            await _context.ContractSignatures
+                                .Where(s =>
+                                    s.ContractId == contractId &&
+                                    s.SequenceOrder <
+                                        step.SequenceOrder)
+                                .OrderBy(s => s.SequenceOrder)
+                                .ToListAsync();
+
+                        if (previousSteps.Any(s =>
+                                s.Decision !=
+                                SignatureDecision.Signed))
+                        {
+                            return SigningResult.Failed(
+                                "The Lecturer must be the first person to sign this contract.");
+                        }
+
+                        // ====================================================
+                        // RECORD LECTURER SIGNATURE
+                        // ====================================================
+
+                        step.SignAsLecturer(
+                            lecturerId,
+                            lecturer.SignatureFilePath,
+                            lecturer.SignatureFileHash);
 
                         await _context.SaveChangesAsync();
+
+                        // ====================================================
+                        // AUDIT
+                        // ====================================================
+
+                        await _auditLogger.LogAsync(
+                            AuditAction.ContractSigned,
+                            actorUsername,
+                            "Lecturer",
+                            lecturerId,
+                            "Contract",
+                            contract.Id,
+                            $"Contract {contract.Id} signed by Lecturer.",
+                            ipAddress);
+
+                        // ====================================================
+                        // DO NOT ACTIVATE CONTRACT HERE.
+                        //
+                        // The next required signer is the Dean.
+                        // ====================================================
+
+                        await transaction.CommitAsync();
+
+                        return SigningResult.Success(
+                            "Your signature was recorded successfully.");
                     }
-
-                    // --------------------------------------------------
-                    // Audit
-                    // --------------------------------------------------
-
-                    await _auditLogger.LogAsync(
-                        AuditAction.ContractSigned,
-                        actorUsername,
-                        actorRoleLabel,
-                        adminAccountId,
-                        "Contract",
-                        contractId,
-                        $"Signed as {role}.",
-                        ipAddress);
-
-                    await transaction.CommitAsync();
-
-                    return new ContractSigningResult
+                    catch
                     {
-                        Succeeded = true
-                    };
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-
-                    Console.WriteLine(
-                        $"CONTRACT SIGNING ERROR: {ex}");
-
-                    return Fail(
-                        "The contract signature could not be saved.");
-                }
-            });
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return SigningResult.Failed(
+                    $"The contract could not be signed: {ex.Message}");
+            }
         }
 
-        // ==============================================================
-        // DECLINE CONTRACT
-        // ==============================================================
+        // ============================================================
+        // ADMIN SIGN
+        //
+        // Workflow:
+        //
+        // Lecturer
+        //     ↓
+        // Dean
+        //     ↓
+        // HR Officer
+        //     ↓
+        // DVCAR
+        //     ↓
+        // Vice Chancellor
+        //     ↓
+        // ACTIVE
+        // ============================================================
 
-        public async Task<ContractSigningResult> DeclineAsync(
+        public async Task<SigningResult> SignAsync(
             int contractId,
-            SignerRole role,
+            SignerRole signerRole,
+            int adminAccountId,
+            string actorUsername,
+            string actorRole,
+            string? ipAddress)
+        {
+            // ============================================================
+            // LECTURER MUST USE LECTURER SIGNING METHOD
+            // ============================================================
+
+            if (signerRole == SignerRole.Lecturer)
+            {
+                return SigningResult.Failed(
+                    "Lecturers must use the Lecturer signing process.");
+            }
+
+            var strategy =
+                _context.Database.CreateExecutionStrategy();
+
+            try
+            {
+                return await strategy.ExecuteAsync(async () =>
+                {
+                    await using var transaction =
+                        await _context.Database.BeginTransactionAsync();
+
+                    try
+                    {
+                        // ====================================================
+                        // GET CONTRACT
+                        // ====================================================
+
+                        var contract =
+                            await _context.Contracts
+                                .FirstOrDefaultAsync(c =>
+                                    c.Id == contractId);
+
+                        if (contract == null)
+                        {
+                            return SigningResult.Failed(
+                                "The contract could not be found.");
+                        }
+
+                        // ====================================================
+                        // VERIFY CONTRACT STATUS
+                        // ====================================================
+
+                        if (contract.Status !=
+                            ContractStatus.PendingSignature)
+                        {
+                            return SigningResult.Failed(
+                                "This contract is not awaiting signatures.");
+                        }
+
+                        // ====================================================
+                        // GET CURRENT ROLE'S SIGNATURE STEP
+                        // ====================================================
+
+                        var step =
+                            await _context.ContractSignatures
+                                .FirstOrDefaultAsync(s =>
+                                    s.ContractId == contractId &&
+                                    s.SignerRole == signerRole);
+
+                        if (step == null)
+                        {
+                            return SigningResult.Failed(
+                                "The signature step could not be found.");
+                        }
+
+                        if (step.Decision !=
+                            SignatureDecision.Pending)
+                        {
+                            return SigningResult.Failed(
+                                "This signature step has already been processed.");
+                        }
+
+                        // ====================================================
+                        // STRICT SEQUENTIAL WORKFLOW
+                        //
+                        // EVERY previous step must be signed.
+                        //
+                        // This prevents:
+                        //
+                        // Dean signing before Lecturer
+                        // HR signing before Dean
+                        // DVCAR signing before HR
+                        // VC signing before DVCAR
+                        // ====================================================
+
+                        var previousSteps =
+                            await _context.ContractSignatures
+                                .Where(s =>
+                                    s.ContractId == contractId &&
+                                    s.SequenceOrder <
+                                        step.SequenceOrder)
+                                .OrderBy(s => s.SequenceOrder)
+                                .ToListAsync();
+
+                        var incompletePreviousStep =
+                            previousSteps.FirstOrDefault(s =>
+                                s.Decision !=
+                                SignatureDecision.Signed);
+
+                        if (incompletePreviousStep != null)
+                        {
+                            return SigningResult.Failed(
+                                $"This contract is still waiting for " +
+                                $"{FormatSignerRole(incompletePreviousStep.SignerRole)} " +
+                                "to sign.");
+                        }
+
+                        // ====================================================
+                        // GET ADMIN ACCOUNT
+                        // ====================================================
+
+                        var adminAccount =
+                            await _context.AdminAccounts
+                                .FirstOrDefaultAsync(a =>
+                                    a.Id == adminAccountId &&
+                                    a.IsActive);
+
+                        if (adminAccount == null)
+                        {
+                            return SigningResult.Failed(
+                                "The signing administrator account could not be found.");
+                        }
+
+                        // ====================================================
+                        // VERIFY SIGNER ROLE
+                        //
+                        // This prevents one management account from
+                        // impersonating another management role.
+                        // ====================================================
+
+                        if (!IsAuthorizedSigner(
+                                adminAccount,
+                                signerRole))
+                        {
+                            return SigningResult.Failed(
+                                "You are not authorized to sign this contract at this stage.");
+                        }
+
+                        // ====================================================
+                        // VERIFY SIGNATURE FILE
+                        // ====================================================
+
+                        if (string.IsNullOrWhiteSpace(
+                                adminAccount.SignatureFilePath))
+                        {
+                            return SigningResult.Failed(
+                                "Your signature has not been captured.");
+                        }
+
+                        if (string.IsNullOrWhiteSpace(
+                                adminAccount.SignatureFileHash))
+                        {
+                            return SigningResult.Failed(
+                                "Your signature hash is missing.");
+                        }
+
+                        // ====================================================
+                        // RECORD ADMIN SIGNATURE
+                        // ====================================================
+
+                        step.SignAsAdmin(
+                            adminAccountId,
+                            adminAccount.SignatureFilePath,
+                            adminAccount.SignatureFileHash);
+
+                        await _context.SaveChangesAsync();
+
+                        // ====================================================
+                        // CHECK REMAINING STEPS
+                        // ====================================================
+
+                        var remainingPendingSteps =
+                            await _context.ContractSignatures
+                                .Where(s =>
+                                    s.ContractId == contractId &&
+                                    s.Decision ==
+                                        SignatureDecision.Pending)
+                                .ToListAsync();
+
+                        // ====================================================
+                        // ONLY VICE CHANCELLOR CAN ACTIVATE
+                        // ====================================================
+
+                        if (remainingPendingSteps.Count == 0)
+                        {
+                            var finalStep =
+                                await _context.ContractSignatures
+                                    .Where(s =>
+                                        s.ContractId ==
+                                            contractId)
+                                    .OrderByDescending(
+                                        s => s.SequenceOrder)
+                                    .FirstOrDefaultAsync();
+
+                            if (finalStep != null &&
+                                finalStep.SignerRole ==
+                                    SignerRole.ViceChancellor &&
+                                finalStep.Decision ==
+                                    SignatureDecision.Signed)
+                            {
+                                contract.Status =
+                                    ContractStatus.Active;
+
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+
+                        // ====================================================
+                        // AUDIT
+                        // ====================================================
+
+                        await _auditLogger.LogAsync(
+                            AuditAction.ContractSigned,
+                            actorUsername,
+                            actorRole,
+                            adminAccountId,
+                            "Contract",
+                            contract.Id,
+                            $"Contract {contract.Id} signed by " +
+                            $"{FormatSignerRole(signerRole)}.",
+                            ipAddress);
+
+                        await transaction.CommitAsync();
+
+                        return SigningResult.Success(
+                            "Contract signed successfully.");
+                    }
+                    catch
+                    {
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return SigningResult.Failed(
+                    $"The contract could not be signed: {ex.Message}");
+            }
+        }
+
+        // ============================================================
+        // DECLINE
+        // ============================================================
+
+        public async Task<SigningResult> DeclineAsync(
+            int contractId,
+            SignerRole signerRole,
             int adminAccountId,
             string reason,
             string actorUsername,
-            string actorRoleLabel,
+            string actorRole,
             string? ipAddress)
         {
-            var strategy = _context.Database.CreateExecutionStrategy();
+            // ============================================================
+            // LECTURER CANNOT USE ADMIN DECLINE FLOW
+            // ============================================================
 
-            return await strategy.ExecuteAsync(async () =>
+            if (signerRole == SignerRole.Lecturer)
             {
-                await using var transaction =
-                    await _context.Database.BeginTransactionAsync();
+                return SigningResult.Failed(
+                    "Lecturers cannot decline contracts through this process.");
+            }
 
-                try
+            // ============================================================
+            // VALIDATE REASON
+            // ============================================================
+
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                return SigningResult.Failed(
+                    "A reason for declining the contract is required.");
+            }
+
+            var strategy =
+                _context.Database.CreateExecutionStrategy();
+
+            try
+            {
+                return await strategy.ExecuteAsync(async () =>
                 {
-                    // --------------------------------------------------
-                    // Lecturer cannot use the admin decline method
-                    // --------------------------------------------------
+                    await using var transaction =
+                        await _context.Database.BeginTransactionAsync();
 
-                    if (role == SignerRole.Lecturer)
+                    try
+                    {
+                        // ====================================================
+                        // GET CONTRACT
+                        // ====================================================
+
+                        var contract =
+                            await _context.Contracts
+                                .FirstOrDefaultAsync(c =>
+                                    c.Id == contractId);
+
+                        if (contract == null)
+                        {
+                            return SigningResult.Failed(
+                                "The contract could not be found.");
+                        }
+
+                        // ====================================================
+                        // VERIFY STATUS
+                        // ====================================================
+
+                        if (contract.Status !=
+                            ContractStatus.PendingSignature)
+                        {
+                            return SigningResult.Failed(
+                                "This contract is not awaiting signatures.");
+                        }
+
+                        // ====================================================
+                        // GET SIGNATURE STEP
+                        // ====================================================
+
+                        var step =
+                            await _context.ContractSignatures
+                                .FirstOrDefaultAsync(s =>
+                                    s.ContractId == contractId &&
+                                    s.SignerRole == signerRole);
+
+                        if (step == null)
+                        {
+                            return SigningResult.Failed(
+                                "The signature step could not be found.");
+                        }
+
+                        if (step.Decision !=
+                            SignatureDecision.Pending)
+                        {
+                            return SigningResult.Failed(
+                                "This signature step has already been processed.");
+                        }
+
+                        // ====================================================
+                        // STRICT SEQUENTIAL VALIDATION
+                        // ====================================================
+
+                        var previousSteps =
+                            await _context.ContractSignatures
+                                .Where(s =>
+                                    s.ContractId == contractId &&
+                                    s.SequenceOrder <
+                                        step.SequenceOrder)
+                                .OrderBy(s => s.SequenceOrder)
+                                .ToListAsync();
+
+                        var previousIncomplete =
+                            previousSteps.FirstOrDefault(
+                                s =>
+                                    s.Decision !=
+                                    SignatureDecision.Signed);
+
+                        if (previousIncomplete != null)
+                        {
+                            return SigningResult.Failed(
+                                $"You cannot act yet. " +
+                                $"The contract is still waiting for " +
+                                $"{FormatSignerRole(previousIncomplete.SignerRole)}.");
+                        }
+
+                        // ====================================================
+                        // GET ADMIN ACCOUNT
+                        // ====================================================
+
+                        var adminAccount =
+                            await _context.AdminAccounts
+                                .FirstOrDefaultAsync(a =>
+                                    a.Id == adminAccountId &&
+                                    a.IsActive);
+
+                        if (adminAccount == null)
+                        {
+                            return SigningResult.Failed(
+                                "The administrator account could not be found.");
+                        }
+
+                        // ====================================================
+                        // VERIFY AUTHORIZATION
+                        // ====================================================
+
+                        if (!IsAuthorizedSigner(
+                                adminAccount,
+                                signerRole))
+                        {
+                            return SigningResult.Failed(
+                                "You are not authorized to decline this contract.");
+                        }
+
+                        // ====================================================
+                        // DECLINE
+                        // ====================================================
+
+                        step.Decline(reason.Trim());
+
+                        await _context.SaveChangesAsync();
+
+                        // ====================================================
+                        // AUDIT
+                        // ====================================================
+
+                        await _auditLogger.LogAsync(
+                            AuditAction.ContractDeclined,
+                            actorUsername,
+                            actorRole,
+                            adminAccountId,
+                            "Contract",
+                            contract.Id,
+                            $"Contract {contract.Id} declined by " +
+                            $"{FormatSignerRole(signerRole)}. " +
+                            $"Reason: {reason.Trim()}",
+                            ipAddress);
+
+                        await transaction.CommitAsync();
+
+                        return SigningResult.Success(
+                            "Contract declined successfully.");
+                    }
+                    catch
                     {
                         await transaction.RollbackAsync();
-
-                        return Fail(
-                            "Lecturers must use the lecturer-specific contract process.");
+                        throw;
                     }
-
-                    // --------------------------------------------------
-                    // Validate reason
-                    // --------------------------------------------------
-
-                    if (string.IsNullOrWhiteSpace(reason))
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "A reason is required when declining a contract.");
-                    }
-
-                    // --------------------------------------------------
-                    // Find contract
-                    // --------------------------------------------------
-
-                    var contract = await _context.Contracts
-                        .FirstOrDefaultAsync(c => c.Id == contractId);
-
-                    if (contract is null)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "The contract could not be found.");
-                    }
-
-                    // --------------------------------------------------
-                    // Contract must still be awaiting signatures
-                    // --------------------------------------------------
-
-                    if (contract.Status != ContractStatus.PendingSignature)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "This contract is no longer available for review.");
-                    }
-
-                    // --------------------------------------------------
-                    // Find the signature step
-                    // --------------------------------------------------
-
-                    var step = await _context.ContractSignatures
-                        .Where(cs =>
-                            cs.ContractId == contractId &&
-                            cs.SignerRole == role)
-                        .OrderBy(cs => cs.SequenceOrder)
-                        .FirstOrDefaultAsync();
-
-                    if (step is null)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "No signature step was found for this role on this contract.");
-                    }
-
-                    // --------------------------------------------------
-                    // Prevent duplicate action
-                    // --------------------------------------------------
-
-                    if (step.Decision != SignatureDecision.Pending)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "This signature step has already been actioned.");
-                    }
-
-                    // --------------------------------------------------
-                    // STRICT ROLE AUTHORIZATION
-                    // --------------------------------------------------
-
-                    var adminAccount =
-                        await _context.AdminAccounts
-                            .FirstOrDefaultAsync(a =>
-                                a.Id == adminAccountId);
-
-                    if (adminAccount is null)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "The administrator account could not be found.");
-                    }
-
-                    if (!IsAuthorizedSigner(adminAccount, role))
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "Your account is not authorized to decline this contract step.");
-                    }
-
-                    // --------------------------------------------------
-                    // The current role may only decline when it is
-                    // actually that role's turn.
-                    // --------------------------------------------------
-
-                    bool earlierStepsComplete =
-                        !await _context.ContractSignatures
-                            .Where(cs =>
-                                cs.ContractId == contractId &&
-                                cs.SequenceOrder < step.SequenceOrder)
-                            .AnyAsync(cs =>
-                                cs.Decision != SignatureDecision.Signed);
-
-                    if (!earlierStepsComplete)
-                    {
-                        await transaction.RollbackAsync();
-
-                        return Fail(
-                            "An earlier required signature on this contract is still pending.");
-                    }
-
-                    // --------------------------------------------------
-                    // Decline
-                    // --------------------------------------------------
-
-                    step.Decline(reason);
-
-                    await _context.SaveChangesAsync();
-
-                    // --------------------------------------------------
-                    // Audit
-                    //
-                    // Preserve the existing AuditAction enum member
-                    // because we have not yet verified whether the
-                    // project contains ContractDeclined.
-                    // --------------------------------------------------
-
-                    await _auditLogger.LogAsync(
-                        AuditAction.ContractSigned,
-                        actorUsername,
-                        actorRoleLabel,
-                        adminAccountId,
-                        "Contract",
-                        contractId,
-                        $"Declined as {role}: {reason}",
-                        ipAddress);
-
-                    await transaction.CommitAsync();
-
-                    return new ContractSigningResult
-                    {
-                        Succeeded = true
-                    };
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-
-                    Console.WriteLine(
-                        $"CONTRACT DECLINE ERROR: {ex}");
-
-                    return Fail(
-                        "The contract decline could not be saved.");
-                }
-            });
+                });
+            }
+            catch (Exception ex)
+            {
+                return SigningResult.Failed(
+                    $"The contract could not be declined: {ex.Message}");
+            }
         }
 
-        // ==============================================================
-        // STRICT SIGNER AUTHORIZATION
-        //
-        // Lecturer is intentionally excluded because Lecturer signing
-        // is handled by SignAsLecturerAsync().
-        // ==============================================================
+        // ============================================================
+        // AUTHORIZATION
+        // ============================================================
 
         private static bool IsAuthorizedSigner(
             AdminAccount account,
+            SignerRole signerRole)
+        {
+            return signerRole switch
+            {
+                // --------------------------------------------------------
+                // DEAN
+                // --------------------------------------------------------
+
+                SignerRole.Dean =>
+                    account is Dean,
+
+                // --------------------------------------------------------
+                // HR OFFICER
+                // --------------------------------------------------------
+
+                SignerRole.HROfficer =>
+                    account is Management management &&
+                    management.Title ==
+                        ManagementTitle.HROfficer,
+
+                // --------------------------------------------------------
+                // DVCAR
+                // --------------------------------------------------------
+
+                SignerRole.DVCAR =>
+                    account is Management management &&
+                    management.Title ==
+                        ManagementTitle.DVCAR,
+
+                // --------------------------------------------------------
+                // VICE CHANCELLOR
+                // --------------------------------------------------------
+
+                SignerRole.ViceChancellor =>
+                    account is Management management &&
+                    management.Title ==
+                        ManagementTitle.ViceChancellor,
+
+                _ => false
+            };
+        }
+
+        // ============================================================
+        // FORMAT ROLE
+        // ============================================================
+
+        private static string FormatSignerRole(
             SignerRole role)
         {
             return role switch
             {
-                // Dean must actually be a Dean account.
-                SignerRole.Dean =>
-                    account is Dean,
-
-                // HR must be a Management account whose title is HR.
-                SignerRole.HROfficer =>
-                    account is Management management &&
-                    management.Title == ManagementTitle.HROfficer,
-
-                // DVCAR must be a Management account whose title is DVCAR.
-                SignerRole.DVCAR =>
-                    account is Management management &&
-                    management.Title == ManagementTitle.DVCAR,
-
-                // Vice Chancellor must be a Management account whose
-                // title is Vice Chancellor.
-                SignerRole.ViceChancellor =>
-                    account is Management management &&
-                    management.Title == ManagementTitle.ViceChancellor,
-
-                // Lecturer is never authorized through SignAsync().
                 SignerRole.Lecturer =>
-                    false,
+                    "Lecturer",
+
+                SignerRole.Dean =>
+                    "Dean",
+
+                SignerRole.HROfficer =>
+                    "HR Officer",
+
+                SignerRole.DVCAR =>
+                    "DVCAR",
+
+                SignerRole.ViceChancellor =>
+                    "Vice Chancellor",
 
                 _ =>
-                    false
+                    role.ToString()
+            };
+        }
+    }
+
+    // =================================================================
+    // CONTRACT REVIEW DTO
+    // =================================================================
+
+    public class ContractReviewDto
+    {
+        public int ContractId { get; set; }
+
+        public string LecturerName { get; set; } =
+            string.Empty;
+
+        public string CourseTitle { get; set; } =
+            string.Empty;
+
+        public string Department { get; set; } =
+            string.Empty;
+
+        public decimal AllocatedHours { get; set; }
+
+        public string ContractContent { get; set; } =
+            string.Empty;
+
+        public int? SignatureStepId { get; set; }
+
+        public bool IsThisRolesTurn { get; set; }
+
+        public string? BlockedReason { get; set; }
+    }
+
+    // =================================================================
+    // SIGNING RESULT
+    // =================================================================
+
+    public class SigningResult
+    {
+        public bool Succeeded { get; private set; }
+
+        public string? ErrorMessage { get; private set; }
+
+        public string? SuccessMessage { get; private set; }
+
+        // ============================================================
+        // SUCCESS
+        // ============================================================
+
+        public static SigningResult Success(
+            string message)
+        {
+            return new SigningResult
+            {
+                Succeeded = true,
+                SuccessMessage = message
             };
         }
 
-        // ==============================================================
-        // FAILURE RESULT
-        // ==============================================================
+        // ============================================================
+        // FAILED
+        // ============================================================
 
-        private static ContractSigningResult Fail(string message)
+        public static SigningResult Failed(
+            string message)
         {
-            return new ContractSigningResult
+            return new SigningResult
             {
                 Succeeded = false,
                 ErrorMessage = message
             };
         }
     }
-} 
+}
+

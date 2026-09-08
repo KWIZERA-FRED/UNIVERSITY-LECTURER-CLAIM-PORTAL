@@ -1,3 +1,4 @@
+
 namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 {
     public enum AuditAction
@@ -17,5 +18,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
         MarksSubmitted = 13,
         MarksSigned = 14,
         MarksDeclined = 15,
+        ContractDeclined = 16
     }
 }
