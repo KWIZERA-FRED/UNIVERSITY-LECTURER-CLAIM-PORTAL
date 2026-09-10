@@ -1,0 +1,526 @@
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+
+    bool IsActive(string page)
+    {
+        return string.Equals(
+            currentPage,
+            page,
+            StringComparison.OrdinalIgnoreCase
+        );
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <meta name="theme-color"
+          content="#0f2742" />
+
+    <title>@ViewData["Title"] | UNILAK</title>
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/HOD/hod-shell.css"
+          asp-append-version="true" />
+
+    @RenderSection("Styles", required: false)
+
+</head>
+
+<body>
+
+    <div class="hod-app">
+
+        <header class="hod-topbar">
+
+            <div class="hod-topbar-left">
+
+                <button type="button"
+                        class="hod-mobile-menu"
+                        id="hodMobileMenuButton"
+                        aria-label="Open navigation menu"
+                        aria-controls="hodSidebar"
+                        aria-expanded="false">
+
+                    <i class="bi bi-list" aria-hidden="true"></i>
+
+                </button>
+
+                <a asp-page="/HOD/Index"
+                   class="hod-brand"
+                   aria-label="UNILAK HOD Portal">
+
+                    <div class="hod-brand-logo">
+
+                        <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                             alt="UNILAK Logo" />
+
+                    </div>
+
+                    <div class="hod-brand-text">
+
+                        <span class="hod-brand-title">
+                            UNILAK
+                        </span>
+
+                        <span class="hod-brand-subtitle">
+                            Staff Engagement Portal
+                        </span>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+            <div class="hod-topbar-actions">
+
+                <div class="hod-role-indicator">
+
+                    <span class="hod-role-icon">
+
+                        <i class="bi bi-person-badge-fill"
+                           aria-hidden="true"></i>
+
+                    </span>
+
+                    <div class="hod-role-text">
+
+                        <span class="hod-role-label">
+                            Current role
+                        </span>
+
+                        <strong>
+                            Head of Department
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="hod-topbar-divider"></div>
+
+                <a href="/Login"
+                   class="hod-logout"
+                   aria-label="Logout">
+
+                    <i class="bi bi-box-arrow-right"
+                       aria-hidden="true"></i>
+
+                    <span>
+                        Logout
+                    </span>
+
+                </a>
+
+            </div>
+
+        </header>
+
+        <div class="hod-sidebar-overlay"
+             id="hodSidebarOverlay">
+        </div>
+
+        <div class="hod-workspace">
+
+            <aside class="hod-sidebar"
+                   id="hodSidebar"
+                   aria-label="HOD Portal Navigation">
+
+                <div class="hod-sidebar-inner">
+
+                    <div class="hod-sidebar-heading">
+
+                        <span class="hod-sidebar-eyebrow">
+                            ACADEMIC ADMINISTRATION
+                        </span>
+
+                        <strong>
+                            HOD Portal
+                        </strong>
+
+                    </div>
+
+                    <nav class="hod-sidebar-nav"
+                         aria-label="HOD navigation">
+
+                        <a asp-page="/HOD/Index"
+                           class="hod-nav-item @(IsActive("/HOD/Index") ? "active" : "")">
+
+                            <span class="hod-nav-icon">
+                                <i class="bi bi-grid-1x2-fill"
+                                   aria-hidden="true"></i>
+                            </span>
+
+                            <span class="hod-nav-text">
+                                Dashboard
+                            </span>
+
+                            @if (IsActive("/HOD/Index"))
+                            {
+                                <span class="hod-nav-active-indicator"></span>
+                            }
+
+                        </a>
+
+                        <a asp-page="/HOD/Staff"
+                           class="hod-nav-item @(IsActive("/HOD/Staff") ? "active" : "")">
+
+                            <span class="hod-nav-icon">
+                                <i class="bi bi-people-fill"
+                                   aria-hidden="true"></i>
+                            </span>
+
+                            <span class="hod-nav-text">
+                                Staff Management
+                            </span>
+
+                            @if (IsActive("/HOD/Staff"))
+                            {
+                                <span class="hod-nav-active-indicator"></span>
+                            }
+
+                        </a>
+
+                        <a asp-page="/HOD/RegisterUser"
+                           class="hod-nav-item @(IsActive("/HOD/RegisterUser") ? "active" : "")">
+
+                            <span class="hod-nav-icon">
+                                <i class="bi bi-person-plus-fill"
+                                   aria-hidden="true"></i>
+                            </span>
+
+                            <span class="hod-nav-text">
+                                Register User
+                            </span>
+
+                            @if (IsActive("/HOD/RegisterUser"))
+                            {
+                                <span class="hod-nav-active-indicator"></span>
+                            }
+
+                        </a>
+
+                        <a asp-page="/HOD/AssignCourse"
+                           class="hod-nav-item @(IsActive("/HOD/AssignCourse") ? "active" : "")">
+
+                            <span class="hod-nav-icon">
+                                <i class="bi bi-journal-plus"
+                                   aria-hidden="true"></i>
+                            </span>
+
+                            <span class="hod-nav-text">
+                                Assign Course
+                            </span>
+
+                            @if (IsActive("/HOD/AssignCourse"))
+                            {
+                                <span class="hod-nav-active-indicator"></span>
+                            }
+
+                        </a>
+
+                        <a asp-page="/HOD/Contracts"
+                           class="hod-nav-item @(IsActive("/HOD/Contracts") ? "active" : "")">
+
+                            <span class="hod-nav-icon">
+                                <i class="bi bi-file-earmark-check-fill"
+                                   aria-hidden="true"></i>
+                            </span>
+
+                            <span class="hod-nav-text">
+                                Contracts
+                            </span>
+
+                            @if (IsActive("/HOD/Contracts"))
+                            {
+                                <span class="hod-nav-active-indicator"></span>
+                            }
+
+                        </a>
+
+                        <a asp-page="/HOD/Claims"
+                           class="hod-nav-item @(IsActive("/HOD/Claims") ? "active" : "")">
+
+                            <span class="hod-nav-icon">
+                                <i class="bi bi-receipt-cutoff"
+                                   aria-hidden="true"></i>
+                            </span>
+
+                            <span class="hod-nav-text">
+                                Claims
+                            </span>
+
+                            @if (IsActive("/HOD/Claims"))
+                            {
+                                <span class="hod-nav-active-indicator"></span>
+                            }
+
+                        </a>
+
+                    </nav>
+
+                    <div class="hod-sidebar-bottom">
+
+                        <div class="hod-security-card">
+
+                            <div class="hod-security-icon">
+
+                                <i class="bi bi-shield-lock-fill"
+                                   aria-hidden="true"></i>
+
+                            </div>
+
+                            <div class="hod-security-content">
+
+                                <strong>
+                                    Secure Portal
+                                </strong>
+
+                                <span>
+                                    Authorized HOD access
+                                </span>
+
+                            </div>
+
+                            <span class="hod-security-status"
+                                  title="System operational"
+                                  aria-label="System operational">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+            <div class="hod-content-area">
+
+                <main class="hod-content">
+
+                    @RenderBody()
+
+                </main>
+
+                <footer class="hod-footer">
+
+                    <div class="hod-footer-inner">
+
+                        <div class="hod-footer-brand">
+
+                            <strong>
+                                UNILAK Portal
+                            </strong>
+
+                            <span>
+                                Academic Staff Engagement &amp;
+                                Claim Processing System
+                            </span>
+
+                        </div>
+
+                        <div class="hod-footer-meta">
+
+                            <span>
+
+                                <i class="bi bi-shield-check"
+                                   aria-hidden="true"></i>
+
+                                Secure Administrative Portal
+
+                            </span>
+
+                            <span class="hod-footer-separator">
+                                •
+                            </span>
+
+                            <span>
+
+                                © @DateTime.Now.Year
+                                University of Lay Adventists of Kigali
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </footer>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const menuButton =
+                document.getElementById("hodMobileMenuButton");
+
+            const sidebar =
+                document.getElementById("hodSidebar");
+
+            const overlay =
+                document.getElementById("hodSidebarOverlay");
+
+            function openSidebar() {
+
+                if (!sidebar || !overlay) {
+                    return;
+                }
+
+                sidebar.classList.add("open");
+
+                overlay.classList.add("visible");
+
+                document.body.classList.add("hod-sidebar-open");
+
+                if (menuButton) {
+
+                    menuButton.setAttribute(
+                        "aria-expanded",
+                        "true"
+                    );
+
+                }
+
+            }
+
+            function closeSidebar() {
+
+                if (!sidebar || !overlay) {
+                    return;
+                }
+
+                sidebar.classList.remove("open");
+
+                overlay.classList.remove("visible");
+
+                document.body.classList.remove(
+                    "hod-sidebar-open"
+                );
+
+                if (menuButton) {
+
+                    menuButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                }
+
+            }
+
+            if (menuButton) {
+
+                menuButton.addEventListener(
+                    "click",
+                    function () {
+
+                        if (
+                            sidebar &&
+                            sidebar.classList.contains("open")
+                        ) {
+
+                            closeSidebar();
+
+                        }
+                        else {
+
+                            openSidebar();
+
+                        }
+
+                    }
+                );
+
+            }
+
+            if (overlay) {
+
+                overlay.addEventListener(
+                    "click",
+                    closeSidebar
+                );
+
+            }
+
+            document
+                .querySelectorAll(".hod-nav-item")
+                .forEach(function (link) {
+
+                    link.addEventListener(
+                        "click",
+                        function () {
+
+                            if (window.innerWidth <= 900) {
+
+                                closeSidebar();
+
+                            }
+
+                        }
+                    );
+
+                });
+
+            document.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (event.key === "Escape") {
+
+                        closeSidebar();
+
+                    }
+
+                }
+            );
+
+            window.addEventListener(
+                "resize",
+                function () {
+
+                    if (window.innerWidth > 900) {
+
+                        closeSidebar();
+
+                    }
+
+                }
+            );
+
+        });
+
+    </script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+
+</html>

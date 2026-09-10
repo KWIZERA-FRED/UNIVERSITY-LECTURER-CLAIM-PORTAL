@@ -1793,3 +1793,109 @@ textarea {
             box-shadow: none !important;
         }
 }
+
+
+/* ============================================================
+   LIVE ELECTRONIC SIGNATURES
+   ============================================================ */
+
+.live-signature-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.live-signature-table th,
+.live-signature-table td {
+    vertical-align: middle;
+}
+
+.signature-cell {
+    min-width: 180px;
+    text-align: center;
+}
+
+.signature-image-wrapper {
+    width: 180px;
+    height: 70px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.contract-signature-image {
+    display: block;
+    max-width: 170px;
+    max-height: 65px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.signature-date {
+    margin-top: 5px;
+    font-size: 10px;
+    line-height: 1.3;
+}
+
+.signature-placeholder {
+    text-align: center;
+    font-style: italic;
+}
+
+.signature-missing {
+    font-style: italic;
+}
+
+.signature-status {
+    display: inline-block;
+    font-weight: 700;
+}
+
+.signature-status.signed {
+    color: #15803d;
+}
+
+.signature-status.pending {
+    color: #b45309;
+}
+
+.signature-status.declined {
+    color: #b91c1c;
+}
+
+.signature-row-signed {
+    background: rgba(22, 163, 74, 0.03);
+}
+
+.signature-row-declined {
+    background: rgba(220, 38, 38, 0.03);
+}
+
+
+/* ============================================================
+   PRINT / PDF SIGNATURES
+   ============================================================ */
+
+@media print {
+
+    .contract-signature-image {
+        max-width: 170px !important;
+        max-height: 65px !important;
+    }
+
+    .signature-image-wrapper {
+        width: 180px !important;
+        height: 70px !important;
+    }
+
+    .signature-date {
+        font-size: 9px !important;
+    }
+}
+
+.document-body .contract-option-selected {
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}

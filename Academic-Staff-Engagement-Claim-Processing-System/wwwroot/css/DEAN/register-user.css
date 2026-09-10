@@ -1,933 +1,791 @@
-/* ================================================================
+/* ==========================================================================
    UNILAK DEAN PORTAL
-   REGISTER NEW USER
-   ================================================================ */
+   REGISTER USER PAGE — /DEAN/RegisterUser
+   ========================================================================== */
+
+/* ==========================================================================
+   COLOR TOKENS (Shared)
+   ========================================================================== */
 
 :root {
-    --navy: #0f2742;
-    --navy-dark: #091c31;
-    --navy-light: #183b60;
-    --green: #059669;
-    --green-dark: #047857;
-    --green-soft: #ecfdf5;
-    --green-border: #a7f3d0;
-    --blue: #2563eb;
-    --blue-soft: #eff6ff;
-    --blue-border: #bfdbfe;
-    --amber: #d97706;
-    --amber-soft: #fffbeb;
-    --amber-border: #fde68a;
-    --red: #dc2626;
-    --red-soft: #fef2f2;
-    --red-border: #fecaca;
-    --background: #f5f7fb;
-    --surface: #ffffff;
-    --border: #e2e8f0;
-    --border-light: #edf1f5;
-    --text: #172033;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --shadow-sm: 0 2px 8px rgba(15, 39, 66, 0.05);
-    --shadow-md: 0 8px 24px rgba(15, 39, 66, 0.07);
+    --dean-navy: #0f2742;
+    --dean-navy-dark: #091c31;
+    --dean-navy-light: #183b60;
+    --dean-green: #059669;
+    --dean-green-dark: #047857;
+    --dean-green-soft: #ecfdf5;
+    --dean-green-border: #a7f3d0;
+    --dean-blue: #2563eb;
+    --dean-blue-soft: #eff6ff;
+    --dean-blue-border: #bfdbfe;
+    --dean-amber: #b45309;
+    --dean-amber-soft: #fffbeb;
+    --dean-red: #dc2626;
+    --dean-red-soft: #fef2f2;
+    --dean-red-border: #fecaca;
+    --dean-surface: #ffffff;
+    --dean-background: #f5f7fb;
+    --dean-border: #e2e8f0;
+    --dean-border-light: #edf1f5;
+    --dean-text: #172033;
+    --dean-text-secondary: #475569;
+    --dean-text-muted: #64748b;
+    --dean-shadow-sm: 0 2px 8px rgba(15, 39, 66, 0.05);
+    --dean-shadow-md: 0 8px 24px rgba(15, 39, 66, 0.07);
+    --dean-shadow-lg: 0 12px 35px rgba(15, 39, 66, 0.10);
+    --dean-radius: 12px;
+    --dean-radius-sm: 8px;
+    --dean-transition: 160ms ease;
 }
 
+/* ==========================================================================
+   PAGE
+   ========================================================================== */
 
-/* ================================================================
-   RESET
-   ================================================================ */
-
-* {
-    box-sizing: border-box;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    margin: 0;
-    background: var(--background);
-    color: var(--text);
-    font-family: "Jakarta Sans", "Segoe UI", sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-a {
-    color: inherit;
-}
-
-button,
-input,
-select,
-textarea {
-    font: inherit;
-}
-
-
-/* ================================================================
-   APPLICATION
-   ================================================================ */
-
-.dean-app {
-    min-height: 100vh;
-    background: var(--background);
-}
-
-
-/* ================================================================
-   TOPBAR
-   ================================================================ */
-
-.topbar {
-    position: fixed;
-    inset: 0 0 auto 0;
+.register-user-page {
     width: 100%;
-    height: 80px;
-    z-index: 1000;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 0 24px;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ==========================================================================
+   PAGE HEADER
+   ========================================================================== */
+
+.register-page-header {
+    margin-bottom: 22px;
+}
+
+.register-header-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 28px;
-    background: rgba(15, 39, 66, 0.98);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px rgba(9, 28, 49, 0.18);
+    gap: 20px;
 }
 
+.register-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 7px;
+    color: var(--dean-text-muted);
+    font-size: 10px;
+    font-weight: 600;
+}
 
-/* Brand */
+    .register-breadcrumb a {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--dean-text-muted);
+        text-decoration: none;
+        transition: color var(--dean-transition);
+    }
 
-.topbar-brand {
+        .register-breadcrumb a:hover {
+            color: var(--dean-text-secondary);
+        }
+
+    .register-breadcrumb i {
+        color: #a8b4c2;
+        font-size: 9px;
+    }
+
+    .register-breadcrumb span {
+        color: var(--dean-text-secondary);
+        font-weight: 700;
+    }
+
+.register-page-header h1 {
     display: flex;
     align-items: center;
     gap: 12px;
-}
-
-.brand-logo {
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-    .brand-logo img {
-        width: 34px;
-        height: 34px;
-        object-fit: contain;
-    }
-
-.brand-text {
-    display: flex;
-    flex-direction: column;
+    margin: 0;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.45px;
     line-height: 1.2;
 }
 
-.brand-title {
-    color: #ffffff;
-    font-family: "Poppins", sans-serif;
-    font-size: 15px;
+    .register-page-header h1 > i {
+        color: var(--dean-green);
+        font-size: 22px;
+    }
+
+.register-page-header p {
+    max-width: 720px;
+    margin: 6px 0 0;
+    color: var(--dean-text-muted);
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.register-header-icon {
+    width: 68px;
+    height: 68px;
+    flex: 0 0 68px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius);
+    background: var(--dean-surface);
+    color: var(--dean-green);
+    font-size: 30px;
+    box-shadow: var(--dean-shadow-sm);
+}
+
+/* ==========================================================================
+   ALERTS
+   ========================================================================== */
+
+.register-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border: 1px solid transparent;
+    border-radius: var(--dean-radius);
+    font-size: 10px;
+    line-height: 1.55;
+}
+
+.register-alert-success {
+    border-color: var(--dean-green-border);
+    background: var(--dean-green-soft);
+    color: var(--dean-green-dark);
+}
+
+.register-alert-danger {
+    border-color: var(--dean-red-border);
+    background: var(--dean-red-soft);
+    color: #991b1b;
+}
+
+.alert-icon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin-top: 1px;
+}
+
+.alert-content {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+    .alert-content strong {
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .alert-content span {
+        line-height: 1.55;
+    }
+
+.alert-close {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: var(--dean-radius-sm);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: background var(--dean-transition);
+}
+
+    .alert-close:hover {
+        background: rgba(15, 39, 66, 0.07);
+    }
+
+/* ==========================================================================
+   VALIDATION SUMMARY
+   ========================================================================== */
+
+.validation-summary {
+    margin-bottom: 18px;
+    padding: 12px 15px;
+    border: 1px solid var(--dean-red-border);
+    border-radius: var(--dean-radius);
+    background: var(--dean-red-soft);
+    color: #991b1b;
+    font-size: 10px;
+    line-height: 1.55;
+}
+
+    .validation-summary:empty {
+        display: none;
+    }
+
+    .validation-summary ul {
+        margin: 4px 0 0;
+        padding-left: 20px;
+    }
+
+    .validation-summary li + li {
+        margin-top: 4px;
+    }
+
+/* ==========================================================================
+   REGISTRATION CARD
+   ========================================================================== */
+
+.registration-card {
+    overflow: hidden;
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius);
+    background: var(--dean-surface);
+    box-shadow: var(--dean-shadow-sm);
+}
+
+/* ==========================================================================
+   CARD HEADER
+   ========================================================================== */
+
+.registration-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 19px 21px;
+    border-bottom: 1px solid var(--dean-border-light);
+    background: var(--dean-surface);
+}
+
+.card-header-icon {
+    width: 45px;
+    height: 45px;
+    flex: 0 0 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: var(--dean-green-soft);
+    color: var(--dean-green);
+    font-size: 20px;
+}
+
+.registration-card-header h2 {
+    margin: 0;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 14px;
     font-weight: 700;
 }
 
-.brand-subtitle {
-    margin-top: 3px;
-    color: rgba(255, 255, 255, 0.62);
-    font-size: 10px;
-    font-weight: 500;
+.registration-card-header p {
+    margin: 4px 0 0;
+    color: var(--dean-text-muted);
+    font-size: 9.5px;
+    line-height: 1.45;
 }
 
+/* ==========================================================================
+   FORM
+   ========================================================================== */
 
-/* Topbar actions */
-
-.topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+form {
+    padding: 0;
 }
 
-.role-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
+/* ==========================================================================
+   FORM SECTIONS
+   ========================================================================== */
+
+.form-section {
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--dean-border-light);
 }
 
-    .role-indicator i {
-        color: #6ee7b7;
-        font-size: 15px;
+    .form-section:last-of-type {
+        border-bottom: none;
     }
 
-.logout-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 8px 14px;
-    color: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-    .logout-link:hover {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.09);
-        border-color: rgba(255, 255, 255, 0.25);
-    }
-
-
-/* ================================================================
-   APPLICATION BODY
-   ================================================================ */
-
-.app-body {
-    min-height: 100vh;
-    padding-top: 80px;
-}
-
-
-/* ================================================================
-   SIDEBAR
-   ================================================================ */
-
-.sidebar {
-    position: fixed;
-    top: 80px;
-    bottom: 0;
-    left: 0;
-    width: 245px;
-    z-index: 900;
+.form-section-heading {
     display: flex;
-    flex-direction: column;
-    background: #ffffff;
-    border-right: 1px solid var(--border);
+    align-items: flex-start;
+    gap: 13px;
+    margin-bottom: 18px;
 }
 
-.sidebar-heading {
-    padding: 26px 22px 13px;
-    color: var(--text-muted);
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1.1px;
-}
-
-.sidebar-nav {
-    padding: 0 12px;
-}
-
-.nav-item {
-    position: relative;
+.section-number {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    min-height: 45px;
-    margin-bottom: 4px;
-    padding: 0 12px;
-    color: var(--text-secondary);
+    justify-content: center;
     border-radius: 9px;
-    text-decoration: none;
-    font-size: 12.5px;
-    font-weight: 600;
-    transition: background 0.2s ease, color 0.2s ease;
+    background: var(--dean-green-soft);
+    color: var(--dean-green);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
 }
 
-    .nav-item:hover {
-        color: var(--navy);
-        background: #f5f8fb;
-    }
-
-    .nav-item.active {
-        color: var(--green-dark);
-        background: var(--green-soft);
-    }
-
-        .nav-item.active::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 9px;
-            bottom: 9px;
-            width: 3px;
-            background: var(--green);
-            border-radius: 0 4px 4px 0;
-        }
-
-.nav-icon {
-    width: 25px;
-    height: 25px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    font-size: 16px;
+.form-section-heading h3 {
+    margin: 0;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
 }
 
-.nav-item.active .nav-icon {
-    color: var(--green);
+.form-section-heading p {
+    margin: 4px 0 0;
+    color: var(--dean-text-muted);
+    font-size: 9.5px;
+    line-height: 1.45;
 }
 
+/* ==========================================================================
+   FORM GRID
+   ========================================================================== */
 
-/* Sidebar footer */
-
-.sidebar-footer {
-    margin-top: auto;
-    padding: 18px 15px;
-    border-top: 1px solid var(--border-light);
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 20px;
 }
 
-.security-note {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    background: #f8fafc;
-    border: 1px solid var(--border-light);
-    border-radius: 10px;
-}
-
-.security-icon {
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--green-dark);
-    background: var(--green-soft);
-    border-radius: 8px;
-    font-size: 15px;
-}
-
-.security-text {
+.form-field {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
-    .security-text strong {
-        color: var(--text);
+    .form-field label {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--dean-text-secondary);
         font-size: 10px;
         font-weight: 700;
     }
 
-    .security-text span {
-        margin-top: 2px;
-        color: var(--text-muted);
-        font-size: 9px;
-    }
-
-
-/* ================================================================
-   MAIN CONTENT
-   ================================================================ */
-
-.main-content {
-    min-height: calc(100vh - 80px);
-    margin-left: 245px;
-    padding: 30px 32px 0;
-}
-
-
-/* ================================================================
-   PAGE HEADING
-   ================================================================ */
-
-.page-heading {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 24px;
-}
-
-.breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-bottom: 9px;
-    color: var(--text-muted);
-    font-size: 10px;
-    font-weight: 600;
-}
-
-    .breadcrumb i {
-        font-size: 11px;
-    }
-
-    .breadcrumb strong {
-        color: var(--text-secondary);
-    }
-
-.page-heading h1 {
-    margin: 0;
-    color: var(--navy);
-    font-family: "Poppins", sans-serif;
-    font-size: 25px;
-    font-weight: 700;
-    letter-spacing: -0.4px;
-}
-
-.page-heading p {
-    max-width: 650px;
-    margin: 6px 0 0;
-    color: var(--text-muted);
-    font-size: 12px;
-}
-
-
-/* Back button */
-
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 9px 13px;
-    color: var(--text-secondary);
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 10px;
-    font-weight: 700;
-    transition: all 0.2s ease;
-}
-
-    .back-link:hover {
-        color: var(--green-dark);
-        border-color: var(--green-border);
-        background: var(--green-soft);
-    }
-
-
-/* ================================================================
-   ALERTS
-   ================================================================ */
-
-.alert-box {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 18px;
-    padding: 14px 16px;
-    border-radius: 12px;
-    font-size: 10px;
-}
-
-.alert-icon {
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border-radius: 8px;
-    font-size: 15px;
-}
-
-.alert-content {
-    display: flex;
-    flex-direction: column;
-}
-
-    .alert-content strong {
-        font-size: 11px;
-        font-weight: 800;
-    }
-
-    .alert-content p {
-        margin: 3px 0 0;
-        line-height: 1.55;
-    }
-
-.bootstrap-alert {
-    color: #92400e;
-    background: var(--amber-soft);
-    border: 1px solid var(--amber-border);
-}
-
-    .bootstrap-alert .alert-icon {
-        color: var(--amber);
-        background: #fef3c7;
-    }
-
-.success-alert {
-    color: #166534;
-    background: var(--green-soft);
-    border: 1px solid var(--green-border);
-}
-
-    .success-alert .alert-icon {
-        color: var(--green-dark);
-        background: #d1fae5;
-    }
-
-.error-alert {
-    color: #991b1b;
-    background: var(--red-soft);
-    border: 1px solid var(--red-border);
-}
-
-    .error-alert .alert-icon {
-        color: var(--red);
-        background: #fee2e2;
-    }
-
-
-/* ================================================================
-   CONTENT CARD
-   ================================================================ */
-
-.content-card {
-    margin-bottom: 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    padding: 19px 21px;
-    border-bottom: 1px solid var(--border-light);
-}
-
-.card-heading {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.section-icon {
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: var(--green-dark);
-    background: var(--green-soft);
-    border-radius: 9px;
-    font-size: 17px;
-}
-
-.card-heading h2 {
-    margin: 0;
-    color: var(--navy);
-    font-family: "Poppins", sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.card-heading p {
-    margin: 3px 0 0;
-    color: var(--text-muted);
-    font-size: 10px;
-}
-
-
-/* ================================================================
-   FORM
-   ================================================================ */
-
-.registration-form {
-    padding: 22px;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px 18px;
-}
-
-.form-group {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-    .form-group label,
-    .signature-heading label {
-        margin-bottom: 7px;
-        color: var(--text);
-        font-size: 10.5px;
-        font-weight: 700;
-    }
-
 .required {
-    color: var(--green);
+    margin-left: 2px;
+    color: var(--dean-green);
     font-weight: 800;
 }
 
-
-/* ================================================================
+/* ==========================================================================
    INPUTS
-   ================================================================ */
+   ========================================================================== */
 
 .input-wrapper {
     position: relative;
 }
 
-.input-icon {
-    position: absolute;
-    top: 50%;
-    left: 13px;
-    z-index: 2;
-    color: #94a3b8;
-    font-size: 14px;
-    transform: translateY(-50%);
-    pointer-events: none;
-    transition: color 0.2s ease;
-}
+    .input-wrapper > i {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        z-index: 2;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 15px;
+        pointer-events: none;
+        transition: color var(--dean-transition);
+    }
 
-.form-control,
-.form-select {
+.form-control {
     width: 100%;
     min-height: 42px;
-    padding: 10px 12px;
-    color: var(--text);
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    padding: 10px 13px 10px 39px;
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius-sm);
     outline: none;
+    background: var(--dean-surface);
+    color: var(--dean-text);
+    font-family: inherit;
     font-size: 11px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color var(--dean-transition), box-shadow var(--dean-transition), background var(--dean-transition);
 }
-
-    .form-control.has-icon,
-    .form-select.has-icon {
-        padding-left: 38px;
-    }
 
     .form-control::placeholder {
         color: #94a3b8;
     }
 
-.form-select {
+    .form-control:hover {
+        border-color: #cbd5e1;
+    }
+
+    .form-control:focus {
+        border-color: var(--dean-green);
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.10);
+    }
+
+    .form-control:disabled {
+        background: #f8fafc;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+
+.input-wrapper:focus-within > i {
+    color: var(--dean-green);
+}
+
+/* ==========================================================================
+   SELECT
+   ========================================================================== */
+
+.select-wrapper .form-control {
+    appearance: none;
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
     cursor: pointer;
 }
 
-    .form-control:focus,
-    .form-select:focus {
-        border-color: var(--green);
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.09);
+    .select-wrapper .form-control:focus {
+        border-color: var(--dean-green);
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.10);
     }
 
-.input-wrapper:focus-within .input-icon {
-    color: var(--green);
-}
-
-
-/* ================================================================
-   FIELD HELP
-   ================================================================ */
+/* ==========================================================================
+   HELP & VALIDATION
+   ========================================================================== */
 
 .field-help {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 6px;
-    color: var(--text-muted);
+    display: block;
+    margin-top: 7px;
+    color: var(--dean-text-muted);
     font-size: 9px;
+    line-height: 1.4;
 }
 
     .field-help i {
-        color: #94a3b8;
-        font-size: 10px;
+        margin-right: 4px;
     }
 
-
-/* ================================================================
-   ROLE-SPECIFIC FIELDS
-   ================================================================ */
-
-#departmentGroup,
-#managementTitleGroup {
-    display: none;
-}
-
-    #departmentGroup.visible,
-    #managementTitleGroup.visible {
-        display: flex;
-    }
-
-
-/* ================================================================
-   VALIDATION
-   ================================================================ */
-
-.validation-message {
-    margin-top: 5px;
-    color: var(--red);
+.field-validation {
+    display: block;
+    margin-top: 6px;
+    color: var(--dean-red);
     font-size: 9px;
+    font-weight: 600;
+    line-height: 1.4;
 }
 
-
-/* ================================================================
-   ROLE INFORMATION
-   ================================================================ */
-
-.role-info {
-    grid-column: 1 / -1;
-    display: none;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 12px 14px;
-    color: var(--text-secondary);
-    background: #f8fafc;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-}
-
-    .role-info.visible {
-        display: flex;
+    .field-validation:empty {
+        display: none;
     }
 
-.role-info-icon {
-    width: 29px;
-    height: 29px;
+.input-validation-error {
+    border-color: var(--dean-red) !important;
+    background: #fffafa;
+}
+
+    .input-validation-error:focus {
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.10);
+    }
+
+/* ==========================================================================
+   SIGNATURE SECTION
+   ========================================================================== */
+
+.signature-section {
+    border-bottom: none;
+}
+
+.signature-panel {
+    overflow: hidden;
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius-sm);
+    background: #fafcfe;
+}
+
+.signature-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--dean-border-light);
+    background: var(--dean-surface);
+}
+
+.signature-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.signature-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    color: var(--green-dark);
-    background: var(--green-soft);
-    border-radius: 7px;
-    font-size: 13px;
+    border-radius: 9px;
+    background: var(--dean-green-soft);
+    color: var(--dean-green);
+    font-size: 16px;
 }
 
-.role-info > div:last-child {
-    display: flex;
-    flex-direction: column;
+.signature-title h4 {
+    margin: 0;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
 }
 
-.role-info strong {
-    color: var(--navy);
-    font-size: 10px;
-    font-weight: 800;
+.signature-title p {
+    margin: 3px 0 0;
+    color: var(--dean-text-muted);
+    font-size: 9px;
 }
 
-.role-info span {
-    margin-top: 2px;
-    color: var(--text-muted);
-    font-size: 9.5px;
-    line-height: 1.5;
-}
-
-
-/* ================================================================
-   SIGNATURE
-   ================================================================ */
-
-.signature-section {
-    grid-column: 1 / -1;
-}
-
-.signature-heading {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 8px;
-}
-
-    .signature-heading label {
-        display: block;
-        margin-bottom: 2px;
-    }
-
-    .signature-heading p {
-        margin: 0;
-        color: var(--text-muted);
-        font-size: 9px;
-    }
-
-.signature-required {
+.signature-required-badge {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 5px 8px;
-    color: var(--green-dark);
-    background: var(--green-soft);
-    border: 1px solid var(--green-border);
-    border-radius: 6px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #fff7ed;
+    color: #c2410c;
     font-size: 8px;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.3px;
 }
 
-.signature-container {
-    overflow: hidden;
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-}
+/* ==========================================================================
+   SIGNATURE CANVAS
+   ========================================================================== */
 
-.signature-canvas-area {
+.signature-canvas-container {
     position: relative;
-    height: 190px;
-    background: linear-gradient( rgba(226, 232, 240, 0.45) 1px, transparent 1px ), linear-gradient( 90deg, rgba(226, 232, 240, 0.35) 1px, transparent 1px );
-    background-size: 28px 28px;
+    min-height: 190px;
+    margin: 16px;
+    overflow: hidden;
+    border: 1px dashed #94a3b8;
+    border-radius: var(--dean-radius-sm);
+    background: var(--dean-surface);
 }
 
-#signaturePad {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+.signature-canvas {
     display: block;
-    background: rgba(255, 255, 255, 0.72);
-    cursor: crosshair;
+    width: 100%;
+    height: 190px;
     touch-action: none;
+    cursor: crosshair;
+    background: var(--dean-surface);
 }
 
-.signature-placeholder {
+    .signature-canvas:focus-visible {
+        outline: 3px solid rgba(5, 150, 105, 0.15);
+        outline-offset: -3px;
+    }
+
+.signature-canvas-placeholder {
     position: absolute;
-    inset: 0;
-    z-index: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
-    justify-content: center;
-    flex-direction: column;
     gap: 7px;
-    color: #94a3b8;
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 700;
     pointer-events: none;
-    font-size: 10px;
+    transition: opacity var(--dean-transition);
 }
 
-    .signature-placeholder i {
-        font-size: 22px;
-        color: #cbd5e1;
+    .signature-canvas-placeholder i {
+        font-size: 16px;
     }
 
-    .signature-placeholder.hidden {
-        display: none;
-    }
+.signature-placeholder-hidden {
+    opacity: 0;
+}
 
-.signature-footer {
-    min-height: 48px;
+/* ==========================================================================
+   SIGNATURE ACTIONS
+   ========================================================================== */
+
+.signature-actions {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 9px 11px;
-    background: #f8fafc;
-    border-top: 1px solid var(--border);
+    gap: 15px;
+    padding: 0 16px 16px;
 }
 
-.signature-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-muted);
-    font-size: 9px;
-}
-
-.signature-status-icon {
-    width: 25px;
-    height: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: var(--green-dark);
-    background: var(--green-soft);
-    border-radius: 6px;
-    font-size: 12px;
-}
-
-.clear-signature {
+.signature-status-text {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 6px 9px;
-    color: #b45309;
-    background: transparent;
-    border: 1px solid #fed7aa;
-    border-radius: 6px;
+    gap: 6px;
+    color: var(--dean-text-muted);
     font-size: 9px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-    .clear-signature:hover {
-        color: #92400e;
-        background: #fffbeb;
-        border-color: #f59e0b;
+    .signature-status-text i {
+        font-size: 11px;
     }
 
-
-/* ================================================================
-   INFORMATION BOX
-   ================================================================ */
-
-.info-box {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: flex-start;
-    gap: 11px;
-    padding: 13px 14px;
-    color: #1e5d47;
-    background: var(--green-soft);
-    border: 1px solid var(--green-border);
-    border-radius: 10px;
+.signature-status-success {
+    color: var(--dean-green-dark);
+    font-weight: 700;
 }
 
-.info-box-icon {
-    width: 29px;
-    height: 29px;
+.signature-validation {
+    margin: 0 16px 12px;
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: var(--dean-radius-sm);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--dean-transition), border-color var(--dean-transition), transform var(--dean-transition), box-shadow var(--dean-transition);
+}
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn:active {
+        transform: translateY(0);
+    }
+
+    .btn:focus-visible {
+        outline: 3px solid rgba(5, 150, 105, 0.18);
+        outline-offset: 2px;
+    }
+
+.btn-primary {
+    border-color: var(--dean-green);
+    background: var(--dean-green);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.18);
+}
+
+    .btn-primary:hover {
+        border-color: var(--dean-green-dark);
+        background: var(--dean-green-dark);
+        color: #ffffff;
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+.btn-secondary {
+    border-color: var(--dean-border);
+    background: var(--dean-surface);
+    color: var(--dean-text-secondary);
+}
+
+    .btn-secondary:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+        color: var(--dean-navy);
+    }
+
+/* ==========================================================================
+   BUTTON SPINNER
+   ========================================================================== */
+
+.button-spinner {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: register-spin 0.7s linear infinite;
+}
+
+@keyframes register-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================================
+   INFORMATION BOX
+   ========================================================================== */
+
+.registration-info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    margin: 0 24px 0;
+    padding: 14px 16px;
+    border: 1px solid var(--dean-green-border);
+    border-radius: var(--dean-radius-sm);
+    background: var(--dean-green-soft);
+}
+
+.info-icon {
+    width: 31px;
+    height: 31px;
+    flex: 0 0 31px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    color: var(--green-dark);
+    border-radius: var(--dean-radius-sm);
     background: #d1fae5;
-    border-radius: 7px;
-    font-size: 13px;
+    color: var(--dean-green);
+    font-size: 15px;
 }
 
-.info-box > div:last-child {
-    display: flex;
-    flex-direction: column;
+.info-content {
+    min-width: 0;
 }
 
-.info-box strong {
-    color: #14532d;
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.info-box p {
-    margin: 3px 0 0;
-    color: #276749;
-    font-size: 9.5px;
-    line-height: 1.55;
-}
-
-    .info-box p + p {
-        margin-top: 5px;
+    .info-content h4 {
+        margin: 0 0 4px;
+        color: var(--dean-green-dark);
+        font-size: 10px;
+        font-weight: 800;
     }
 
+    .info-content p {
+        margin: 0;
+        color: var(--dean-text-secondary);
+        font-size: 9.5px;
+        line-height: 1.55;
+    }
 
-/* ================================================================
+/* ==========================================================================
    FORM ACTIONS
-   ================================================================ */
+   ========================================================================== */
 
 .form-actions {
     display: flex;
@@ -935,306 +793,324 @@ textarea {
     justify-content: flex-end;
     gap: 9px;
     margin-top: 22px;
-    padding-top: 18px;
-    border-top: 1px solid var(--border);
+    padding: 18px 24px;
+    border-top: 1px solid var(--dean-border-light);
+    background: var(--dean-surface);
 }
 
-.cancel-button,
-.create-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    min-height: 39px;
-    padding: 0 15px;
-    border-radius: 8px;
-    font-size: 10px;
-    font-weight: 700;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
 
-.cancel-button {
-    color: var(--text-secondary);
-    background: #ffffff;
-    border: 1px solid var(--border);
-}
-
-    .cancel-button:hover {
-        color: var(--navy);
-        background: #f8fafc;
-        border-color: #cbd5e1;
+@media (max-width: 992px) {
+    .register-user-page {
+        max-width: none;
     }
 
-.create-button {
-    color: #ffffff;
-    background: var(--green);
-    border: 1px solid var(--green);
-}
-
-    .create-button:hover {
-        background: var(--green-dark);
-        border-color: var(--green-dark);
-        transform: translateY(-1px);
-        box-shadow: 0 5px 12px rgba(5, 150, 105, 0.18);
+    .register-header-icon {
+        display: none;
     }
-
-    .create-button:active {
-        transform: translateY(0);
-    }
-
-
-/* ================================================================
-   FOOTER
-   ================================================================ */
-
-.portal-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 30px -32px 0;
-    padding: 20px 32px;
-    color: rgba(255, 255, 255, 0.62);
-    background: var(--navy-dark);
-    font-size: 9px;
-}
-
-    .portal-footer > div:first-child {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-    }
-
-    .portal-footer strong {
-        color: #ffffff;
-        font-size: 10px;
-    }
-
-.footer-right {
-    text-align: right;
-}
-
-
-/* ================================================================
-   RESPONSIVE — TABLET
-   ================================================================ */
-
-@media (max-width: 950px) {
 
     .form-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
 
-    .role-info,
-    .signature-section,
-    .info-box {
-        grid-column: 1;
-    }
-}
-
-
-/* ================================================================
-   RESPONSIVE — SMALL TABLET
-   ================================================================ */
-
-@media (max-width: 850px) {
-
-    .sidebar {
-        width: 205px;
-    }
-
-    .main-content {
-        margin-left: 205px;
-        padding-left: 22px;
-        padding-right: 22px;
-    }
-
-    .portal-footer {
-        margin-left: -22px;
-        margin-right: -22px;
-        padding-left: 22px;
-        padding-right: 22px;
-    }
-
-    .page-heading {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 12px;
-    }
-}
-
-
-/* ================================================================
-   RESPONSIVE — MOBILE
-   ================================================================ */
-
-@media (max-width: 700px) {
-
-    .topbar {
-        height: 68px;
-        padding: 0 15px;
-    }
-
-    .app-body {
-        padding-top: 68px;
-    }
-
-    .sidebar {
-        position: relative;
-        top: auto;
-        bottom: auto;
-        width: 100%;
-        min-height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .sidebar-heading {
-        padding: 15px 17px 8px;
-    }
-
-    .sidebar-nav {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 4px;
-        padding: 0 10px 10px;
-    }
-
-    .nav-item {
-        margin: 0;
-        min-height: 40px;
-    }
-
-        .nav-item.active::before {
-            display: none;
-        }
-
-    .sidebar-footer {
-        display: none;
-    }
-
-    .main-content {
-        margin-left: 0;
-        padding: 22px 15px 0;
-    }
-
-    .brand-subtitle {
-        display: none;
-    }
-
-    .role-indicator {
-        display: none;
-    }
-
-    .logout-link span {
-        display: none;
-    }
-
-    .logout-link {
-        width: 35px;
-        height: 35px;
-        padding: 0;
-        justify-content: center;
-    }
-
-    .page-heading h1 {
-        font-size: 21px;
-    }
-
-    .card-header {
-        padding: 16px;
-    }
-
-    .registration-form {
-        padding: 16px;
-    }
-
-    .signature-heading {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .signature-canvas-area {
-        height: 170px;
-    }
-
-    .signature-footer {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .signature-status {
-        align-items: flex-start;
-    }
-
-    .clear-signature {
-        align-self: flex-end;
+    .registration-info-box {
+        margin: 0 20px 0;
     }
 
     .form-actions {
-        flex-direction: column-reverse;
+        padding: 16px 20px;
     }
 
-    .cancel-button,
-    .create-button {
-        width: 100%;
-    }
-
-    .portal-footer {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 10px;
-        margin-left: -15px;
-        margin-right: -15px;
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-
-    .footer-right {
-        text-align: left;
+    .form-section {
+        padding: 20px;
     }
 }
 
-
-/* ================================================================
-   RESPONSIVE — VERY SMALL
-   ================================================================ */
-
-@media (max-width: 430px) {
-
-    .topbar {
-        padding: 0 10px;
+@media (max-width: 768px) {
+    .register-user-page {
+        padding-bottom: 16px;
     }
 
-    .brand-title {
-        font-size: 13px;
+    .register-page-header {
+        margin-bottom: 18px;
     }
 
-    .brand-logo {
-        width: 37px;
-        height: 37px;
-    }
-
-        .brand-logo img {
-            width: 30px;
-            height: 30px;
+        .register-page-header h1 {
+            font-size: 21px;
         }
 
-    .sidebar-nav {
-        grid-template-columns: 1fr;
+            .register-page-header h1 > i {
+                font-size: 19px;
+            }
+
+        .register-page-header p {
+            font-size: 10px;
+        }
+
+    .register-breadcrumb {
+        font-size: 9px;
     }
 
-    .card-heading h2 {
+    .registration-card {
+        border-radius: 10px;
+    }
+
+    .registration-card-header {
+        padding: 16px 18px;
+    }
+
+        .registration-card-header h2 {
+            font-size: 13px;
+        }
+
+    .card-header-icon {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+        font-size: 18px;
+    }
+
+    .form-section {
+        padding: 18px;
+    }
+
+    .form-section-heading {
+        margin-bottom: 16px;
+    }
+
+        .form-section-heading h3 {
+            font-size: 13px;
+        }
+
+    .form-grid {
+        gap: 14px;
+    }
+
+    .signature-panel-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .signature-canvas-container {
+        margin: 14px;
+        min-height: 170px;
+    }
+
+    .signature-canvas {
+        height: 170px;
+    }
+
+    .signature-actions {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 0 14px 14px;
+    }
+
+    .signature-status-text {
+        justify-content: center;
+    }
+
+    .registration-info-box {
+        margin: 0 18px 0;
+        padding: 12px 14px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+        padding: 14px 18px;
+        gap: 7px;
+    }
+
+        .form-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+}
+
+@media (max-width: 480px) {
+    .register-page-header h1 {
+        font-size: 18px;
+    }
+
+    .register-page-header p {
+        font-size: 9.5px;
+    }
+
+    .register-breadcrumb {
+        font-size: 8px;
+    }
+
+    .registration-card-header {
+        padding: 14px 14px;
+    }
+
+        .registration-card-header h2 {
+            font-size: 12px;
+        }
+
+    .card-header-icon {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+        font-size: 16px;
+    }
+
+    .form-section {
+        padding: 14px;
+    }
+
+    .section-number {
+        width: 30px;
+        height: 30px;
+        flex-basis: 30px;
+        font-size: 10px;
+    }
+
+    .form-section-heading h3 {
         font-size: 12px;
     }
 
-    .info-box {
-        gap: 8px;
+    .form-control {
+        min-height: 38px;
+        font-size: 10px;
+        padding-left: 34px;
     }
 
-        .info-box p {
-            font-size: 9px;
-        }
+    .input-wrapper > i {
+        left: 10px;
+        font-size: 13px;
+    }
+
+    .signature-canvas-container {
+        min-height: 150px;
+        margin: 10px;
+    }
+
+    .signature-canvas {
+        height: 150px;
+    }
+
+    .signature-panel-header {
+        padding: 10px 12px;
+    }
+
+    .signature-title h4 {
+        font-size: 11px;
+    }
+
+    .registration-info-box {
+        margin: 0 14px 0;
+        padding: 10px 12px;
+    }
+
+    .form-actions {
+        padding: 12px 14px;
+    }
+
+    .btn {
+        min-height: 36px;
+        font-size: 9px;
+    }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+
+    .btn,
+    .form-control,
+    .alert-close,
+    .signature-canvas-placeholder {
+        transition: none !important;
+    }
+
+    .button-spinner {
+        animation: none !important;
+    }
+
+    .btn:hover {
+        transform: none !important;
+    }
+}
+
+/* ==========================================================================
+   PRINT
+   ========================================================================== */
+
+@media print {
+    .register-user-page {
+        max-width: none;
+        padding: 0;
+    }
+
+    .register-page-header {
+        margin-bottom: 15px;
+    }
+
+    .register-header-icon,
+    .register-breadcrumb,
+    .register-alert,
+    .form-actions,
+    .signature-actions,
+    .alert-close {
+        display: none !important;
+    }
+
+    .registration-card {
+        border: 1px solid #ccc;
+        border-radius: 0;
+        box-shadow: none !important;
+    }
+
+    .registration-card-header {
+        padding: 12px 0;
+        background: transparent !important;
+    }
+
+    .form-section {
+        padding: 12px 0;
+        border-bottom-color: #ddd;
+        break-inside: avoid;
+    }
+
+    .registration-info-box {
+        margin: 12px 0 0;
+        border-color: #ccc;
+        background: transparent !important;
+        break-inside: avoid;
+    }
+
+    .signature-canvas-container {
+        margin: 10px 0;
+        border: 1px solid #ccc;
+    }
+
+    .signature-canvas {
+        height: 150px;
+    }
+
+    .btn {
+        border-color: #999 !important;
+        background: transparent !important;
+        color: #000 !important;
+        box-shadow: none !important;
+    }
+
+    .form-control {
+        border-color: #ccc !important;
+    }
 }

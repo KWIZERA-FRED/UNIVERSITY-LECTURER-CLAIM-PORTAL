@@ -1,362 +1,82 @@
-/* ============================================================
-   UNILAK DEAN CONTRACTS PAGE
-   Academic Staff Engagement & Claim Processing System
-   ============================================================ */
+/* ==========================================================================
+   UNILAK DEAN PORTAL
+   CONTRACT MANAGEMENT PAGE
+   /DEAN/Contracts
+   ========================================================================== */
+
+
+/* ==========================================================================
+   DESIGN TOKENS
+   ========================================================================== */
 
 :root {
-    --navy: #0f172a;
-    --navy-light: #172554;
-    --navy-soft: #1e293b;
-    --green: #059669;
-    --green-dark: #047857;
-    --green-light: #ecfdf5;
-    --blue: #2563eb;
-    --blue-light: #eff6ff;
-    --amber: #d97706;
-    --amber-light: #fffbeb;
-    --red: #dc2626;
-    --red-dark: #b91c1c;
-    --red-light: #fef2f2;
-    --purple: #7c3aed;
-    --purple-light: #f5f3ff;
-    --gray-50: #f8fafc;
-    --gray-100: #f1f5f9;
-    --gray-200: #e2e8f0;
-    --gray-300: #cbd5e1;
-    --gray-400: #94a3b8;
-    --gray-500: #64748b;
-    --gray-600: #475569;
-    --gray-700: #334155;
-    --gray-800: #1e293b;
-    --white: #ffffff;
-    --border-radius: 16px;
-    --small-radius: 10px;
-    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-    --shadow-md: 0 8px 25px rgba(15, 23, 42, 0.07);
-    --shadow-lg: 0 15px 40px rgba(15, 23, 42, 0.10);
+    --dean-navy: #0f2742;
+    --dean-navy-dark: #091c31;
+    --dean-navy-light: #183b60;
+    --dean-green: #059669;
+    --dean-green-dark: #047857;
+    --dean-green-soft: #ecfdf5;
+    --dean-green-border: #a7f3d0;
+    --dean-blue: #2563eb;
+    --dean-blue-soft: #eff6ff;
+    --dean-blue-border: #bfdbfe;
+    --dean-amber: #b45309;
+    --dean-amber-soft: #fffbeb;
+    --dean-amber-border: #fde68a;
+    --dean-red: #dc2626;
+    --dean-red-dark: #b91c1c;
+    --dean-red-soft: #fef2f2;
+    --dean-red-border: #fecaca;
+    --dean-purple: #7c3aed;
+    --dean-purple-soft: #f5f3ff;
+    --dean-purple-border: #ddd6fe;
+    --dean-background: #f5f7fb;
+    --dean-surface: #ffffff;
+    --dean-border: #dfe5ec;
+    --dean-border-light: #edf1f5;
+    --dean-text: #172033;
+    --dean-text-secondary: #475569;
+    --dean-text-muted: #64748b;
+    --dean-shadow-sm: 0 2px 8px rgba(15, 39, 66, 0.05);
+    --dean-shadow-md: 0 8px 24px rgba(15, 39, 66, 0.08);
+    --dean-shadow-lg: 0 18px 45px rgba(15, 39, 66, 0.12);
+    --dean-radius: 12px;
+    --dean-radius-sm: 8px;
+    --dean-transition: 160ms ease;
 }
 
 
-/* ============================================================
-   RESET
-   ============================================================ */
+/* ==========================================================================
+   PAGE
+   ========================================================================== */
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+.contracts-page {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 28px clamp(24px, 3vw, 48px) 50px;
+    color: var(--dean-text);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 
-html {
-    scroll-behavior: smooth;
-}
-
-
-body {
-    font-family: "Plus Jakarta Sans", Arial, sans-serif;
-    background: var(--gray-50);
-    color: var(--gray-800);
-    line-height: 1.6;
-    min-height: 100vh;
-}
-
-
-button,
-input,
-textarea,
-select {
-    font: inherit;
-}
-
-
-button {
-    cursor: pointer;
-}
-
-
-a {
-    color: inherit;
-    text-decoration: none;
-}
-
-
-/* ============================================================
-   TOP NAVBAR
-   ============================================================ */
-
-.top-navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 28px;
-    background: linear-gradient( 135deg, rgba(15, 23, 42, 0.98), rgba(23, 37, 84, 0.98) );
-    color: var(--white);
-    z-index: 1000;
-    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.15);
-}
-
-
-.brand-section {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-}
-
-
-.unilak-logo {
-    width: 47px;
-    height: 47px;
-    object-fit: contain;
-}
-
-
-.brand-text {
-    display: flex;
-    flex-direction: column;
-}
-
-
-.brand-title {
-    font-family: "Poppins", sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: 0.2px;
-}
-
-
-.brand-subtitle {
-    margin-top: 3px;
-    font-size: 11px;
-    color: #cbd5e1;
-    font-weight: 500;
-}
-
-
-.navbar-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-
-.role-indicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.13);
-    border-radius: 9px;
-    background: rgba(255, 255, 255, 0.06);
-    font-size: 13px;
-    font-weight: 600;
-    color: #e2e8f0;
-}
-
-
-    .role-indicator i {
-        color: #6ee7b7;
-    }
-
-
-.user-avatar {
-    width: 39px;
-    height: 39px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    color: white;
-    font-size: 18px;
-}
-
-
-.mobile-menu-button {
-    display: none;
-    width: 40px;
-    height: 40px;
-    border: 0;
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
-    border-radius: 9px;
-    font-size: 21px;
-}
-
-
-/* ============================================================
-   SIDEBAR
-   ============================================================ */
-
-.sidebar {
-    position: fixed;
-    top: 80px;
-    bottom: 0;
-    left: 0;
-    width: 245px;
-    display: flex;
-    flex-direction: column;
-    background: var(--white);
-    border-right: 1px solid var(--gray-200);
-    z-index: 900;
-}
-
-
-.sidebar-heading {
-    padding: 27px 22px 13px;
-    font-size: 10px;
-    letter-spacing: 1.4px;
-    font-weight: 800;
-    color: var(--gray-400);
-}
-
-
-.sidebar-navigation {
-    padding: 4px 12px;
-}
-
-
-.sidebar-link {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    min-height: 48px;
-    padding: 0 13px;
-    margin-bottom: 5px;
-    border-radius: 11px;
-    color: var(--gray-600);
-    font-size: 13px;
-    font-weight: 600;
-    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-
-    .sidebar-link:hover {
-        background: var(--gray-100);
-        color: var(--navy);
-        transform: translateX(2px);
-    }
-
-
-    .sidebar-link.active {
-        background: var(--green-light);
-        color: var(--green-dark);
-    }
-
-
-        .sidebar-link.active::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 10px;
-            bottom: 10px;
-            width: 3px;
-            border-radius: 0 4px 4px 0;
-            background: var(--green);
-        }
-
-
-.sidebar-icon {
-    width: 23px;
-    display: flex;
-    justify-content: center;
-    font-size: 16px;
-}
-
-
-.sidebar-bottom {
-    margin-top: auto;
-    padding: 18px 15px;
-    border-top: 1px solid var(--gray-200);
-}
-
-
-.sidebar-system-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    background: var(--gray-50);
-    border: 1px solid var(--gray-200);
-    border-radius: 11px;
-}
-
-
-.system-icon {
-    width: 35px;
-    height: 35px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9px;
-    background: var(--green-light);
-    color: var(--green);
-    font-size: 15px;
-}
-
-
-.sidebar-system-info div:last-child {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-
-.sidebar-system-info strong {
-    font-size: 10px;
-    color: var(--gray-700);
-}
-
-
-.sidebar-system-info span {
-    font-size: 9px;
-    color: var(--gray-400);
-}
-
-
-/* ============================================================
-   SIDEBAR OVERLAY
-   ============================================================ */
-
-.sidebar-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.45);
-    z-index: 850;
-}
-
-
-/* ============================================================
-   MAIN CONTENT
-   ============================================================ */
-
-.main-content {
-    margin-left: 245px;
-    padding: 112px 30px 60px;
-    max-width: 1700px;
-    min-height: calc(100vh - 80px);
-}
-
-
-/* ============================================================
+/* ==========================================================================
    PAGE HEADER
-   ============================================================ */
+   ========================================================================== */
 
 .page-header {
     display: flex;
-    justify-content: space-between;
     align-items: flex-end;
-    margin-bottom: 27px;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 28px;
+}
+
+
+.page-header-content {
+    min-width: 0;
 }
 
 
@@ -364,932 +84,1384 @@ a {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
-    font-size: 11px;
-    color: var(--gray-400);
+    margin-bottom: 8px;
+    color: var(--dean-text-muted);
+    font-size: 12px;
     font-weight: 600;
 }
 
 
     .breadcrumb i {
-        font-size: 9px;
+        color: #94a3b8;
+        font-size: 10px;
     }
 
 
-.page-header h1 {
-    font-family: "Poppins", sans-serif;
-    font-size: 29px;
-    line-height: 1.2;
-    color: var(--navy);
-    font-weight: 700;
-}
-
-
-.page-header p {
-    margin-top: 7px;
-    color: var(--gray-500);
-    font-size: 13px;
-}
-
-
-/* ============================================================
-   ALERTS
-   ============================================================ */
-
-.alert {
-    display: flex;
-    align-items: flex-start;
-    gap: 13px;
-    padding: 15px 17px;
-    margin-bottom: 20px;
-    border-radius: 12px;
-    border: 1px solid;
-}
-
-
-.alert-success {
-    background: var(--green-light);
-    border-color: #a7f3d0;
-    color: var(--green-dark);
-}
-
-
-.alert-danger {
-    background: var(--red-light);
-    border-color: #fecaca;
-    color: var(--red-dark);
-}
-
-
-.alert-icon {
-    font-size: 18px;
-}
-
-
-.alert-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-}
-
-
-    .alert-content strong {
-        font-size: 12px;
-    }
-
-
-    .alert-content span {
-        font-size: 12px;
-    }
-
-
-/* ============================================================
-   SUMMARY CARDS
-   ============================================================ */
-
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 17px;
-    margin-bottom: 24px;
-}
-
-
-.summary-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 19px;
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-sm);
-}
-
-
-.summary-icon {
-    width: 46px;
-    height: 46px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    font-size: 19px;
-}
-
-
-    .summary-icon.blue {
-        background: var(--blue-light);
-        color: var(--blue);
-    }
-
-
-    .summary-icon.amber {
-        background: var(--amber-light);
-        color: var(--amber);
-    }
-
-
-    .summary-icon.green {
-        background: var(--green-light);
-        color: var(--green);
-    }
-
-
-    .summary-icon.red {
-        background: var(--red-light);
-        color: var(--red);
-    }
-
-
-.summary-information {
-    display: flex;
-    flex-direction: column;
-}
-
-
-.summary-label {
-    font-size: 10px;
-    color: var(--gray-500);
-    font-weight: 600;
-    margin-bottom: 2px;
-}
-
-
-.summary-information strong {
-    font-family: "Poppins", sans-serif;
-    font-size: 23px;
-    line-height: 1.2;
-    color: var(--navy);
-}
-
-
-/* ============================================================
-   CONTENT CARDS
-   ============================================================ */
-
-.content-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-sm);
-    margin-bottom: 22px;
-    overflow: hidden;
-}
-
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    padding: 21px 23px;
-    border-bottom: 1px solid var(--gray-200);
-}
-
-
-    .card-header h2 {
-        font-family: "Poppins", sans-serif;
-        font-size: 16px;
-        color: var(--navy);
+    .breadcrumb .current {
+        color: var(--dean-text-secondary);
         font-weight: 700;
     }
 
 
-    .card-header p {
-        margin-top: 4px;
-        font-size: 11px;
-        color: var(--gray-500);
+.page-title {
+    margin: 0;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 30px;
+    font-weight: 750;
+    letter-spacing: -0.7px;
+    line-height: 1.2;
+}
+
+
+.page-subtitle {
+    max-width: 760px;
+    margin: 8px 0 0;
+    color: var(--dean-text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* ==========================================================================
+   SUMMARY CARDS
+   ========================================================================== */
+
+.contract-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+
+.summary-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    min-height: 118px;
+    padding: 22px;
+    background: var(--dean-surface);
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius);
+    box-shadow: var(--dean-shadow-sm);
+    overflow: hidden;
+    transition: transform var(--dean-transition), box-shadow var(--dean-transition), border-color var(--dean-transition);
+}
+
+
+    .summary-card::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: var(--dean-blue);
     }
 
 
-.record-count {
-    flex-shrink: 0;
-    padding: 7px 11px;
-    background: var(--gray-100);
-    color: var(--gray-600);
-    border-radius: 8px;
-    font-size: 10px;
-    font-weight: 700;
+    .summary-card:nth-child(2)::after {
+        background: var(--dean-amber);
+    }
+
+
+    .summary-card:nth-child(3)::after {
+        background: var(--dean-green);
+    }
+
+
+    .summary-card:hover {
+        transform: translateY(-2px);
+        border-color: #cbd5e1;
+        box-shadow: var(--dean-shadow-md);
+    }
+
+
+.summary-card-icon {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 22px;
 }
 
 
-/* ============================================================
-   CONTRACT TABLE
-   ============================================================ */
+    .summary-card-icon.blue {
+        color: var(--dean-blue);
+        background: var(--dean-blue-soft);
+    }
 
-.table-wrapper {
+
+    .summary-card-icon.amber {
+        color: var(--dean-amber);
+        background: var(--dean-amber-soft);
+    }
+
+
+    .summary-card-icon.green {
+        color: var(--dean-green);
+        background: var(--dean-green-soft);
+    }
+
+
+.summary-card-content {
+    min-width: 0;
+}
+
+
+.summary-label {
+    display: block;
+    color: var(--dean-text-secondary);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+
+.summary-value {
+    display: block;
+    margin-top: 2px;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 28px;
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+
+.summary-description {
+    display: block;
+    margin-top: 3px;
+    color: var(--dean-text-muted);
+    font-size: 11px;
+}
+
+
+/* ==========================================================================
+   GENERAL SECTION HEADER
+   ========================================================================== */
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--dean-border-light);
+}
+
+
+.section-heading-group {
+    min-width: 0;
+}
+
+
+.section-kicker {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--dean-green);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+
+.section-title {
+    margin: 0;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    line-height: 1.3;
+}
+
+
+.section-description {
+    margin: 5px 0 0;
+    color: var(--dean-text-muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+.section-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+    padding: 8px 12px;
+    color: var(--dean-text-secondary);
+    background: #f8fafc;
+    border: 1px solid var(--dean-border);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+
+    .section-count i {
+        color: var(--dean-green);
+    }
+
+
+/* ==========================================================================
+   CONTRACT TABLE
+   ========================================================================== */
+
+.table-card {
+    width: 100%;
+    margin-bottom: 28px;
+    background: var(--dean-surface);
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius);
+    box-shadow: var(--dean-shadow-sm);
+    overflow: hidden;
+}
+
+
+.table-responsive {
     width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 
-.contracts-table {
+    .table-responsive::-webkit-scrollbar {
+        height: 8px;
+    }
+
+
+    .table-responsive::-webkit-scrollbar-track {
+        background: #f8fafc;
+    }
+
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+    }
+
+
+.data-table {
     width: 100%;
+    min-width: 1000px;
     border-collapse: collapse;
-    min-width: 1050px;
+    border-spacing: 0;
+    font-size: 13px;
 }
 
 
-    .contracts-table th {
-        padding: 12px 17px;
-        text-align: left;
-        background: var(--gray-50);
-        border-bottom: 1px solid var(--gray-200);
-        color: var(--gray-500);
-        font-size: 9px;
-        text-transform: uppercase;
-        letter-spacing: 0.65px;
+    .data-table th {
+        padding: 14px 18px;
+        color: var(--dean-text-muted);
+        background: #f8fafc;
+        border-bottom: 1px solid var(--dean-border);
+        font-size: 11px;
         font-weight: 800;
+        letter-spacing: 0.55px;
+        line-height: 1.3;
+        text-align: left;
+        text-transform: uppercase;
         white-space: nowrap;
     }
 
 
-    .contracts-table td {
-        padding: 14px 17px;
-        border-bottom: 1px solid var(--gray-100);
-        color: var(--gray-600);
-        font-size: 11px;
+    .data-table td {
+        padding: 17px 18px;
+        color: var(--dean-text-secondary);
+        border-bottom: 1px solid var(--dean-border-light);
         vertical-align: middle;
     }
 
 
-    .contracts-table tbody tr {
-        transition: background 0.15s ease;
+    .data-table tbody tr {
+        background: #ffffff;
+        transition: background var(--dean-transition);
     }
 
 
-        .contracts-table tbody tr:hover {
-            background: #f8fafc;
+        .data-table tbody tr:hover {
+            background: #f8fbfa;
         }
 
 
-        .contracts-table tbody tr:last-child td {
-            border-bottom: 0;
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
 
-        .contracts-table tbody tr.selected-row {
-            background: var(--green-light);
+        .data-table tbody tr.selected-row {
+            background: #ecfdf5;
         }
 
 
-.lecturer-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+            .data-table tbody tr.selected-row td:first-child {
+                box-shadow: inset 3px 0 0 var(--dean-green);
+            }
+
+
+    .data-table th:first-child,
+    .data-table td:first-child {
+        padding-left: 22px;
+    }
+
+
+    .data-table th:last-child,
+    .data-table td:last-child {
+        padding-right: 22px;
+    }
+
+
+.text-right {
+    text-align: right !important;
 }
 
 
-.lecturer-avatar {
-    width: 35px;
-    height: 35px;
-    flex-shrink: 0;
+/* ==========================================================================
+   CONTRACT NUMBER
+   ========================================================================== */
+
+.contract-number {
+    color: var(--dean-navy);
+    font-size: 14px;
+    font-weight: 750;
+}
+
+
+.contract-date {
+    margin-top: 4px;
+    color: var(--dean-text-muted);
+    font-size: 11px;
+}
+
+
+/* ==========================================================================
+   PERSON CELL
+   ========================================================================== */
+
+.person-cell {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 220px;
+}
+
+
+.person-avatar {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 9px;
-    background: var(--blue-light);
-    color: var(--blue);
-    font-size: 14px;
+    color: var(--dean-navy);
+    background: #eef3f8;
+    border: 1px solid #dce5ee;
+    border-radius: 50%;
+    font-size: 17px;
 }
 
 
-.lecturer-cell > div:last-child {
-    display: flex;
-    flex-direction: column;
+.person-details {
+    min-width: 0;
 }
 
 
-.lecturer-cell strong {
-    color: var(--navy);
-    font-size: 11px;
+    .person-details strong {
+        display: block;
+        max-width: 220px;
+        overflow: hidden;
+        color: var(--dean-navy);
+        font-size: 13px;
+        font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+    .person-details span {
+        display: block;
+        max-width: 220px;
+        margin-top: 2px;
+        overflow: hidden;
+        color: var(--dean-text-muted);
+        font-size: 11px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+/* ==========================================================================
+   COURSE CELL
+   ========================================================================== */
+
+.course-cell strong {
+    display: block;
+    max-width: 230px;
+    color: var(--dean-navy);
+    font-size: 13px;
     font-weight: 700;
 }
 
 
-.lecturer-cell span {
-    margin-top: 2px;
-    color: var(--gray-400);
-    font-size: 9px;
-}
-
-
-.course-name {
-    color: var(--gray-700);
+.course-cell span {
+    display: block;
+    margin-top: 3px;
+    color: var(--dean-text-muted);
+    font-size: 11px;
     font-weight: 600;
 }
 
 
-.version-badge {
-    display: inline-flex;
-    padding: 5px 8px;
-    background: var(--gray-100);
-    color: var(--gray-600);
-    border-radius: 7px;
-    font-size: 9px;
-    font-weight: 700;
-}
-
-
-.status-badge,
-.stage-badge,
-.decision-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    white-space: nowrap;
-    border-radius: 7px;
-    font-size: 9px;
-    font-weight: 700;
-}
-
+/* ==========================================================================
+   STATUS BADGES
+   ========================================================================== */
 
 .status-badge {
-    padding: 6px 8px;
-}
-
-
-.status-active {
-    background: var(--green-light);
-    color: var(--green-dark);
-}
-
-
-.status-pending {
-    background: var(--amber-light);
-    color: var(--amber);
-}
-
-
-.status-expired {
-    background: var(--gray-100);
-    color: var(--gray-600);
-}
-
-
-.status-declined {
-    background: var(--red-light);
-    color: var(--red-dark);
-}
-
-
-.stage-badge {
-    padding: 6px 9px;
-    background: var(--purple-light);
-    color: var(--purple);
-}
-
-
-.date-value {
-    white-space: nowrap;
-    color: var(--gray-500);
-    font-size: 10px;
-}
-
-
-.action-cell {
-    text-align: right;
-}
-
-
-.view-button {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 7px 10px;
-    background: var(--navy);
-    color: white;
-    border-radius: 8px;
-    font-size: 10px;
-    font-weight: 700;
-    transition: background 0.2s ease, transform 0.2s ease;
+    min-height: 28px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 750;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 
-    .view-button:hover {
-        background: var(--green);
-        transform: translateY(-1px);
+    .status-badge .status-dot {
+        width: 6px;
+        height: 6px;
+        flex: 0 0 6px;
+        border-radius: 50%;
     }
 
 
-/* ============================================================
-   EMPTY STATE
-   ============================================================ */
-
-.empty-state {
-    text-align: center;
-    padding: 65px 25px;
-}
+    .status-badge.active {
+        color: var(--dean-green-dark);
+        background: var(--dean-green-soft);
+        border: 1px solid var(--dean-green-border);
+    }
 
 
-.empty-icon {
-    width: 65px;
-    height: 65px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 15px;
-    border-radius: 16px;
-    background: var(--gray-100);
-    color: var(--gray-400);
-    font-size: 27px;
-}
+        .status-badge.active .status-dot {
+            background: var(--dean-green);
+        }
 
 
-.empty-state h3 {
-    font-family: "Poppins", sans-serif;
-    color: var(--navy);
-    font-size: 16px;
-}
+    .status-badge.pending {
+        color: #92400e;
+        background: var(--dean-amber-soft);
+        border: 1px solid var(--dean-amber-border);
+    }
 
 
-.empty-state p {
-    max-width: 430px;
-    margin: 6px auto 0;
-    color: var(--gray-500);
-    font-size: 11px;
-}
+        .status-badge.pending .status-dot {
+            background: var(--dean-amber);
+        }
 
 
-/* ============================================================
-   SELECTED CONTRACT SECTION
-   ============================================================ */
-
-.selected-contract-section {
-    margin-top: 35px;
-}
+    .status-badge.declined {
+        color: #991b1b;
+        background: var(--dean-red-soft);
+        border: 1px solid var(--dean-red-border);
+    }
 
 
-.section-heading {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 19px;
-}
+        .status-badge.declined .status-dot {
+            background: var(--dean-red);
+        }
 
 
-.section-eyebrow {
-    display: block;
-    margin-bottom: 5px;
-    color: var(--green);
-    font-size: 9px;
-    letter-spacing: 1.4px;
-    font-weight: 800;
-}
+/* ==========================================================================
+   STAGE CELL
+   ========================================================================== */
 
-
-.section-heading h2 {
-    font-family: "Poppins", sans-serif;
-    color: var(--navy);
-    font-size: 21px;
-}
-
-
-.section-heading p {
-    margin-top: 4px;
-    color: var(--gray-500);
-    font-size: 11px;
-}
-
-
-.close-selection {
+.stage-cell {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    padding: 8px 11px;
-    border: 1px solid var(--gray-200);
-    border-radius: 8px;
-    color: var(--gray-600);
-    background: white;
-    font-size: 10px;
-    font-weight: 700;
+    color: var(--dean-text-secondary);
+    font-size: 12px;
+    font-weight: 650;
 }
 
 
-    .close-selection:hover {
-        color: var(--navy);
-        background: var(--gray-50);
+    .stage-cell i {
+        color: var(--dean-green);
+        font-size: 14px;
     }
 
 
-/* ============================================================
-   CONTRACT DETAILS
-   ============================================================ */
+/* ==========================================================================
+   TABLE ACTION
+   ========================================================================== */
 
-.details-card {
+.table-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 0 13px;
+    color: #ffffff;
+    background: var(--dean-green);
+    border: 1px solid var(--dean-green);
+    border-radius: var(--dean-radius-sm);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background var(--dean-transition), border-color var(--dean-transition), transform var(--dean-transition), box-shadow var(--dean-transition);
+}
+
+
+    .table-action:hover {
+        color: #ffffff;
+        background: var(--dean-green-dark);
+        border-color: var(--dean-green-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 5px 14px rgba(5, 150, 105, 0.18);
+    }
+
+
+    .table-action i {
+        font-size: 13px;
+    }
+
+
+/* ==========================================================================
+   SELECTED CONTRACT
+   ========================================================================== */
+
+.selected-contract-section {
+    width: 100%;
+}
+
+
+.contract-information-card {
     margin-bottom: 22px;
+    background: var(--dean-surface);
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius);
+    box-shadow: var(--dean-shadow-sm);
+    overflow: hidden;
 }
 
 
-.contract-number {
-    padding: 7px 10px;
-    background: var(--green-light);
-    color: var(--green-dark);
-    border-radius: 8px;
-    font-size: 10px;
-    font-weight: 800;
+.contract-information-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--dean-border-light);
 }
 
 
-.details-grid {
+.contract-header-status {
+    flex-shrink: 0;
+}
+
+
+.contract-information-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0;
-    padding: 4px 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 
-.detail-item {
+.contract-information-item {
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 6px;
     padding: 18px 22px;
-    border-right: 1px solid var(--gray-200);
+    border-right: 1px solid var(--dean-border-light);
+    border-bottom: 1px solid var(--dean-border-light);
 }
 
 
-    .detail-item:last-child {
-        border-right: 0;
+    .contract-information-item:nth-child(3n) {
+        border-right: none;
     }
 
 
-.detail-label {
+    .contract-information-item:nth-last-child(-n+3) {
+        border-bottom: none;
+    }
+
+
+.information-label {
+    color: var(--dean-text-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.55px;
+    text-transform: uppercase;
+}
+
+
+.contract-information-item strong {
+    overflow-wrap: anywhere;
+    color: var(--dean-navy);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+
+/* ==========================================================================
+   WORKFLOW CARD
+   ========================================================================== */
+
+.workflow-card {
+    margin-bottom: 22px;
+    background: var(--dean-surface);
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius);
+    box-shadow: var(--dean-shadow-sm);
+    overflow: hidden;
+}
+
+
+.workflow-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--dean-border-light);
+}
+
+
+.workflow-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    flex-shrink: 0;
+    padding: 10px 14px;
+    background: var(--dean-green-soft);
+    border: 1px solid var(--dean-green-border);
+    border-radius: var(--dean-radius-sm);
+}
+
+
+    .workflow-stage span {
+        color: var(--dean-text-muted);
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.45px;
+    }
+
+
+    .workflow-stage strong {
+        color: var(--dean-green-dark);
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+
+/* ==========================================================================
+   WORKFLOW ROUTE
+   ========================================================================== */
+
+.workflow-route {
+    padding: 17px 24px;
+    background: #fafcfe;
+    border-bottom: 1px solid var(--dean-border-light);
+}
+
+
+.route-label {
     display: flex;
     align-items: center;
     gap: 7px;
-    color: var(--gray-400);
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
+    margin-bottom: 10px;
+    color: var(--dean-text-muted);
+    font-size: 10px;
     font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
 }
 
 
-    .detail-label i {
-        font-size: 12px;
-        color: var(--green);
+    .route-label i {
+        color: var(--dean-green);
+        font-size: 13px;
     }
 
 
-.detail-item strong {
-    color: var(--navy);
+.route-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--dean-navy);
     font-size: 12px;
     font-weight: 700;
 }
 
 
-/* ============================================================
-   TIMELINE
-   ============================================================ */
+    .route-line i {
+        color: #94a3b8;
+        font-size: 10px;
+    }
 
-.timeline-card {
-    padding-bottom: 10px;
+
+/* ==========================================================================
+   WORKFLOW TIMELINE
+   ========================================================================== */
+
+.workflow-timeline {
+    padding: 26px 28px 10px;
 }
 
 
-.timeline {
-    padding: 25px 27px 18px;
-}
-
-
-.timeline-item {
+.workflow-step {
     position: relative;
     display: flex;
-    gap: 16px;
-    min-height: 95px;
+    gap: 18px;
+    min-width: 0;
+    padding-bottom: 28px;
 }
 
 
-    .timeline-item:not(:last-child)::before {
+    .workflow-step:last-child {
+        padding-bottom: 10px;
+    }
+
+
+    .workflow-step:not(:last-child)::before {
         content: "";
         position: absolute;
-        left: 17px;
-        top: 37px;
-        bottom: -8px;
+        left: 18px;
+        top: 40px;
+        bottom: 0;
         width: 2px;
-        background: var(--gray-200);
+        background: #e2e8f0;
     }
 
 
-    .timeline-item.completed:not(:last-child)::before {
-        background: #86efac;
+    .workflow-step.completed:not(:last-child)::before {
+        background: var(--dean-green-border);
     }
 
 
-.timeline-marker {
+    .workflow-step.current:not(:last-child)::before {
+        background: linear-gradient( to bottom, var(--dean-green-border), #e2e8f0 );
+    }
+
+
+.workflow-step-marker {
     position: relative;
     z-index: 2;
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 2px solid #cbd5e1;
     border-radius: 50%;
-    border: 2px solid var(--gray-200);
-    background: white;
-    color: var(--gray-400);
-    font-size: 11px;
+    background: #ffffff;
+    color: var(--dean-text-muted);
+    font-size: 12px;
     font-weight: 800;
 }
 
 
-.timeline-item.completed .timeline-marker {
-    border-color: var(--green);
-    background: var(--green);
-    color: white;
+.workflow-step.completed
+.workflow-step-marker {
+    color: #ffffff;
+    background: var(--dean-green);
+    border-color: var(--dean-green);
 }
 
 
-.timeline-item.current .timeline-marker {
-    border-color: var(--green);
-    color: var(--green);
+.workflow-step.current
+.workflow-step-marker {
+    color: var(--dean-green);
+    background: #ffffff;
+    border-color: var(--dean-green);
     box-shadow: 0 0 0 5px rgba(5, 150, 105, 0.10);
 }
 
 
-.timeline-item.declined .timeline-marker {
-    border-color: var(--red);
-    background: var(--red);
-    color: white;
+.workflow-step.waiting
+.workflow-step-marker {
+    color: #94a3b8;
+    background: #f8fafc;
 }
 
 
-.timeline-content {
+.workflow-step-content {
     flex: 1;
-    padding-bottom: 20px;
+    min-width: 0;
+    padding-top: 1px;
 }
 
 
-.timeline-top {
+.workflow-step-top {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 15px;
+    gap: 20px;
 }
 
 
-.timeline-step {
+.workflow-person {
+    min-width: 0;
+}
+
+
+.workflow-step-number {
     display: block;
-    margin-bottom: 2px;
-    color: var(--gray-400);
-    font-size: 8px;
-    letter-spacing: 1px;
+    margin-bottom: 4px;
+    color: var(--dean-text-muted);
+    font-size: 9px;
     font-weight: 800;
+    letter-spacing: 0.7px;
 }
 
 
-.timeline-content h3 {
-    font-family: "Poppins", sans-serif;
-    color: var(--navy);
+.workflow-step-content h4 {
+    margin: 0;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+
+.workflow-step-content p {
+    margin: 4px 0 0;
+    color: var(--dean-text-secondary);
     font-size: 13px;
+    line-height: 1.4;
 }
 
 
-.decision-badge {
-    padding: 6px 9px;
+.workflow-status-wrapper {
+    flex-shrink: 0;
 }
 
 
-    .decision-badge.pending,
-    .decision-pending {
-        background: var(--amber-light);
-        color: var(--amber);
+.workflow-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 29px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+
+    .workflow-status.signed {
+        color: var(--dean-green-dark);
+        background: var(--dean-green-soft);
+        border: 1px solid var(--dean-green-border);
     }
 
 
-    .decision-badge.signed,
-    .decision-signed {
-        background: var(--green-light);
-        color: var(--green-dark);
+    .workflow-status.current {
+        color: #1d4ed8;
+        background: var(--dean-blue-soft);
+        border: 1px solid var(--dean-blue-border);
     }
 
 
-    .decision-badge.declined,
-    .decision-declined {
-        background: var(--red-light);
-        color: var(--red-dark);
+    .workflow-status.waiting {
+        color: var(--dean-text-muted);
+        background: #f8fafc;
+        border: 1px solid var(--dean-border);
     }
 
 
-.timeline-meta {
+.workflow-signature-details {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 8px;
-    color: var(--gray-500);
-    font-size: 9px;
+    gap: 15px;
+    margin-top: 13px;
 }
 
 
-    .timeline-meta i {
-        color: var(--green);
-    }
-
-
-.timeline-comment {
+.workflow-signature-image {
     display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin-top: 9px;
-    padding: 9px 11px;
-    background: var(--gray-50);
-    border-radius: 8px;
-    color: var(--gray-600);
-    font-size: 10px;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+    min-height: 65px;
+    padding: 8px 12px;
+    background: #fafcfe;
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius-sm);
 }
 
 
-    .timeline-comment i {
-        margin-top: 2px;
-        color: var(--gray-400);
+    .workflow-signature-image img {
+        display: block;
+        max-width: 180px;
+        max-height: 60px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
     }
+
+
+.signature-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+
+.signature-recorded {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--dean-green-dark);
+    font-size: 11px;
+    font-weight: 750;
+}
+
+
+    .signature-recorded i {
+        font-size: 13px;
+    }
+
+
+.signature-date {
+    color: var(--dean-text-muted);
+    font-size: 11px;
+}
 
 
 .current-step-indicator {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    margin-top: 8px;
-    color: var(--green-dark);
-    font-size: 9px;
-    font-weight: 800;
+    gap: 7px;
+    margin-top: 13px;
+    padding: 8px 11px;
+    color: #1d4ed8;
+    background: var(--dean-blue-soft);
+    border: 1px solid var(--dean-blue-border);
+    border-radius: var(--dean-radius-sm);
+    font-size: 11px;
+    font-weight: 650;
 }
 
 
-.empty-inline {
+    .current-step-indicator i {
+        font-size: 14px;
+    }
+
+
+/* ==========================================================================
+   CONTRACT DOCUMENT CARD
+   ========================================================================== */
+
+.contract-document-card {
+    margin-bottom: 22px;
+    background: var(--dean-surface);
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius);
+    box-shadow: var(--dean-shadow-sm);
+    overflow: hidden;
+}
+
+
+.contract-document-card-header {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--dean-border-light);
+}
+
+
+.secondary-action {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 35px;
-    color: var(--gray-400);
-    font-size: 11px;
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 0 15px;
+    color: var(--dean-navy);
+    background: #ffffff;
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius-sm);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(15, 39, 66, 0.03);
+    transition: color var(--dean-transition), background var(--dean-transition), border-color var(--dean-transition), transform var(--dean-transition), box-shadow var(--dean-transition);
 }
 
 
-/* ============================================================
+    .secondary-action:hover {
+        color: var(--dean-green-dark);
+        background: var(--dean-green-soft);
+        border-color: var(--dean-green-border);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 15px rgba(15, 39, 66, 0.08);
+    }
+
+
+    .secondary-action i {
+        color: var(--dean-green);
+        font-size: 15px;
+    }
+
+
+/* ==========================================================================
    CONTRACT DOCUMENT
-   ============================================================ */
+   ========================================================================== */
 
-.document-card {
-    overflow: visible;
-}
-
-
-.document-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 10px;
-    background: var(--blue-light);
-    color: var(--blue);
-    border-radius: 8px;
-    font-size: 9px;
-    font-weight: 800;
-}
-
-
-.contract-document {
-    margin: 25px;
-    padding: 35px;
-    min-height: 350px;
-    background: white;
-    border: 1px solid var(--gray-200);
-    border-radius: 10px;
-    box-shadow: inset 0 0 20px rgba(15, 23, 42, 0.015);
-    color: #1f2937;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 14px;
-    line-height: 1.85;
+.contract-document-wrapper {
+    padding: 30px;
+    background: #e9eef4;
     overflow-x: auto;
 }
 
 
-    .contract-document h1,
-    .contract-document h2,
-    .contract-document h3,
+.contract-document {
+    width: min(900px, 100%);
+    min-height: 700px;
+    margin: 0 auto;
+    padding: 60px 70px;
+    background: #ffffff;
+    border: 1px solid #d8e0e8;
+    box-shadow: 0 8px 28px rgba(15, 39, 66, 0.10);
+    color: #1f2937;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    line-height: 1.75;
+    overflow-wrap: break-word;
+}
+
+
+    /* --------------------------------------------------------------------------
+   CONTRACT TYPOGRAPHY
+   -------------------------------------------------------------------------- */
+
+    .contract-document h1 {
+        margin: 0 0 20px;
+        color: var(--dean-navy);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 25px;
+        font-weight: 700;
+        line-height: 1.3;
+        text-align: center;
+    }
+
+
+    .contract-document h2 {
+        margin: 30px 0 13px;
+        color: var(--dean-navy);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 19px;
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+
+    .contract-document h3 {
+        margin: 24px 0 10px;
+        color: var(--dean-navy-light);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.45;
+    }
+
+
     .contract-document h4 {
-        color: var(--navy);
-        margin-bottom: 12px;
+        margin: 20px 0 9px;
+        color: var(--dean-navy);
+        font-size: 14px;
+        font-weight: 700;
     }
 
 
     .contract-document p {
-        margin-bottom: 12px;
+        margin: 0 0 13px;
+        color: #273449;
+        font-size: 14px;
+        line-height: 1.75;
+        text-align: justify;
     }
 
+
+    .contract-document strong,
+    .contract-document b {
+        color: #172033;
+        font-weight: 700;
+    }
+
+
+    .contract-document ul,
+    .contract-document ol {
+        margin: 10px 0 18px;
+        padding-left: 28px;
+    }
+
+
+    .contract-document li {
+        margin-bottom: 7px;
+        color: #273449;
+        line-height: 1.7;
+    }
+
+
+    .contract-document hr {
+        margin: 24px 0;
+        border: 0;
+        border-top: 1px solid #cbd5e1;
+    }
+
+
+    /* --------------------------------------------------------------------------
+   CONTRACT TABLES
+   -------------------------------------------------------------------------- */
 
     .contract-document table {
         width: 100%;
+        margin: 20px 0 25px;
         border-collapse: collapse;
-        margin: 18px 0;
+        border: 1px solid #bfc9d6;
+        background: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
     }
 
 
-        .contract-document table th,
-        .contract-document table td {
-            padding: 9px;
-            border: 1px solid var(--gray-300);
-            text-align: left;
+    .contract-document th {
+        padding: 10px 12px;
+        color: #ffffff;
+        background: var(--dean-navy);
+        border: 1px solid #bfc9d6;
+        font-size: 11px;
+        font-weight: 700;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+
+    .contract-document td {
+        padding: 9px 12px;
+        color: #273449;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        line-height: 1.5;
+        vertical-align: top;
+    }
+
+
+    .contract-document tr:nth-child(even) td {
+        background: #f8fafc;
+    }
+
+
+    /* --------------------------------------------------------------------------
+   CONTRACT IMAGES
+   -------------------------------------------------------------------------- */
+
+    .contract-document img {
+        max-width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+
+
+    .contract-document .signature-section img,
+    .contract-document .signatures img,
+    .contract-document .signature-block img {
+        max-width: 220px;
+        max-height: 85px;
+    }
+
+
+    .contract-document a {
+        color: #0f5f9a;
+        text-decoration: underline;
+    }
+
+
+    .contract-document blockquote {
+        margin: 18px 0;
+        padding: 13px 18px;
+        border-left: 4px solid var(--dean-green);
+        background: #f8fafc;
+        color: #475569;
+        font-style: italic;
+    }
+
+
+    /* --------------------------------------------------------------------------
+   COMMON GENERATED CONTRACT CLASSES
+   -------------------------------------------------------------------------- */
+
+    .contract-document .contract-header,
+    .contract-document .document-header,
+    .contract-document .university-header {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid var(--dean-navy);
+        text-align: center;
+    }
+
+
+    .contract-document .label {
+        color: var(--dean-text-muted);
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+
+    .contract-document .value {
+        color: var(--dean-text);
+        font-weight: 600;
+    }
+
+
+    .contract-document .signature-section,
+    .contract-document .signatures,
+    .contract-document .signature-block {
+        margin-top: 45px;
+        page-break-inside: avoid;
+    }
+
+
+        .contract-document .signature-section table,
+        .contract-document .signatures table,
+        .contract-document .signature-block table {
+            border: none;
+            background: transparent;
         }
 
 
-        .contract-document table th {
-            background: var(--gray-100);
-            font-weight: 700;
+        .contract-document .signature-section td,
+        .contract-document .signatures td,
+        .contract-document .signature-block td {
+            padding: 18px 20px;
+            border: none;
+            background: transparent;
+            vertical-align: top;
         }
 
 
-/* ============================================================
-   ACTION CARD
-   ============================================================ */
+/* ==========================================================================
+   APPROVAL CARD
+   ========================================================================== */
 
-.action-card {
-    padding: 23px;
+.approval-card {
+    margin-bottom: 22px;
+    background: #ffffff;
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius);
+    box-shadow: var(--dean-shadow-sm);
+    overflow: hidden;
 }
 
 
-.action-header {
+.approval-card-content {
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 17px;
+    padding: 22px 24px;
+    background: #fafcfe;
+    border-bottom: 1px solid var(--dean-border-light);
 }
 
 
-.action-icon {
-    width: 45px;
-    height: 45px;
+.approval-icon {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 11px;
-    background: var(--green-light);
-    color: var(--green);
-    font-size: 19px;
+    border-radius: 12px;
+    background: var(--dean-green-soft);
+    color: var(--dean-green);
+    font-size: 21px;
 }
 
 
-.action-header h2 {
-    font-family: "Poppins", sans-serif;
-    color: var(--navy);
-    font-size: 16px;
+.approval-message {
+    min-width: 0;
 }
 
 
-.action-header p {
-    margin-top: 2px;
-    color: var(--gray-500);
-    font-size: 11px;
-}
+    .approval-message h3 {
+        margin: 0;
+        color: var(--dean-navy);
+        font-family: "Poppins", "Segoe UI", sans-serif;
+        font-size: 17px;
+        font-weight: 700;
+    }
 
 
-.action-warning {
-    display: flex;
-    align-items: flex-start;
-    gap: 9px;
-    margin-top: 20px;
-    padding: 12px 14px;
-    background: var(--amber-light);
-    border: 1px solid #fde68a;
-    border-radius: 9px;
-    color: #92400e;
-    font-size: 10px;
-}
+    .approval-message p {
+        max-width: 850px;
+        margin: 5px 0 0;
+        color: var(--dean-text-muted);
+        font-size: 13px;
+        line-height: 1.55;
+    }
 
 
-.action-buttons {
+.approval-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 18px;
+    gap: 11px;
+    padding: 18px 24px;
 }
 
 
-.action-form {
+.inline-form {
     margin: 0;
 }
 
 
-/* ============================================================
+/* ==========================================================================
    BUTTONS
-   ============================================================ */
+   ========================================================================== */
 
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    min-height: 40px;
-    padding: 9px 15px;
-    border: 0;
-    border-radius: 9px;
-    font-size: 10px;
-    font-weight: 800;
-    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 17px;
+    border: 1px solid transparent;
+    border-radius: var(--dean-radius-sm);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 750;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--dean-transition), border-color var(--dean-transition), transform var(--dean-transition), box-shadow var(--dean-transition);
 }
 
 
@@ -1298,69 +1470,78 @@ a {
     }
 
 
-.btn-sign {
-    background: var(--green);
-    color: white;
-    box-shadow: 0 4px 10px rgba(5, 150, 105, 0.15);
-}
-
-
-    .btn-sign:hover {
-        background: var(--green-dark);
+    .btn:active {
+        transform: translateY(0);
     }
 
 
-.btn-decline {
-    background: var(--red-light);
-    color: var(--red-dark);
-    border: 1px solid #fecaca;
+.btn-success {
+    color: #ffffff;
+    background: var(--dean-green);
+    border-color: var(--dean-green);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.16);
 }
 
 
-    .btn-decline:hover {
+    .btn-success:hover {
+        color: #ffffff;
+        background: var(--dean-green-dark);
+        border-color: var(--dean-green-dark);
+        box-shadow: 0 7px 16px rgba(5, 150, 105, 0.22);
+    }
+
+
+.btn-danger-outline {
+    color: var(--dean-red);
+    background: var(--dean-red-soft);
+    border-color: var(--dean-red-border);
+}
+
+
+    .btn-danger-outline:hover {
+        color: #991b1b;
         background: #fee2e2;
-    }
-
-
-.btn-secondary {
-    background: var(--gray-100);
-    color: var(--gray-700);
-}
-
-
-    .btn-secondary:hover {
-        background: var(--gray-200);
+        border-color: var(--dean-red);
     }
 
 
 .btn-danger {
-    background: var(--red);
-    color: white;
+    color: #ffffff;
+    background: var(--dean-red);
+    border-color: var(--dean-red);
 }
 
 
     .btn-danger:hover {
-        background: var(--red-dark);
+        color: #ffffff;
+        background: var(--dean-red-dark);
+        border-color: var(--dean-red-dark);
     }
 
 
-/* ============================================================
-   DECLINE PANEL
-   ============================================================ */
-
-.decline-panel {
-    display: none;
-    margin-top: 20px;
-    padding: 20px;
-    background: var(--red-light);
-    border: 1px solid #fecaca;
-    border-radius: 12px;
+.btn-secondary {
+    color: var(--dean-text-secondary);
+    background: #ffffff;
+    border-color: var(--dean-border);
 }
 
 
-    .decline-panel.visible {
-        display: block;
+    .btn-secondary:hover {
+        color: var(--dean-navy);
+        background: #f8fafc;
+        border-color: #cbd5e1;
     }
+
+
+/* ==========================================================================
+   DECLINE PANEL
+   ========================================================================== */
+
+.decline-panel {
+    padding: 22px 24px 24px;
+    background: var(--dean-red-soft);
+    border-top: 1px solid var(--dean-red-border);
+}
 
 
 .decline-panel-header {
@@ -1368,514 +1549,1205 @@ a {
     align-items: flex-start;
     justify-content: space-between;
     gap: 20px;
-    margin-bottom: 17px;
+    margin-bottom: 18px;
 }
 
 
-    .decline-panel-header h3 {
-        font-family: "Poppins", sans-serif;
-        color: var(--red-dark);
-        font-size: 14px;
-    }
-
-
-    .decline-panel-header p {
-        margin-top: 3px;
-        color: #991b1b;
-        font-size: 10px;
-    }
-
-
-.close-decline {
-    width: 30px;
-    height: 30px;
-    border: 0;
-    border-radius: 7px;
-    background: white;
-    color: var(--red-dark);
-    font-size: 12px;
+.decline-kicker {
+    color: var(--dean-red);
 }
+
+
+.decline-panel-header h4 {
+    margin: 0;
+    color: #991b1b;
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+
+.decline-panel-header p {
+    margin: 4px 0 0;
+    color: var(--dean-text-secondary);
+    font-size: 13px;
+}
+
+
+.close-button {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--dean-red-border);
+    border-radius: var(--dean-radius-sm);
+    background: #ffffff;
+    color: #991b1b;
+    cursor: pointer;
+    transition: background var(--dean-transition);
+}
+
+
+    .close-button:hover {
+        background: #fee2e2;
+    }
 
 
 .form-group {
     display: flex;
     flex-direction: column;
+    margin-bottom: 16px;
 }
 
 
-    .form-group label {
-        margin-bottom: 7px;
-        color: var(--gray-700);
-        font-size: 10px;
-        font-weight: 800;
-    }
-
-
-    .form-group textarea {
-        width: 100%;
-        resize: vertical;
-        min-height: 115px;
-        padding: 12px;
-        background: white;
-        border: 1px solid #fecaca;
-        border-radius: 9px;
-        outline: none;
-        color: var(--gray-800);
-        font-size: 11px;
-        line-height: 1.6;
-    }
-
-
-        .form-group textarea:focus {
-            border-color: var(--red);
-            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
-        }
-
-
-.form-help {
-    margin-top: 5px;
-    color: #991b1b;
-    font-size: 9px;
+.form-label {
+    margin-bottom: 7px;
+    color: var(--dean-text);
+    font-size: 12px;
+    font-weight: 750;
 }
+
+
+    .form-label .required {
+        color: var(--dean-red);
+        margin-left: 2px;
+    }
+
+
+.form-group textarea {
+    width: 100%;
+    min-height: 125px;
+    padding: 12px 14px;
+    border: 1px solid var(--dean-red-border);
+    border-radius: var(--dean-radius-sm);
+    outline: none;
+    background: #ffffff;
+    color: var(--dean-text);
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+    transition: border-color var(--dean-transition), box-shadow var(--dean-transition);
+}
+
+
+    .form-group textarea:focus {
+        border-color: var(--dean-red);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
 
 
 .decline-actions {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
-    gap: 9px;
-    margin-top: 15px;
+    gap: 10px;
 }
 
 
-/* ============================================================
-   STATUS INFORMATION
-   ============================================================ */
+/* ==========================================================================
+   BLOCKED / STATUS PANELS
+   ========================================================================== */
 
-.status-information-card {
+.blocked-panel {
     display: flex;
     align-items: flex-start;
     gap: 15px;
-    padding: 23px;
+    margin-bottom: 22px;
+    padding: 18px 22px;
+    background: var(--dean-amber-soft);
+    border: 1px solid var(--dean-amber-border);
+    border-radius: var(--dean-radius);
 }
 
 
-.status-information-icon {
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
+.declined-panel {
+    background: var(--dean-red-soft);
+    border-color: var(--dean-red-border);
+}
+
+
+.blocked-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 11px;
-    background: var(--blue-light);
-    color: var(--blue);
-    font-size: 18px;
+    border-radius: 10px;
+    background: #fef3c7;
+    color: var(--dean-amber);
+    font-size: 19px;
 }
 
 
-.status-information-card h2 {
-    font-family: "Poppins", sans-serif;
-    font-size: 15px;
-    color: var(--navy);
+.declined-panel .blocked-icon {
+    background: #fee2e2;
+    color: var(--dean-red);
 }
 
 
-.status-information-card p {
-    margin-top: 3px;
-    color: var(--gray-500);
-    font-size: 11px;
+.blocked-content {
+    min-width: 0;
 }
 
 
-.information-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 9px;
-    padding: 6px 9px;
-    border-radius: 7px;
-    font-size: 9px;
+.blocked-kicker {
+    color: var(--dean-amber);
+}
+
+
+.declined-panel .blocked-kicker {
+    color: var(--dean-red);
+}
+
+
+.blocked-content strong {
+    display: block;
+    color: #92400e;
+    font-size: 14px;
     font-weight: 800;
 }
 
 
-    .information-status.success {
-        background: var(--green-light);
-        color: var(--green-dark);
+.declined-panel .blocked-content strong {
+    color: #991b1b;
+}
+
+
+.blocked-content p {
+    margin: 4px 0 0;
+    color: #a16207;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+
+.declined-panel .blocked-content p {
+    color: #991b1b;
+}
+
+
+/* ==========================================================================
+   COMPLETED APPROVAL
+   ========================================================================== */
+
+.approval-card.completed {
+    border-color: var(--dean-green-border);
+}
+
+
+    .approval-card.completed
+    .approval-card-content {
+        background: var(--dean-green-soft);
+        border-bottom: none;
     }
 
 
-    .information-status.danger {
-        background: var(--red-light);
-        color: var(--red-dark);
-    }
+.completed-icon {
+    background: #d1fae5;
+    color: var(--dean-green-dark);
+}
 
 
-    .information-status.pending {
-        background: var(--amber-light);
-        color: var(--amber);
-    }
+.completed-kicker {
+    color: var(--dean-green-dark);
+}
 
 
-/* ============================================================
-   SELECTION PLACEHOLDER
-   ============================================================ */
+/* ==========================================================================
+   EMPTY STATES
+   ========================================================================== */
 
-.selection-placeholder {
+.empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 60px 25px;
+    padding: 70px 25px;
+}
+
+
+.empty-state-icon {
+    width: 68px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    color: var(--dean-green);
+    background: var(--dean-green-soft);
+    border: 1px solid var(--dean-green-border);
+    border-radius: 50%;
+    font-size: 28px;
+}
+
+
+.empty-state h3 {
+    margin: 0;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+.empty-state p {
+    max-width: 500px;
+    margin: 7px auto 0;
+    color: var(--dean-text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* ==========================================================================
+   CONTRACT PLACEHOLDER
+   ========================================================================== */
+
+.contract-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 80px 25px;
+    background: var(--dean-surface);
+    border: 1px solid var(--dean-border);
+    border-radius: var(--dean-radius);
+    box-shadow: var(--dean-shadow-sm);
 }
 
 
 .placeholder-icon {
-    width: 65px;
-    height: 65px;
+    width: 74px;
+    height: 74px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 15px;
+    margin-bottom: 17px;
+    color: var(--dean-green);
+    background: var(--dean-green-soft);
+    border: 1px solid var(--dean-green-border);
+    border-radius: 50%;
+    font-size: 31px;
+}
+
+
+.contract-placeholder h2 {
+    margin: 0;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+
+.contract-placeholder p {
+    max-width: 560px;
+    margin: 7px auto 0;
+    color: var(--dean-text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* ==========================================================================
+   FULL CONTRACT PREVIEW MODAL
+   ========================================================================== */
+
+.contract-preview-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+
+    .contract-preview-modal.is-open {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+
+/* ==========================================================================
+   BLURRED BACKGROUND
+   ========================================================================== */
+
+.contract-preview-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(7, 20, 36, 0.68);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+
+/* ==========================================================================
+   PREVIEW DIALOG
+   ========================================================================== */
+
+.contract-preview-dialog {
+    position: relative;
+    z-index: 2;
+    width: min(1450px, 96vw);
+    height: min(94vh, 1050px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.75);
     border-radius: 16px;
-    background: var(--green-light);
-    color: var(--green);
-    font-size: 27px;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.32);
+    transform: translateY(15px) scale(0.985);
+    transition: transform 220ms ease;
 }
 
 
-.selection-placeholder h2 {
-    font-family: "Poppins", sans-serif;
-    color: var(--navy);
-    font-size: 17px;
+.contract-preview-modal.is-open
+.contract-preview-dialog {
+    transform: translateY(0) scale(1);
 }
 
 
-.selection-placeholder p {
-    max-width: 500px;
-    margin-top: 6px;
-    color: var(--gray-500);
-    font-size: 11px;
-}
+/* ==========================================================================
+   PREVIEW HEADER
+   ========================================================================== */
 
-
-/* ============================================================
-   FOOTER
-   ============================================================ */
-
-.footer {
-    margin-left: 245px;
-    padding: 23px 30px;
+.contract-preview-header {
+    min-height: 76px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
-    background: var(--navy);
-    color: #cbd5e1;
+    gap: 18px;
+    padding: 13px 20px;
+    background: linear-gradient( 135deg, var(--dean-navy-dark), var(--dean-navy-light) );
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+
+.contract-preview-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+
+.contract-preview-icon {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 19px;
+}
+
+
+.contract-preview-heading {
+    min-width: 0;
+}
+
+
+.contract-preview-kicker {
+    display: block;
+    margin-bottom: 3px;
+    color: rgba(255, 255, 255, 0.64);
     font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
 }
 
 
-    .footer > div {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
+.contract-preview-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+.contract-preview-close {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 160ms ease, transform 160ms ease;
+}
+
+
+    .contract-preview-close:hover {
+        background: rgba(255, 255, 255, 0.18);
+        transform: scale(1.04);
     }
 
 
-    .footer strong {
-        color: white;
+/* ==========================================================================
+   PREVIEW BODY
+   ========================================================================== */
+
+.contract-preview-body {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    background: #dfe5ec;
+    padding: 10px 0 40px;
+}
+
+
+    .contract-preview-body::-webkit-scrollbar {
+        width: 11px;
+    }
+
+
+    .contract-preview-body::-webkit-scrollbar-track {
+        background: #d4dce5;
+    }
+
+
+    .contract-preview-body::-webkit-scrollbar-thumb {
+        background: #9eabb9;
+        border-radius: 999px;
+    }
+
+
+        .contract-preview-body::-webkit-scrollbar-thumb:hover {
+            background: #8291a1;
+        }
+
+
+/* ==========================================================================
+   PREVIEW PAPER
+   ========================================================================== */
+
+.contract-preview-paper {
+    width: min(950px, calc(100% - 48px));
+    margin: 28px auto 0;
+}
+
+
+.contract-preview-document {
+    width: 100%;
+    min-height: 1200px;
+    padding: 70px 78px;
+    background: #ffffff;
+    border: 1px solid #d7dee7;
+    box-shadow: 0 12px 35px rgba(15, 39, 66, 0.14);
+    color: #1f2937;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    line-height: 1.8;
+    overflow-wrap: break-word;
+}
+
+
+    /* --------------------------------------------------------------------------
+   PREVIEW TYPOGRAPHY
+   -------------------------------------------------------------------------- */
+
+    .contract-preview-document h1 {
+        margin: 0 0 22px;
+        color: var(--dean-navy);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 27px;
+        font-weight: 700;
+        line-height: 1.3;
+        text-align: center;
+    }
+
+
+    .contract-preview-document h2 {
+        margin: 32px 0 14px;
+        color: var(--dean-navy);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+
+    .contract-preview-document h3 {
+        margin: 25px 0 11px;
+        color: var(--dean-navy-light);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+
+    .contract-preview-document h4 {
+        margin: 20px 0 9px;
+        color: var(--dean-navy);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+
+    .contract-preview-document p {
+        margin: 0 0 14px;
+        color: #273449;
+        font-size: 14px;
+        line-height: 1.8;
+        text-align: justify;
+    }
+
+
+    .contract-preview-document strong,
+    .contract-preview-document b {
+        color: #172033;
+        font-weight: 700;
+    }
+
+
+    .contract-preview-document ul,
+    .contract-preview-document ol {
+        margin: 10px 0 20px;
+        padding-left: 30px;
+    }
+
+
+    .contract-preview-document li {
+        margin-bottom: 7px;
+        color: #273449;
+        line-height: 1.75;
+    }
+
+
+    .contract-preview-document hr {
+        margin: 25px 0;
+        border: 0;
+        border-top: 1px solid #cbd5e1;
+    }
+
+
+    /* --------------------------------------------------------------------------
+   PREVIEW TABLES
+   -------------------------------------------------------------------------- */
+
+    .contract-preview-document table {
+        width: 100%;
+        margin: 20px 0 26px;
+        border-collapse: collapse;
+        border: 1px solid #bfc9d6;
+        background: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+    }
+
+
+    .contract-preview-document th {
+        padding: 11px 13px;
+        color: #ffffff;
+        background: var(--dean-navy);
+        border: 1px solid #bfc9d6;
         font-size: 11px;
+        font-weight: 700;
+        text-align: left;
     }
 
 
-    .footer span {
-        color: #94a3b8;
+    .contract-preview-document td {
+        padding: 10px 13px;
+        color: #273449;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        line-height: 1.55;
+        vertical-align: top;
     }
 
 
-/* ============================================================
-   RESPONSIVE - TABLET
-   ============================================================ */
+    .contract-preview-document tr:nth-child(even) td {
+        background: #f8fafc;
+    }
 
-@media (max-width: 1100px) {
 
-    .summary-grid {
+    /* --------------------------------------------------------------------------
+   PREVIEW SIGNATURES
+   -------------------------------------------------------------------------- */
+
+    .contract-preview-document
+    .signature-section,
+    .contract-preview-document
+    .signatures,
+    .contract-preview-document
+    .signature-block {
+        margin-top: 45px;
+        page-break-inside: avoid;
+    }
+
+
+        .contract-preview-document
+        .signature-section table,
+        .contract-preview-document
+        .signatures table,
+        .contract-preview-document
+        .signature-block table {
+            border: none;
+            background: transparent;
+        }
+
+
+        .contract-preview-document
+        .signature-section td,
+        .contract-preview-document
+        .signatures td,
+        .contract-preview-document
+        .signature-block td {
+            padding: 18px 20px;
+            border: none;
+            background: transparent;
+            vertical-align: top;
+        }
+
+
+    .contract-preview-document img {
+        max-width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+
+
+    .contract-preview-document
+    .signature-section img,
+    .contract-preview-document
+    .signatures img,
+    .contract-preview-document
+    .signature-block img {
+        max-width: 220px;
+        max-height: 85px;
+    }
+
+
+/* ==========================================================================
+   PREVIEW FOOTER
+   ========================================================================== */
+
+.contract-preview-footer {
+    min-height: 62px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 10px 18px;
+    background: #ffffff;
+    border-top: 1px solid var(--dean-border);
+}
+
+
+.preview-security-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--dean-text-muted);
+    font-size: 11px;
+    font-weight: 650;
+}
+
+
+    .preview-security-note i {
+        color: var(--dean-green);
+        font-size: 15px;
+    }
+
+
+/* ==========================================================================
+   BODY LOCK
+   ========================================================================== */
+
+body.contract-preview-open {
+    overflow: hidden;
+}
+
+
+/* ==========================================================================
+   RESPONSIVE — 1200PX
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+
+    .contracts-page {
+        padding: 24px 28px 45px;
+    }
+
+
+    .contract-information-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
 
-    .details-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .contract-information-item:nth-child(3n) {
+        border-right: 1px solid var(--dean-border-light);
     }
 
 
-    .detail-item:nth-child(2) {
-        border-right: 0;
+    .contract-information-item:nth-child(2n) {
+        border-right: none;
     }
 
 
-    .detail-item:nth-child(-n + 2) {
-        border-bottom: 1px solid var(--gray-200);
+    .contract-information-item:nth-last-child(-n+3) {
+        border-bottom: 1px solid var(--dean-border-light);
+    }
+
+
+    .contract-information-item:nth-last-child(-n+2) {
+        border-bottom: none;
     }
 }
 
 
-/* ============================================================
-   RESPONSIVE - MOBILE
-   ============================================================ */
+/* ==========================================================================
+   RESPONSIVE — 950PX
+   ========================================================================== */
 
-@media (max-width: 768px) {
+@media (max-width: 950px) {
 
-    .top-navbar {
-        height: 70px;
-        padding: 0 16px;
-    }
-
-
-    .mobile-menu-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-
-    .unilak-logo {
-        width: 39px;
-        height: 39px;
-    }
-
-
-    .brand-title {
-        font-size: 15px;
-    }
-
-
-    .brand-subtitle {
-        display: none;
-    }
-
-
-    .role-indicator {
-        padding: 7px 9px;
-        font-size: 10px;
-    }
-
-
-    .user-avatar {
-        width: 35px;
-        height: 35px;
-        font-size: 15px;
-    }
-
-
-    .sidebar {
-        top: 70px;
-        width: 245px;
-        transform: translateX(-100%);
-        transition: transform 0.25s ease;
-        box-shadow: 10px 0 30px rgba(15, 23, 42, 0.10);
-    }
-
-
-        .sidebar.open {
-            transform: translateX(0);
-        }
-
-
-    .sidebar-overlay.visible {
-        display: block;
-    }
-
-
-    .main-content {
-        margin-left: 0;
-        padding: 92px 15px 45px;
-    }
-
-
-    .footer {
-        margin-left: 0;
-        padding: 20px 15px;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-
-    .page-header {
-        margin-bottom: 20px;
-    }
-
-
-        .page-header h1 {
-            font-size: 24px;
-        }
-
-
-        .page-header p {
-            font-size: 11px;
-        }
-
-
-    .summary-grid {
+    .contract-summary-grid {
         grid-template-columns: 1fr;
-        gap: 11px;
     }
 
 
-    .summary-card {
-        padding: 15px;
+    .page-title {
+        font-size: 27px;
     }
 
 
-    .card-header {
-        padding: 17px;
-        align-items: flex-start;
+    .workflow-step-top {
         flex-direction: column;
+        gap: 9px;
     }
 
 
-    .record-count {
+    .workflow-status-wrapper {
         align-self: flex-start;
     }
 
 
-    .details-grid {
-        grid-template-columns: 1fr;
-    }
-
-
-    .detail-item {
-        border-right: 0;
-        border-bottom: 1px solid var(--gray-200);
-    }
-
-
-        .detail-item:last-child {
-            border-bottom: 0;
-        }
-
-
-    .selected-contract-section {
-        margin-top: 25px;
-    }
-
-
-    .section-heading {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-
-        .section-heading h2 {
-            font-size: 19px;
-        }
-
-
-    .timeline {
-        padding: 22px 16px 10px;
-    }
-
-
-    .timeline-top {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 7px;
-    }
-
-
     .contract-document {
-        margin: 15px;
-        padding: 22px;
+        padding: 48px;
+    }
+
+
+    .contract-preview-paper {
+        width: min(900px, calc(100% - 30px));
+    }
+
+
+    .contract-preview-document {
+        padding: 55px;
+    }
+}
+
+
+/* ==========================================================================
+   RESPONSIVE — 760PX
+   ========================================================================== */
+
+@media (max-width: 760px) {
+
+    .contracts-page {
+        padding: 20px 18px 35px;
+    }
+
+
+    .page-header {
+        margin-bottom: 22px;
+    }
+
+
+    .page-title {
+        font-size: 24px;
+    }
+
+
+    .page-subtitle {
         font-size: 13px;
     }
 
 
-    .action-card {
+    .section-header,
+    .contract-information-header,
+    .workflow-card-header,
+    .contract-document-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+
+    .section-count {
+        align-self: flex-start;
+    }
+
+
+    .contract-information-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .contract-information-item,
+    .contract-information-item:nth-child(2n),
+    .contract-information-item:nth-child(3n) {
+        border-right: none;
+        border-bottom: 1px solid var(--dean-border-light);
+    }
+
+
+        .contract-information-item:last-child {
+            border-bottom: none;
+        }
+
+
+    .workflow-stage {
+        align-items: flex-start;
+    }
+
+
+    .workflow-route {
+        padding: 15px 18px;
+    }
+
+
+    .workflow-timeline {
+        padding: 22px 18px 8px;
+    }
+
+
+    .workflow-signature-details {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+
+    .approval-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+
+        .approval-actions .btn,
+        .approval-actions .inline-form {
+            width: 100%;
+        }
+
+
+            .approval-actions .inline-form .btn {
+                width: 100%;
+            }
+
+
+    .contract-document-wrapper {
         padding: 18px;
     }
 
 
-    .action-buttons {
-        flex-direction: column;
-        align-items: stretch;
+    .contract-document {
+        min-height: 500px;
+        padding: 38px 30px;
     }
 
 
-        .action-form,
-        .action-form .btn,
-        .action-buttons > .btn {
-            width: 100%;
-        }
-
-
-    .decline-actions {
-        flex-direction: column;
+    .contract-preview-modal {
+        padding: 10px;
     }
 
 
-        .decline-actions .btn {
-            width: 100%;
-        }
+    .contract-preview-dialog {
+        width: 99vw;
+        height: 97vh;
+        border-radius: 13px;
+    }
+
+
+    .contract-preview-paper {
+        width: calc(100% - 20px);
+        margin-top: 15px;
+    }
+
+
+    .contract-preview-document {
+        min-height: 900px;
+        padding: 40px 30px;
+    }
 }
 
 
-/* ============================================================
-   RESPONSIVE - SMALL MOBILE
-   ============================================================ */
+/* ==========================================================================
+   RESPONSIVE — 560PX
+   ========================================================================== */
 
-@media (max-width: 480px) {
+@media (max-width: 560px) {
 
-    .brand-text {
-        display: none;
+    .contracts-page {
+        padding: 16px 12px 28px;
     }
 
 
-    .navbar-right {
-        gap: 7px;
-    }
-
-
-    .role-indicator span {
-        display: none;
-    }
-
-
-    .role-indicator {
-        width: 34px;
-        height: 34px;
-        padding: 0;
-        justify-content: center;
-    }
-
-
-    .page-header h1 {
+    .page-title {
         font-size: 22px;
     }
 
 
-    .summary-information strong {
-        font-size: 21px;
+    .breadcrumb {
+        font-size: 11px;
     }
 
 
-    .section-heading h2 {
+    .summary-card {
+        min-height: 100px;
+        padding: 17px;
+    }
+
+
+    .summary-card-icon {
+        width: 45px;
+        height: 45px;
+        flex-basis: 45px;
+        font-size: 19px;
+    }
+
+
+    .summary-value {
+        font-size: 24px;
+    }
+
+
+    .section-title {
         font-size: 18px;
     }
 
 
-    .timeline-item {
-        gap: 11px;
+    .section-description {
+        font-size: 12px;
     }
 
 
-    .timeline-marker {
-        width: 32px;
-        height: 32px;
+    .workflow-step {
+        gap: 12px;
     }
 
 
-    .timeline-item:not(:last-child)::before {
-        left: 15px;
+    .workflow-step-marker {
+        width: 34px;
+        height: 34px;
+        flex-basis: 34px;
+        font-size: 11px;
+    }
+
+
+    .workflow-step:not(:last-child)::before {
+        left: 16px;
+        top: 36px;
+    }
+
+
+    .workflow-step-content h4 {
+        font-size: 14px;
+    }
+
+
+    .workflow-step-content p {
+        font-size: 12px;
+    }
+
+
+    .contract-document {
+        padding: 28px 22px;
+        font-size: 13px;
+    }
+
+
+        .contract-document h1 {
+            font-size: 22px;
+        }
+
+
+        .contract-document h2 {
+            font-size: 18px;
+        }
+
+
+        .contract-document p {
+            font-size: 13px;
+        }
+
+
+    .contract-preview-header {
+        min-height: 65px;
+        padding: 10px 12px;
+    }
+
+
+    .contract-preview-icon {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
+
+    .contract-preview-header h2 {
+        font-size: 15px;
+    }
+
+
+    .contract-preview-close {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
+
+    .contract-preview-paper {
+        width: calc(100% - 12px);
+        margin-top: 8px;
+    }
+
+
+    .contract-preview-document {
+        min-height: auto;
+        padding: 28px 20px;
+        font-size: 12px;
+    }
+
+
+        .contract-preview-document h1 {
+            font-size: 20px;
+        }
+
+
+        .contract-preview-document h2 {
+            font-size: 17px;
+        }
+
+
+        .contract-preview-document p {
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+
+        .contract-preview-document table {
+            font-size: 10px;
+        }
+
+
+        .contract-preview-document th,
+        .contract-preview-document td {
+            padding: 7px 8px;
+        }
+
+
+    .contract-preview-footer {
+        min-height: 58px;
+        padding: 8px 10px;
+    }
+
+
+    .preview-security-note {
+        font-size: 9px;
+    }
+
+
+    .contract-preview-footer .btn {
+        min-height: 34px;
+        padding: 0 11px;
+        font-size: 10px;
     }
 }
+
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+button:focus-visible,
+a:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.30);
+    outline-offset: 2px;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
+
+/* ==========================================================================
+   PRINT
+   ========================================================================== */
+
+@media print {
+
+    .contracts-page {
+        max-width: none;
+        padding: 0;
+    }
+
+
+    .page-header,
+    .contract-summary-grid,
+    .table-card,
+    .approval-actions,
+    .secondary-action,
+    .table-action,
+    .contract-preview-modal {
+        display: none !important;
+    }
+
+
+    .contract-information-card,
+    .workflow-card,
+    .contract-document-card,
+    .approval-card {
+        box-shadow: none !important;
+        border: 1px solid #cccccc;
+    }
+
+
+    .contract-document-wrapper {
+        padding: 0;
+        background: #ffffff;
+    }
+
+
+    .contract-document {
+        width: 100%;
+        min-height: auto;
+        padding: 20mm;
+        border: none;
+        box-shadow: none;
+    }
+}
+s

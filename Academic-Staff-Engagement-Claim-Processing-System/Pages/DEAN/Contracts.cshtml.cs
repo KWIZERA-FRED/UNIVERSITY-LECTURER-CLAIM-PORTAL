@@ -1,8 +1,12 @@
+using System.Net;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
+
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -24,6 +28,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
             _signingService = signingService;
         }
 
+        // ============================================================
+        // CONTRACTS
+        // ============================================================
+
         public List<ContractRow> Contracts { get; set; } = new();
 
         public ContractReviewDto? SelectedContract { get; set; }
@@ -31,11 +39,19 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         public List<SignatureStepRow> SelectedSignatureSteps { get; set; } =
             new();
 
+        // ============================================================
+        // BOUND PROPERTIES
+        // ============================================================
+
         [BindProperty(SupportsGet = true)]
         public int? ContractId { get; set; }
 
         [BindProperty]
         public string? DeclineReason { get; set; }
+
+        // ============================================================
+        // MESSAGES
+        // ============================================================
 
         public string? SuccessMessage { get; set; }
 
@@ -106,7 +122,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
             public string? Comments { get; set; }
 
             // ========================================================
-            // NEW: ACTUAL SIGNATURE IMAGE
+            // ACTUAL SIGNATURE IMAGE
             // ========================================================
 
             public string? SignatureFilePath { get; set; }
@@ -129,12 +145,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
             await LoadContractsAsync();
 
             if (ContractId.HasValue)
+            {
                 await LoadSelectedContractAsync(
                     ContractId.Value);
+            }
         }
 
         // ============================================================
-        // SIGN
+        // SIGN CONTRACT
         // ============================================================
 
         [ValidateAntiForgeryToken]
@@ -179,7 +197,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         }
 
         // ============================================================
-        // DECLINE
+        // DECLINE CONTRACT
         // ============================================================
 
         [ValidateAntiForgeryToken]
@@ -188,8 +206,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
             if (!ContractId.HasValue)
                 return RedirectToPage();
 
-            if (string.IsNullOrWhiteSpace(
-                    DeclineReason))
+            if (string.IsNullOrWhiteSpace(DeclineReason))
             {
                 ErrorMessage =
                     "Please provide a reason for declining this contract.";
@@ -239,7 +256,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         }
 
         // ============================================================
-        // LOAD CONTRACTS
+        // LOAD CONTRACT LIST
         // ============================================================
 
         private async Task LoadContractsAsync()
@@ -326,11 +343,13 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                                 ?? "Unknown",
 
                             CourseTitle =
-                                contract.CourseAssignment?.Course?.Title
+                                contract.CourseAssignment
+                                    ?.Course?.Title
                                 ?? "—",
 
                             Department =
-                                contract.CourseAssignment?.Course?.Department
+                                contract.CourseAssignment
+                                    ?.Course?.Department
                                 ?? "—",
 
                             Version =
@@ -388,9 +407,34 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                 return;
             }
 
+            // ========================================================
+            // LOAD SIGNATURE TIMELINE
+            // ========================================================
+
             SelectedSignatureSteps =
                 await LoadSignatureTimelineAsync(
                     contractId);
+
+            // ========================================================
+            // BUILD LIVE CONTRACT CONTENT
+            //
+            // Contract.Content remains unchanged in the database.
+            // The signature table is replaced only for display.
+            // ========================================================
+
+            var signatures =
+                await _context.ContractSignatures
+                    .AsNoTracking()
+                    .Where(cs =>
+                        cs.ContractId == contractId)
+                    .OrderBy(
+                        cs => cs.SequenceOrder)
+                    .ToListAsync();
+
+            SelectedContract.ContractContent =
+                BuildLiveContractContent(
+                    SelectedContract.ContractContent,
+                    signatures);
         }
 
         // ============================================================
@@ -491,10 +535,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                         Comments =
                             signature.Comments,
 
-                        // ============================================
-                        // NEW
-                        // ============================================
-
                         SignatureFilePath =
                             signature.SignatureFilePath,
 
@@ -517,7 +557,384 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         }
 
         // ============================================================
-        // CURRENT STEP
+        // LIVE CONTRACT CONTENT
+        // ============================================================
+        //
+        // This does NOT modify Contract.Content in the database.
+        //
+        // It takes the original contract HTML and replaces the
+        // signature-table section with the current live signature data.
+        // ============================================================
+
+        private static string BuildLiveContractContent(
+            string originalContent,
+            IReadOnlyCollection<ContractSignature> signatures)
+        {
+            if (string.IsNullOrWhiteSpace(originalContent))
+                return string.Empty;
+
+            if (signatures.Count == 0)
+                return originalContent;
+
+            var pattern =
+                @"<table\s+class\s*=\s*[""']signature-table[""'][^>]*>.*?</table>";
+
+            var liveSignatureTable =
+                BuildLiveSignatureTable(
+                    signatures);
+
+            return Regex.Replace(
+                originalContent,
+                pattern,
+                liveSignatureTable,
+                RegexOptions.IgnoreCase |
+                RegexOptions.Singleline);
+        }
+
+        // ============================================================
+        // BUILD LIVE SIGNATURE TABLE
+        // ============================================================
+
+        private static string BuildLiveSignatureTable(
+            IEnumerable<ContractSignature> signatures)
+        {
+            var orderedSignatures =
+                signatures
+                    .OrderBy(s => s.SequenceOrder)
+                    .ToList();
+
+            var rows =
+                string.Join(
+                    Environment.NewLine,
+                    orderedSignatures.Select(
+                        BuildSignatureRow));
+
+            return $"""
+<table class="signature-table live-signature-table">
+
+    <thead>
+
+        <tr>
+
+            <th>
+                Signatory
+            </th>
+
+            <th>
+                Name
+            </th>
+
+            <th>
+                Signature
+            </th>
+
+            <th>
+                Date
+            </th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {rows}
+
+    </tbody>
+
+</table>
+""";
+        }
+
+        // ============================================================
+        // BUILD SIGNATURE ROW
+        // ============================================================
+
+        private static string BuildSignatureRow(
+            ContractSignature signature)
+        {
+            var roleName =
+                GetSignerDisplayName(
+                    signature.SignerRole);
+
+            var signerName =
+                GetAuthorizedSignerName(
+                    signature);
+
+            var safeRole =
+                WebUtility.HtmlEncode(
+                    roleName);
+
+            var safeSignerName =
+                WebUtility.HtmlEncode(
+                    signerName);
+
+            var rowClass =
+                signature.Decision switch
+                {
+                    SignatureDecision.Signed =>
+                        "signature-row-signed",
+
+                    SignatureDecision.Declined =>
+                        "signature-row-declined",
+
+                    _ =>
+                        string.Empty
+                };
+
+            var signatureHtml =
+                BuildSignatureCell(
+                    signature);
+
+            var dateHtml =
+                BuildDateCell(
+                    signature);
+
+            return $"""
+<tr class="{rowClass}">
+
+    <td>
+        <strong>{safeRole}</strong>
+    </td>
+
+    <td>
+        {safeSignerName}
+    </td>
+
+    <td class="signature-cell">
+
+        {signatureHtml}
+
+    </td>
+
+    <td>
+
+        {dateHtml}
+
+    </td>
+
+</tr>
+""";
+        }
+
+        // ============================================================
+        // SIGNATURE CELL
+        // ============================================================
+
+        private static string BuildSignatureCell(
+            ContractSignature signature)
+        {
+            // ========================================================
+            // SIGNED
+            // ========================================================
+
+            if (signature.Decision ==
+                SignatureDecision.Signed)
+            {
+                if (!string.IsNullOrWhiteSpace(
+                        signature.SignatureFilePath))
+                {
+                    var safePath =
+                        WebUtility.HtmlEncode(
+                            signature.SignatureFilePath);
+
+                    return $"""
+<div class="signature-image-wrapper">
+
+    <img
+        src="{safePath}"
+        alt="Electronic signature"
+        class="contract-signature-image" />
+
+</div>
+
+<span class="signature-status signed">
+    Signed
+</span>
+""";
+                }
+
+                // Database says signed but no image exists.
+                return """
+<span class="signature-missing">
+    Signature recorded
+</span>
+
+<br />
+
+<span class="signature-status signed">
+    Signed
+</span>
+""";
+            }
+
+            // ========================================================
+            // DECLINED
+            // ========================================================
+
+            if (signature.Decision ==
+                SignatureDecision.Declined)
+            {
+                var reason =
+                    string.IsNullOrWhiteSpace(
+                        signature.Comments)
+                    ? "No reason provided."
+                    : signature.Comments.Trim();
+
+                return $"""
+<span class="signature-status declined">
+    Declined
+</span>
+
+<br />
+
+<span class="signature-missing">
+    {WebUtility.HtmlEncode(reason)}
+</span>
+""";
+            }
+
+            // ========================================================
+            // PENDING
+            // ========================================================
+
+            return """
+<span class="signature-placeholder">
+    Pending electronic signature
+</span>
+
+<br />
+
+<span class="signature-status pending">
+    Pending
+</span>
+""";
+        }
+
+        // ============================================================
+        // DATE CELL
+        // ============================================================
+
+        private static string BuildDateCell(
+            ContractSignature signature)
+        {
+            if (signature.Decision ==
+                    SignatureDecision.Signed &&
+                signature.SignedAtUtc.HasValue)
+            {
+                return $"""
+<span class="signature-date">
+
+    {signature.SignedAtUtc.Value
+        .ToLocalTime():dd MMMM yyyy}
+
+    <br />
+
+    {signature.SignedAtUtc.Value
+        .ToLocalTime():HH:mm}
+
+</span>
+""";
+            }
+
+            if (signature.Decision ==
+                    SignatureDecision.Declined &&
+                signature.SignedAtUtc.HasValue)
+            {
+                return $"""
+<span class="signature-date">
+
+    Declined
+
+    <br />
+
+    {signature.SignedAtUtc.Value
+        .ToLocalTime():dd MMMM yyyy}
+
+</span>
+""";
+            }
+
+            return """
+<span class="signature-placeholder">
+    Pending
+</span>
+""";
+        }
+
+        // ============================================================
+        // SIGNER ROLE DISPLAY
+        // ============================================================
+
+        private static string GetSignerDisplayName(
+            SignerRole role)
+        {
+            return role switch
+            {
+                SignerRole.Lecturer =>
+                    "Lecturer",
+
+                SignerRole.Dean =>
+                    "Dean of Faculty",
+
+                SignerRole.HROfficer =>
+                    "Human Resource Officer",
+
+                SignerRole.DVCAR =>
+                    "DVCAR",
+
+                SignerRole.ViceChancellor =>
+                    "Vice Chancellor",
+
+                _ =>
+                    role.ToString()
+            };
+        }
+
+        // ============================================================
+        // AUTHORIZED SIGNATORY NAME
+        // ============================================================
+
+        private static string GetAuthorizedSignerName(
+            ContractSignature signature)
+        {
+            // ========================================================
+            // LECTURER
+            // ========================================================
+
+            if (signature.SignerRole ==
+                SignerRole.Lecturer)
+            {
+                return
+                    signature.SignedByLecturer?.UserName
+                    ?? "Lecturer";
+            }
+
+            // ========================================================
+            // MANAGEMENT SIGNATORIES
+            // ========================================================
+
+            return signature.SignerRole switch
+            {
+                SignerRole.Dean =>
+                    "Prof. NYESHEJA M. Enan",
+
+                SignerRole.HROfficer =>
+                    "Mr. NTAKIRUTIMANA Elison",
+
+                SignerRole.DVCAR =>
+                    "Prof. HAKIZIMANA Emmanuel",
+
+                SignerRole.ViceChancellor =>
+                    "Prof. NGAMIJE Jean",
+
+                _ =>
+                    "Authorized Signatory"
+            };
+        }
+
+        // ============================================================
+        // CURRENT SIGNATURE STEP
         // ============================================================
 
         private static ContractSignature?
@@ -607,7 +1024,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
 
             if (step == null ||
                 step.Decision !=
-                SignatureDecision.Pending)
+                    SignatureDecision.Pending)
             {
                 return false;
             }
@@ -622,7 +1039,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         }
 
         // ============================================================
-        // ROLE
+        // FORMAT SIGNER ROLE
         // ============================================================
 
         private static string FormatSignerRole(
@@ -651,7 +1068,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         }
 
         // ============================================================
-        // DECISION
+        // FORMAT DECISION
         // ============================================================
 
         private static string FormatDecision(
@@ -718,7 +1135,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         }
 
         // ============================================================
-        // ACTOR
+        // ACTOR CONTEXT
         // ============================================================
 
         private (

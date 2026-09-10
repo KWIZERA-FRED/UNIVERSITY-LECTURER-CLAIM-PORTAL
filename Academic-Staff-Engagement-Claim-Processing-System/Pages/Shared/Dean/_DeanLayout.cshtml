@@ -1,0 +1,550 @@
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+
+    bool IsActive(string page)
+    {
+        return string.Equals(
+            currentPage,
+            page,
+            StringComparison.OrdinalIgnoreCase
+        );
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <meta name="theme-color"
+          content="#0f2742" />
+
+    <title>@ViewData["Title"] | UNILAK</title>
+
+    <!-- Typography -->
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap"
+          rel="stylesheet" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Dean Shell -->
+    <link rel="stylesheet"
+          href="~/css/DEAN/dean-shell.css"
+          asp-append-version="true" />
+
+    <!-- Page CSS -->
+    @RenderSection("Styles", required: false)
+
+</head>
+
+<body>
+
+    <div class="dean-app">
+
+        <!-- =====================================================
+             TOP NAVIGATION
+             ===================================================== -->
+
+        <header class="dean-topbar">
+
+            <div class="dean-topbar-left">
+
+                <!-- Mobile menu -->
+                <button type="button"
+                        class="dean-mobile-menu"
+                        id="deanMobileMenuButton"
+                        aria-label="Open navigation menu"
+                        aria-controls="deanSidebar"
+                        aria-expanded="false">
+
+                    <i class="bi bi-list" aria-hidden="true"></i>
+
+                </button>
+
+                <!-- Brand -->
+                <a asp-page="/DEAN/Index"
+                   class="dean-brand"
+                   aria-label="UNILAK Dean Portal">
+
+                    <div class="dean-brand-logo">
+
+                        <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                             alt="UNILAK Logo" />
+
+                    </div>
+
+                    <div class="dean-brand-text">
+
+                        <span class="dean-brand-title">
+                            UNILAK
+                        </span>
+
+                        <span class="dean-brand-subtitle">
+                            Staff Engagement Portal
+                        </span>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 TOPBAR ACTIONS
+                 ================================================= -->
+
+            <div class="dean-topbar-actions">
+
+                <div class="dean-role-indicator">
+
+                    <span class="dean-role-icon">
+                        <i class="bi bi-person-badge-fill"
+                           aria-hidden="true"></i>
+                    </span>
+
+                    <div class="dean-role-text">
+
+                        <span class="dean-role-label">
+                            Current role
+                        </span>
+
+                        <strong>
+                            Dean
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="dean-topbar-divider"></div>
+
+                <a href="/Login"
+                   class="dean-logout"
+                   aria-label="Logout">
+
+                    <i class="bi bi-box-arrow-right"
+                       aria-hidden="true"></i>
+
+                    <span>
+                        Logout
+                    </span>
+
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             MOBILE OVERLAY
+             ===================================================== -->
+
+        <div class="dean-sidebar-overlay"
+             id="deanSidebarOverlay">
+        </div>
+
+
+        <!-- =====================================================
+             APPLICATION WINDOW
+             ===================================================== -->
+
+        <div class="dean-workspace">
+
+            <!-- =================================================
+                 SIDEBAR
+                 ================================================= -->
+
+            <aside class="dean-sidebar"
+                   id="deanSidebar"
+                   aria-label="Dean Portal Navigation">
+
+                <div class="dean-sidebar-inner">
+
+                    <!-- Sidebar heading -->
+                    <div class="dean-sidebar-heading">
+
+                        <span class="dean-sidebar-eyebrow">
+                            ADMINISTRATION
+                        </span>
+
+                        <strong>
+                            Dean Portal
+                        </strong>
+
+                    </div>
+
+
+                    <!-- Navigation -->
+                    <nav class="dean-sidebar-nav"
+                         aria-label="Dean navigation">
+
+                        <a asp-page="/DEAN/Index"
+                           class="dean-nav-item @(IsActive("/DEAN/Index") ? "active" : "")">
+
+                            <span class="dean-nav-icon">
+                                <i class="bi bi-grid-1x2-fill"
+                                   aria-hidden="true"></i>
+                            </span>
+
+                            <span class="dean-nav-text">
+                                Dashboard
+                            </span>
+
+                            @if (IsActive("/DEAN/Index"))
+                            {
+                                <span class="dean-nav-active-indicator"></span>
+                            }
+
+                        </a>
+
+
+                        <a asp-page="/DEAN/RegisterUser"
+                           class="dean-nav-item @(IsActive("/DEAN/RegisterUser") ? "active" : "")">
+
+                            <span class="dean-nav-icon">
+                                <i class="bi bi-person-plus-fill"
+                                   aria-hidden="true"></i>
+                            </span>
+
+                            <span class="dean-nav-text">
+                                Register New User
+                            </span>
+
+                            @if (IsActive("/DEAN/RegisterUser"))
+                            {
+                                <span class="dean-nav-active-indicator"></span>
+                            }
+
+                        </a>
+
+
+                        <a asp-page="/DEAN/Contracts"
+                           class="dean-nav-item @(IsActive("/DEAN/Contracts") ? "active" : "")">
+
+                            <span class="dean-nav-icon">
+                                <i class="bi bi-file-earmark-check-fill"
+                                   aria-hidden="true"></i>
+                            </span>
+
+                            <span class="dean-nav-text">
+                                Contracts
+                            </span>
+
+                            @if (IsActive("/DEAN/Contracts"))
+                            {
+                                <span class="dean-nav-active-indicator"></span>
+                            }
+
+                        </a>
+
+
+                        <a asp-page="/DEAN/Claims"
+                           class="dean-nav-item @(IsActive("/DEAN/Claims") ? "active" : "")">
+
+                            <span class="dean-nav-icon">
+                                <i class="bi bi-receipt-cutoff"
+                                   aria-hidden="true"></i>
+                            </span>
+
+                            <span class="dean-nav-text">
+                                Claims
+                            </span>
+
+                            @if (IsActive("/DEAN/Claims"))
+                            {
+                                <span class="dean-nav-active-indicator"></span>
+                            }
+
+                        </a>
+
+                    </nav>
+
+
+                    <!-- Sidebar security card -->
+                    <div class="dean-sidebar-bottom">
+
+                        <div class="dean-security-card">
+
+                            <div class="dean-security-icon">
+
+                                <i class="bi bi-shield-lock-fill"
+                                   aria-hidden="true"></i>
+
+                            </div>
+
+                            <div class="dean-security-content">
+
+                                <strong>
+                                    Secure Portal
+                                </strong>
+
+                                <span>
+                                    Authorized Dean access
+                                </span>
+
+                            </div>
+
+                            <span class="dean-security-status"
+                                  title="System operational"
+                                  aria-label="System operational">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+
+            <!-- =================================================
+                 SCROLLABLE CONTENT WINDOW
+                 ================================================= -->
+
+            <div class="dean-content-area">
+
+                <main class="dean-content">
+
+                    @RenderBody()
+
+                </main>
+
+
+                <!-- =================================================
+                     FOOTER
+                     ================================================= -->
+
+                <footer class="dean-footer">
+
+                    <div class="dean-footer-inner">
+
+                        <div class="dean-footer-brand">
+
+                            <strong>
+                                UNILAK Portal
+                            </strong>
+
+                            <span>
+                                Academic Staff Engagement &amp;
+                                Claim Processing System
+                            </span>
+
+                        </div>
+
+                        <div class="dean-footer-meta">
+
+                            <span>
+
+                                <i class="bi bi-shield-check"
+                                   aria-hidden="true"></i>
+
+                                Secure Administrative Portal
+
+                            </span>
+
+                            <span class="dean-footer-separator">
+                                •
+                            </span>
+
+                            <span>
+
+                                © @DateTime.Now.Year
+                                University of Lay Adventists of Kigali
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </footer>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         MOBILE NAVIGATION
+         ========================================================= -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const menuButton =
+                document.getElementById("deanMobileMenuButton");
+
+            const sidebar =
+                document.getElementById("deanSidebar");
+
+            const overlay =
+                document.getElementById("deanSidebarOverlay");
+
+
+            function openSidebar() {
+
+                if (!sidebar || !overlay) {
+                    return;
+                }
+
+                sidebar.classList.add("open");
+
+                overlay.classList.add("visible");
+
+                document.body.classList.add("dean-sidebar-open");
+
+                if (menuButton) {
+
+                    menuButton.setAttribute(
+                        "aria-expanded",
+                        "true"
+                    );
+
+                }
+
+            }
+
+
+            function closeSidebar() {
+
+                if (!sidebar || !overlay) {
+                    return;
+                }
+
+                sidebar.classList.remove("open");
+
+                overlay.classList.remove("visible");
+
+                document.body.classList.remove(
+                    "dean-sidebar-open"
+                );
+
+                if (menuButton) {
+
+                    menuButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                }
+
+            }
+
+
+            if (menuButton) {
+
+                menuButton.addEventListener(
+                    "click",
+                    function () {
+
+                        if (
+                            sidebar &&
+                            sidebar.classList.contains("open")
+                        ) {
+
+                            closeSidebar();
+
+                        }
+                        else {
+
+                            openSidebar();
+
+                        }
+
+                    }
+                );
+
+            }
+
+
+            if (overlay) {
+
+                overlay.addEventListener(
+                    "click",
+                    closeSidebar
+                );
+
+            }
+
+
+            document
+                .querySelectorAll(".dean-nav-item")
+                .forEach(function (link) {
+
+                    link.addEventListener(
+                        "click",
+                        function () {
+
+                            if (window.innerWidth <= 900) {
+
+                                closeSidebar();
+
+                            }
+
+                        }
+                    );
+
+                });
+
+
+            document.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (event.key === "Escape") {
+
+                        closeSidebar();
+
+                    }
+
+                }
+            );
+
+
+            window.addEventListener(
+                "resize",
+                function () {
+
+                    if (window.innerWidth > 900) {
+
+                        closeSidebar();
+
+                    }
+
+                }
+            );
+
+        });
+
+    </script>
+
+
+    <!-- =========================================================
+         PAGE-SPECIFIC JAVASCRIPT
+         ========================================================= -->
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+
+</html>
