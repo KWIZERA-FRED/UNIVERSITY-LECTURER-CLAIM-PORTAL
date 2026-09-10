@@ -3,1202 +3,824 @@
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
-    Layout = null;
     ViewData["Title"] = "HOD Dashboard";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>@ViewData["Title"] · UNILAK ASECPS</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet" />
-
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-
+@section Styles {
     <link rel="stylesheet"
           href="~/css/HOD/dashboard.css"
           asp-append-version="true" />
-</head>
+}
 
-<body>
+<div class="dashboard-page">
 
     <!-- ============================================================
-         TOP NAVIGATION
-    ============================================================= -->
+         PAGE HEADER
+         ============================================================ -->
 
-    <header class="navbar">
+    <div class="page-header">
 
-        <div class="navbar-container">
+        <div class="page-header-content">
 
-            <div class="navbar-left">
+            <div class="page-title-group">
 
-                <a href="/" class="brand-link">
+                <div class="page-eyebrow">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    Head of Department
+                </div>
 
-                    <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-                         alt="UNILAK Logo"
-                         class="navbar-logo" />
+                <h1>Welcome, @Model.HodName</h1>
 
-                    <div class="brand-text">
-                        <strong>UNILAK</strong>
-                        <span>ASECPS</span>
-                    </div>
-
-                </a>
+                <p>
+                    Manage academic staff, course assignments, contracts
+                    and claims for your department.
+                </p>
 
             </div>
 
-            <div class="navbar-right">
+            <div class="department-card">
 
-                <div class="user-context">
-
-                    <div class="user-context-icon">
-                        <i class="bi bi-person-workspace"></i>
-                    </div>
-
-                    <div class="user-context-text">
-
-                        <strong>@Model.HodName</strong>
-
-                        <span>
-                            Head of Department · @Model.HodDepartment
-                        </span>
-
-                    </div>
-
+                <div class="department-icon">
+                    <i class="bi bi-building"></i>
                 </div>
 
-                <a href="/Login" class="logout-btn">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Logout</span>
-                </a>
+                <div>
+                    <span>Department</span>
+                    <strong>@Model.HodDepartment</strong>
+                </div>
 
             </div>
 
         </div>
-
-    </header>
-
-
-    <!-- ============================================================
-         APPLICATION
-    ============================================================= -->
-
-    <div class="app">
-
-        <!-- ========================================================
-             SIDEBAR
-        ========================================================= -->
-
-        <aside class="sidebar">
-
-            <div class="sidebar-heading">
-                <span>MAIN MENU</span>
-            </div>
-
-            <nav class="sidebar-menu">
-
-                <a href="/HOD" class="sidebar-link active">
-
-                    <i class="bi bi-grid-1x2-fill"></i>
-
-                    <span>Dashboard</span>
-
-                </a>
-
-                <a href="/HOD/Staff" class="sidebar-link">
-
-                    <i class="bi bi-people-fill"></i>
-
-                    <span>Staff Management</span>
-
-                </a>
-
-                <a href="/HOD/AssignCourse" class="sidebar-link">
-
-                    <i class="bi bi-journal-plus"></i>
-
-                    <span>Course Assignments</span>
-
-                </a>
-
-                <a href="/HOD/Contracts" class="sidebar-link">
-
-                    <i class="bi bi-file-earmark-text-fill"></i>
-
-                    <span>Contracts</span>
-
-                    @if (Model.ContractsToSign > 0)
-                    {
-                        <span class="sidebar-count">
-                            @Model.ContractsToSign
-                        </span>
-                    }
-
-                </a>
-
-                <a href="/HOD/Claims" class="sidebar-link">
-
-                    <i class="bi bi-cash-stack"></i>
-
-                    <span>Claims</span>
-
-                    @if (Model.ClaimsReceived > 0)
-                    {
-                        <span class="sidebar-count">
-                            @Model.ClaimsReceived
-                        </span>
-                    }
-
-                </a>
-
-            </nav>
-
-
-            <div class="sidebar-divider"></div>
-
-
-            <!-- QUICK ACCESS -->
-
-            <div class="sidebar-heading">
-                <span>QUICK ACCESS</span>
-            </div>
-
-            <nav class="sidebar-menu">
-
-                <a href="/HOD/Staff" class="sidebar-link secondary-link">
-
-                    <i class="bi bi-person-lines-fill"></i>
-
-                    <span>Academic Staff</span>
-
-                </a>
-
-                <a href="/HOD/AssignCourse" class="sidebar-link secondary-link">
-
-                    <i class="bi bi-plus-circle"></i>
-
-                    <span>Assign a Course</span>
-
-                </a>
-
-            </nav>
-
-
-            <div class="sidebar-bottom">
-
-                <div class="sidebar-system">
-
-                    <div class="system-icon">
-                        <i class="bi bi-shield-check"></i>
-                    </div>
-
-                    <div>
-                        <strong>Secure Portal</strong>
-                        <span>UNILAK Academic Services</span>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </aside>
-
-
-        <!-- ========================================================
-             MAIN CONTENT
-        ========================================================= -->
-
-        <main class="main">
-
-            <div class="main-container">
-
-                <!-- =================================================
-                     PAGE INTRO
-                ================================================== -->
-
-                <section class="page-intro">
-
-                    <div>
-
-                        <span class="eyebrow">
-                            HOD PORTAL
-                        </span>
-
-                        <h1>
-                            Department Overview
-                        </h1>
-
-                        <p>
-                            Monitor academic staff, course assignments and
-                            contract activities within
-                            <strong>@Model.HodDepartment</strong>.
-                        </p>
-
-                    </div>
-
-                    <div class="date-card">
-
-                        <div class="date-icon">
-                            <i class="bi bi-calendar3"></i>
-                        </div>
-
-                        <div>
-                            <span>Today</span>
-
-                            <strong>
-                                @DateTime.Now.ToString("dd MMM yyyy")
-                            </strong>
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- =================================================
-                     KPI CARDS
-                ================================================== -->
-
-                <section class="stats-grid">
-
-                    <!-- STAFF -->
-
-                    <div class="stat-card">
-
-                        <div class="stat-top">
-
-                            <div class="stat-icon staff-icon">
-                                <i class="bi bi-people-fill"></i>
-                            </div>
-
-                            <span class="stat-context">
-                                Department
-                            </span>
-
-                        </div>
-
-                        <div class="stat-value">
-                            @Model.AcademicStaff
-                        </div>
-
-                        <div class="stat-label">
-                            Academic Staff
-                        </div>
-
-                        <div class="stat-footer">
-                            <a href="/HOD/Staff">
-                                Manage staff
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-
-                    </div>
-
-
-                    <!-- CONTRACTS -->
-
-                    <div class="stat-card">
-
-                        <div class="stat-top">
-
-                            <div class="stat-icon contract-icon">
-                                <i class="bi bi-file-earmark-check-fill"></i>
-                            </div>
-
-                            @if (Model.ContractsToSign > 0)
-                            {
-                                <span class="status-indicator attention">
-                                    Action required
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="status-indicator complete">
-                                    Up to date
-                                </span>
-                            }
-
-                        </div>
-
-                        <div class="stat-value">
-                            @Model.ContractsToSign
-                        </div>
-
-                        <div class="stat-label">
-                            Contracts Requiring Action
-                        </div>
-
-                        <div class="stat-footer">
-                            <a href="/HOD/Contracts">
-                                Review contracts
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-
-                    </div>
-
-
-                    <!-- CLAIMS -->
-
-                    <div class="stat-card">
-
-                        <div class="stat-top">
-
-                            <div class="stat-icon claims-icon">
-                                <i class="bi bi-cash-stack"></i>
-                            </div>
-
-                            @if (Model.ClaimsReceived > 0)
-                            {
-                                <span class="status-indicator attention">
-                                    Pending
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="status-indicator complete">
-                                    Clear
-                                </span>
-                            }
-
-                        </div>
-
-                        <div class="stat-value">
-                            @Model.ClaimsReceived
-                        </div>
-
-                        <div class="stat-label">
-                            Claims Awaiting Review
-                        </div>
-
-                        <div class="stat-footer">
-                            <a href="/HOD/Claims">
-                                Review claims
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-
-                    </div>
-
-
-                    <!-- ACTIVE CONTRACTS -->
-
-                    <div class="stat-card">
-
-                        <div class="stat-top">
-
-                            <div class="stat-icon active-icon">
-                                <i class="bi bi-file-earmark-lock-fill"></i>
-                            </div>
-
-                            <span class="stat-context">
-                                Department
-                            </span>
-
-                        </div>
-
-                        <div class="stat-value">
-                            @Model.ContractsToReview
-                        </div>
-
-                        <div class="stat-label">
-                            Active Contracts
-                        </div>
-
-                        <div class="stat-footer">
-                            <a href="/HOD/Contracts">
-                                View contracts
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- =================================================
-                     MAIN TWO-COLUMN AREA
-                ================================================== -->
-
-                <section class="dashboard-grid">
-
-
-                    <!-- =============================================
-                         CONTRACT WORKFLOW
-                    ============================================== -->
-
-                    <div class="panel workflow-panel">
-
-                        <div class="panel-header">
-
-                            <div class="panel-heading">
-
-                                <div class="panel-icon">
-                                    <i class="bi bi-diagram-3-fill"></i>
-                                </div>
-
-                                <div>
-
-                                    <h2>
-                                        Contract Workflow
-                                    </h2>
-
-                                    <p>
-                                        Academic engagement contract lifecycle
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                            <a href="/HOD/Contracts" class="panel-link">
-                                Manage
-                                <i class="bi bi-arrow-up-right"></i>
-                            </a>
-
-                        </div>
-
-
-                        <div class="workflow">
-
-                            <!-- LECTURER -->
-
-                            <div class="workflow-step">
-
-                                <div class="workflow-node completed">
-                                    <i class="bi bi-person-check-fill"></i>
-                                </div>
-
-                                <div class="workflow-content">
-                                    <strong>Lecturer</strong>
-                                    <span>Contract initiated and signed</span>
-                                </div>
-
-                            </div>
-
-
-                            <div class="workflow-line"></div>
-
-
-                            <!-- DEAN -->
-
-                            <div class="workflow-step">
-
-                                <div class="workflow-node current">
-                                    <i class="bi bi-building"></i>
-                                </div>
-
-                                <div class="workflow-content">
-                                    <strong>Dean</strong>
-
-                                    @if (Model.ContractsToSign > 0)
-                                    {
-                                        <span class="workflow-alert">
-                                            @Model.ContractsToSign requiring action
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span>Department approval stage</span>
-                                    }
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="workflow-line"></div>
-
-
-                            <!-- HR -->
-
-                            <div class="workflow-step">
-
-                                <div class="workflow-node">
-                                    <i class="bi bi-person-badge"></i>
-                                </div>
-
-                                <div class="workflow-content">
-                                    <strong>HR Officer</strong>
-                                    <span>Human resources verification</span>
-                                </div>
-
-                            </div>
-
-
-                            <div class="workflow-line"></div>
-
-
-                            <!-- DVCAR -->
-
-                            <div class="workflow-step">
-
-                                <div class="workflow-node">
-                                    <i class="bi bi-mortarboard-fill"></i>
-                                </div>
-
-                                <div class="workflow-content">
-                                    <strong>DVCAR</strong>
-                                    <span>Academic administration approval</span>
-                                </div>
-
-                            </div>
-
-
-                            <div class="workflow-line"></div>
-
-
-                            <!-- VC -->
-
-                            <div class="workflow-step">
-
-                                <div class="workflow-node">
-                                    <i class="bi bi-award-fill"></i>
-                                </div>
-
-                                <div class="workflow-content">
-                                    <strong>Vice Chancellor</strong>
-                                    <span>Final institutional approval</span>
-                                </div>
-
-                            </div>
-
-
-                            <div class="workflow-line"></div>
-
-
-                            <!-- ACTIVE -->
-
-                            <div class="workflow-step">
-
-                                <div class="workflow-node final">
-                                    <i class="bi bi-check-lg"></i>
-                                </div>
-
-                                <div class="workflow-content">
-                                    <strong>ACTIVE</strong>
-                                    <span>Contract becomes effective</span>
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =============================================
-                         QUICK ACTIONS
-                    ============================================== -->
-
-                    <div class="panel actions-panel">
-
-                        <div class="panel-header">
-
-                            <div class="panel-heading">
-
-                                <div class="panel-icon">
-                                    <i class="bi bi-lightning-charge-fill"></i>
-                                </div>
-
-                                <div>
-
-                                    <h2>
-                                        Quick Actions
-                                    </h2>
-
-                                    <p>
-                                        Common department tasks
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="quick-actions">
-
-                            <a href="/HOD/Staff" class="quick-action">
-
-                                <div class="quick-action-icon">
-                                    <i class="bi bi-people-fill"></i>
-                                </div>
-
-                                <div class="quick-action-content">
-
-                                    <strong>Manage Staff</strong>
-
-                                    <span>
-                                        View and manage academic staff
-                                    </span>
-
-                                </div>
-
-                                <i class="bi bi-chevron-right action-arrow"></i>
-
-                            </a>
-
-
-                            <a href="/HOD/AssignCourse" class="quick-action">
-
-                                <div class="quick-action-icon">
-                                    <i class="bi bi-journal-plus"></i>
-                                </div>
-
-                                <div class="quick-action-content">
-
-                                    <strong>Assign Course</strong>
-
-                                    <span>
-                                        Allocate courses to lecturers
-                                    </span>
-
-                                </div>
-
-                                <i class="bi bi-chevron-right action-arrow"></i>
-
-                            </a>
-
-
-                            <a href="/HOD/Contracts" class="quick-action">
-
-                                <div class="quick-action-icon">
-                                    <i class="bi bi-file-earmark-check"></i>
-                                </div>
-
-                                <div class="quick-action-content">
-
-                                    <strong>Review Contracts</strong>
-
-                                    <span>
-                                        Process department contracts
-                                    </span>
-
-                                </div>
-
-                                <i class="bi bi-chevron-right action-arrow"></i>
-
-                            </a>
-
-
-                            <a href="/HOD/Claims" class="quick-action">
-
-                                <div class="quick-action-icon">
-                                    <i class="bi bi-cash-stack"></i>
-                                </div>
-
-                                <div class="quick-action-content">
-
-                                    <strong>Review Claims</strong>
-
-                                    <span>
-                                        Review submitted payment claims
-                                    </span>
-
-                                </div>
-
-                                <i class="bi bi-chevron-right action-arrow"></i>
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- =================================================
-                     CONTRACTS REQUIRING ACTION
-                ================================================== -->
-
-                <section class="panel table-panel">
-
-                    <div class="panel-header">
-
-                        <div class="panel-heading">
-
-                            <div class="panel-icon">
-                                <i class="bi bi-file-earmark-check-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <h2>
-                                    Contracts Requiring Your Attention
-                                </h2>
-
-                                <p>
-                                    Contracts currently associated with your department
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                        <a href="/HOD/Contracts" class="panel-link">
-                            View all
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
-
-                    </div>
-
-
-                    @if (Model.ContractsAwaitingSignature.Any())
-                    {
-                        <div class="table-wrapper">
-
-                            <table>
-
-                                <thead>
-
-                                    <tr>
-
-                                        <th>Contract</th>
-
-                                        <th>Lecturer</th>
-
-                                        <th>Course</th>
-
-                                        <th>Hours</th>
-
-                                        <th>Status</th>
-
-                                        <th></th>
-
-                                    </tr>
-
-                                </thead>
-
-                                <tbody>
-
-                                    @foreach (var contract in Model.ContractsAwaitingSignature)
-                                    {
-                                        <tr>
-
-                                            <td>
-                                                <span class="record-id">
-                                                    C@contract.Id.ToString("D3")
-                                                </span>
-                                            </td>
-
-                                            <td>
-
-                                                <div class="person-cell">
-
-                                                    <div class="avatar">
-                                                        @GetInitials(contract.LecturerName)
-                                                    </div>
-
-                                                    <div>
-                                                        <strong>
-                                                            @contract.LecturerName
-                                                        </strong>
-
-                                                        <span>
-                                                            Academic Staff
-                                                        </span>
-                                                    </div>
-
-                                                </div>
-
-                                            </td>
-
-                                            <td>
-                                                <span class="course-name">
-                                                    @contract.CourseTitle
-                                                </span>
-                                            </td>
-
-                                            <td>
-                                                <span class="hours">
-                                                    @contract.Hours.ToString("0.##")h
-                                                </span>
-                                            </td>
-
-                                            <td>
-
-                                                <span class="status-badge pending">
-                                                    <i class="bi bi-clock"></i>
-                                                    Pending
-                                                </span>
-
-                                            </td>
-
-                                            <td>
-
-                                                <a href="/HOD/Contracts?ContractId=@contract.Id"
-                                                   class="table-action">
-
-                                                    Review
-
-                                                    <i class="bi bi-arrow-right"></i>
-
-                                                </a>
-
-                                            </td>
-
-                                        </tr>
-                                    }
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state">
-
-                            <div class="empty-icon">
-                                <i class="bi bi-check2-circle"></i>
-                            </div>
-
-                            <h3>
-                                No contracts require your attention
-                            </h3>
-
-                            <p>
-                                Your department currently has no contracts
-                                awaiting HOD action.
-                            </p>
-
-                            <a href="/HOD/Contracts" class="empty-action">
-                                View contracts
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-
-                        </div>
-                    }
-
-                </section>
-
-
-                <!-- =================================================
-                     LOWER INFORMATION GRID
-                ================================================== -->
-
-                <section class="lower-grid">
-
-
-                    <!-- DEPARTMENT RESPONSIBILITIES -->
-
-                    <div class="panel responsibilities-panel">
-
-                        <div class="panel-header">
-
-                            <div class="panel-heading">
-
-                                <div class="panel-icon">
-                                    <i class="bi bi-clipboard-check-fill"></i>
-                                </div>
-
-                                <div>
-
-                                    <h2>
-                                        Department Responsibilities
-                                    </h2>
-
-                                    <p>
-                                        Key activities under your supervision
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="responsibility-list">
-
-                            <div class="responsibility-item">
-
-                                <div class="responsibility-icon">
-                                    <i class="bi bi-people"></i>
-                                </div>
-
-                                <div>
-
-                                    <strong>
-                                        Academic Staff
-                                    </strong>
-
-                                    <span>
-                                        Maintain lecturer records and engagement
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="responsibility-item">
-
-                                <div class="responsibility-icon">
-                                    <i class="bi bi-journal-check"></i>
-                                </div>
-
-                                <div>
-
-                                    <strong>
-                                        Course Assignments
-                                    </strong>
-
-                                    <span>
-                                        Monitor course allocations and workload
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="responsibility-item">
-
-                                <div class="responsibility-icon">
-                                    <i class="bi bi-file-earmark-check"></i>
-                                </div>
-
-                                <div>
-
-                                    <strong>
-                                        Contract Review
-                                    </strong>
-
-                                    <span>
-                                        Process departmental contract approvals
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="responsibility-item">
-
-                                <div class="responsibility-icon">
-                                    <i class="bi bi-cash-coin"></i>
-                                </div>
-
-                                <div>
-
-                                    <strong>
-                                        Claim Review
-                                    </strong>
-
-                                    <span>
-                                        Review eligible academic staff claims
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- RECENT CLAIMS -->
-
-                    <div class="panel claims-panel">
-
-                        <div class="panel-header">
-
-                            <div class="panel-heading">
-
-                                <div class="panel-icon">
-                                    <i class="bi bi-receipt-cutoff"></i>
-                                </div>
-
-                                <div>
-
-                                    <h2>
-                                        Recent Claims
-                                    </h2>
-
-                                    <p>
-                                        Latest department submissions
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                            <a href="/HOD/Claims" class="panel-link">
-                                View all
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-
-                        </div>
-
-
-                        @if (Model.RecentClaims.Any())
-                        {
-                            <div class="claim-list">
-
-                                @foreach (var claim in Model.RecentClaims.Take(5))
-                                {
-                                    <div class="claim-item">
-
-                                        <div class="claim-avatar">
-                                            @GetInitials(claim.LecturerName)
-                                        </div>
-
-                                        <div class="claim-info">
-
-                                            <strong>
-                                                @claim.LecturerName
-                                            </strong>
-
-                                            <span>
-                                                Claim CL@claim.Id.ToString("D3")
-                                                · Contract C@claim.ContractId.ToString("D3")
-                                            </span>
-
-                                        </div>
-
-                                        @switch (claim.Status)
-                                        {
-                                            case ClaimStatus.PendingHODApproval:
-                                            case ClaimStatus.Submitted:
-                                                <span class="status-badge review">
-                                                    <i class="bi bi-eye"></i>
-                                                    Review
-                                                </span>
-                                                break;
-
-                                            case ClaimStatus.Approved:
-                                                <span class="status-badge approved">
-                                                    <i class="bi bi-check-circle"></i>
-                                                    Approved
-                                                </span>
-                                                break;
-
-                                            case ClaimStatus.Rejected:
-                                                <span class="status-badge rejected">
-                                                    <i class="bi bi-x-circle"></i>
-                                                    Rejected
-                                                </span>
-                                                break;
-
-                                            case ClaimStatus.Paid:
-                                                <span class="status-badge paid">
-                                                    <i class="bi bi-cash"></i>
-                                                    Paid
-                                                </span>
-                                                break;
-
-                                            default:
-                                                <span class="status-badge review">
-                                                    @claim.Status
-                                                </span>
-                                                break;
-                                        }
-
-                                    </div>
-                                }
-
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="compact-empty">
-
-                                <i class="bi bi-inbox"></i>
-
-                                <span>
-                                    No recent claims for this department.
-                                </span>
-
-                            </div>
-                        }
-
-                    </div>
-
-                </section>
-
-            </div>
-
-        </main>
 
     </div>
 
 
     <!-- ============================================================
-         FOOTER
-    ============================================================= -->
+         STATISTICS
+         ============================================================ -->
 
-    <footer class="footer">
+    <div class="stats-grid">
 
-        <div class="footer-content">
+        <!-- Contracts to Sign -->
 
-            <div class="footer-brand">
+        <div class="stat-card">
 
-                <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-                     alt="UNILAK Logo"
-                     class="footer-logo" />
+            <div class="stat-card-top">
+
+                <div class="stat-icon contracts">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+
+                <span class="stat-label">
+                    Contracts to Sign
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                @Model.ContractsToSign
+            </div>
+
+            <div class="stat-footer">
+                <span>
+                    <i class="bi bi-clock"></i>
+                    Pending action
+                </span>
+
+                <a asp-page="/HOD/Contracts">
+                    View
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+        </div>
+
+
+        <!-- Contracts to Review -->
+
+        <div class="stat-card">
+
+            <div class="stat-card-top">
+
+                <div class="stat-icon active">
+                    <i class="bi bi-file-earmark-check"></i>
+                </div>
+
+                <span class="stat-label">
+                    Active Contracts
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                @Model.ContractsToReview
+            </div>
+
+            <div class="stat-footer">
+                <span>
+                    <i class="bi bi-check-circle"></i>
+                    Active
+                </span>
+
+                <a asp-page="/HOD/Contracts">
+                    View
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+        </div>
+
+
+        <!-- Claims -->
+
+        <div class="stat-card">
+
+            <div class="stat-card-top">
+
+                <div class="stat-icon claims">
+                    <i class="bi bi-receipt"></i>
+                </div>
+
+                <span class="stat-label">
+                    Claims Received
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                @Model.ClaimsReceived
+            </div>
+
+            <div class="stat-footer">
+                <span>
+                    <i class="bi bi-hourglass-split"></i>
+                    Awaiting approval
+                </span>
+
+                <a asp-page="/HOD/Claims">
+                    Review
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+        </div>
+
+
+        <!-- Academic Staff -->
+
+        <div class="stat-card">
+
+            <div class="stat-card-top">
+
+                <div class="stat-icon staff">
+                    <i class="bi bi-people"></i>
+                </div>
+
+                <span class="stat-label">
+                    Academic Staff
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                @Model.AcademicStaff
+            </div>
+
+            <div class="stat-footer">
+                <span>
+                    <i class="bi bi-person-check"></i>
+                    Active lecturers
+                </span>
+
+                <a asp-page="/HOD/Staff">
+                    View
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         WORKFLOW / QUICK ACTIONS
+         ============================================================ -->
+
+    <div class="dashboard-grid">
+
+        <!-- Workflow -->
+
+        <section class="dashboard-card workflow-card">
+
+            <div class="card-header">
 
                 <div>
-
-                    <strong>
-                        UNILAK Portal
-                    </strong>
-
-                    <span>
-                        Academic Staff Engagement & Claim Processing System
+                    <span class="card-eyebrow">
+                        Department workflow
                     </span>
+
+                    <h2>Academic Staff Process</h2>
+                </div>
+
+                <div class="card-header-icon">
+                    <i class="bi bi-diagram-3"></i>
+                </div>
+
+            </div>
+
+            <div class="workflow-list">
+
+                <div class="workflow-item">
+
+                    <div class="workflow-number">
+                        01
+                    </div>
+
+                    <div class="workflow-icon">
+                        <i class="bi bi-person-plus"></i>
+                    </div>
+
+                    <div class="workflow-content">
+                        <strong>Register Staff</strong>
+                        <span>
+                            Create lecturer accounts and capture staff information.
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="workflow-item">
+
+                    <div class="workflow-number">
+                        02
+                    </div>
+
+                    <div class="workflow-icon">
+                        <i class="bi bi-journal-plus"></i>
+                    </div>
+
+                    <div class="workflow-content">
+                        <strong>Assign Course</strong>
+                        <span>
+                            Assign courses and teaching hours to academic staff.
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="workflow-item">
+
+                    <div class="workflow-number">
+                        03
+                    </div>
+
+                    <div class="workflow-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+
+                    <div class="workflow-content">
+                        <strong>Generate Contract</strong>
+                        <span>
+                            Generate the academic staff engagement contract.
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="workflow-item">
+
+                    <div class="workflow-number">
+                        04
+                    </div>
+
+                    <div class="workflow-icon">
+                        <i class="bi bi-pen"></i>
+                    </div>
+
+                    <div class="workflow-content">
+                        <strong>Contract Signing</strong>
+                        <span>
+                            Follow the required institutional signing workflow.
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="workflow-item">
+
+                    <div class="workflow-number">
+                        05
+                    </div>
+
+                    <div class="workflow-icon">
+                        <i class="bi bi-receipt-cutoff"></i>
+                    </div>
+
+                    <div class="workflow-content">
+                        <strong>Process Claims</strong>
+                        <span>
+                            Review and process lecturer claims submitted for payment.
+                        </span>
+                    </div>
 
                 </div>
 
             </div>
 
-            <div class="footer-right">
+        </section>
 
-                <span>
-                    © @DateTime.Now.Year University of Lay Adventists of Kigali
+
+        <!-- Quick Actions -->
+
+        <section class="dashboard-card quick-actions-card">
+
+            <div class="card-header">
+
+                <div>
+                    <span class="card-eyebrow">
+                        Shortcuts
+                    </span>
+
+                    <h2>Quick Actions</h2>
+                </div>
+
+                <div class="card-header-icon">
+                    <i class="bi bi-lightning-charge"></i>
+                </div>
+
+            </div>
+
+
+            <div class="quick-actions">
+
+                <a asp-page="/HOD/RegisterUser"
+                   class="quick-action">
+
+                    <div class="quick-action-icon">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+
+                    <div class="quick-action-content">
+                        <strong>Register User</strong>
+                        <span>
+                            Create an academic staff account
+                        </span>
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+
+                <a asp-page="/HOD/Staff"
+                   class="quick-action">
+
+                    <div class="quick-action-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+
+                    <div class="quick-action-content">
+                        <strong>Manage Staff</strong>
+                        <span>
+                            View and manage department staff
+                        </span>
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+
+                <a asp-page="/HOD/AssignCourse"
+                   class="quick-action">
+
+                    <div class="quick-action-icon">
+                        <i class="bi bi-journal-plus"></i>
+                    </div>
+
+                    <div class="quick-action-content">
+                        <strong>Assign Course</strong>
+                        <span>
+                            Allocate courses and teaching hours
+                        </span>
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+
+                <a asp-page="/HOD/Contracts"
+                   class="quick-action">
+
+                    <div class="quick-action-icon">
+                        <i class="bi bi-file-earmark-check"></i>
+                    </div>
+
+                    <div class="quick-action-content">
+                        <strong>Contracts</strong>
+                        <span>
+                            View department contracts
+                        </span>
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+
+                <a asp-page="/HOD/Claims"
+                   class="quick-action">
+
+                    <div class="quick-action-icon">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+
+                    <div class="quick-action-content">
+                        <strong>Claims</strong>
+                        <span>
+                            Review lecturer claims
+                        </span>
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- ============================================================
+         CONTRACTS + CLAIMS
+         ============================================================ -->
+
+    <div class="dashboard-grid lower-grid">
+
+        <!-- Contracts awaiting signature -->
+
+        <section class="dashboard-card table-card">
+
+            <div class="card-header">
+
+                <div>
+                    <span class="card-eyebrow">
+                        Contracts
+                    </span>
+
+                    <h2>Awaiting Signature</h2>
+                </div>
+
+                <a asp-page="/HOD/Contracts"
+                   class="view-all-link">
+                    View all
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+            </div>
+
+
+            @if (Model.ContractsAwaitingSignature.Any())
+            {
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Lecturer</th>
+                                <th>Course</th>
+                                <th>Hours</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var contract in Model.ContractsAwaitingSignature)
+                            {
+                                <tr>
+
+                                    <td>
+                                        <div class="person-cell">
+
+                                            <div class="person-avatar">
+                                                @{
+                                                    var names = contract.LecturerName
+                                                        .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                                                    var initials = names.Length switch
+                                                    {
+                                                        0 => "?",
+                                                        1 => names[0][0].ToString().ToUpper(),
+                                                        _ => $"{names[0][0]}{names[^1][0]}".ToUpper()
+                                                    };
+                                                }
+
+                                                @initials
+                                            </div>
+
+                                            <span>
+                                                @contract.LecturerName
+                                            </span>
+
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @contract.CourseTitle
+                                    </td>
+
+                                    <td>
+                                        @contract.Hours
+                                    </td>
+
+                                    <td>
+
+                                        <span class="status-badge pending">
+
+                                            <i class="bi bi-clock"></i>
+
+                                            @contract.Status
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <a asp-page="/HOD/Contracts"
+                                           asp-route-ContractId="@contract.Id"
+                                           class="table-action"
+                                           title="View contract">
+
+                                            <i class="bi bi-arrow-up-right"></i>
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        <i class="bi bi-file-earmark-check"></i>
+                    </div>
+
+                    <h3>No contracts awaiting signature</h3>
+
+                    <p>
+                        There are currently no contracts requiring action.
+                    </p>
+
+                </div>
+            }
+
+        </section>
+
+
+        <!-- Recent Claims -->
+
+        <section class="dashboard-card table-card">
+
+            <div class="card-header">
+
+                <div>
+                    <span class="card-eyebrow">
+                        Claims
+                    </span>
+
+                    <h2>Recent Claims</h2>
+                </div>
+
+                <a asp-page="/HOD/Claims"
+                   class="view-all-link">
+                    View all
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+            </div>
+
+
+            @if (Model.RecentClaims.Any())
+            {
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Lecturer</th>
+                                <th>Contract</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var claim in Model.RecentClaims)
+                            {
+                                <tr>
+
+                                    <td>
+
+                                        <div class="person-cell">
+
+                                            <div class="person-avatar">
+                                                @{
+                                                    var names = claim.LecturerName
+                                                        .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                                                    var initials = names.Length switch
+                                                    {
+                                                        0 => "?",
+                                                        1 => names[0][0].ToString().ToUpper(),
+                                                        _ => $"{names[0][0]}{names[^1][0]}".ToUpper()
+                                                    };
+                                                }
+
+                                                @initials
+                                            </div>
+
+                                            <span>
+                                                @claim.LecturerName
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        CON-@claim.ContractId.ToString("D6")
+                                    </td>
+
+                                    <td>
+
+                                        @{
+                                            var claimStatusClass =
+                                                claim.Status == ClaimStatus.Approved ||
+                                                claim.Status == ClaimStatus.Paid
+                                                    ? "approved"
+                                                    : claim.Status == ClaimStatus.Rejected
+                                                        ? "rejected"
+                                                        : "pending";
+                                        }
+
+                                        <span class="status-badge @claimStatusClass">
+
+                                            @if (claim.Status == ClaimStatus.Approved ||
+                                                 claim.Status == ClaimStatus.Paid)
+                                            {
+                                                <i class="bi bi-check-circle"></i>
+                                            }
+                                            else if (claim.Status == ClaimStatus.Rejected)
+                                            {
+                                                <i class="bi bi-x-circle"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-clock"></i>
+                                            }
+
+                                            @claim.Status
+
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <a asp-page="/HOD/Claims"
+                                           class="table-action"
+                                           title="View claim">
+
+                                            <i class="bi bi-arrow-up-right"></i>
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+
+                    <h3>No recent claims</h3>
+
+                    <p>
+                        There are currently no claims to display.
+                    </p>
+
+                </div>
+            }
+
+        </section>
+
+    </div>
+
+
+    <!-- ============================================================
+         HOD RESPONSIBILITIES
+         ============================================================ -->
+
+    <section class="responsibilities-card">
+
+        <div class="responsibilities-heading">
+
+            <div class="responsibilities-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+
+            <div>
+                <span class="card-eyebrow">
+                    HOD Responsibilities
                 </span>
 
+                <h2>Department Management</h2>
+            </div>
+
+        </div>
+
+
+        <div class="responsibilities-list">
+
+            <div class="responsibility">
+
+                <i class="bi bi-check2-circle"></i>
+
                 <span>
-                    HOD Portal
+                    Manage academic staff within your department
+                </span>
+
+            </div>
+
+
+            <div class="responsibility">
+
+                <i class="bi bi-check2-circle"></i>
+
+                <span>
+                    Assign courses and teaching hours
+                </span>
+
+            </div>
+
+
+            <div class="responsibility">
+
+                <i class="bi bi-check2-circle"></i>
+
+                <span>
+                    Manage academic staff contracts
+                </span>
+
+            </div>
+
+
+            <div class="responsibility">
+
+                <i class="bi bi-check2-circle"></i>
+
+                <span>
+                    Review and process lecturer claims
                 </span>
 
             </div>
 
         </div>
 
-    </footer>
+    </section>
 
-</body>
-</html>
-
-@functions
-{
-    private static string GetInitials(string? name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            return "—";
-
-        var parts = name
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-        if (parts.Length == 1)
-            return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpperInvariant();
-
-        return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
-    }
-}
+</div>

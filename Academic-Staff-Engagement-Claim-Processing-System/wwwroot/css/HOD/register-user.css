@@ -1,0 +1,700 @@
+/* ============================================================
+   REGISTER USER PAGE
+   HOD PORTAL
+============================================================ */
+
+:root {
+    --register-primary: #174c3c;
+    --register-primary-light: #236b55;
+    --register-accent: #2a7f5e;
+    --register-accent-light: #e1f0e8;
+    --register-background: #f5f8f6;
+    --register-card: #ffffff;
+    --register-border: #dce7e1;
+    --register-text: #1d2b25;
+    --register-muted: #61746b;
+    --register-danger: #b83f3f;
+    --register-radius: 16px;
+    --register-shadow: 0 10px 30px rgba(28, 76, 60, 0.07);
+}
+
+
+/* ============================================================
+   PAGE
+============================================================ */
+
+.register-page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 24px 28px 40px;
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   PAGE HEADER
+============================================================ */
+
+.page-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.page-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.page-icon {
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: var(--register-accent-light);
+    color: var(--register-accent);
+    font-size: 1.1rem;
+}
+
+.page-heading h1 {
+    margin: 0 0 4px;
+    color: var(--register-primary);
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.page-heading p {
+    margin: 0;
+    color: var(--register-muted);
+    font-size: 0.76rem;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   BACK BUTTON
+============================================================ */
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 14px;
+    border: 1px solid var(--register-border);
+    border-radius: 9px;
+    background: #ffffff;
+    color: var(--register-muted);
+    text-decoration: none;
+    font-size: 0.73rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+    .back-button:hover {
+        color: var(--register-accent);
+        border-color: var(--register-accent);
+        background: #fbfdfc;
+    }
+
+
+/* ============================================================
+   ALERTS
+============================================================ */
+
+.alert-message {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 15px;
+    margin-bottom: 18px;
+    border-radius: 10px;
+    font-size: 0.73rem;
+    line-height: 1.5;
+}
+
+    .alert-message > i {
+        margin-top: 2px;
+        font-size: 0.95rem;
+    }
+
+    .alert-message div {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .alert-message strong {
+        font-size: 0.74rem;
+        font-weight: 700;
+    }
+
+.success-message {
+    background: #e8f5ee;
+    border: 1px solid #cde5d7;
+    color: #35664f;
+}
+
+.error-message {
+    background: #fceeee;
+    border: 1px solid #efcece;
+    color: #a13f3f;
+}
+
+
+/* ============================================================
+   MAIN CARD
+============================================================ */
+
+.register-card {
+    width: 100%;
+    background: var(--register-card);
+    border: 1px solid var(--register-border);
+    border-radius: var(--register-radius);
+    box-shadow: var(--register-shadow);
+    overflow: hidden;
+}
+
+
+/* ============================================================
+   CARD HEADER
+============================================================ */
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--register-border);
+}
+
+    .card-header h2 {
+        margin: 0 0 4px;
+        color: var(--register-primary);
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+
+    .card-header p {
+        margin: 0;
+        color: var(--register-muted);
+        font-size: 0.7rem;
+    }
+
+.required-note {
+    color: var(--register-muted);
+    font-size: 0.67rem;
+    white-space: nowrap;
+}
+
+.required {
+    color: var(--register-accent);
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   FORM
+============================================================ */
+
+#registerForm {
+    width: 100%;
+    padding: 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 24px;
+}
+
+.form-group {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+    .form-group label {
+        margin-bottom: 7px;
+        color: var(--register-text);
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+
+
+/* ============================================================
+   INPUTS
+============================================================ */
+
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+    .input-wrapper > i {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #82948b;
+        font-size: 0.88rem;
+        pointer-events: none;
+        z-index: 2;
+    }
+
+.form-control,
+.form-select {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px 10px 39px;
+    border: 1px solid var(--register-border);
+    border-radius: 9px;
+    background: #ffffff;
+    color: var(--register-text);
+    font-family: inherit;
+    font-size: 0.74rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .form-control::placeholder {
+        color: #9aa9a2;
+    }
+
+.form-select {
+    cursor: pointer;
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--register-accent);
+        box-shadow: 0 0 0 3px rgba(42, 127, 94, 0.09);
+    }
+
+    .form-control:hover,
+    .form-select:hover {
+        border-color: #c4d4cc;
+    }
+
+
+/* ============================================================
+   HELP TEXT
+============================================================ */
+
+.field-help {
+    margin-top: 5px;
+    color: var(--register-muted);
+    font-size: 0.63rem;
+    line-height: 1.4;
+}
+
+.validation-message {
+    margin-top: 5px;
+    color: var(--register-danger);
+    font-size: 0.63rem;
+}
+
+
+/* ============================================================
+   ROLE INFORMATION
+============================================================ */
+
+.role-info {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 13px 15px;
+    border: 1px solid var(--register-border);
+    border-radius: 10px;
+    background: #f7faf8;
+}
+
+.role-info-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: var(--register-accent-light);
+    color: var(--register-accent);
+    font-size: 0.75rem;
+}
+
+.role-info strong {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--register-primary);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.role-info p {
+    margin: 0;
+    color: var(--register-muted);
+    font-size: 0.65rem;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   SIGNATURE
+============================================================ */
+
+.signature-section {
+    grid-column: 1 / -1;
+    margin-top: 2px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 9px;
+}
+
+    .section-heading h3 {
+        margin: 0 0 3px;
+        color: var(--register-text);
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .section-heading p {
+        margin: 0;
+        color: var(--register-muted);
+        font-size: 0.64rem;
+    }
+
+.required-badge {
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: var(--register-accent-light);
+    color: var(--register-accent);
+    font-size: 0.61rem;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   SIGNATURE CONTAINER
+============================================================ */
+
+.signature-container {
+    width: 100%;
+    border: 1px solid var(--register-border);
+    border-radius: 10px;
+    background: #fafcfb;
+    overflow: hidden;
+}
+
+.signature-canvas-wrapper {
+    position: relative;
+    width: 100%;
+    height: 190px;
+    background: #ffffff;
+}
+
+#signaturePad {
+    display: block;
+    width: 100%;
+    height: 190px;
+    background: #ffffff;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.signature-placeholder {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    color: #b2c0b9;
+    font-size: 0.68rem;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+    .signature-placeholder i {
+        font-size: 1.2rem;
+    }
+
+    .signature-placeholder.hidden {
+        opacity: 0;
+    }
+
+
+/* ============================================================
+   SIGNATURE FOOTER
+============================================================ */
+
+.signature-footer {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 9px 13px;
+    border-top: 1px solid var(--register-border);
+    background: #fafcfb;
+}
+
+.signature-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--register-muted);
+    font-size: 0.64rem;
+}
+
+.status-indicator {
+    width: 7px;
+    height: 7px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--register-accent);
+}
+
+.clear-signature {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 7px;
+    border: none;
+    background: transparent;
+    color: #a45c5c;
+    font-family: inherit;
+    font-size: 0.65rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+    .clear-signature:hover {
+        color: #c43f3f;
+    }
+
+
+/* ============================================================
+   INFORMATION BOX
+============================================================ */
+
+.info-box {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 13px 15px;
+    border: 1px solid #cfe3d8;
+    border-radius: 10px;
+    background: var(--register-accent-light);
+    color: #376653;
+}
+
+    .info-box > i {
+        margin-top: 2px;
+        font-size: 0.9rem;
+    }
+
+    .info-box strong {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 0.69rem;
+        font-weight: 700;
+    }
+
+    .info-box p {
+        margin: 0;
+        font-size: 0.64rem;
+        line-height: 1.5;
+    }
+
+
+/* ============================================================
+   FORM ACTIONS
+============================================================ */
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--register-border);
+}
+
+.cancel-button,
+.submit-button {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.cancel-button {
+    padding: 0 17px;
+    border: 1px solid var(--register-border);
+    background: #ffffff;
+    color: var(--register-muted);
+    text-decoration: none;
+}
+
+    .cancel-button:hover {
+        border-color: #bccbc3;
+        color: var(--register-text);
+        background: #fafcfb;
+    }
+
+.submit-button {
+    padding: 0 18px;
+    border: 1px solid var(--register-accent);
+    background: var(--register-accent);
+    color: #ffffff;
+}
+
+    .submit-button:hover {
+        background: var(--register-primary-light);
+        border-color: var(--register-primary-light);
+        transform: translateY(-1px);
+    }
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 900px) {
+
+    .register-page {
+        padding: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .role-info,
+    .signature-section,
+    .info-box {
+        grid-column: 1;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .register-page {
+        padding: 16px;
+    }
+
+    .page-header {
+        align-items: flex-start;
+    }
+
+    .page-heading {
+        align-items: flex-start;
+    }
+
+        .page-heading h1 {
+            font-size: 1.25rem;
+        }
+
+        .page-heading p {
+            font-size: 0.68rem;
+        }
+
+    .back-button span {
+        display: none;
+    }
+
+    .back-button {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+    }
+
+    .card-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 17px;
+    }
+
+    #registerForm {
+        padding: 17px;
+    }
+
+    .signature-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .cancel-button,
+    .submit-button {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 450px) {
+
+    .register-page {
+        padding: 12px;
+    }
+
+    .page-header {
+        gap: 10px;
+    }
+
+    .page-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .page-heading {
+        gap: 10px;
+    }
+
+        .page-heading h1 {
+            font-size: 1.05rem;
+        }
+
+        .page-heading p {
+            font-size: 0.63rem;
+        }
+
+    .form-control,
+    .form-select {
+        font-size: 0.7rem;
+    }
+}

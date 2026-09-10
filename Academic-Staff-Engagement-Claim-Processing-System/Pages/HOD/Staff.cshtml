@@ -3,968 +3,773 @@
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
-    Layout = null;
-    ViewData["Title"] = "Lecturer Management";
+ViewData["Title"] = "Lecturer Management";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+@section Styles { <link rel="stylesheet" href="~/css/HOD/staff.css" asp-append-version="true" />
+}
 
-    <title>Lecturer Management | UNILAK</title>
+<section class="staff-page">
+    
+<header class="page-header">
+    <div class="page-header-content">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap"
-          rel="stylesheet" />
+        <div class="page-title-group">
+            <span class="page-eyebrow">HOD / Staff Management</span>
 
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+            <h1>Lecturer Management</h1>
 
-    <link rel="stylesheet"
-          href="~/css/HOD/staff.css"
-          asp-append-version="true" />
-</head>
-
-<body>
-
-    <!-- ============================================================
-         HEADER
-    ============================================================= -->
-    <header class="topbar">
-
-        <div class="brand-area">
-
-            <div class="brand-logo">
-                <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-                     alt="UNILAK" />
-            </div>
-
-            <div class="brand-text">
-                <strong>UNILAK Portal</strong>
-                <span>Academic Staff Engagement System</span>
-            </div>
-
+            <p>
+                Manage departmental lecturers, course assignments,
+                teaching hours and account status.
+            </p>
         </div>
 
-        <div class="topbar-right">
+        <a href="/HOD/RegisterUser" class="staff-primary-button">
+            <i class="bi bi-person-plus-fill"></i>
+            Register Lecturer
+        </a>
 
-            <div class="user-profile">
+    </div>
+</header>
 
-                <div class="user-avatar">
-                    <i class="bi bi-person-fill"></i>
-                </div>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
 
-                <div class="user-details">
-                    <strong>@Model.HodName</strong>
-                    <span>Head of Department</span>
-                </div>
-
-            </div>
-
-            <form method="post" asp-page="/Logout" class="logout-form">
-                <button type="submit" class="logout-button">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Logout</span>
-                </button>
-            </form>
-
+        <div class="alert-icon">
+            <i class="bi bi-check-circle-fill"></i>
         </div>
 
-    </header>
-
-
-    <!-- ============================================================
-         SIDEBAR
-    ============================================================= -->
-    <aside class="sidebar">
-
-        <div class="sidebar-heading">
-            <span>HOD MENU</span>
+        <div>
+            <strong>Success</strong>
+            <span>@TempData["SuccessMessage"]</span>
         </div>
 
-        <nav class="sidebar-nav">
+        <button type="button"
+                class="alert-close"
+                onclick="this.parentElement.remove()">
+            <i class="bi bi-x"></i>
+        </button>
 
-            <a href="/HOD" class="nav-item">
-                <i class="bi bi-grid-1x2-fill"></i>
-                <span>Dashboard</span>
-            </a>
+    </div>
+}
 
-            <a href="/HOD/Staff" class="nav-item active">
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-error">
+
+        <div class="alert-icon">
+            <i class="bi bi-exclamation-circle-fill"></i>
+        </div>
+
+        <div>
+            <strong>Action not completed</strong>
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+
+        <button type="button"
+                class="alert-close"
+                onclick="this.parentElement.remove()">
+            <i class="bi bi-x"></i>
+        </button>
+
+    </div>
+}
+
+<section class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="bi bi-people-fill"></i>
+        </div>
+
+        <div class="stat-content">
+            <span>Total Lecturers</span>
+            <strong>@Model.Lecturers.Count</strong>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="bi bi-person-check-fill"></i>
+        </div>
+
+        <div class="stat-content">
+            <span>Active Lecturers</span>
+            <strong>@Model.Lecturers.Count(x => x.IsActive)</strong>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="bi bi-journal-bookmark-fill"></i>
+        </div>
+
+        <div class="stat-content">
+            <span>Active Assignments</span>
+            <strong>@Model.Lecturers.Sum(x => x.ActiveAssignmentCount)</strong>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="bi bi-hourglass-split"></i>
+        </div>
+
+        <div class="stat-content">
+            <span>Awaiting Approval</span>
+
+            <strong>
+                @Model.Lecturers.Sum(
+                    x => x.Assignments.Count(
+                        a => !a.IsApproved && a.IsActive
+                    )
+                )
+            </strong>
+        </div>
+    </div>
+
+</section>
+
+<section class="dashboard-card staff-card">
+
+    <div class="card-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
                 <i class="bi bi-people-fill"></i>
-                <span>Staff Management</span>
-            </a>
-
-            <a href="/HOD/RegisterUser" class="nav-item">
-                <i class="bi bi-person-plus-fill"></i>
-                <span>Register User</span>
-            </a>
-
-            <a href="/HOD/AssignCourse" class="nav-item">
-                <i class="bi bi-journal-plus"></i>
-                <span>Assign Course</span>
-            </a>
-
-            <div class="nav-divider"></div>
-
-            <a href="/HOD/Contracts" class="nav-item">
-                <i class="bi bi-file-earmark-text-fill"></i>
-                <span>Contracts</span>
-            </a>
-
-            <a href="/HOD/Claims" class="nav-item">
-                <i class="bi bi-receipt-cutoff"></i>
-                <span>Claims</span>
-            </a>
-
-        </nav>
-
-        <div class="sidebar-footer">
-
-            <div class="department-card">
-                <div class="department-icon">
-                    <i class="bi bi-building"></i>
-                </div>
-
-                <div>
-                    <span>Department</span>
-                    <strong>@Model.HodDepartment</strong>
-                </div>
             </div>
-
-        </div>
-
-    </aside>
-
-
-    <!-- ============================================================
-         MAIN CONTENT
-    ============================================================= -->
-    <main class="main-content">
-
-        <!-- PAGE HEADER -->
-        <section class="page-header">
 
             <div>
-
-                <div class="breadcrumb">
-                    <span>HOD</span>
-                    <i class="bi bi-chevron-right"></i>
-                    <span>Staff Management</span>
-                </div>
-
-                <h1>Lecturer Management</h1>
+                <h2>Departmental Academic Staff</h2>
 
                 <p>
-                    Manage lecturers in your department and monitor their
-                    assigned courses, academic periods, hours and approval status.
+                    View lecturers and manage their course assignments.
                 </p>
-
             </div>
 
-            <a href="/HOD/RegisterUser" class="primary-button">
-                <i class="bi bi-person-plus-fill"></i>
-                Register Lecturer
-            </a>
+        </div>
 
-        </section>
+        <div class="record-count">
 
+            <span>@Model.Lecturers.Count</span>
 
-        <!-- ========================================================
-             ALERTS
-        ========================================================= -->
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success">
-                <div class="alert-icon">
-                    <i class="bi bi-check-circle-fill"></i>
-                </div>
+            <small>Lecturers</small>
 
-                <div>
-                    <strong>Success</strong>
-                    <span>@TempData["SuccessMessage"]</span>
-                </div>
+        </div>
 
-                <button type="button"
-                        class="alert-close"
-                        onclick="this.parentElement.remove()">
-                    <i class="bi bi-x"></i>
-                </button>
-            </div>
-        }
+    </div>
 
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-error">
-                <div class="alert-icon">
-                    <i class="bi bi-exclamation-circle-fill"></i>
-                </div>
+    <div class="toolbar">
 
-                <div>
-                    <strong>Action not completed</strong>
-                    <span>@TempData["ErrorMessage"]</span>
-                </div>
+        <div class="search-box">
 
-                <button type="button"
-                        class="alert-close"
-                        onclick="this.parentElement.remove()">
-                    <i class="bi bi-x"></i>
-                </button>
-            </div>
-        }
+            <i class="bi bi-search"></i>
 
+            <input type="search"
+                   id="staffSearch"
+                   placeholder="Search lecturer, ID, email, rank or course..."
+                   autocomplete="off" />
 
-        <!-- ========================================================
-             STATISTICS
-        ========================================================= -->
-        <section class="stats-grid">
+        </div>
 
-            <div class="stat-card">
+        <div class="toolbar-info">
 
-                <div class="stat-icon blue">
-                    <i class="bi bi-people-fill"></i>
-                </div>
+            <i class="bi bi-info-circle"></i>
 
-                <div class="stat-content">
-                    <span>Total Lecturers</span>
-                    <strong>@Model.Lecturers.Count</strong>
-                </div>
+            Select a lecturer to view assigned courses.
 
-            </div>
+        </div>
 
+    </div>
 
-            <div class="stat-card">
+    <div class="table-wrapper">
 
-                <div class="stat-icon green">
-                    <i class="bi bi-person-check-fill"></i>
-                </div>
+        <table class="staff-table" id="staffTable">
 
-                <div class="stat-content">
-                    <span>Active Lecturers</span>
-                    <strong>@Model.Lecturers.Count(x => x.IsActive)</strong>
-                </div>
+            <thead>
 
-            </div>
+                <tr>
+                    <th>Lecturer</th>
+                    <th>Lecturer ID</th>
+                    <th>Type</th>
+                    <th>Rank</th>
+                    <th>Assigned Courses</th>
+                    <th>Account Status</th>
+                    <th class="actions-column">Actions</th>
+                </tr>
 
+            </thead>
 
-            <div class="stat-card">
+            <tbody>
 
-                <div class="stat-icon purple">
-                    <i class="bi bi-journal-bookmark-fill"></i>
-                </div>
+                @if (!Model.Lecturers.Any())
+                {
+                    <tr>
 
-                <div class="stat-content">
-                    <span>Active Assignments</span>
-                    <strong>@Model.Lecturers.Sum(x => x.ActiveAssignmentCount)</strong>
-                </div>
+                        <td colspan="7">
 
-            </div>
+                            <div class="empty-state">
 
+                                <div class="empty-icon">
+                                    <i class="bi bi-people"></i>
+                                </div>
 
-            <div class="stat-card">
+                                <h3>No lecturers found</h3>
 
-                <div class="stat-icon orange">
-                    <i class="bi bi-hourglass-split"></i>
-                </div>
+                                <p>
+                                    There are currently no lecturers
+                                    associated with your department.
+                                </p>
 
-                <div class="stat-content">
-                    <span>Awaiting Approval</span>
-                    <strong>
-                        @Model.Lecturers.Sum(x => x.Assignments.Count(a => !a.IsApproved && a.IsActive))
-                    </strong>
-                </div>
+                                <a href="/HOD/RegisterUser"
+                                   class="staff-primary-button small">
 
-            </div>
+                                    <i class="bi bi-person-plus-fill"></i>
 
-        </section>
+                                    Register Lecturer
 
+                                </a>
 
-        <!-- ========================================================
-             STAFF MANAGEMENT CARD
-        ========================================================= -->
-        <section class="content-card">
+                            </div>
 
-            <div class="card-header">
+                        </td>
 
-                <div>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var lecturer in Model.Lecturers)
+                    {
+                        <tr class="staff-row"
+                            data-lecturer-id="@lecturer.Id"
+                            data-search="@lecturer.UserName @lecturer.Email @lecturer.Id @lecturer.Type @lecturer.Rank @string.Join(" ", lecturer.Assignments.Select(a => a.CourseCode)) @string.Join(" ", lecturer.Assignments.Select(a => a.CourseTitle))">
 
-                    <div class="section-title">
+                            <td>
 
-                        <div class="section-icon">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
+                                <div class="lecturer-cell">
 
-                        <div>
-                            <h2>Departmental Academic Staff</h2>
+                                    <div class="lecturer-avatar">
+                                        @(
+                                            string.IsNullOrWhiteSpace(lecturer.UserName)
+                                                ? "L"
+                                                : lecturer.UserName
+                                                    .Substring(0, 1)
+                                                    .ToUpperInvariant()
+                                        )
+                                    </div>
 
-                            <p>
-                                View lecturers and manage their course assignments.
-                            </p>
-                        </div>
+                                    <div class="lecturer-info">
 
-                    </div>
+                                        <strong>
+                                            @lecturer.UserName
+                                        </strong>
 
-                </div>
+                                        <span>
+                                            @lecturer.Email
+                                        </span>
 
-                <div class="record-count">
-                    <span>@Model.Lecturers.Count</span>
-                    <small>Lecturers</small>
-                </div>
+                                    </div>
 
-            </div>
+                                </div>
 
+                            </td>
 
-            <!-- SEARCH -->
-            <div class="toolbar">
+                            <td>
+                                <span class="staff-id">
+                                    L-@lecturer.Id
+                                </span>
+                            </td>
 
-                <div class="search-box">
+                            <td>
+                                <span class="type-badge">
+                                    @lecturer.Type
+                                </span>
+                            </td>
 
-                    <i class="bi bi-search"></i>
+                            <td>
 
-                    <input type="search"
-                           id="staffSearch"
-                           placeholder="Search lecturer, ID, email, rank or course..."
-                           autocomplete="off" />
+                                @if (lecturer.Rank.HasValue)
+                                {
+                                    <span class="rank-text">
+                                        @lecturer.Rank.Value
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="muted-text">
+                                        Not specified
+                                    </span>
+                                }
 
-                </div>
+                            </td>
 
-                <div class="toolbar-info">
-                    <i class="bi bi-info-circle"></i>
-                    Select a lecturer to view assigned courses.
-                </div>
+                            <td>
 
-            </div>
+                                @if (lecturer.Assignments.Any())
+                                {
+                                    <button type="button"
+                                            class="assignment-count"
+                                            onclick="toggleAssignments('@lecturer.Id')">
 
+                                        <span class="assignment-number">
+                                            @lecturer.Assignments.Count
+                                        </span>
 
-            <!-- ====================================================
-                 STAFF TABLE
-            ===================================================== -->
-            <div class="table-wrapper">
+                                        <span>
+                                            @(lecturer.Assignments.Count == 1
+                                                ? "Course"
+                                                : "Courses")
+                                        </span>
 
-                <table class="staff-table" id="staffTable">
+                                        <i class="bi bi-chevron-down"
+                                           id="chevron-@lecturer.Id"></i>
 
-                    <thead>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="no-assignment">
 
-                        <tr>
-                            <th>Lecturer</th>
-                            <th>Lecturer ID</th>
-                            <th>Type</th>
-                            <th>Rank</th>
-                            <th>Assigned Courses</th>
-                            <th>Account Status</th>
-                            <th class="actions-column">Actions</th>
+                                        <i class="bi bi-dash-circle"></i>
+
+                                        No courses
+
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                @if (lecturer.IsActive)
+                                {
+                                    <span class="status-badge active">
+
+                                        <span class="status-dot"></span>
+
+                                        Active
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge inactive">
+
+                                        <span class="status-dot"></span>
+
+                                        Inactive
+
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td class="actions-column">
+
+                                <div class="action-buttons">
+
+                                    <a href="/HOD/View?id=@lecturer.Id"
+                                       class="icon-button view"
+                                       title="View lecturer">
+
+                                        <i class="bi bi-eye-fill"></i>
+
+                                    </a>
+
+                                    <a href="/HOD/Edit?id=@lecturer.Id"
+                                       class="icon-button edit"
+                                       title="Edit lecturer">
+
+                                        <i class="bi bi-pencil-fill"></i>
+
+                                    </a>
+
+                                    @if (lecturer.IsActive)
+                                    {
+                                        <form method="post"
+                                              asp-page-handler="Deactivate"
+                                              class="inline-form"
+                                              onsubmit="return confirmDeactivate('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(lecturer.UserName ?? "this lecturer"))');">
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@lecturer.Id" />
+
+                                            <button type="submit"
+                                                    class="icon-button delete"
+                                                    title="Deactivate lecturer">
+
+                                                <i class="bi bi-person-dash-fill"></i>
+
+                                            </button>
+
+                                        </form>
+                                    }
+
+                                </div>
+
+                            </td>
+
                         </tr>
 
-                    </thead>
+                        <tr class="assignment-row"
+                            id="assignments-@lecturer.Id"
+                            style="display:none;">
 
-                    <tbody>
+                            <td colspan="7">
 
-                        @if (!Model.Lecturers.Any())
-                        {
-                            <tr>
+                                <div class="assignment-panel">
 
-                                <td colspan="7">
+                                    <div class="assignment-panel-header">
 
-                                    <div class="empty-state">
+                                        <div class="assignment-panel-title">
 
-                                        <div class="empty-icon">
-                                            <i class="bi bi-people"></i>
+                                            <div class="course-panel-icon">
+                                                <i class="bi bi-journal-bookmark-fill"></i>
+                                            </div>
+
+                                            <div>
+                                                <h3>Assigned Courses</h3>
+
+                                                <p>
+                                                    @lecturer.UserName
+                                                </p>
+                                            </div>
+
                                         </div>
 
-                                        <h3>No lecturers found</h3>
+                                        <a href="/HOD/AssignCourse"
+                                           class="staff-secondary-button">
 
-                                        <p>
-                                            There are currently no lecturers associated
-                                            with your department.
-                                        </p>
+                                            <i class="bi bi-plus-lg"></i>
 
-                                        <a href="/HOD/RegisterUser"
-                                           class="primary-button small">
-                                            <i class="bi bi-person-plus-fill"></i>
-                                            Register Lecturer
+                                            Assign Course
+
                                         </a>
 
                                     </div>
 
-                                </td>
-
-                            </tr>
-                        }
-                        else
-                        {
-                            @foreach (var lecturer in Model.Lecturers)
-                            {
-                                <tr class="staff-row"
-                                    data-search="
-                                    @lecturer.UserName
-                                    @lecturer.Email
-                                    @lecturer.Id
-                                    @lecturer.Type
-                                    @lecturer.Rank
-                                    @string.Join(" ", lecturer.Assignments.Select(a => a.CourseCode))
-                                    @string.Join(" ", lecturer.Assignments.Select(a => a.CourseTitle))
-                                    ">
-
-                                    <!-- LECTURER -->
-                                    <td>
-
-                                        <div class="lecturer-cell">
+                                    <div class="assignment-table-wrapper">
 
-                                            <div class="lecturer-avatar">
-                                                @lecturer.UserName.Substring(
-                                                    0,
-                                                    Math.Min(1, lecturer.UserName.Length)
-                                                ).ToUpper()
-                                            </div>
-
-                                            <div class="lecturer-info">
-
-                                                <strong>
-                                                    @lecturer.UserName
-                                                </strong>
-
-                                                <span>
-                                                    @lecturer.Email
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-
-                                    </td>
-
-
-                                    <!-- ID -->
-                                    <td>
-                                        <span class="staff-id">
-                                            L-@lecturer.Id.ToString("D4")
-                                        </span>
-                                    </td>
-
-
-                                    <!-- TYPE -->
-                                    <td>
-
-                                        <span class="type-badge">
-                                            @lecturer.Type
-                                        </span>
-
-                                    </td>
-
-
-                                    <!-- RANK -->
-                                    <td>
-
-                                        @if (lecturer.Rank.HasValue)
-                                        {
-                                            <span class="rank-text">
-                                                @lecturer.Rank.Value
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="muted-text">
-                                                Not specified
-                                            </span>
-                                        }
-
-                                    </td>
-
+                                        <table class="assignment-table">
 
-                                    <!-- ASSIGNMENTS -->
-                                    <td>
+                                            <thead>
 
-                                        @if (lecturer.Assignments.Any())
-                                        {
-                                            <button type="button"
-                                                    class="assignment-count"
-                                                    onclick="toggleAssignments(@lecturer.Id)">
-
-                                                <span class="assignment-number">
-                                                    @lecturer.Assignments.Count
-                                                </span>
+                                                <tr>
+                                                    <th>Course</th>
+                                                    <th>Academic Year</th>
+                                                    <th>Semester</th>
+                                                    <th>Hours</th>
+                                                    <th>Approval</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
 
-                                                <span>
-                                                    @(lecturer.Assignments.Count == 1
-                                                        ? "Course"
-                                                        : "Courses")
-                                                </span>
+                                            </thead>
 
-                                                <i class="bi bi-chevron-down"
-                                                   id="chevron-@lecturer.Id"></i>
+                                            <tbody>
 
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <span class="no-assignment">
-                                                <i class="bi bi-dash-circle"></i>
-                                                No courses
-                                            </span>
-                                        }
+                                                @foreach (var assignment in lecturer.Assignments)
+                                                {
+                                                    <tr>
 
-                                    </td>
+                                                        <td>
 
+                                                            <div class="course-cell">
 
-                                    <!-- ACCOUNT STATUS -->
-                                    <td>
+                                                                <span class="course-code">
+                                                                    @assignment.CourseCode
+                                                                </span>
 
-                                        @if (lecturer.IsActive)
-                                        {
-                                            <span class="status-badge active">
-                                                <span class="status-dot"></span>
-                                                Active
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="status-badge inactive">
-                                                <span class="status-dot"></span>
-                                                Inactive
-                                            </span>
-                                        }
+                                                                <strong>
+                                                                    @assignment.CourseTitle
+                                                                </strong>
 
-                                    </td>
+                                                            </div>
 
+                                                        </td>
 
-                                    <!-- ACTIONS -->
-                                    <td class="actions-column">
+                                                        <td>
+                                                            <span class="period-value">
+                                                                @assignment.AcademicYear
+                                                            </span>
+                                                        </td>
 
-                                        <div class="action-buttons">
+                                                        <td>
+                                                            <span class="period-badge">
+                                                                @assignment.Semester
+                                                            </span>
+                                                        </td>
 
-                                            <a href="/HOD/View?id=@lecturer.Id"
-                                               class="icon-button view"
-                                               title="View lecturer">
-                                                <i class="bi bi-eye-fill"></i>
-                                            </a>
+                                                        <td>
 
-                                            <a href="/HOD/Edit?id=@lecturer.Id"
-                                               class="icon-button edit"
-                                               title="Edit lecturer">
-                                                <i class="bi bi-pencil-fill"></i>
-                                            </a>
+                                                            <div class="hours-cell">
 
-                                            @if (lecturer.IsActive)
-                                            {
-                                                <form method="post"
-                                                      asp-page-handler="Deactivate"
-                                                      class="inline-form"
-                                                      onsubmit="return confirmDeactivate('@lecturer.UserName');">
+                                                                <strong>
+                                                                    @assignment.AllocatedHours.ToString("0.##")
+                                                                </strong>
 
-                                                    <input type="hidden"
-                                                           name="id"
-                                                           value="@lecturer.Id" />
+                                                                <span>
+                                                                    hrs
+                                                                </span>
 
-                                                    <button type="submit"
-                                                            class="icon-button delete"
-                                                            title="Deactivate lecturer">
+                                                            </div>
 
-                                                        <i class="bi bi-person-dash-fill"></i>
+                                                        </td>
 
-                                                    </button>
+                                                        <td>
 
-                                                </form>
-                                            }
+                                                            @if (assignment.IsApproved)
+                                                            {
+                                                                <span class="approval-badge approved">
 
-                                        </div>
+                                                                    <i class="bi bi-check-circle-fill"></i>
 
-                                    </td>
+                                                                    Approved
 
-                                </tr>
+                                                                </span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="approval-badge pending">
 
+                                                                    <i class="bi bi-clock-fill"></i>
 
-                                <!-- ==================================================
-                                     ASSIGNMENTS EXPANSION
-                                =================================================== -->
-                                <tr class="assignment-row"
-                                    id="assignments-@lecturer.Id"
-                                    style="display:none;">
+                                                                    Pending
 
-                                    <td colspan="7">
+                                                                </span>
+                                                            }
 
-                                        <div class="assignment-panel">
+                                                        </td>
 
-                                            <div class="assignment-panel-header">
+                                                        <td>
 
-                                                <div>
-
-                                                    <div class="assignment-panel-title">
-
-                                                        <div class="course-panel-icon">
-                                                            <i class="bi bi-journal-bookmark-fill"></i>
-                                                        </div>
-
-                                                        <div>
-                                                            <h3>
-                                                                Assigned Courses
-                                                            </h3>
-
-                                                            <p>
-                                                                @lecturer.UserName
-                                                            </p>
-                                                        </div>
-
-                                                    </div>
-
-                                                </div>
-
-                                                <a href="/HOD/AssignCourse"
-                                                   class="secondary-button">
-
-                                                    <i class="bi bi-plus-lg"></i>
-                                                    Assign Course
-
-                                                </a>
-
-                                            </div>
-
-
-                                            <div class="assignment-table-wrapper">
-
-                                                <table class="assignment-table">
-
-                                                    <thead>
-
-                                                        <tr>
-                                                            <th>Course</th>
-                                                            <th>Academic Year</th>
-                                                            <th>Semester</th>
-                                                            <th>Hours</th>
-                                                            <th>Approval</th>
-                                                            <th>Status</th>
-                                                            <th>Actions</th>
-                                                        </tr>
-
-                                                    </thead>
-
-                                                    <tbody>
-
-                                                        @foreach (var assignment in lecturer.Assignments)
-                                                        {
-                                                            <tr>
-
-                                                                <!-- COURSE -->
-                                                                <td>
-
-                                                                    <div class="course-cell">
-
-                                                                        <span class="course-code">
-                                                                            @assignment.CourseCode
-                                                                        </span>
-
-                                                                        <strong>
-                                                                            @assignment.CourseTitle
-                                                                        </strong>
-
-                                                                    </div>
-
-                                                                </td>
-
-
-                                                                <!-- YEAR -->
-                                                                <td>
-                                                                    <span class="period-value">
-                                                                        @assignment.AcademicYear
-                                                                    </span>
-                                                                </td>
-
-
-                                                                <!-- SEMESTER -->
-                                                                <td>
-                                                                    <span class="period-badge">
-                                                                        @assignment.Semester
-                                                                    </span>
-                                                                </td>
-
-
-                                                                <!-- HOURS -->
-                                                                <td>
-
-                                                                    <div class="hours-cell">
-
-                                                                        <strong>
-                                                                            @assignment.AllocatedHours.ToString("0.##")
-                                                                        </strong>
-
-                                                                        <span>hrs</span>
-
-                                                                    </div>
-
-                                                                </td>
-
-
-                                                                <!-- APPROVAL -->
-                                                                <td>
-
-                                                                    @if (assignment.IsApproved)
-                                                                    {
-                                                                        <span class="approval-badge approved">
-                                                                            <i class="bi bi-check-circle-fill"></i>
-                                                                            Approved
-                                                                        </span>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span class="approval-badge pending">
-                                                                            <i class="bi bi-clock-fill"></i>
-                                                                            Pending
-                                                                        </span>
-                                                                    }
-
-                                                                </td>
-
-
-                                                                <!-- STATUS -->
-                                                                <td>
-
-                                                                    @if (assignment.IsActive)
-                                                                    {
-                                                                        <span class="assignment-status active">
-                                                                            Active
-                                                                        </span>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span class="assignment-status inactive">
-                                                                            Inactive
-                                                                        </span>
-                                                                    }
-
-                                                                </td>
-
-
-                                                                <!-- ACTIONS -->
-                                                                <td>
-
-                                                                    <div class="assignment-actions">
-
-                                                                        <button type="button"
-                                                                                class="assignment-action edit"
-                                                                                title="Edit assignment"
-                                                                                onclick="openEditModal(
-                                                                                    @assignment.Id,
-                                                                                    @assignment.LecturerId,
-                                                                                    @assignment.CourseId,
-                                                                                    '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(assignment.AcademicYear))',
-                                                                                    '@assignment.Semester',
-                                                                                    '@assignment.AllocatedHours'
-                                                                                )">
-
-                                                                            <i class="bi bi-pencil-fill"></i>
+                                                            @if (assignment.IsActive)
+                                                            {
+                                                                <span class="assignment-status active">
+                                                                    Active
+                                                                </span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="assignment-status inactive">
+                                                                    Inactive
+                                                                </span>
+                                                            }
+
+                                                        </td>
+
+                                                        <td>
+
+                                                            <div class="assignment-actions">
+
+                                                                <button type="button"
+                                                                        class="assignment-action edit"
+                                                                        title="Edit assignment"
+                                                                        onclick="openEditModal(
+                                                                            '@assignment.Id',
+                                                                            '@assignment.LecturerId',
+                                                                            '@assignment.CourseId',
+                                                                            '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(assignment.AcademicYear ?? string.Empty))',
+                                                                            '@assignment.Semester',
+                                                                            '@assignment.AllocatedHours'
+                                                                        )">
+
+                                                                    <i class="bi bi-pencil-fill"></i>
+
+                                                                </button>
+
+                                                                @if (assignment.IsActive)
+                                                                {
+                                                                    <form method="post"
+                                                                          asp-page-handler="RemoveAssignment"
+                                                                          class="inline-form"
+                                                                          onsubmit="return confirmRemoveAssignment('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(assignment.CourseCode ?? "this course"))');">
+
+                                                                        <input type="hidden"
+                                                                               name="assignmentId"
+                                                                               value="@assignment.Id" />
+
+                                                                        <button type="submit"
+                                                                                class="assignment-action remove"
+                                                                                title="Remove assignment">
+
+                                                                            <i class="bi bi-trash3-fill"></i>
 
                                                                         </button>
 
+                                                                    </form>
+                                                                }
 
-                                                                        @if (assignment.IsActive)
-                                                                        {
-                                                                            <form method="post"
-                                                                                  asp-page-handler="RemoveAssignment"
-                                                                                  class="inline-form"
-                                                                                  onsubmit="return confirmRemoveAssignment('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(assignment.CourseCode))');">
+                                                            </div>
 
-                                                                                <input type="hidden"
-                                                                                       name="assignmentId"
-                                                                                       value="@assignment.Id" />
+                                                        </td>
 
-                                                                                <button type="submit"
-                                                                                        class="assignment-action remove"
-                                                                                        title="Remove assignment">
+                                                    </tr>
+                                                }
 
-                                                                                    <i class="bi bi-trash3-fill"></i>
+                                            </tbody>
 
-                                                                                </button>
+                                        </table>
 
-                                                                            </form>
-                                                                        }
+                                    </div>
 
-                                                                    </div>
+                                    <div class="assignment-note">
 
-                                                                </td>
+                                        <i class="bi bi-shield-check"></i>
 
-                                                            </tr>
-                                                        }
+                                        <span>
+                                            Removing an assignment deactivates it
+                                            rather than deleting its database record.
+                                            This preserves contract, marks and claim history.
+                                        </span>
 
-                                                    </tbody>
+                                    </div>
 
-                                                </table>
+                                </div>
 
-                                            </div>
+                            </td>
 
+                        </tr>
+                    }
+                }
 
-                                            <div class="assignment-note">
+            </tbody>
 
-                                                <i class="bi bi-shield-check"></i>
+        </table>
 
-                                                <span>
-                                                    Removing an assignment deactivates it rather
-                                                    than deleting its database record. This preserves
-                                                    contract, marks and claim history.
-                                                </span>
+    </div>
 
-                                            </div>
+</section>
 
-                                        </div>
+<div class="modal-overlay"
+     id="editAssignmentModal"
+     onclick="closeModalOnOverlay(event)">
 
-                                    </td>
+    <div class="modal-card"
+         onclick="event.stopPropagation()">
 
-                                </tr>
+        <div class="modal-header">
+
+            <div>
+
+                <div class="modal-icon">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+
+                <div class="modal-heading">
+
+                    <h2>Update Course Assignment</h2>
+
+                    <p>
+                        Modify the lecturer's academic assignment.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <button type="button"
+                    class="modal-close"
+                    onclick="closeEditModal()">
+
+                <i class="bi bi-x-lg"></i>
+
+            </button>
+
+        </div>
+
+        <form method="post"
+              asp-page-handler="UpdateAssignment"
+              id="editAssignmentForm">
+
+            <input type="hidden"
+                   id="editAssignmentId"
+                   name="AssignmentId" />
+
+            <input type="hidden"
+                   id="editLecturerId"
+                   name="LecturerId" />
+
+            <div class="modal-body">
+
+                <div class="form-group full-width">
+
+                    <label for="editCourseId">
+                        Course
+                    </label>
+
+                    <div class="select-wrapper">
+
+                        <i class="bi bi-journal-text"></i>
+
+                        <select id="editCourseId"
+                                name="CourseId"
+                                required>
+
+                            <option value="">
+                                Select course
+                            </option>
+
+                            @foreach (var course in Model.CourseOptions)
+                            {
+                                <option value="@course.Id">
+                                    @course.Code — @course.Title
+                                </option>
                             }
-                        }
 
-                    </tbody>
+                        </select>
 
-                </table>
-
-            </div>
-
-        </section>
-
-
-        <!-- ========================================================
-             INFORMATION CARDS
-        ========================================================= -->
-        <section class="information-grid">
-
-            <div class="information-card">
-
-                <div class="information-icon green">
-                    <i class="bi bi-check2-circle"></i>
-                </div>
-
-                <div>
-                    <h3>Assignment Approval</h3>
-
-                    <p>
-                        Only approved and active course assignments are made
-                        available to lecturers for academic activities such
-                        as marks submission.
-                    </p>
-                </div>
-
-            </div>
-
-
-            <div class="information-card">
-
-                <div class="information-icon blue">
-                    <i class="bi bi-clock-history"></i>
-                </div>
-
-                <div>
-                    <h3>Assignment History</h3>
-
-                    <p>
-                        Removing a course assignment deactivates it instead
-                        of permanently deleting it, preserving historical
-                        records linked to contracts and claims.
-                    </p>
-                </div>
-
-            </div>
-
-
-            <div class="information-card">
-
-                <div class="information-icon purple">
-                    <i class="bi bi-diagram-3-fill"></i>
-                </div>
-
-                <div>
-                    <h3>Academic Period</h3>
-
-                    <p>
-                        Each assignment records its academic year, semester
-                        and allocated teaching hours for accurate engagement
-                        tracking.
-                    </p>
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- ============================================================
-         EDIT ASSIGNMENT MODAL
-    ============================================================= -->
-    <div class="modal-overlay"
-         id="editAssignmentModal"
-         onclick="closeModalOnOverlay(event)">
-
-        <div class="modal-card">
-
-            <div class="modal-header">
-
-                <div>
-
-                    <div class="modal-icon">
-                        <i class="bi bi-pencil-square"></i>
-                    </div>
-
-                    <div class="modal-heading">
-
-                        <h2>Update Course Assignment</h2>
-
-                        <p>
-                            Modify the lecturer's academic assignment.
-                        </p>
+                        <i class="bi bi-chevron-down select-arrow"></i>
 
                     </div>
 
                 </div>
 
-                <button type="button"
-                        class="modal-close"
-                        onclick="closeEditModal()">
+                <div class="form-grid">
 
-                    <i class="bi bi-x-lg"></i>
+                    <div class="form-group">
 
-                </button>
+                        <label for="editAcademicYear">
+                            Academic Year
+                        </label>
 
-            </div>
+                        <div class="input-wrapper">
 
+                            <i class="bi bi-calendar3"></i>
 
-            <form method="post"
-                  asp-page-handler="UpdateAssignment"
-                  id="editAssignmentForm">
+                            <input type="text"
+                                   id="editAcademicYear"
+                                   name="AcademicYear"
+                                   maxlength="20"
+                                   placeholder="e.g. 2026/2027"
+                                   required />
 
-                <input type="hidden"
-                       id="editAssignmentId"
-                       name="AssignmentId" />
+                        </div>
 
-                <input type="hidden"
-                       id="editLecturerId"
-                       name="LecturerId" />
+                    </div>
 
+                    <div class="form-group">
 
-                <div class="modal-body">
-
-                    <div class="form-group full-width">
-
-                        <label for="editCourseId">
-                            Course
+                        <label for="editSemester">
+                            Semester
                         </label>
 
                         <div class="select-wrapper">
 
-                            <i class="bi bi-journal-text"></i>
+                            <i class="bi bi-calendar2-week"></i>
 
-                            <select id="editCourseId"
-                                    name="CourseId"
+                            <select id="editSemester"
+                                    name="Semester"
                                     required>
 
-                                <option value="">
-                                    Select course
-                                </option>
-
-                                @foreach (var course in Model.CourseOptions)
+                                @foreach (var semester in Enum.GetValues<Semester>())
                                 {
-                                    <option value="@course.Id">
-                                        @course.Code — @course.Title
+                                    <option value="@semester">
+                                        @semester
                                     </option>
                                 }
 
@@ -976,378 +781,299 @@
 
                     </div>
 
+                </div>
 
-                    <div class="form-grid">
+                <div class="form-group full-width">
 
-                        <div class="form-group">
+                    <label for="editAllocatedHours">
+                        Allocated Teaching Hours
+                    </label>
 
-                            <label for="editAcademicYear">
-                                Academic Year
-                            </label>
+                    <div class="input-wrapper">
 
-                            <div class="input-wrapper">
+                        <i class="bi bi-clock"></i>
 
-                                <i class="bi bi-calendar3"></i>
+                        <input type="number"
+                               id="editAllocatedHours"
+                               name="AllocatedHours"
+                               min="0"
+                               max="500"
+                               step="0.01"
+                               required />
 
-                                <input type="text"
-                                       id="editAcademicYear"
-                                       name="AcademicYear"
-                                       maxlength="20"
-                                       placeholder="e.g. 2026/2027"
-                                       required />
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="editSemester">
-                                Semester
-                            </label>
-
-                            <div class="select-wrapper">
-
-                                <i class="bi bi-calendar2-week"></i>
-
-                                <select id="editSemester"
-                                        name="Semester"
-                                        required>
-
-                                    @foreach (var semester in Enum.GetValues<Semester>())
-                                    {
-                                        <option value="@semester">
-                                            @semester
-                                        </option>
-                                    }
-
-                                </select>
-
-                                <i class="bi bi-chevron-down select-arrow"></i>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-group full-width">
-
-                        <label for="editAllocatedHours">
-                            Allocated Teaching Hours
-                        </label>
-
-                        <div class="input-wrapper">
-
-                            <i class="bi bi-clock"></i>
-
-                            <input type="number"
-                                   id="editAllocatedHours"
-                                   name="AllocatedHours"
-                                   min="0"
-                                   max="500"
-                                   step="0.01"
-                                   required />
-
-                            <span class="input-suffix">
-                                hours
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="modal-warning">
-
-                        <i class="bi bi-info-circle-fill"></i>
-
-                        <div>
-
-                            <strong>Approval reset</strong>
-
-                            <p>
-                                Changing the course, academic period or teaching
-                                hours will return this assignment to
-                                <strong>Pending Approval</strong>.
-                            </p>
-
-                        </div>
+                        <span class="input-suffix">
+                            hours
+                        </span>
 
                     </div>
 
                 </div>
 
+                <div class="modal-warning">
 
-                <div class="modal-footer">
+                    <i class="bi bi-info-circle-fill"></i>
 
-                    <button type="button"
-                            class="secondary-button"
-                            onclick="closeEditModal()">
+                    <div>
 
-                        Cancel
+                        <strong>Approval reset</strong>
 
-                    </button>
+                        <p>
+                            Changing the course, academic period or teaching
+                            hours will return this assignment to
+                            <strong>Pending Approval</strong>.
+                        </p>
 
-                    <button type="submit"
-                            class="primary-button">
-
-                        <i class="bi bi-check-lg"></i>
-                        Save Changes
-
-                    </button>
+                    </div>
 
                 </div>
 
-            </form>
+            </div>
 
-        </div>
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="secondary-button"
+                        onclick="closeEditModal()">
+                    Cancel
+                </button>
+
+                <button type="submit"
+                        class="primary-button">
+
+                    <i class="bi bi-check-lg"></i>
+
+                    Save Changes
+
+                </button>
+
+            </div>
+
+        </form>
 
     </div>
 
+</div>
+```
 
-    <!-- ============================================================
-         FOOTER
-    ============================================================= -->
-    <footer class="footer">
+</section>
 
-        <div class="footer-brand">
+@section Scripts {
 
-            <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-                 alt="UNILAK Logo" />
+```
+<script>
 
-            <div>
-                <strong>UNILAK Portal</strong>
+    function toggleAssignments(lecturerId) {
 
-                <span>
-                    Academic Staff Engagement & Claim Processing System
-                </span>
-            </div>
+        const row = document.getElementById(
+            "assignments-" + lecturerId
+        );
 
-        </div>
+        const chevron = document.getElementById(
+            "chevron-" + lecturerId
+        );
 
-        <div class="footer-copy">
-            © @DateTime.Now.Year University of Lay Adventists of Kigali
-        </div>
+        if (!row) {
+            return;
+        }
 
-    </footer>
+        const isHidden =
+            row.style.display === "none" ||
+            row.style.display === "";
 
+        row.style.display =
+            isHidden ? "table-row" : "none";
 
-    <!-- ============================================================
-         JAVASCRIPT
-    ============================================================= -->
-    <script>
+        if (chevron) {
 
-        function toggleAssignments(lecturerId) {
-
-            const row = document.getElementById(
-                "assignments-" + lecturerId
+            chevron.classList.toggle(
+                "rotated",
+                isHidden
             );
 
-            const chevron = document.getElementById(
-                "chevron-" + lecturerId
-            );
-
-            if (!row) {
-                return;
-            }
-
-            const isHidden =
-                row.style.display === "none" ||
-                row.style.display === "";
-
-            row.style.display = isHidden
-                ? "table-row"
-                : "none";
-
-            if (chevron) {
-
-                chevron.classList.toggle(
-                    "rotated",
-                    isHidden
-                );
-
-            }
-
         }
 
+    }
 
-        function openEditModal(
-            assignmentId,
-            lecturerId,
-            courseId,
-            academicYear,
-            semester,
-            allocatedHours) {
+    function openEditModal(
+        assignmentId,
+        lecturerId,
+        courseId,
+        academicYear,
+        semester,
+        allocatedHours
+    ) {
 
-            document.getElementById(
-                "editAssignmentId"
-            ).value = assignmentId;
+        const assignmentIdInput =
+            document.getElementById("editAssignmentId");
 
-            document.getElementById(
-                "editLecturerId"
-            ).value = lecturerId;
+        const lecturerIdInput =
+            document.getElementById("editLecturerId");
 
-            document.getElementById(
-                "editCourseId"
-            ).value = courseId;
+        const courseIdInput =
+            document.getElementById("editCourseId");
 
-            document.getElementById(
-                "editAcademicYear"
-            ).value = academicYear;
+        const academicYearInput =
+            document.getElementById("editAcademicYear");
 
-            document.getElementById(
-                "editSemester"
-            ).value = semester;
+        const semesterInput =
+            document.getElementById("editSemester");
 
-            document.getElementById(
-                "editAllocatedHours"
-            ).value = allocatedHours;
+        const allocatedHoursInput =
+            document.getElementById("editAllocatedHours");
 
-            document.getElementById(
-                "editAssignmentModal"
-            ).classList.add("show");
+        const modal =
+            document.getElementById("editAssignmentModal");
 
-            document.body.classList.add("modal-open");
-
+        if (
+            !assignmentIdInput ||
+            !lecturerIdInput ||
+            !courseIdInput ||
+            !academicYearInput ||
+            !semesterInput ||
+            !allocatedHoursInput ||
+            !modal
+        ) {
+            return;
         }
 
+        assignmentIdInput.value =
+            assignmentId ?? "";
 
-        function closeEditModal() {
+        lecturerIdInput.value =
+            lecturerId ?? "";
 
-            document.getElementById(
-                "editAssignmentModal"
-            ).classList.remove("show");
+        courseIdInput.value =
+            courseId ?? "";
 
-            document.body.classList.remove("modal-open");
+        academicYearInput.value =
+            academicYear ?? "";
 
+        semesterInput.value =
+            semester ?? "";
+
+        allocatedHoursInput.value =
+            allocatedHours ?? "";
+
+        modal.classList.add("show");
+
+        document.body.classList.add("modal-open");
+    }
+
+    function closeEditModal() {
+
+        const modal =
+            document.getElementById("editAssignmentModal");
+
+        if (!modal) {
+            return;
         }
 
+        modal.classList.remove("show");
 
-        function closeModalOnOverlay(event) {
+        document.body.classList.remove("modal-open");
+    }
 
-            if (event.target.id === "editAssignmentModal") {
+    function closeModalOnOverlay(event) {
+
+        if (
+            event.target &&
+            event.target.id === "editAssignmentModal"
+        ) {
+            closeEditModal();
+        }
+
+    }
+
+    function confirmRemoveAssignment(courseCode) {
+
+        return confirm(
+            "Remove the assignment for " +
+            courseCode +
+            "?\n\n" +
+            "The assignment will be deactivated rather than permanently deleted. " +
+            "Historical contract and claim records will remain preserved."
+        );
+
+    }
+
+    function confirmDeactivate(lecturerName) {
+
+        return confirm(
+            "Deactivate the lecturer account for " +
+            lecturerName +
+            "?\n\n" +
+            "The account will no longer be active. " +
+            "Existing academic history will be preserved."
+        );
+
+    }
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Escape") {
                 closeEditModal();
             }
 
         }
+    );
 
+    const searchInput =
+        document.getElementById("staffSearch");
 
-        function confirmRemoveAssignment(courseCode) {
+    if (searchInput) {
 
-            return confirm(
-                "Remove the assignment for " +
-                courseCode +
-                "?\n\n" +
-                "The assignment will be deactivated rather than permanently deleted. " +
-                "Historical contract and claim records will remain preserved."
-            );
+        searchInput.addEventListener(
+            "input",
+            function () {
 
-        }
+                const searchTerm =
+                    this.value
+                        .toLowerCase()
+                        .trim();
 
+                document
+                    .querySelectorAll(".staff-row")
+                    .forEach(function (row) {
 
-        function confirmDeactivate(lecturerName) {
+                        const searchableText =
+                            (
+                                row.dataset.search || ""
+                            ).toLowerCase();
 
-            return confirm(
-                "Deactivate the lecturer account for " +
-                lecturerName +
-                "?\n\n" +
-                "The account will no longer be active. Existing academic history will be preserved."
-            );
+                        const matches =
+                            searchableText.includes(
+                                searchTerm
+                            );
 
-        }
+                        row.style.display =
+                            matches ? "" : "none";
 
+                        const lecturerId =
+                            row.dataset.lecturerId;
 
-        document.addEventListener(
-            "keydown",
-            function (event) {
+                        if (!matches && lecturerId) {
 
-                if (event.key === "Escape") {
-                    closeEditModal();
-                }
-
-            });
-
-
-        /* ============================================================
-           SEARCH
-        ============================================================ */
-
-        const searchInput =
-            document.getElementById("staffSearch");
-
-        if (searchInput) {
-
-            searchInput.addEventListener(
-                "input",
-                function () {
-
-                    const searchTerm =
-                        this.value
-                            .toLowerCase()
-                            .trim();
-
-                    document
-                        .querySelectorAll(".staff-row")
-                        .forEach(function (row) {
-
-                            const searchableText =
-                                row.dataset.search
-                                    .toLowerCase();
-
-                            row.style.display =
-                                searchableText.includes(searchTerm)
-                                    ? ""
-                                    : "none";
-
-                            const lecturerId =
-                                row.querySelector(
-                                    ".assignment-count"
+                            const assignmentRow =
+                                document.getElementById(
+                                    "assignments-" +
+                                    lecturerId
                                 );
 
-                            if (!searchableText.includes(searchTerm)) {
-
-                                if (lecturerId) {
-
-                                    const onclick =
-                                        lecturerId.getAttribute(
-                                            "onclick"
-                                        );
-
-                                    const match =
-                                        onclick &&
-                                        onclick.match(
-                                            /\d+/
-                                        );
-
-                                    if (match) {
-
-                                        const assignmentRow =
-                                            document.getElementById(
-                                                "assignments-" +
-                                                match[0]
-                                            );
-
-                                        if (assignmentRow) {
-                                            assignmentRow.style.display =
-                                                "none";
-                                        }
-
-                                    }
-
-                                }
-
+                            if (assignmentRow) {
+                                assignmentRow.style.display = "none";
                             }
 
-                        });
+                        }
 
-                });
+                    });
 
-        }
+            }
+        );
 
-    </script>
+    }
 
-</body>
-</html>
+</script>
+
+}

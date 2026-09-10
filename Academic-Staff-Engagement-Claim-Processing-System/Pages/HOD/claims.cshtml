@@ -1,0 +1,808 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ClaimsModel
+
+@{
+    Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
+    ViewData["Title"] = "Claims";
+}
+
+<link rel="stylesheet"
+      href="~/css/HOD/claims.css"
+      asp-append-version="true" />
+
+<div class="claims-page">
+
+    <section class="page-header">
+
+        <div class="page-header-copy">
+
+            <div class="page-eyebrow">
+                <i class="bi bi-cash-stack"></i>
+                HOD PORTAL
+            </div>
+
+            <h1>Claims</h1>
+
+            <p>
+                Review lecturer claims, verify supporting information,
+                and monitor the claim approval workflow.
+            </p>
+
+        </div>
+
+        <div class="page-status">
+            <span class="status-indicator"></span>
+            Claim Workflow Active
+        </div>
+
+    </section>
+
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert-message success-message">
+
+            <div class="alert-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+
+            <div>
+                <strong>Success</strong>
+                <span>@Model.SuccessMessage</span>
+            </div>
+
+        </div>
+    }
+
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert-message error-message">
+
+            <div class="alert-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+
+            <div>
+                <strong>Unable to complete request</strong>
+                <span>@Model.ErrorMessage</span>
+            </div>
+
+        </div>
+    }
+
+
+    @if (Model.SelectedClaim is not null)
+    {
+        var claim = Model.SelectedClaim;
+
+        <section class="card claim-review-card">
+
+            <div class="card-header">
+
+                <div class="card-header-left">
+
+                    <div class="section-icon">
+                        <i class="bi bi-file-earmark-check-fill"></i>
+                    </div>
+
+                    <div>
+
+                        <span class="section-eyebrow">
+                            CLAIM REVIEW
+                        </span>
+
+                        <h2>
+                            Claim #@claim.ClaimId.ToString("D3")
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <div class="claim-status pending">
+
+                    <span></span>
+
+                    Pending HOD Review
+
+                </div>
+
+            </div>
+
+
+            <div class="claim-summary">
+
+                <div class="summary-item">
+
+                    <span>Lecturer</span>
+
+                    <strong>
+                        @claim.LecturerName
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>Contract</span>
+
+                    <strong>
+                        C@claim.ContractId.ToString("D3")
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>Hours Claimed</span>
+
+                    <strong>
+                        @claim.HoursClaimed.ToString("N2") h
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>Approval Step</span>
+
+                    <strong>
+                        HOD
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="detail-section">
+
+                <div class="detail-heading">
+
+                    <i class="bi bi-card-text"></i>
+
+                    <h3>
+                        Claim Description
+                    </h3>
+
+                </div>
+
+
+                <div class="description-box">
+
+                    @if (!string.IsNullOrWhiteSpace(claim.Description))
+                    {
+                        @claim.Description
+                    }
+                    else
+                    {
+                        <span class="muted-text">
+                            No claim description was provided.
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div class="detail-section">
+
+                <div class="detail-heading">
+
+                    <i class="bi bi-file-earmark-lock-fill"></i>
+
+                    <h3>
+                        Contract Verification
+                    </h3>
+
+                </div>
+
+
+                @if (claim.ContractSigned)
+                {
+                    <div class="status-information">
+
+                        <div class="status-information-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Contract Signed
+                            </strong>
+
+                            <span>
+                                The lecturer's contract has been signed
+                                and is available for verification.
+                            </span>
+
+                            @if (claim.ContractSignedAtUtc.HasValue)
+                            {
+                                <small>
+                                    Signed
+                                    @claim.ContractSignedAtUtc.Value
+                                        .ToLocalTime()
+                                        .ToString("dd MMMM yyyy 'at' HH:mm")
+                                </small>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="blocked-panel">
+
+                        <div class="blocked-icon">
+                            <i class="bi bi-lock-fill"></i>
+                        </div>
+
+                        <div class="blocked-content">
+
+                            <strong>
+                                Contract Not Signed
+                            </strong>
+
+                            <p>
+                                This claim cannot be fully verified because
+                                the associated contract has not been signed.
+                            </p>
+
+                        </div>
+
+                    </div>
+                }
+
+
+                @if (!string.IsNullOrWhiteSpace(claim.QrCodeToken))
+                {
+                    <div class="document-action">
+
+                        <a href="/Public/ClaimDocuments?token=@claim.QrCodeToken"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="document-btn">
+
+                            <i class="bi bi-folder2-open"></i>
+
+                            View Contract &amp; Claim Documents
+
+                            <i class="bi bi-box-arrow-up-right"></i>
+
+                        </a>
+
+                    </div>
+                }
+
+            </div>
+
+
+            <div class="detail-section">
+
+                <div class="detail-heading">
+
+                    <i class="bi bi-envelope-paper-fill"></i>
+
+                    <h3>
+                        Claim Documents
+                    </h3>
+
+                </div>
+
+
+                @if (!string.IsNullOrWhiteSpace(claim.QrCodeToken))
+                {
+                    <div class="document-card">
+
+                        <div class="document-icon">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                        </div>
+
+                        <div class="document-info">
+
+                            <strong>
+                                Secure Claim Package
+                            </strong>
+
+                            <span>
+                                Open the secure document package associated
+                                with this claim and verify the submitted
+                                supporting information.
+                            </span>
+
+                        </div>
+
+                        <a href="/Public/ClaimDocuments?token=@claim.QrCodeToken"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="document-btn">
+
+                            <i class="bi bi-eye"></i>
+
+                            View
+
+                        </a>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-document-card">
+
+                        <i class="bi bi-file-earmark-x"></i>
+
+                        <div>
+
+                            <strong>
+                                No Document Package
+                            </strong>
+
+                            <span>
+                                A secure claim document package is not
+                                currently available.
+                            </span>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+
+            <div class="detail-section">
+
+                <div class="detail-heading">
+
+                    <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+
+                    <h3>
+                        Marks Submission
+                    </h3>
+
+                </div>
+
+
+                @if (claim.MarksSigned && claim.MarksSubmissionId.HasValue)
+                {
+                    <div class="document-card">
+
+                        <div class="document-icon spreadsheet-icon">
+                            <i class="bi bi-file-earmark-excel-fill"></i>
+                        </div>
+
+                        <div class="document-info">
+
+                            <strong>
+                                @(string.IsNullOrWhiteSpace(claim.MarksFileName)
+                                    ? "Signed Marks Submission"
+                                    : claim.MarksFileName)
+                            </strong>
+
+                            <span>
+
+                                @if (!string.IsNullOrWhiteSpace(claim.MarksSignedByName))
+                                {
+                                    <text>
+                                        Signed by @claim.MarksSignedByName
+                                    </text>
+                                }
+                                else
+                                {
+                                    <text>
+                                        Signed marks submission available
+                                        for verification.
+                                    </text>
+                                }
+
+                                @if (claim.MarksSignedAtUtc.HasValue)
+                                {
+                                    <text>
+                                        &nbsp;·&nbsp;
+                                        @claim.MarksSignedAtUtc.Value
+                                            .ToLocalTime()
+                                            .ToString("dd MMM yyyy HH:mm")
+                                    </text>
+                                }
+
+                            </span>
+
+                            @if (!string.IsNullOrWhiteSpace(claim.MarksReference))
+                            {
+                                <small>
+                                    Reference:
+                                    @claim.MarksReference
+                                </small>
+                            }
+
+                        </div>
+
+
+                        <a asp-page-handler="DownloadMarks"
+                           asp-route-claimId="@claim.ClaimId"
+                           asp-route-marksId="@claim.MarksSubmissionId"
+                           class="document-btn">
+
+                            <i class="bi bi-download"></i>
+
+                            Download
+
+                        </a>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-document-card">
+
+                        <i class="bi bi-file-earmark-x"></i>
+
+                        <div>
+
+                            <strong>
+                                Marks Submission Not Available
+                            </strong>
+
+                            <span>
+                                A signed marks submission is not currently
+                                available for this claim.
+                            </span>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+
+            @if (!claim.IsThisRolesTurn)
+            {
+                <div class="blocked-panel action-blocked">
+
+                    <div class="blocked-icon">
+                        <i class="bi bi-lock-fill"></i>
+                    </div>
+
+                    <div class="blocked-content">
+
+                        <strong>
+                            HOD Action Currently Blocked
+                        </strong>
+
+                        <p>
+                            @(claim.BlockedReason ??
+                                "An earlier required approval on this claim is still pending.")
+                        </p>
+
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <div class="approval-panel">
+
+                    <div class="approval-header">
+
+                        <div class="approval-title">
+
+                            <div class="approval-icon">
+                                <i class="bi bi-check2-square"></i>
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    HOD DECISION
+                                </span>
+
+                                <h3>
+                                    Review This Claim
+                                </h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="approval-badge">
+                            Action Required
+                        </div>
+
+                    </div>
+
+
+                    <div class="approval-note">
+
+                        <i class="bi bi-info-circle-fill"></i>
+
+                        <p>
+                            Review the lecturer, claimed hours, contract
+                            status, claim documents and signed marks
+                            submission before making your decision.
+                        </p>
+
+                    </div>
+
+
+                    <form method="post"
+                          asp-page-handler="Approve"
+                          class="approval-form">
+
+                        <input type="hidden"
+                               asp-for="ClaimId"
+                               value="@claim.ClaimId" />
+
+                        <button type="submit"
+                                class="btn btn-approve"
+                                onclick="return confirm('Are you sure you want to approve this claim?');">
+
+                            <i class="bi bi-check-circle-fill"></i>
+
+                            Approve Claim
+
+                        </button>
+
+                    </form>
+
+
+                    <form method="post"
+                          asp-page-handler="Reject"
+                          class="reject-form">
+
+                        <input type="hidden"
+                               asp-for="ClaimId"
+                               value="@claim.ClaimId" />
+
+
+                        <div class="reject-heading">
+
+                            <div class="reject-heading-icon">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Reject Claim
+                                </strong>
+
+                                <span>
+                                    Provide a clear reason for the rejection.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <label asp-for="RejectReason">
+                            Rejection Reason
+                        </label>
+
+                        <textarea asp-for="RejectReason"
+                                  rows="4"
+                                  maxlength="1000"
+                                  placeholder="Explain why this claim is being rejected..."
+                                  required></textarea>
+
+
+                        <button type="submit"
+                                class="btn btn-reject"
+                                onclick="return confirm('Are you sure you want to reject this claim?');">
+
+                            <i class="bi bi-x-circle"></i>
+
+                            Reject Claim
+
+                        </button>
+
+                    </form>
+
+                </div>
+            }
+
+
+            <div class="back-section">
+
+                <a asp-page="/HOD/Claims"
+                   class="back-btn">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Back to Claims
+
+                </a>
+
+            </div>
+
+        </section>
+    }
+    else
+    {
+        <section class="card pending-claims-card">
+
+            <div class="card-header">
+
+                <div class="card-header-left">
+
+                    <div class="section-icon">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+
+                    <div>
+
+                        <span class="section-eyebrow">
+                            PENDING WORK
+                        </span>
+
+                        <h2>
+                            Claims Awaiting Your Review
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="claim-count">
+
+                    <strong>
+                        @Model.PendingClaims.Count
+                    </strong>
+
+                    <span>
+                        Pending
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            @if (Model.PendingClaims.Count == 0)
+            {
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+
+                    <h3>
+                        No Claims Awaiting Review
+                    </h3>
+
+                    <p>
+                        There are currently no lecturer claims requiring
+                        your attention.
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <div class="table-wrapper">
+
+                    <table class="claims-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Claim
+                                </th>
+
+                                <th>
+                                    Lecturer
+                                </th>
+
+                                <th>
+                                    Contract
+                                </th>
+
+                                <th>
+                                    Hours
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var row in Model.PendingClaims)
+                            {
+                                <tr>
+
+                                    <td>
+
+                                        <div class="claim-reference">
+
+                                            <span class="reference-icon">
+                                                <i class="bi bi-receipt"></i>
+                                            </span>
+
+                                            <div>
+
+                                                <strong>
+                                                    CL@row.ClaimId.ToString("D3")
+                                                </strong>
+
+                                                <span>
+                                                    Lecturer Claim
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="lecturer-name">
+                                            @row.LecturerName
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="contract-reference">
+                                            C@row.ContractId.ToString("D3")
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong class="hours-value">
+                                            @row.HoursClaimed.ToString("N2") h
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <a asp-page="/HOD/Claims"
+                                           asp-route-ClaimId="@row.ClaimId"
+                                           class="review-btn">
+
+                                            Review
+
+                                            <i class="bi bi-arrow-right"></i>
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </section>
+    }
+
+</div>
