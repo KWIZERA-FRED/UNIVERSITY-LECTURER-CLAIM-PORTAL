@@ -1,0 +1,655 @@
+/* ============================================================
+   LECTURER SUBMIT CLAIM
+   UNILAK Academic Staff Engagement System
+   ============================================================ */
+
+
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+
+:root {
+    --primary: #0b2b3c;
+    --primary-light: #1a3f52;
+    --primary-dark: #071e2a;
+    --accent: #2a7f5e;
+    --accent-dark: #1d6248;
+    --accent-light: #e2f0ea;
+    --accent-soft: #f0f7f4;
+    --surface: #ffffff;
+    --surface-raised: #fafdff;
+    --background: #f4f8fb;
+    --border: #e2e8f0;
+    --border-light: #edf2f7;
+    --border-strong: #cbd8e3;
+    --text: #1a2a3a;
+    --text-secondary: #486070;
+    --text-muted: #6c8293;
+    --success: #2a7f5e;
+    --success-light: #e2f0ea;
+    --warning: #b7791f;
+    --warning-light: #fff6df;
+    --danger: #c53030;
+    --danger-light: #fff0f0;
+    --info: #2563a6;
+    --info-light: #eaf3fb;
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
+    --shadow-sm: 0 2px 6px rgba(0, 20, 20, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+    --shadow-md: 0 8px 18px -6px rgba(20, 50, 60, 0.12), 0 4px 8px -3px rgba(0, 0, 0, 0.05);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-secondary: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+}
+
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+
+.submit-claim-page {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 32px 28px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
+
+.claim-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.claim-heading {
+    min-width: 0;
+}
+
+.page-eyebrow,
+.section-eyebrow {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.claim-page-header h1 {
+    margin: 0;
+    color: var(--primary);
+    font-family: var(--font-secondary);
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.8px;
+}
+
+.claim-page-header p {
+    max-width: 700px;
+    margin: 8px 0 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   ALERT
+   ============================================================ */
+
+.claim-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.claim-alert-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.claim-alert-error {
+    background: var(--danger-light);
+    border-color: #f2cccc;
+    color: #9f2b2b;
+}
+
+
+/* ============================================================
+   FORM CARD
+   ============================================================ */
+
+.claim-form-card {
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+
+/* ============================================================
+   SECTION HEADER
+   ============================================================ */
+
+.claim-section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--surface-soft);
+}
+
+.claim-section-icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 19px;
+}
+
+.claim-section-header h2 {
+    margin: 0;
+    color: var(--primary);
+    font-family: var(--font-secondary);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.claim-section-header p {
+    margin: 3px 0 0;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+
+/* ============================================================
+   FORM BODY
+   ============================================================ */
+
+.claim-form-body {
+    padding: 24px;
+}
+
+
+/* ============================================================
+   FORM GRID
+   ============================================================ */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    margin-bottom: 7px;
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+
+.form-group select,
+.form-group input {
+    width: 100%;
+    min-height: 42px;
+    padding: 0 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-primary);
+    font-size: 12px;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.form-group select {
+    cursor: pointer;
+}
+
+.form-group input::placeholder {
+    color: var(--text-muted);
+}
+
+.form-group input[readonly] {
+    background: var(--surface-raised);
+    color: var(--text-secondary);
+    cursor: default;
+}
+
+.form-group select:hover,
+.form-group input:not([readonly]):hover {
+    border-color: var(--border-strong);
+}
+
+.form-group select:focus,
+.form-group input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(42, 127, 94, 0.10);
+}
+
+
+/* ============================================================
+   MIS VERIFICATION
+   ============================================================ */
+
+.mis-verification {
+    margin-top: 24px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-soft);
+}
+
+.mis-header {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 16px;
+}
+
+.mis-header-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 17px;
+}
+
+.mis-header h3 {
+    margin: 0;
+    color: var(--primary);
+    font-family: var(--font-secondary);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.mis-header p {
+    margin: 3px 0 0;
+    color: var(--text-muted);
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   MIS STATUS GRID
+   ============================================================ */
+
+.mis-status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.status-item {
+    min-width: 0;
+    padding: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+
+.status-item-label {
+    margin-bottom: 6px;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.status-value {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+    .status-value i {
+        font-size: 13px;
+    }
+
+    .status-value.status-negative {
+        color: var(--danger);
+    }
+
+    .status-value:not(.status-negative) {
+        color: var(--success);
+    }
+
+
+/* ============================================================
+   INFORMATION BOX
+   ============================================================ */
+
+.claim-information {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-top: 20px;
+    padding: 14px 16px;
+    border: 1px solid #d5e6df;
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-md);
+    background: var(--accent-soft);
+}
+
+.claim-information-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 15px;
+}
+
+.claim-information strong {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.claim-information p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 11px;
+    line-height: 1.65;
+}
+
+
+/* ============================================================
+   FORM ACTIONS
+   ============================================================ */
+
+.claim-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 18px 24px;
+    border-top: 1px solid var(--border-light);
+    background: var(--surface-soft);
+}
+
+
+/* ============================================================
+   SUBMIT BUTTON
+   ============================================================ */
+
+.submit-claim-button {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 17px;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: #ffffff;
+    font-family: var(--font-primary);
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: var(--shadow-xs);
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+    .submit-claim-button:hover {
+        background: var(--accent-dark);
+        border-color: var(--accent-dark);
+        box-shadow: var(--shadow-sm);
+        transform: translateY(-1px);
+    }
+
+    .submit-claim-button:active {
+        transform: translateY(0);
+    }
+
+
+    /* ============================================================
+   FOCUS STATES
+   ============================================================ */
+
+    .submit-claim-button:focus-visible,
+    .form-group select:focus-visible,
+    .form-group input:focus-visible {
+        outline: 3px solid rgba(42, 127, 94, 0.18);
+        outline-offset: 2px;
+    }
+
+
+/* ============================================================
+   RESPONSIVE — LARGE TABLET
+   ============================================================ */
+
+@media (max-width: 1000px) {
+
+    .submit-claim-page {
+        padding: 28px 22px 42px;
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE — TABLET
+   ============================================================ */
+
+@media (max-width: 850px) {
+
+    .claim-page-header {
+        align-items: flex-start;
+    }
+
+        .claim-page-header h1 {
+            font-size: 30px;
+        }
+}
+
+
+/* ============================================================
+   RESPONSIVE — MOBILE
+   ============================================================ */
+
+@media (max-width: 650px) {
+
+    .submit-claim-page {
+        padding: 22px 14px 34px;
+        gap: 18px;
+    }
+
+    .claim-page-header h1 {
+        font-size: 26px;
+        letter-spacing: -0.5px;
+    }
+
+    .claim-page-header p {
+        font-size: 12px;
+    }
+
+    .claim-section-header {
+        align-items: flex-start;
+        padding: 18px;
+    }
+
+    .claim-section-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 17px;
+    }
+
+    .claim-form-body {
+        padding: 18px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 17px;
+    }
+
+    .form-group-full {
+        grid-column: auto;
+    }
+
+    .mis-verification {
+        padding: 16px;
+    }
+
+    .mis-status-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .claim-information {
+        padding: 13px 14px;
+    }
+
+    .claim-form-actions {
+        padding: 16px 18px;
+    }
+
+    .submit-claim-button {
+        width: 100%;
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE — SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 420px) {
+
+    .submit-claim-page {
+        padding: 20px 12px 30px;
+    }
+
+    .claim-page-header h1 {
+        font-size: 24px;
+    }
+
+    .claim-section-header {
+        gap: 11px;
+        padding: 16px;
+    }
+
+    .claim-section-icon {
+        width: 38px;
+        height: 38px;
+    }
+
+    .claim-section-header h2 {
+        font-size: 14px;
+    }
+
+    .claim-form-body {
+        padding: 16px;
+    }
+
+    .mis-verification {
+        padding: 14px;
+    }
+
+    .claim-information {
+        gap: 8px;
+    }
+
+    .claim-form-actions {
+        padding: 14px 16px;
+    }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+
+@media print {
+
+    .claim-form-actions {
+        display: none;
+    }
+
+    .submit-claim-page {
+        max-width: none;
+        padding: 0;
+    }
+
+    .claim-form-card {
+        box-shadow: none;
+        border-color: #cccccc;
+    }
+}

@@ -1,0 +1,392 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer.ClaimsModel
+
+@{
+    ViewData["Title"] = "My Claims";
+    Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
+}
+
+@section Styles {
+    <link
+        rel="stylesheet"
+        href="~/css/Lecturer/claims.css"
+        asp-append-version="true" />
+}
+
+<section class="claims-page">
+
+    <header class="claims-page-header">
+
+        <div class="claims-heading">
+
+            <span class="page-eyebrow">
+                Lecturer Portal
+            </span>
+
+            <h1>
+                My Claims
+            </h1>
+
+            <p>
+                View your teaching claims and track their approval and payment status.
+            </p>
+
+        </div>
+
+        <a
+            href="/Lecturer/SubmitClaim"
+            class="claims-primary-button">
+
+            <i class="bi bi-plus-lg"></i>
+
+            Submit Claim
+
+        </a>
+
+    </header>
+
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="claims-alert claims-alert-success">
+
+            <div class="claims-alert-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+
+            <div class="claims-alert-content">
+
+                <strong>
+                    Success
+                </strong>
+
+                <span>
+                    @Model.SuccessMessage
+                </span>
+
+            </div>
+
+        </div>
+    }
+
+
+    <section class="claims-summary">
+
+        <div class="claims-summary-card">
+
+            <div class="summary-icon summary-icon-blue">
+                <i class="bi bi-wallet2"></i>
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Total Claims
+                </span>
+
+                <strong class="summary-value">
+                    @Model.TotalClaims
+                </strong>
+
+                <span class="summary-description">
+                    All your claims
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="claims-summary-card">
+
+            <div class="summary-icon summary-icon-orange">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Pending
+                </span>
+
+                <strong class="summary-value">
+                    @Model.PendingClaims
+                </strong>
+
+                <span class="summary-description">
+                    Claims under review
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="claims-summary-card">
+
+            <div class="summary-icon summary-icon-green">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Approved
+                </span>
+
+                <strong class="summary-value">
+                    @Model.ApprovedClaims
+                </strong>
+
+                <span class="summary-description">
+                    Approved claims
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="claims-summary-card">
+
+            <div class="summary-icon summary-icon-purple">
+                <i class="bi bi-clock-history"></i>
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Total Hours
+                </span>
+
+                <strong class="summary-value">
+                    @Model.TotalHours.ToString("N1")
+                </strong>
+
+                <span class="summary-description">
+                    Hours claimed
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="claims-card">
+
+        <div class="claims-card-header">
+
+            <div>
+
+                <span class="section-eyebrow">
+                    Claim History
+                </span>
+
+                <h2>
+                    Submitted Claims
+                </h2>
+
+                <p>
+                    Review your claim references, courses, hours and current status.
+                </p>
+
+            </div>
+
+            <div class="claims-card-icon">
+                <i class="bi bi-receipt-cutoff"></i>
+            </div>
+
+        </div>
+
+
+        @if (Model.Claims.Any())
+        {
+            <div class="claims-table-wrapper">
+
+                <table class="claims-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Claim
+                            </th>
+
+                            <th>
+                                Course
+                            </th>
+
+                            <th>
+                                Academic Year
+                            </th>
+
+                            <th>
+                                Campus
+                            </th>
+
+                            <th>
+                                Hours
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @foreach (var claim in Model.Claims)
+                        {
+                            <tr>
+
+                                <td data-label="Claim">
+
+                                    <div class="claim-reference">
+
+                                        <span class="claim-reference-icon">
+                                            <i class="bi bi-file-earmark-text-fill"></i>
+                                        </span>
+
+                                        <div>
+
+                                            <strong>
+                                                @claim.ClaimNumber
+                                            </strong>
+
+                                            <span>
+                                                Teaching claim
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <td data-label="Course">
+
+                                    <div class="course-info">
+
+                                        <strong>
+                                            @claim.CourseCode
+                                        </strong>
+
+                                        <span>
+                                            @claim.CourseName
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+
+                                <td data-label="Academic Year">
+
+                                    <span class="table-value">
+                                        @claim.AcademicYear
+                                    </span>
+
+                                </td>
+
+
+                                <td data-label="Campus">
+
+                                    <span class="table-value">
+                                        @claim.Campus
+                                    </span>
+
+                                </td>
+
+
+                                <td data-label="Hours">
+
+                                    <span class="hours-value">
+                                        @claim.Hours.ToString("N1")
+                                    </span>
+
+                                </td>
+
+
+                                <td data-label="Status">
+
+                                    <span class="claim-status @claim.StatusClass">
+
+                                        <span class="status-dot"></span>
+
+                                        <i class="bi @claim.StatusIcon"></i>
+
+                                        @claim.Status
+
+                                    </span>
+
+                                </td>
+
+
+                                <td data-label="Action">
+
+                                    <a
+                                        href="@claim.OpenUrl"
+                                        class="view-claim-button">
+
+                                        View Details
+
+                                        <i class="bi bi-arrow-right"></i>
+
+                                    </a>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="claims-empty-state">
+
+                <div class="empty-icon">
+                    <i class="bi bi-receipt"></i>
+                </div>
+
+                <h3>
+                    No claims yet
+                </h3>
+
+                <p>
+                    You have not submitted any teaching claims yet.
+                    Once you submit a claim, it will appear here.
+                </p>
+
+                <a
+                    href="/Lecturer/SubmitClaim"
+                    class="empty-action">
+
+                    <i class="bi bi-plus-lg"></i>
+
+                    Submit Your First Claim
+
+                </a>
+
+            </div>
+        }
+
+    </section>
+
+</section>

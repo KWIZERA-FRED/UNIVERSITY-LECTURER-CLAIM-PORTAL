@@ -4,1112 +4,563 @@
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
-ViewData["Title"] = "Lecturer Dashboard";
-Layout = null;
+    ViewData["Title"] = "Lecturer Dashboard";
+    Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
 }
 
-<!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-
-<meta charset="utf-8" />
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0" />
-
-<title>Lecturer Dashboard</title>
-
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-
-<style>
-
-    * {
-        box-sizing: border-box;
-    }
-
-    :root {
-        --primary: #0f2b4a;
-        --primary-light: #1a3f64;
-        --accent: #2a7f5e;
-        --accent-light: #e1f0e8;
-        --bg: #f0f4fa;
-        --card: #ffffff;
-        --border: #dce4ed;
-        --text: #1a2634;
-        --text-muted: #4d6278;
-        --danger: #b42318;
-        --danger-light: #fdecec;
-        --warning: #856404;
-        --warning-light: #fff3cd;
-        --blue-light: #dbeafe;
-        --blue-text: #1a4b7a;
-        --radius: 16px;
-        --shadow: 0 12px 30px -10px rgba(0,20,40,0.12);
-    }
-
-    html,
-    body {
-        margin: 0;
-        padding: 0;
-        min-height: 100%;
-    }
-
-    body {
-        font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-    }
-
-    .lecturer-app {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .app-header {
-        min-height: 70px;
-        background: var(--primary);
-        color: white;
-        padding: 0.9rem 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 3px solid var(--accent);
-    }
-
-    .brand {
-        display: flex;
-        align-items: center;
-        gap: 0.7rem;
-        font-weight: 600;
-        font-size: 1.15rem;
-    }
-
-    .brand i {
-        color: #7bc9a0;
-        font-size: 1.35rem;
-    }
-
-    .user-area {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-    }
-
-    .role-badge {
-        background: rgba(255,255,255,0.1);
-        padding: 0.4rem 0.9rem;
-        border-radius: 40px;
-        font-size: 0.8rem;
-    }
-
-    .logout {
-        background: none;
-        font-family: inherit;
-        cursor: pointer;
-        color: white;
-        text-decoration: none;
-        font-size: 0.82rem;
-        padding: 0.4rem 0.9rem;
-        border: 1px solid rgba(255,255,255,0.25);
-        border-radius: 30px;
-    }
-
-    .logout:hover {
-        background: rgba(255,255,255,0.1);
-    }
-
-    .app-body {
-        display: flex;
-        flex: 1;
-    }
-
-    .sidebar {
-        width: 235px;
-        background: white;
-        border-right: 1px solid var(--border);
-        padding: 1.2rem 0;
-        flex-shrink: 0;
-        min-height: calc(100vh - 70px);
-    }
-
-    .sidebar-title {
-        padding: 0 1.8rem 0.8rem;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        color: var(--text-muted);
-        font-weight: 700;
-    }
-
-    .sidebar a {
-        display: block;
-        width: 100%;
-        text-decoration: none;
-        padding: 0.75rem 1.8rem;
-        color: var(--text);
-        font-size: 0.9rem;
-        font-weight: 500;
-        border-left: 3px solid transparent;
-        transition: 0.2s ease;
-    }
-
-    .sidebar a i {
-        width: 1.6rem;
-        color: var(--text-muted);
-    }
-
-    .sidebar a:hover {
-        background: var(--bg);
-    }
-
-    .sidebar a.active {
-        background: var(--accent-light);
-        border-left-color: var(--accent);
-        color: var(--primary);
-        font-weight: 600;
-    }
-
-    .sidebar a.active i {
-        color: var(--accent);
-    }
-
-    .main {
-        flex: 1;
-        padding: 1.8rem 2rem 2.5rem;
-        overflow-x: auto;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .page-header h1 {
-        margin: 0;
-        color: var(--primary);
-        font-size: 1.6rem;
-    }
-
-    .page-header p {
-        margin: 0.35rem 0 0;
-        color: var(--text-muted);
-        font-size: 0.85rem;
-    }
-
-    .welcome-card {
-        background: linear-gradient(
-            135deg,
-            var(--primary),
-            var(--primary-light)
-        );
-        color: white;
-        border-radius: var(--radius);
-        padding: 1.5rem 1.7rem;
-        margin-bottom: 1.5rem;
-        box-shadow: var(--shadow);
-    }
-
-    .welcome-card h2 {
-        margin: 0;
-        font-size: 1.35rem;
-    }
-
-    .welcome-card p {
-        margin: 0.45rem 0 0;
-        opacity: 0.85;
-        font-size: 0.85rem;
-    }
-
-    .welcome-meta {
-        display: flex;
-        gap: 1.5rem;
-        margin-top: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .welcome-meta-item {
-        font-size: 0.78rem;
-        opacity: 0.9;
-    }
-
-    .welcome-meta-item strong {
-        display: block;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-        opacity: 0.65;
-        margin-bottom: 0.15rem;
-    }
-
-    .notice {
-        background: var(--accent-light);
-        border-left: 4px solid var(--accent);
-        padding: 0.9rem 1rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-        color: var(--text);
-        font-size: 0.84rem;
-    }
-
-    .notice strong {
-        color: var(--primary);
-    }
-
-    .notice.warning {
-        background: var(--warning-light);
-        border-left-color: #d39e00;
-    }
-
-    .stat-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .stat-card {
-        background: var(--card);
-        padding: 1.15rem 1.2rem;
-        border-radius: var(--radius);
-        border: 1px solid var(--border);
-        box-shadow: var(--shadow);
-    }
-
-    .stat-card .icon {
-        color: var(--accent);
-        margin-bottom: 0.5rem;
-        font-size: 1rem;
-    }
-
-    .stat-card .number {
-        font-size: 1.55rem;
-        font-weight: 700;
-        color: var(--primary);
-        line-height: 1.2;
-    }
-
-    .stat-card .label {
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-        color: var(--text-muted);
-        margin-top: 0.3rem;
-    }
-
-    .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: var(--shadow);
-    }
-
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .card-header h3 {
-        margin: 0;
-        font-size: 1rem;
-        color: var(--primary);
-    }
-
-    .card-header h3 i {
-        color: var(--accent);
-        margin-right: 0.4rem;
-    }
-
-    .view-all {
-        font-size: 0.75rem;
-        color: var(--accent);
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .view-all:hover {
-        text-decoration: underline;
-    }
-
-    .table-wrap {
-        overflow-x: auto;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.82rem;
-    }
-
-    th {
-        background: var(--primary);
-        color: white;
-        font-weight: 600;
-        padding: 0.7rem 0.8rem;
-        text-align: left;
-        white-space: nowrap;
-    }
-
-    th:first-child {
-        border-radius: 7px 0 0 0;
-    }
-
-    th:last-child {
-        border-radius: 0 7px 0 0;
-    }
-
-    td {
-        padding: 0.7rem 0.8rem;
-        border-bottom: 1px solid var(--border);
-        vertical-align: middle;
-    }
-
-    tr:hover td {
-        background: #f8fafc;
-    }
-
-    .badge {
-        display: inline-block;
-        padding: 0.2rem 0.65rem;
-        border-radius: 30px;
-        font-size: 0.68rem;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    .badge-ft {
-        background: var(--blue-light);
-        color: var(--blue-text);
-    }
-
-    .badge-pt {
-        background: var(--accent-light);
-        color: #216344;
-    }
-
-    .badge-pending {
-        background: var(--warning-light);
-        color: var(--warning);
-    }
-
-    .badge-approved {
-        background: #d4edda;
-        color: #0b5e2e;
-    }
-
-    .badge-paid {
-        background: #d4edda;
-        color: #0b5e2e;
-    }
-
-    .badge-rejected {
-        background: var(--danger-light);
-        color: var(--danger);
-    }
-
-    .badge-draft {
-        background: #edf0f3;
-        color: #586879;
-    }
-
-    .badge-active {
-        background: #d4edda;
-        color: #0b5e2e;
-    }
-
-    .badge-expired {
-        background: #edf0f3;
-        color: #586879;
-    }
-
-    .action-btn {
-        background: var(--accent);
-        color: white;
-        border: none;
-        padding: 0.42rem 0.9rem;
-        border-radius: 40px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .action-btn:hover {
-        background: #1d6a4d;
-        color: white;
-    }
-
-    .action-btn.outline {
-        background: transparent;
-        border: 1px solid var(--accent);
-        color: var(--accent);
-    }
-
-    .action-btn.outline:hover {
-        background: var(--accent);
-        color: white;
-    }
-
-    .empty {
-        text-align: center;
-        padding: 2rem 1rem;
-        color: var(--text-muted);
-    }
-
-    .empty i {
-        font-size: 1.8rem;
-        margin-bottom: 0.7rem;
-        opacity: 0.5;
-    }
-
-    .empty p {
-        margin: 0;
-        font-size: 0.82rem;
-    }
-
-    .mis-card {
-        background: #f8fafc;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 1rem;
-    }
-
-    .mis-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .mis-title {
-        font-weight: 600;
-        color: var(--primary);
-        font-size: 0.9rem;
-    }
-
-    .mis-subtitle {
-        margin-top: 0.25rem;
-        color: var(--text-muted);
-        font-size: 0.76rem;
-    }
-
-    .mis-status {
-        display: inline-block;
-        padding: 0.25rem 0.65rem;
-        border-radius: 30px;
-        background: var(--warning-light);
-        color: var(--warning);
-        font-size: 0.68rem;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    .quick-actions {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-    }
-
-    .quick-action {
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 1rem;
-        text-decoration: none;
-        color: var(--text);
-        transition: 0.2s ease;
-        background: white;
-    }
-
-    .quick-action:hover {
-        border-color: var(--accent);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0,20,40,0.08);
-    }
-
-    .quick-action i {
-        color: var(--accent);
-        font-size: 1.1rem;
-        margin-bottom: 0.55rem;
-    }
-
-    .quick-action strong {
-        display: block;
-        color: var(--primary);
-        font-size: 0.85rem;
-    }
-
-    .quick-action span {
-        display: block;
-        color: var(--text-muted);
-        font-size: 0.72rem;
-        margin-top: 0.25rem;
-    }
-
-    @@media (max-width: 1050px) {
-
-        .stat-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .quick-actions {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @@media (max-width: 700px) {
-
-        .app-body {
-            flex-direction: column;
-        }
-
-        .sidebar {
-            width: 100%;
-            min-height: auto;
-            border-right: none;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .app-header {
-            padding: 0.8rem 1rem;
-        }
-
-        .brand span {
-            display: none;
-        }
-
-        .main {
-            padding: 1.2rem;
-        }
-
-        .stat-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .welcome-meta {
-            flex-direction: column;
-            gap: 0.7rem;
-        }
-    }
-
-</style>
-
-</head>
-
-<body>
-
-<div class="lecturer-app">
-
-<header class="app-header">
-
-    <div class="brand">
-
-        <i class="fas fa-university"></i>
-
-        <span>
-            UNILAK · Staff Engagement
-        </span>
-
-    </div>
-
-    <div class="user-area">
-
-        <span class="role-badge">
-
-            <i class="fas fa-chalkboard-teacher"></i>
-
-            @Model.LecturerTypeName
-
-        </span>
-
-        <form method="post" asp-page="/LogOut" style="margin:0;">
-            <button type="submit" class="logout">
-                Logout
-            </button>
-        </form>
-
-    </div>
-
-</header>
-
-<div class="app-body">
-
-    <aside class="sidebar">
-
-        <div class="sidebar-title">
-            Lecturer Portal
-        </div>
-
-        <a href="/Lecturer" class="active">
-
-            <i class="fas fa-th-large"></i>
-
-            Dashboard
-
-        </a>
-
-        <a href="/Lecturer/Contracts">
-
-            <i class="fas fa-file-signature"></i>
-
-            My Contracts
-
-        </a>
-
-        <a href="/Lecturer/SubmitMarks">
-
-            <i class="fas fa-file-excel"></i>
-
-            Submit Marks
-
-        </a>
-
-        <a href="/Lecturer/SubmitClaim">
-
-            <i class="fas fa-coins"></i>
-
-            Submit Claim
-
-        </a>
-
-        <a href="/Claims">
-
-            <i class="fas fa-receipt"></i>
-
-            My Claims
-
-        </a>
-
-    </aside>
-
-    <main class="main">
-
-        <div class="page-header">
+@section Styles {
+    <link
+        rel="stylesheet"
+        href="~/css/Lecturer/dashboard.css"
+        asp-append-version="true" />
+}
+
+@{
+    var lecturer = Model.CurrentLecturer;
+
+    string ContractStatusLabel(ContractStatus status)
+    {
+        return status switch
+        {
+            ContractStatus.PendingSignature => "Pending Signature",
+            ContractStatus.Active => "Active",
+            ContractStatus.Expired => "Expired",
+            ContractStatus.Terminated => "Terminated",
+            ContractStatus.Renewed => "Renewed",
+            _ => status.ToString()
+        };
+    }
+
+    string ContractStatusClass(ContractStatus status)
+    {
+        return status switch
+        {
+            ContractStatus.PendingSignature => "status-pending",
+            ContractStatus.Active => "status-active",
+            ContractStatus.Expired => "status-expired",
+            ContractStatus.Terminated => "status-danger",
+            ContractStatus.Renewed => "status-active",
+            _ => "status-neutral"
+        };
+    }
+
+    string ClaimStatusLabel(ClaimStatus status)
+    {
+        return status switch
+        {
+            ClaimStatus.Draft => "Draft",
+            ClaimStatus.Submitted => "Submitted",
+            ClaimStatus.PendingHODApproval => "HOD Review",
+            ClaimStatus.PendingDeanApproval => "Dean Review",
+            ClaimStatus.Approved => "Approved",
+            ClaimStatus.Rejected => "Rejected",
+            ClaimStatus.Paid => "Paid",
+            _ => status.ToString()
+        };
+    }
+
+    string ClaimStatusClass(ClaimStatus status)
+    {
+        return status switch
+        {
+            ClaimStatus.Draft => "status-neutral",
+            ClaimStatus.Submitted => "status-pending",
+            ClaimStatus.PendingHODApproval => "status-pending",
+            ClaimStatus.PendingDeanApproval => "status-pending",
+            ClaimStatus.Approved => "status-active",
+            ClaimStatus.Paid => "status-paid",
+            ClaimStatus.Rejected => "status-danger",
+            _ => "status-neutral"
+        };
+    }
+}
+
+<section class="dashboard-page">
+
+    <div class="page-header">
+
+        <div class="page-header-content">
 
             <div>
+                <span class="page-eyebrow">
+                    Lecturer Portal
+                </span>
 
                 <h1>
-                    Lecturer Dashboard
+                    Dashboard
                 </h1>
 
                 <p>
-                    View your academic engagement, courses, contracts,
-                    marks submission and payment claims.
+                    Monitor your teaching assignments, contracts,
+                    marks submissions, and payment claims.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+    @if (lecturer != null)
+    {
+        <section class="welcome-card">
+
+            <div class="welcome-content">
+
+                <div class="welcome-avatar">
+                    <i class="bi bi-person-badge-fill"></i>
+                </div>
+
+                <div class="welcome-text">
+
+                    <span class="welcome-label">
+                        Welcome back
+                    </span>
+
+                    <h2>
+                        @lecturer.UserName
+                    </h2>
+
+                    <p>
+                        Your lecturer account is active and ready
+                        for academic engagement activities.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="lecturer-details">
+
+                <div class="lecturer-detail">
+
+                    <span class="detail-label">
+                        Username
+                    </span>
+
+                    <strong>
+                        @lecturer.UserName
+                    </strong>
+
+                </div>
+
+                <div class="lecturer-detail">
+
+                    <span class="detail-label">
+                        Email
+                    </span>
+
+                    <strong>
+                        @lecturer.Email
+                    </strong>
+
+                </div>
+
+                <div class="lecturer-detail">
+
+                    <span class="detail-label">
+                        Lecturer Type
+                    </span>
+
+                    <strong>
+                        @Model.LecturerTypeName
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+    }
+
+    @if (Model.IsFullTime)
+    {
+        <div class="information-banner">
+
+            <div class="information-icon">
+                <i class="bi bi-info-circle-fill"></i>
+            </div>
+
+            <div>
+
+                <strong>
+                    Full-Time Lecturer
+                </strong>
+
+                <p>
+                    Teaching hours for full-time lecturers are
+                    expected to be integrated with the university
+                    MIS. Until that integration is available,
+                    the system will display information based on
+                    available assignments.
                 </p>
 
             </div>
 
         </div>
+    }
+    else if (Model.IsPartTime)
+    {
+        <div class="information-banner">
 
-        <div class="welcome-card">
+            <div class="information-icon">
+                <i class="bi bi-info-circle-fill"></i>
+            </div>
 
-            <h2>
-                Welcome, @Model.CurrentLecturer!.UserName
-            </h2>
+            <div>
 
-            <p>
-                Your lecturer account and academic engagement information
-                are displayed below.
-            </p>
+                <strong>
+                    Part-Time Lecturer
+                </strong>
 
-            <div class="welcome-meta">
-
-                <div class="welcome-meta-item">
-
-                    <strong>Username</strong>
-
-                    @Model.CurrentLecturer.UserName
-
-                </div>
-
-                <div class="welcome-meta-item">
-
-                    <strong>Email</strong>
-
-                    @Model.CurrentLecturer.Email
-
-                </div>
-
-                <div class="welcome-meta-item">
-
-                    <strong>Lecturer Type</strong>
-
-                    @Model.LecturerTypeName
-
-                </div>
-
-                @if (Model.CurrentLecturer.Rank.HasValue)
-                {
-                    <div class="welcome-meta-item">
-
-                        <strong>Rank</strong>
-
-                        @Model.CurrentLecturer.Rank.Value
-
-                    </div>
-                }
+                <p>
+                    Your assigned courses, contracts, marks
+                    submissions, and payment claims are managed
+                    through this portal.
+                </p>
 
             </div>
 
         </div>
+    }
 
-        @if (Model.IsFullTime)
+    <section class="stats-grid">
+
+        <div class="stat-card">
+
+            <div class="stat-card-top">
+
+                <div class="stat-icon stat-icon-blue">
+                    <i class="bi bi-book-fill"></i>
+                </div>
+
+                <span class="stat-label">
+                    Active Courses
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                @Model.ActiveCourseCount
+            </div>
+
+            <span class="stat-description">
+                Current teaching assignments
+            </span>
+
+        </div>
+
+        <div class="stat-card">
+
+            <div class="stat-card-top">
+
+                <div class="stat-icon stat-icon-green">
+                    <i class="bi bi-clock-fill"></i>
+                </div>
+
+                <span class="stat-label">
+                    Allocated Hours
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                @Model.TotalAllocatedHours.ToString("0.##")
+            </div>
+
+            <span class="stat-description">
+                Approved teaching hours
+            </span>
+
+        </div>
+
+        <div class="stat-card">
+
+            <div class="stat-card-top">
+
+                <div class="stat-icon stat-icon-purple">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+
+                <span class="stat-label">
+                    Contracts
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                @Model.ContractCount
+            </div>
+
+            <span class="stat-description">
+                @Model.PendingSignatureCount awaiting signature
+            </span>
+
+        </div>
+
+        <div class="stat-card">
+
+            <div class="stat-card-top">
+
+                <div class="stat-icon stat-icon-orange">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+
+                <span class="stat-label">
+                    Pending Claims
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                @Model.PendingClaimCount
+            </div>
+
+            <span class="stat-description">
+                Claims currently under review
+            </span>
+
+        </div>
+
+    </section>
+
+    @if (Model.IsFullTime)
+    {
+        <section class="section-card mis-card">
+
+            <div class="section-header">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        MIS Integration
+                    </span>
+
+                    <h2>
+                        Teaching Hours
+                    </h2>
+
+                </div>
+
+                <div class="section-icon">
+                    <i class="bi bi-bar-chart-fill"></i>
+                </div>
+
+            </div>
+
+            <div class="mis-content">
+
+                <div class="mis-status">
+
+                    <i class="bi bi-hourglass-split"></i>
+
+                    <div>
+
+                        <strong>
+                            MIS integration pending
+                        </strong>
+
+                        <p>
+                            Teaching-hour data will be displayed
+                            automatically once the university MIS
+                            integration is connected.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+    }
+
+    <section class="section-card">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-eyebrow">
+                    Academic Workload
+                </span>
+
+                <h2>
+                    My Course Assignments
+                </h2>
+
+                <p>
+                    Courses currently assigned to your lecturer account.
+                </p>
+
+            </div>
+
+            <div class="section-icon">
+                <i class="bi bi-journal-bookmark-fill"></i>
+            </div>
+
+        </div>
+
+        @if (Model.CourseAssignments.Any())
         {
-            <div class="notice warning">
+            <div class="table-wrapper">
 
-                <strong>
-                    <i class="fas fa-clock"></i>
-                    Full-Time Lecturer
-                </strong>
+                <table class="data-table">
 
-                <br />
+                    <thead>
 
-                Your teaching-hour information will be retrieved from
-                the MIS integration. The dashboard currently displays
-                your real course assignments and allocated hours from
-                this system. MIS-completed hours will be enabled when
-                the MIS API is connected.
+                        <tr>
+
+                            <th>
+                                Course
+                            </th>
+
+                            <th>
+                                Academic Year
+                            </th>
+
+                            <th>
+                                Semester
+                            </th>
+
+                            <th>
+                                Session
+                            </th>
+
+                            <th>
+                                Campus
+                            </th>
+
+                            <th>
+                                Hours
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var assignment in Model.CourseAssignments)
+                        {
+                            <tr>
+
+                                <td>
+
+                                    <div class="course-cell">
+
+                                        <span class="course-code">
+                                            @assignment.Course.Code
+                                        </span>
+
+                                        <span class="course-title">
+                                            @assignment.Course.Title
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+                                    @assignment.AcademicYear
+                                </td>
+
+                                <td>
+                                    @assignment.Semester
+                                </td>
+
+                                <td>
+                                    @assignment.Session
+                                </td>
+
+                                <td>
+                                    @assignment.Campus
+                                </td>
+
+                                <td>
+
+                                    <span class="hours-value">
+                                        @assignment.AllocatedHours.ToString("0.##")
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    @if (assignment.IsApproved)
+                                    {
+                                        <span class="status-badge status-active">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Approved
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-pending">
+                                            <i class="bi bi-clock-fill"></i>
+                                            Pending
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
 
             </div>
         }
         else
         {
-            <div class="notice">
+            <div class="empty-state">
 
-                <strong>
-                    <i class="fas fa-user-clock"></i>
-                    Part-Time Lecturer
-                </strong>
+                <div class="empty-icon">
+                    <i class="bi bi-journal-x"></i>
+                </div>
 
-                <br />
+                <h3>
+                    No course assignments
+                </h3>
 
-                Your assigned courses, contracts and payment claims
-                are displayed using the information recorded in the
-                system.
+                <p>
+                    You currently have no active course assignments.
+                </p>
 
             </div>
         }
 
-        <div class="stat-grid">
+    </section>
 
-            <div class="stat-card">
+    <div class="dashboard-columns">
 
-                <div class="icon">
+        <section class="section-card compact-card">
 
-                    <i class="fas fa-book-open"></i>
+            <div class="section-header">
 
-                </div>
+                <div>
 
-                <div class="number">
+                    <span class="section-eyebrow">
+                        Agreements
+                    </span>
 
-                    @Model.ActiveCourseCount
-
-                </div>
-
-                <div class="label">
-
-                    Active Courses
+                    <h2>
+                        My Contracts
+                    </h2>
 
                 </div>
 
-            </div>
-
-            <div class="stat-card">
-
-                <div class="icon">
-
-                    <i class="fas fa-clock"></i>
-
-                </div>
-
-                <div class="number">
-
-                    @Model.TotalAllocatedHours.ToString("0.##")h
-
-                </div>
-
-                <div class="label">
-
-                    Allocated Hours
-
-                </div>
-
-            </div>
-
-            <div class="stat-card">
-
-                <div class="icon">
-
-                    <i class="fas fa-file-signature"></i>
-
-                </div>
-
-                <div class="number">
-
-                    @Model.ContractCount
-
-                </div>
-
-                <div class="label">
-
-                    Contracts
-
-                </div>
-
-            </div>
-
-            <div class="stat-card">
-
-                <div class="icon">
-
-                    <i class="fas fa-coins"></i>
-
-                </div>
-
-                <div class="number">
-
-                    @Model.PendingClaimCount
-
-                </div>
-
-                <div class="label">
-
-                    Pending Claims
-
-                </div>
-
-            </div>
-
-        </div>
-
-        @if (Model.IsFullTime)
-        {
-            <div class="card">
-
-                <div class="card-header">
-
-                    <h3>
-
-                        <i class="fas fa-database"></i>
-
-                        MIS Teaching Hours
-
-                    </h3>
-
-                </div>
-
-                <div class="mis-card">
-
-                    <div class="mis-header">
-
-                        <div>
-
-                            <div class="mis-title">
-
-                                MIS integration status
-
-                            </div>
-
-                            <div class="mis-subtitle">
-
-                                Completed teaching hours will be
-                                retrieved from the university MIS API.
-
-                            </div>
-
-                        </div>
-
-                        <span class="mis-status">
-
-                            MIS API Pending
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-        }
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <h3>
-
-                    <i class="fas fa-book-open"></i>
-
-                    My Course Assignments
-
-                </h3>
-
-            </div>
-
-            @if (Model.CourseAssignments.Any())
-            {
-                <div class="table-wrap">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Course Code
-                                </th>
-
-                                <th>
-                                    Course
-                                </th>
-
-                                <th>
-                                    Academic Year
-                                </th>
-
-                                <th>
-                                    Semester
-                                </th>
-
-                                <th>
-                                    Session
-                                </th>
-
-                                <th>
-                                    Campus
-                                </th>
-
-                                <th>
-                                    Hours
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            @foreach (var assignment in Model.CourseAssignments)
-                            {
-                                <tr>
-
-                                    <td>
-
-                                        <strong>
-                                            @assignment.Course.Code
-                                        </strong>
-
-                                    </td>
-
-                                    <td>
-
-                                        @assignment.Course.Title
-
-                                    </td>
-
-                                    <td>
-
-                                        @assignment.AcademicYear
-
-                                    </td>
-
-                                    <td>
-
-                                        @assignment.Semester
-
-                                    </td>
-
-                                    <td>
-
-                                        @assignment.Session
-
-                                    </td>
-
-                                    <td>
-
-                                        @assignment.Campus
-
-                                    </td>
-
-                                    <td>
-
-                                        @assignment.AllocatedHours.ToString("0.##")h
-
-                                    </td>
-
-                                    <td>
-
-                                        @if (assignment.IsApproved)
-                                        {
-                                            <span class="badge badge-approved">
-                                                Approved
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-pending">
-                                                Pending Approval
-                                            </span>
-                                        }
-
-                                    </td>
-
-                                </tr>
-                            }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-            }
-            else
-            {
-                <div class="empty">
-
-                    <i class="fas fa-book-open"></i>
-
-                    <p>
-                        No active course assignments have been recorded
-                        for your account.
-                    </p>
-
-                </div>
-            }
-
-        </div>
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <h3>
-
-                    <i class="fas fa-file-signature"></i>
-
-                    My Contracts
-
-                </h3>
-
-                <a href="/Lecturer/Contracts"
-                   class="view-all">
-
-                    View All
+                <a
+                    href="/Lecturer/Contracts"
+                    class="section-link">
+
+                    View all
+                    <i class="bi bi-arrow-right"></i>
 
                 </a>
 
@@ -1117,187 +568,82 @@ Layout = null;
 
             @if (Model.Contracts.Any())
             {
-                <div class="table-wrap">
+                <div class="list-table">
 
-                    <table>
+                    @foreach (var contract in Model.Contracts.Take(5))
+                    {
+                        <div class="list-row">
 
-                        <thead>
+                            <div class="list-main">
 
-                            <tr>
+                                <span class="list-reference">
+                                    CON-@contract.Id.ToString("D6")
+                                </span>
 
-                                <th>
-                                    Contract ID
-                                </th>
+                                <strong>
+                                    @(contract.CourseAssignment?.Course?.Title ?? "Course")
+                                </strong>
 
-                                <th>
-                                    Course
-                                </th>
+                                <span class="list-meta">
+                                    Version @contract.Version
+                                    ·
+                                    @(contract.StartDateUtc?.ToLocalTime().ToString("dd MMM yyyy") ?? "—")
+                                </span>
 
-                                <th>
-                                    Version
-                                </th>
+                            </div>
 
-                                <th>
-                                    Start Date
-                                </th>
+                            <span class="status-badge @ContractStatusClass(contract.Status)">
+                                @ContractStatusLabel(contract.Status)
+                            </span>
 
-                                <th>
-                                    End Date
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            @foreach (var contract in Model.Contracts.Take(5))
-                            {
-                                <tr>
-
-                                    <td>
-
-                                        <strong>
-                                            #@contract.Id
-                                        </strong>
-
-                                    </td>
-
-                                    <td>
-
-                                        @(contract.CourseAssignment?.Course?.Title
-                                            ?? "Not assigned")
-
-                                    </td>
-
-                                    <td>
-
-                                        @contract.Version
-
-                                    </td>
-
-                                    <td>
-
-                                        @(contract.StartDateUtc.HasValue
-                                            ? contract.StartDateUtc.Value.ToString("dd MMM yyyy")
-                                            : "-")
-
-                                    </td>
-
-                                    <td>
-
-                                        @(contract.EndDateUtc.HasValue
-                                            ? contract.EndDateUtc.Value.ToString("dd MMM yyyy")
-                                            : "-")
-
-                                    </td>
-
-                                    <td>
-
-                                        @switch (contract.Status)
-                                        {
-                                            case ContractStatus.PendingSignature:
-
-                                                <span class="badge badge-pending">
-                                                    Pending Signature
-                                                </span>
-
-                                                break;
-
-                                            case ContractStatus.Active:
-
-                                                <span class="badge badge-active">
-                                                    Active
-                                                </span>
-
-                                                break;
-
-                                            case ContractStatus.Expired:
-
-                                                <span class="badge badge-expired">
-                                                    Expired
-                                                </span>
-
-                                                break;
-
-                                            case ContractStatus.Terminated:
-
-                                                <span class="badge badge-rejected">
-                                                    Terminated
-                                                </span>
-
-                                                break;
-
-                                            case ContractStatus.Renewed:
-
-                                                <span class="badge badge-approved">
-                                                    Renewed
-                                                </span>
-
-                                                break;
-                                        }
-
-                                    </td>
-
-                                    <td>
-
-                                        <a href="/Lecturer/Contracts"
-                                           class="action-btn">
-
-                                            View
-
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-                            }
-
-                        </tbody>
-
-                    </table>
+                        </div>
+                    }
 
                 </div>
             }
             else
             {
-                <div class="empty">
+                <div class="empty-state compact-empty">
 
-                    <i class="fas fa-file-signature"></i>
+                    <div class="empty-icon">
+                        <i class="bi bi-file-earmark-x"></i>
+                    </div>
+
+                    <h3>
+                        No contracts
+                    </h3>
 
                     <p>
-                        No contracts have been created for your account.
+                        No contracts are currently available.
                     </p>
 
                 </div>
             }
 
-        </div>
+        </section>
 
-        <div class="card">
+        <section class="section-card compact-card">
 
-            <div class="card-header">
+            <div class="section-header">
 
-                <h3>
+                <div>
 
-                    <i class="fas fa-coins"></i>
+                    <span class="section-eyebrow">
+                        Payments
+                    </span>
 
-                    Payment Claims
+                    <h2>
+                        Payment Claims
+                    </h2>
 
-                </h3>
+                </div>
 
-                <a href="/Lecturer/SubmitClaim"
-                   class="view-all">
+                <a
+                    href="/Claims"
+                    class="section-link">
 
-                    Submit Claim
+                    View all
+                    <i class="bi bi-arrow-right"></i>
 
                 </a>
 
@@ -1305,242 +651,158 @@ Layout = null;
 
             @if (Model.Claims.Any())
             {
-                <div class="table-wrap">
+                <div class="list-table">
 
-                    <table>
+                    @foreach (var claim in Model.Claims.Take(5))
+                    {
+                        <a
+                            href="/Lecturer/ClaimDetail?ClaimId=@claim.Id"
+                            class="list-row list-row-link">
 
-                        <thead>
+                            <div class="list-main">
 
-                            <tr>
+                                <span class="list-reference">
+                                    CLM-@claim.Id.ToString("D6")
+                                </span>
 
-                                <th>
-                                    Claim ID
-                                </th>
+                                <strong>
+                                    @(claim.CourseAssignment?.Course?.Title ?? "Course")
+                                </strong>
 
-                                <th>
-                                    Course
-                                </th>
+                                <span class="list-meta">
+                                    @claim.HoursClaimed.ToString("0.##") hours
+                                    ·
+                                    @(claim.SubmittedAtUtc?.ToLocalTime().ToString("dd MMM yyyy") ?? "—")
+                                </span>
 
-                                <th>
-                                    Contract
-                                </th>
+                            </div>
 
-                                <th>
-                                    Hours
-                                </th>
+                            <span class="status-badge @ClaimStatusClass(claim.Status)">
+                                @ClaimStatusLabel(claim.Status)
+                            </span>
 
-                                <th>
-                                    Submitted
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            @foreach (var claim in Model.Claims.Take(5))
-                            {
-                                <tr>
-
-                                    <td>
-
-                                        <strong>
-                                            #@claim.Id
-                                        </strong>
-
-                                    </td>
-
-                                    <td>
-
-                                        @(claim.CourseAssignment?.Course?.Title
-                                            ?? "Not assigned")
-
-                                    </td>
-
-                                    <td>
-
-                                        #@claim.ContractId
-
-                                    </td>
-
-                                    <td>
-
-                                        @claim.HoursClaimed.ToString("0.##")h
-
-                                    </td>
-
-                                    <td>
-
-                                        @(claim.SubmittedAtUtc.HasValue
-                                            ? claim.SubmittedAtUtc.Value.ToString("dd MMM yyyy")
-                                            : "-")
-
-                                    </td>
-
-                                    <td>
-
-                                        @switch (claim.Status)
-                                        {
-                                            case ClaimStatus.Draft:
-
-                                                <span class="badge badge-draft">
-                                                    Draft
-                                                </span>
-
-                                                break;
-
-                                            case ClaimStatus.Submitted:
-
-                                                <span class="badge badge-pending">
-                                                    Submitted
-                                                </span>
-
-                                                break;
-
-                                            case ClaimStatus.PendingHODApproval:
-
-                                                <span class="badge badge-pending">
-                                                    Pending HOD Approval
-                                                </span>
-
-                                                break;
-
-                                            case ClaimStatus.PendingDeanApproval:
-
-                                                <span class="badge badge-pending">
-                                                    Pending Dean Approval
-                                                </span>
-
-                                                break;
-
-                                            case ClaimStatus.Approved:
-
-                                                <span class="badge badge-approved">
-                                                    Approved
-                                                </span>
-
-                                                break;
-
-                                            case ClaimStatus.Rejected:
-
-                                                <span class="badge badge-rejected">
-                                                    Rejected
-                                                </span>
-
-                                                break;
-
-                                            case ClaimStatus.Paid:
-
-                                                <span class="badge badge-paid">
-                                                    Paid
-                                                </span>
-
-                                                break;
-                                        }
-
-                                    </td>
-
-                                </tr>
-                            }
-
-                        </tbody>
-
-                    </table>
+                        </a>
+                    }
 
                 </div>
             }
             else
             {
-                <div class="empty">
+                <div class="empty-state compact-empty">
 
-                    <i class="fas fa-coins"></i>
+                    <div class="empty-icon">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+
+                    <h3>
+                        No claims
+                    </h3>
 
                     <p>
-                        You have not submitted any payment claims yet.
+                        You have not submitted any payment claims.
                     </p>
 
                 </div>
             }
 
-        </div>
+        </section>
 
-        <div class="card">
+    </div>
 
-            <div class="card-header">
+    <section class="quick-actions-section">
 
-                <h3>
+        <div class="section-header">
 
-                    <i class="fas fa-bolt"></i>
+            <div>
 
+                <span class="section-eyebrow">
+                    Shortcuts
+                </span>
+
+                <h2>
                     Quick Actions
-
-                </h3>
+                </h2>
 
             </div>
 
-            <div class="quick-actions">
+        </div>
 
-                <a href="/Lecturer/Contracts"
-                   class="quick-action">
+        <div class="quick-actions-grid">
 
-                    <i class="fas fa-file-signature"></i>
+            <a
+                href="/Lecturer/Contracts"
+                class="quick-action">
+
+                <div class="quick-action-icon">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+
+                <div class="quick-action-content">
 
                     <strong>
                         My Contracts
                     </strong>
 
                     <span>
-                        View and sign your contracts.
+                        Review and sign contracts
                     </span>
 
-                </a>
+                </div>
 
-                <a href="/Lecturer/SubmitMarks"
-                   class="quick-action">
+                <i class="bi bi-arrow-right quick-action-arrow"></i>
 
-                    <i class="fas fa-file-excel"></i>
+            </a>
+
+            <a
+                href="/Lecturer/SubmitMarks"
+                class="quick-action">
+
+                <div class="quick-action-icon">
+                    <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                </div>
+
+                <div class="quick-action-content">
 
                     <strong>
                         Submit Marks
                     </strong>
 
                     <span>
-                        Upload your marks Excel file for examination
-                        office processing.
+                        Upload your marks submission
                     </span>
 
-                </a>
+                </div>
 
-                <a href="/Lecturer/SubmitClaim"
-                   class="quick-action">
+                <i class="bi bi-arrow-right quick-action-arrow"></i>
 
-                    <i class="fas fa-coins"></i>
+            </a>
+
+            <a
+                href="/Lecturer/SubmitClaim"
+                class="quick-action">
+
+                <div class="quick-action-icon">
+                    <i class="bi bi-send-fill"></i>
+                </div>
+
+                <div class="quick-action-content">
 
                     <strong>
-                        Payment Claim
+                        Submit Claim
                     </strong>
 
                     <span>
-                        Submit a payment claim for your assigned work.
+                        Submit a payment claim
                     </span>
 
-                </a>
+                </div>
 
-            </div>
+                <i class="bi bi-arrow-right quick-action-arrow"></i>
+
+            </a>
 
         </div>
 
-    </main>
+    </section>
 
-</div>
-
-</div>
-
-</body>
-
-</html>
+</section>

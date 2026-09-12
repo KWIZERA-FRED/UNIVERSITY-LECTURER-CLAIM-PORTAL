@@ -1,0 +1,651 @@
+:root {
+    --primary: #0b2b3c;
+    --primary-light: #1a3f52;
+    --primary-dark: #071e2a;
+    --accent: #2a7f5e;
+    --accent-dark: #1d6248;
+    --accent-light: #e2f0ea;
+    --accent-soft: #f0f7f4;
+    --surface: #ffffff;
+    --surface-raised: #fafdff;
+    --background: #f4f8fb;
+    --border: #e2e8f0;
+    --border-light: #edf2f7;
+    --border-strong: #cbd8e3;
+    --text: #1a2a3a;
+    --text-secondary: #486070;
+    --text-muted: #6c8293;
+    --text-inverse: #ffffff;
+    --success: #2a7f5e;
+    --success-bg: #e2f0ea;
+    --success-border: #c5e1d4;
+    --danger: #c23b3b;
+    --danger-bg: #fdf0f0;
+    --danger-border: #f2cccc;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
+    --shadow-sm: 0 2px 6px rgba(0, 20, 20, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+    --shadow-md: 0 8px 18px -6px rgba(20, 50, 60, 0.12), 0 4px 8px -3px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 16px 32px -12px rgba(20, 50, 60, 0.18), 0 6px 12px -4px rgba(0, 0, 0, 0.06);
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-secondary: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.submit-marks-page {
+    width: 100%;
+    max-width: 1150px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.marks-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.marks-heading {
+    max-width: 760px;
+}
+
+.page-eyebrow {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--accent);
+    font-family: var(--font-secondary);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.marks-page-header h1 {
+    margin: 0;
+    color: var(--primary);
+    font-family: var(--font-secondary);
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.7px;
+}
+
+.marks-page-header p {
+    max-width: 650px;
+    margin: 9px 0 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   ALERTS
+   ========================================================= */
+
+.marks-alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.marks-alert-icon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 14px;
+}
+
+.marks-alert-error {
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+    color: var(--danger);
+}
+
+    .marks-alert-error .marks-alert-icon {
+        background: #f8dddd;
+        color: var(--danger);
+    }
+
+.marks-alert-success {
+    background: var(--success-bg);
+    border-color: var(--success-border);
+    color: var(--success);
+}
+
+    .marks-alert-success .marks-alert-icon {
+        background: #cfe7da;
+        color: var(--success);
+    }
+
+
+/* =========================================================
+   FORM CARD
+   ========================================================= */
+
+.marks-form-card {
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+
+/* =========================================================
+   SECTION HEADER
+   ========================================================= */
+
+.marks-section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 24px 28px;
+    background: var(--surface-raised);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.marks-section-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 19px;
+}
+
+.section-eyebrow {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--accent);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.marks-section-header h2 {
+    margin: 0;
+    color: var(--primary);
+    font-family: var(--font-secondary);
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.marks-section-header p {
+    margin: 5px 0 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   FORM BODY
+   ========================================================= */
+
+.marks-form-body {
+    padding: 28px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    min-width: 0;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+.form-group > label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.4;
+}
+
+.form-group select,
+.form-group input[type="file"] {
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-primary);
+    font-size: 12px;
+    line-height: 1.4;
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.form-group select {
+    cursor: pointer;
+    appearance: auto;
+}
+
+    .form-group select:hover,
+    .form-group input[type="file"]:hover {
+        border-color: var(--border-strong);
+    }
+
+    .form-group select:focus,
+    .form-group input[type="file"]:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(42, 127, 94, 0.1);
+    }
+
+.upload-form-group {
+    margin-top: 24px;
+}
+
+
+/* =========================================================
+   UPLOAD AREA
+   ========================================================= */
+
+.upload-area {
+    padding: 32px 26px;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    background: var(--surface-raised);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color var(--transition-base), background var(--transition-base), transform var(--transition-base);
+}
+
+    .upload-area:hover {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        transform: translateY(-1px);
+    }
+
+.upload-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 25px;
+}
+
+.upload-title {
+    color: var(--primary);
+    font-family: var(--font-secondary);
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.4;
+}
+
+.upload-description {
+    max-width: 440px;
+    margin: 6px auto 18px;
+    color: var(--text-muted);
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.file-input {
+    display: flex;
+    justify-content: center;
+}
+
+    .file-input input {
+        max-width: 340px;
+        padding: 8px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        color: var(--text-secondary);
+        font-family: var(--font-primary);
+        font-size: 10px;
+        cursor: pointer;
+    }
+
+#fileName {
+    min-height: 17px;
+    margin-top: 10px;
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   FORMAT INFORMATION
+   ========================================================= */
+
+.format-box {
+    margin-top: 22px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-raised);
+}
+
+.format-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: var(--primary);
+    font-family: var(--font-secondary);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+    .format-title i {
+        color: var(--accent);
+        font-size: 14px;
+    }
+
+.format-box p {
+    max-width: 780px;
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+.columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 13px;
+}
+
+.column-tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 27px;
+    padding: 5px 9px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   SECURITY NOTE
+   ========================================================= */
+
+.security-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 18px;
+    color: var(--text-muted);
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+.security-icon {
+    flex: 0 0 auto;
+    color: var(--accent);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   FORM ACTIONS
+   ========================================================= */
+
+.marks-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 18px 28px;
+    border-top: 1px solid var(--border-light);
+    background: var(--surface-raised);
+}
+
+.submit-marks-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    color: var(--text-inverse);
+    font-family: var(--font-primary);
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: var(--shadow-xs);
+    transition: background var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+    .submit-marks-button:hover {
+        background: var(--accent-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .submit-marks-button:active {
+        transform: translateY(0);
+    }
+
+    .submit-marks-button i {
+        font-size: 14px;
+    }
+
+
+/* =========================================================
+   FOCUS ACCESSIBILITY
+   ========================================================= */
+
+.submit-marks-page button:focus-visible,
+.submit-marks-page select:focus-visible,
+.submit-marks-page input:focus-visible {
+    outline: 3px solid rgba(42, 127, 94, 0.2);
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .submit-marks-page {
+        max-width: none;
+    }
+
+    .marks-page-header h1 {
+        font-size: 30px;
+    }
+
+    .marks-form-body {
+        padding: 24px;
+    }
+
+    .marks-section-header {
+        padding: 22px 24px;
+    }
+
+    .marks-form-actions {
+        padding: 16px 24px;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .marks-page-header h1 {
+        font-size: 27px;
+    }
+
+    .marks-page-header p {
+        font-size: 12px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .form-group-full {
+        grid-column: auto;
+    }
+
+    .marks-section-header {
+        gap: 11px;
+    }
+
+    .marks-section-icon {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+        font-size: 17px;
+    }
+
+    .marks-section-header h2 {
+        font-size: 15px;
+    }
+
+    .upload-area {
+        padding: 27px 18px;
+    }
+}
+
+
+@media (max-width: 500px) {
+
+    .submit-marks-page {
+        gap: 18px;
+    }
+
+    .marks-page-header h1 {
+        font-size: 24px;
+    }
+
+    .marks-form-card {
+        border-radius: var(--radius-md);
+    }
+
+    .marks-section-header {
+        padding: 19px;
+    }
+
+    .marks-form-body {
+        padding: 19px;
+    }
+
+    .marks-form-actions {
+        padding: 15px 19px;
+    }
+
+    .marks-form-actions {
+        justify-content: stretch;
+    }
+
+    .submit-marks-button {
+        width: 100%;
+    }
+
+    .upload-area {
+        padding: 24px 14px;
+    }
+
+    .file-input input {
+        width: 100%;
+    }
+
+    .security-note {
+        font-size: 9px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .upload-area,
+    .submit-marks-button,
+    .form-group select,
+    .form-group input[type="file"] {
+        transition: none;
+    }
+}
+
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+
+    .marks-page-header {
+        margin-bottom: 16px;
+    }
+
+    .marks-form-card {
+        box-shadow: none;
+    }
+
+    .marks-form-actions {
+        display: none;
+    }
+
+    .upload-area {
+        border: 1px solid var(--border);
+    }
+}

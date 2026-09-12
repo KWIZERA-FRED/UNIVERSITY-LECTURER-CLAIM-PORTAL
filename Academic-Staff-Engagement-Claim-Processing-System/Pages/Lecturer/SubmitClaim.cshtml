@@ -2,722 +2,206 @@
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer.SubmitClaimModel
 
 @{
-    Layout = null;
     ViewData["Title"] = "Submit Claim";
+    Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
 }
 
-<!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-
-    <meta charset="utf-8" />
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
-
-    <title>Submit Claim | UNILAK Staff Portal</title>
-
-    <link rel="preconnect"
-          href="https://fonts.googleapis.com">
-
-    <link rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet">
-
+@section Styles {
     <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+          href="~/css/Lecturer/submit-claim.css"
+          asp-append-version="true" />
+}
 
-    <style>
+<section class="submit-claim-page">
 
-            * {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-            }
+    <header class="claim-page-header">
 
-            :root {
-                --primary: #174d3b;
-                --primary-light: #236b51;
-                --accent: #2a7f5e;
-                --accent-light: #e1f0e8;
-                --bg: #f5f8f6;
-                --card: #ffffff;
-                --border: #dce7e1;
-                --text: #1a2b24;
-                --text-muted: #60736a;
-                --danger-bg: #f8d7da;
-                --danger-text: #721c24;
-                --danger-border: #f1bfc4;
-                --success-bg: #e1f0e8;
-                --success-text: #216b4f;
-                --radius: 16px;
-                --shadow: 0 10px 30px rgba(23, 77, 59, 0.08);
-            }
+        <div class="claim-heading">
 
-            body {
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                background: var(--bg);
-                color: var(--text);
-                min-height: 100vh;
-            }
+            <span class="page-eyebrow">
+                Lecturer Portal
+            </span>
 
-            /* HEADER */
+            <h1>
+                Submit Claim
+            </h1>
 
-            .top-header {
-                height: 72px;
-                background: rgba(255,255,255,.96);
-                border-bottom: 1px solid var(--border);
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0 30px;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-            }
-
-            .header-left {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
-
-            .header-logo {
-                width: 42px;
-                height: 42px;
-                object-fit: contain;
-            }
-
-            .header-title {
-                font-size: 15px;
-                font-weight: 700;
-                color: var(--primary);
-            }
-
-            .header-subtitle {
-                font-size: 11px;
-                color: var(--text-muted);
-                margin-top: 2px;
-            }
-
-            .header-user {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .user-icon {
-                width: 38px;
-                height: 38px;
-                border-radius: 50%;
-                background: var(--accent-light);
-                color: var(--accent);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .user-text {
-                font-size: 12px;
-            }
-
-            .user-name {
-                font-weight: 700;
-            }
-
-            .user-role {
-                color: var(--text-muted);
-                font-size: 10px;
-            }
-
-            /* LAYOUT */
-
-            .layout {
-                display: flex;
-                min-height: calc(100vh - 72px);
-            }
-
-            /* SIDEBAR */
-
-            .sidebar {
-                width: 245px;
-                background: white;
-                border-right: 1px solid var(--border);
-                padding: 25px 15px;
-                flex-shrink: 0;
-            }
-
-            .sidebar-title {
-                font-size: 10px;
-                font-weight: 700;
-                color: #94a59d;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                padding: 0 12px;
-                margin-bottom: 10px;
-            }
-
-            .menu {
-                list-style: none;
-            }
-
-                .menu li {
-                    margin-bottom: 5px;
-                }
-
-                .menu a {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    padding: 12px;
-                    border-radius: 10px;
-                    text-decoration: none;
-                    color: var(--text-muted);
-                    font-size: 12px;
-                    font-weight: 600;
-                    transition: .2s;
-                }
-
-                    .menu a:hover,
-                    .menu a.active {
-                        background: var(--accent-light);
-                        color: var(--accent);
-                    }
-
-                .menu i {
-                    font-size: 15px;
-                }
-
-            /* CONTENT */
-
-            .content {
-                flex: 1;
-                padding: 32px;
-                max-width: 1200px;
-            }
-
-            .page-header {
-                margin-bottom: 25px;
-            }
-
-                .page-header h1 {
-                    color: var(--primary);
-                    font-size: 25px;
-                    font-weight: 800;
-                }
-
-                .page-header p {
-                    color: var(--text-muted);
-                    font-size: 12px;
-                    margin-top: 5px;
-                }
-
-            /* CARD */
-
-            .form-card {
-                background: var(--card);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                box-shadow: var(--shadow);
-                padding: 28px;
-            }
-
-            .section-title {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                color: var(--primary);
-                font-size: 14px;
-                font-weight: 700;
-                margin-bottom: 22px;
-            }
-
-                .section-title i {
-                    color: var(--accent);
-                }
-
-            /* FORM */
-
-            .form-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-            }
-
-            .form-group {
-                display: flex;
-                flex-direction: column;
-            }
-
-                .form-group.full {
-                    grid-column: 1 / -1;
-                }
-
-            label {
-                font-size: 11px;
-                font-weight: 700;
-                margin-bottom: 7px;
-            }
-
-            select,
-            input {
-                width: 100%;
-                padding: 12px 13px;
-                border: 1px solid var(--border);
-                border-radius: 9px;
-                background: white;
-                font-family: inherit;
-                font-size: 12px;
-                color: var(--text);
-            }
-
-                select:focus,
-                input:focus {
-                    outline: none;
-                    border-color: var(--accent);
-                    box-shadow: 0 0 0 3px rgba(42,127,94,.10);
-                }
-
-            /* MIS STATUS */
-
-            .mis-card {
-                margin-top: 25px;
-                background: #f8fbf9;
-                border: 1px solid var(--border);
-                border-radius: 12px;
-                padding: 18px;
-            }
-
-            .mis-header {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                color: var(--primary);
-                font-size: 12px;
-                font-weight: 700;
-                margin-bottom: 15px;
-            }
-
-                .mis-header i {
-                    color: var(--accent);
-                    font-size: 16px;
-                }
-
-            .mis-status {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-            }
-
-            .status-item {
-                background: white;
-                border: 1px solid var(--border);
-                border-radius: 9px;
-                padding: 12px;
-            }
-
-            .status-label {
-                font-size: 10px;
-                color: var(--text-muted);
-                margin-bottom: 5px;
-            }
-
-            .status-value {
-                font-size: 11px;
-                font-weight: 700;
-                color: var(--success-text);
-            }
-
-                .status-value i {
-                    margin-right: 4px;
-                }
-
-                .status-value.negative {
-                    color: var(--danger-text);
-                }
-
-            /* INFO */
-
-            .info-box {
-                margin-top: 20px;
-                padding: 15px 18px;
-                background: var(--accent-light);
-                border: 1px solid #cde3d8;
-                border-radius: 12px;
-                font-size: 11px;
-                color: var(--text-muted);
-                line-height: 1.7;
-            }
-
-                .info-box i {
-                    color: var(--accent);
-                    margin-right: 5px;
-                }
-
-            /* ERROR */
-
-            .error-message {
-                background: var(--danger-bg);
-                color: var(--danger-text);
-                border: 1px solid var(--danger-border);
-                padding: 12px;
-                border-radius: 9px;
-                font-size: 11px;
-                margin-bottom: 20px;
-            }
-
-                .error-message i {
-                    margin-right: 5px;
-                }
-
-            /* BUTTON */
-
-            .actions {
-                display: flex;
-                justify-content: flex-end;
-                margin-top: 25px;
-            }
-
-            .generate-button {
-                border: none;
-                border-radius: 30px;
-                padding: 13px 23px;
-                background: var(--accent);
-                color: white;
-                font-family: inherit;
-                font-size: 12px;
-                font-weight: 700;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                transition: .2s;
-            }
-
-                .generate-button:hover {
-                    background: #216b4f;
-                    transform: translateY(-1px);
-                }
-
-            /* RESPONSIVE */
-
-            @@media(max-width: 800px) {
-
-                .sidebar {
-                    width: 70px;
-                }
-
-                .sidebar-title,
-                .menu span {
-                    display: none;
-                }
-
-                .menu a {
-                    justify-content: center;
-                }
-
-                .content {
-                    padding: 20px;
-                }
-
-                .form-grid {
-                    grid-template-columns: 1fr;
-                }
-
-                .mis-status {
-                    grid-template-columns: 1fr;
-                }
-            }
-
-    </style>
-
-</head>
-
-<body>
-
-    <!-- HEADER -->
-
-    <header class="top-header">
-
-        <div class="header-left">
-
-            <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-                 class="header-logo"
-                 alt="UNILAK">
-
-            <div>
-
-                <div class="header-title">
-                    UNILAK Staff Portal
-                </div>
-
-                <div class="header-subtitle">
-                    Academic Staff Engagement & Claim Processing
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="header-user">
-
-            <div class="user-icon">
-                <i class="bi bi-person"></i>
-            </div>
-
-            <div class="user-text">
-
-                <div class="user-name">
-                    @Model.LecturerName
-                </div>
-
-                <div class="user-role">
-                    Lecturer
-                </div>
-
-            </div>
+            <p>
+                Submit a teaching claim after marks have been submitted
+                and signed in MIS.
+            </p>
 
         </div>
 
     </header>
 
 
-    <div class="layout">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="claim-alert claim-alert-error">
 
-        <!-- SIDEBAR -->
+            <span class="claim-alert-icon">
+                <i class="bi bi-exclamation-circle"></i>
+            </span>
 
-        <aside class="sidebar">
+            <span>
+                @Model.ErrorMessage
+            </span>
 
-            <div class="sidebar-title">
-                Lecturer Portal
+        </div>
+    }
+
+
+    <section class="claim-form-card">
+
+        <div class="claim-section-header">
+
+            <div class="claim-section-icon">
+                <i class="bi bi-cash-stack"></i>
             </div>
 
-            <ul class="menu">
+            <div>
 
-                <li>
+                <span class="section-eyebrow">
+                    Payment Claim
+                </span>
 
-                    <a href="/Lecturer">
-
-                        <i class="bi bi-grid"></i>
-
-                        <span>Dashboard</span>
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/Lecturer/Contracts">
-
-                        <i class="bi bi-file-earmark-text"></i>
-
-                        <span>My Contracts</span>
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/Lecturer/SubmitClaim"
-                       class="active">
-
-                        <i class="bi bi-cash-stack"></i>
-
-                        <span>Submit Claim</span>
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/Lecturer/Contracts">
-
-                        <i class="bi bi-pen"></i>
-
-                        <span>Contracts to Sign</span>
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/Claims">
-
-                        <i class="bi bi-receipt"></i>
-
-                        <span>My Claims</span>
-
-                    </a>
-
-                </li>
-
-            </ul>
-
-        </aside>
-
-
-        <!-- CONTENT -->
-
-        <main class="content">
-
-            <div class="page-header">
-
-                <h1>
-                    Submit Claim
-                </h1>
+                <h2>
+                    Teaching Claim Details
+                </h2>
 
                 <p>
-                    Submit a teaching claim after marks have been submitted and signed in MIS.
+                    Provide the verified teaching hours for the selected course.
                 </p>
 
             </div>
 
+        </div>
 
-            <div class="form-card">
 
-                <div class="section-title">
+        <form method="post">
 
-                    <i class="bi bi-cash-stack"></i>
+            <div class="claim-form-body">
 
-                    Teaching Claim Details
+                <div class="form-grid">
+
+                    <div class="form-group form-group-full">
+
+                        <label for="course">
+                            Course
+                        </label>
+
+                        <select asp-for="SelectedCourseAssignmentId"
+                                id="course"
+                                onchange="updateMisStatus()">
+
+                            <option value="">
+                                Select course
+                            </option>
+
+                            @foreach (var course in Model.Courses)
+                            {
+                                <option value="@course.AssignmentId"
+                                        data-submitted="@course.MarksSubmitted.ToString().ToLowerInvariant()"
+                                        data-signed="@course.MarksSigned.ToString().ToLowerInvariant()">
+
+                                    @course.Code - @course.Name
+                                    (@course.AcademicYear, @course.AllocatedHours hours)
+
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="hours">
+                            Verified Teaching Hours
+                        </label>
+
+                        <input asp-for="Hours"
+                               id="hours"
+                               type="number"
+                               min="0.5"
+                               step="0.5"
+                               placeholder="Enter the allocated hours" />
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="lecturer">
+                            Lecturer
+                        </label>
+
+                        <input id="lecturer"
+                               value="@Model.LecturerName"
+                               readonly />
+
+                    </div>
 
                 </div>
 
 
-                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-                {
-                    <div class="error-message">
+                <section class="mis-verification">
 
-                        <i class="bi bi-exclamation-circle"></i>
+                    <div class="mis-header">
 
-                        @Model.ErrorMessage
-
-                    </div>
-                }
-
-
-                <form method="post">
-
-                    <div class="form-grid">
-
-                        <!-- COURSE -->
-
-                        <div class="form-group full">
-
-                            <label for="course">
-                                Course
-                            </label>
-
-                            <select asp-for="SelectedCourseAssignmentId"
-                                    id="course"
-                                    onchange="updateMisStatus()">
-
-                                <option value="">
-                                    Select course
-                                </option>
-
-                                @foreach (var course in Model.Courses)
-                                {
-                                    <option value="@course.AssignmentId"
-                                            data-submitted="@course.MarksSubmitted.ToString().ToLowerInvariant()"
-                                            data-signed="@course.MarksSigned.ToString().ToLowerInvariant()">
-                                        @course.Code - @course.Name (@course.AcademicYear, @course.AllocatedHours hours)
-                                    </option>
-                                }
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- HOURS -->
-
-                        <div class="form-group">
-
-                            <label for="hours">
-                                Verified Teaching Hours
-                            </label>
-
-                            <input asp-for="Hours"
-                                   id="hours"
-                                   type="number"
-                                   min="0.5"
-                                   step="0.5"
-                                   placeholder="Enter the allocated hours" />
-
-                        </div>
-
-
-                        <!-- LECTURER -->
-
-                        <div class="form-group">
-
-                            <label>
-                                Lecturer
-                            </label>
-
-                            <input value="@Model.LecturerName"
-                                   readonly />
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- MIS -->
-
-                    <div class="mis-card">
-
-                        <div class="mis-header">
-
+                        <div class="mis-header-icon">
                             <i class="bi bi-database-check"></i>
+                        </div>
 
-                            MIS Verification
+                        <div>
+
+                            <h3>
+                                MIS Verification
+                            </h3>
+
+                            <p>
+                                Course marks must be submitted and signed before a claim can be created.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mis-status-grid">
+
+                        <div class="status-item">
+
+                            <div class="status-item-label">
+                                Marks Submitted
+                            </div>
+
+                            <div class="status-value"
+                                 id="marks-submitted-status">
+
+                                <i class="bi bi-dash-circle"></i>
+
+                                Select a course
+
+                            </div>
 
                         </div>
 
 
-                        <div class="mis-status">
+                        <div class="status-item">
 
-                            <div class="status-item">
-
-                                <div class="status-label">
-                                    Marks Submitted
-                                </div>
-
-                                <div class="status-value" id="marks-submitted-status">
-
-                                    <i class="bi bi-dash-circle"></i>
-
-                                    Select a course
-
-                                </div>
-
+                            <div class="status-item-label">
+                                Marks Signed
                             </div>
 
+                            <div class="status-value"
+                                 id="marks-signed-status">
 
-                            <div class="status-item">
+                                <i class="bi bi-dash-circle"></i>
 
-                                <div class="status-label">
-                                    Marks Signed
-                                </div>
-
-                                <div class="status-value" id="marks-signed-status">
-
-                                    <i class="bi bi-dash-circle"></i>
-
-                                    Select a course
-
-                                </div>
+                                Select a course
 
                             </div>
 
@@ -725,76 +209,112 @@
 
                     </div>
 
+                </section>
 
-                    <!-- INFORMATION -->
 
-                    <div class="info-box">
+                <div class="claim-information">
 
+                    <div class="claim-information-icon">
                         <i class="bi bi-info-circle-fill"></i>
+                    </div>
 
-                        The number of hours must exactly match the approved allocation.
-                        The system verifies that an active, fully signed contract and an
-                        Exam Office-signed marks submission exist before it creates the claim.
+                    <div>
+
+                        <strong>
+                            Before submitting
+                        </strong>
+
+                        <p>
+                            The number of hours must exactly match the approved allocation.
+                            The system verifies that an active, fully signed contract and an
+                            Exam Office-signed marks submission exist before creating the claim.
+                        </p>
 
                     </div>
 
-
-                    <!-- ACTION -->
-
-                    <div class="actions">
-
-                        <button type="submit"
-                                class="generate-button">
-
-                            <i class="bi bi-file-earmark-check"></i>
-
-                            Submit Claim
-
-                        </button>
-
-                    </div>
-
-                </form>
+                </div>
 
             </div>
 
-        </main>
 
-    </div>
+            <div class="claim-form-actions">
+
+                <button type="submit"
+                        class="submit-claim-button">
+
+                    <i class="bi bi-file-earmark-check"></i>
+
+                    Submit Claim
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</section>
+
+
+@section Scripts {
 
     <script>
         function updateMisStatus() {
-            var select = document.getElementById('course');
-            var option = select.options[select.selectedIndex];
 
-            var submittedEl = document.getElementById('marks-submitted-status');
-            var signedEl = document.getElementById('marks-signed-status');
+            const select = document.getElementById("course");
+
+            const option = select.options[select.selectedIndex];
+
+            const submittedElement =
+                document.getElementById("marks-submitted-status");
+
+            const signedElement =
+                document.getElementById("marks-signed-status");
+
 
             if (!option || !option.value) {
-                submittedEl.className = 'status-value';
-                submittedEl.innerHTML = '<i class="bi bi-dash-circle"></i> Select a course';
-                signedEl.className = 'status-value';
-                signedEl.innerHTML = '<i class="bi bi-dash-circle"></i> Select a course';
+
+                submittedElement.className = "status-value";
+                submittedElement.innerHTML =
+                    '<i class="bi bi-dash-circle"></i> Select a course';
+
+                signedElement.className = "status-value";
+                signedElement.innerHTML =
+                    '<i class="bi bi-dash-circle"></i> Select a course';
+
                 return;
             }
 
-            var submitted = option.getAttribute('data-submitted') === 'true';
-            var signed = option.getAttribute('data-signed') === 'true';
 
-            submittedEl.className = 'status-value' + (submitted ? '' : ' negative');
-            submittedEl.innerHTML = submitted
+            const submitted =
+                option.getAttribute("data-submitted") === "true";
+
+            const signed =
+                option.getAttribute("data-signed") === "true";
+
+
+            submittedElement.className =
+                "status-value" + (submitted ? "" : " status-negative");
+
+            submittedElement.innerHTML = submitted
                 ? '<i class="bi bi-check-circle-fill"></i> Verified'
                 : '<i class="bi bi-x-circle-fill"></i> Not submitted';
 
-            signedEl.className = 'status-value' + (signed ? '' : ' negative');
-            signedEl.innerHTML = signed
+
+            signedElement.className =
+                "status-value" + (signed ? "" : " status-negative");
+
+            signedElement.innerHTML = signed
                 ? '<i class="bi bi-check-circle-fill"></i> Verified'
                 : '<i class="bi bi-x-circle-fill"></i> Not signed';
         }
 
-        document.addEventListener('DOMContentLoaded', updateMisStatus);
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            updateMisStatus
+        );
     </script>
 
-</body>
-
-</html>
+}

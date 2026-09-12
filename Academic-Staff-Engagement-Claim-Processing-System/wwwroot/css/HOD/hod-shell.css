@@ -113,7 +113,7 @@ a {
     align-items: center;
     justify-content: space-between;
     padding: 0 24px;
-    background: linear-gradient( 105deg, var(--hod-navy-dark), var(--hod-navy) );
+    background: #0B2559;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 4px 18px rgba(7, 24, 42, 0.16);
 }

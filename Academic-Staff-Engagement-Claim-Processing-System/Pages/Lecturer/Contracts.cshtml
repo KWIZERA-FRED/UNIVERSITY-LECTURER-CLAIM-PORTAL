@@ -1,166 +1,571 @@
+
 @page
-@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer.ContractsModel
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
+
 @{
     ViewData["Title"] = "My Contracts";
+    Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
+
+    var selectedRow = Model.SelectedContract == null
+        ? null
+        : Model.Contracts.FirstOrDefault(c => c.Id == Model.SelectedContract.Id);
+
+    string GetStatusClass(ContractStatus status)
+    {
+        return status switch
+        {
+            ContractStatus.Active => "status-active",
+            ContractStatus.PendingSignature => "status-pending",
+            ContractStatus.Expired => "status-closed",
+            ContractStatus.Terminated => "status-closed",
+            ContractStatus.Renewed => "status-active",
+            _ => "status-pending"
+        };
+    }
+
+    string GetDecisionClass(SignatureDecision decision)
+    {
+        return decision switch
+        {
+            SignatureDecision.Signed => "signature-signed",
+            SignatureDecision.Declined => "signature-declined",
+            _ => "signature-pending"
+        };
+    }
+
+    string GetDecisionText(SignatureDecision decision)
+    {
+        return decision switch
+        {
+            SignatureDecision.Signed => "Signed",
+            SignatureDecision.Declined => "Declined",
+            _ => "Pending"
+        };
+    }
+
+    string GetSignerIconClass(SignatureDecision decision)
+    {
+        return decision switch
+        {
+            SignatureDecision.Signed => "signer-icon-signed",
+            SignatureDecision.Declined => "signer-icon-declined",
+            _ => "signer-icon-pending"
+        };
+    }
+
+    string GetSignerIcon(SignatureDecision decision)
+    {
+        return decision switch
+        {
+            SignatureDecision.Signed => "bi-check-lg",
+            SignatureDecision.Declined => "bi-x-lg",
+            _ => "bi-clock"
+        };
+    }
 }
 
-<style>
-    .contracts-page { max-width: 1120px; margin: 2rem auto; padding: 0 1rem; }
-    .contracts-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.5rem; }
-    .contracts-header h1 { margin:0; color:#174d3b; font-size:1.8rem; }
-    .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
-    .summary-card, .contract-card, .contract-detail { background:#fff; border:1px solid #dce7e1; border-radius:12px; padding:1.25rem; box-shadow:0 4px 14px rgba(23,77,59,.06); }
-    .summary-label { color:#60736a; font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; }
-    .summary-value { color:#174d3b; font-size:1.7rem; font-weight:700; margin-top:.35rem; }
-    .contract-list { display:grid; gap:1rem; }
-    .contract-card { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
-    .contract-meta { display:flex; flex-wrap:wrap; gap:.8rem; color:#60736a; font-size:.88rem; margin-top:.45rem; }
-    .badge { display:inline-block; border-radius:99px; padding:.3rem .65rem; font-size:.78rem; font-weight:600; }
-    .badge-active { background:#e1f0e8; color:#216b4f; }
-    .badge-pending { background:#fff7df; color:#8a6500; }
-    .badge-closed { background:#f1f3f5; color:#59636d; }
-    .detail-content { white-space:pre-wrap; line-height:1.65; background:#f8fbf9; border-radius:8px; padding:1rem; }
-    .message { padding:.85rem 1rem; border-radius:8px; margin-bottom:1rem; }
-    .success { background:#e1f0e8; color:#216b4f; } .error { background:#fdecec; color:#8c2d2d; }
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/Lecturer/contracts.css"
+          asp-append-version="true" />
+}
 
-    .ready-banner {
-        background:#e1f0e8; border:1px solid #b9dcc9; color:#174d3b;
-        border-radius:10px; padding:1rem 1.2rem; margin-bottom:1.2rem;
-        display:flex; align-items:center; gap:.7rem; font-weight:600;
-    }
+<section class="contracts-page">
 
-    .signer-timeline { display:grid; gap:.6rem; margin:1rem 0 1.3rem; }
-    .signer-row {
-        display:flex; align-items:center; justify-content:space-between;
-        gap:1rem; padding:.7rem .9rem; border:1px solid #e3e9e6; border-radius:8px;
-        background:#fafcfb; font-size:.85rem;
-    }
-    .signer-role { font-weight:600; color:#174d3b; }
-    .signer-name { color:#60736a; font-size:.8rem; }
-    .signer-parallel-note { color:#8a6500; font-size:.72rem; margin-top:.15rem; }
+    <div class="contracts-page-header">
+        <div class="contracts-heading">
+            <div class="contracts-heading-icon">
+                <i class="bi bi-file-earmark-text"></i>
+            </div>
 
-    @@media (max-width:700px) { .summary-grid { grid-template-columns:1fr; } .contract-card, .contracts-header { align-items:flex-start; flex-direction:column; } }
-</style>
+            <div>
+                <div class="page-eyebrow">
+                    ACADEMIC STAFF ENGAGEMENT
+                </div>
 
-<main class="contracts-page">
-    <div class="contracts-header">
-        <div>
-            <h1>My Contracts</h1>
-            <p class="text-muted mb-0">Review contracts assigned to you and sign when ready.</p>
+                <h1>My Contracts</h1>
+
+                <p>
+                    Review your academic contracts and complete your required signatures.
+                </p>
+            </div>
         </div>
-        <a class="btn btn-outline-success" href="/Lecturer">Back to dashboard</a>
+
+        <a asp-page="/Lecturer/Index"
+           class="contracts-back-button">
+            <i class="bi bi-arrow-left"></i>
+            <span>Dashboard</span>
+        </a>
     </div>
 
-    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage)) { <div class="message success">@Model.SuccessMessage</div> }
-    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage)) { <div class="message error">@Model.ErrorMessage</div> }
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="contract-alert contract-alert-success">
+            <div class="contract-alert-icon">
+                <i class="bi bi-check-circle"></i>
+            </div>
 
-    <section class="summary-grid">
-        <div class="summary-card"><div class="summary-label">Total Contracts</div><div class="summary-value">@Model.Contracts.Count</div></div>
-        <div class="summary-card"><div class="summary-label">Awaiting Your Signature</div><div class="summary-value">@Model.PendingSignatureCount</div></div>
-        <div class="summary-card"><div class="summary-label">Active Contracts</div><div class="summary-value">@Model.ActiveContractCount</div></div>
+            <span>@Model.SuccessMessage</span>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="contract-alert contract-alert-error">
+            <div class="contract-alert-icon">
+                <i class="bi bi-exclamation-circle"></i>
+            </div>
+
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
+
+    <section class="contract-summary">
+
+        <div class="summary-card">
+            <div class="summary-card-icon summary-icon-blue">
+                <i class="bi bi-files"></i>
+            </div>
+
+            <div class="summary-card-content">
+                <span class="summary-label">Total Contracts</span>
+                <strong class="summary-value">@Model.Contracts.Count</strong>
+                <span class="summary-description">Contracts assigned to you</span>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-card-icon summary-icon-amber">
+                <i class="bi bi-clock-history"></i>
+            </div>
+
+            <div class="summary-card-content">
+                <span class="summary-label">Awaiting Signature</span>
+                <strong class="summary-value">@Model.PendingSignatureCount</strong>
+                <span class="summary-description">Contracts requiring your action</span>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-card-icon summary-icon-green">
+                <i class="bi bi-check2-circle"></i>
+            </div>
+
+            <div class="summary-card-content">
+                <span class="summary-label">Active Contracts</span>
+                <strong class="summary-value">@Model.ActiveContractCount</strong>
+                <span class="summary-description">Currently active contracts</span>
+            </div>
+        </div>
+
     </section>
 
-    @if (Model.SelectedContract is not null)
+    @if (Model.SelectedContract != null)
     {
         var contract = Model.SelectedContract;
 
-        <section class="contract-detail mb-4">
-            <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
-                <h2 class="h5 mb-0">@contract.Reference</h2>
-                <span class="badge @(contract.Status == ContractStatus.Active ? "badge-active" : contract.IsClosed ? "badge-closed" : "badge-pending")">@contract.Status</span>
-            </div>
+        <section class="selected-contract">
 
-            @if (contract.IsFullySigned)
-            {
-                <div class="ready-banner">
-                    ✅ This contract has been signed by all required signers and is now Active — you may begin work.
-                </div>
-            }
+            <div class="selected-contract-header">
 
-            <div class="detail-content mb-3">@contract.Content</div>
+                <div>
+                    <div class="contract-reference">
+                        <span class="reference-label">Contract Reference</span>
+                        <span class="reference-number">@contract.Reference</span>
+                    </div>
 
-            <h3 class="h6 mb-2" style="color:#174d3b;">Signature Progress</h3>
-            <div class="signer-timeline">
-                @{
-                    // Group by SequenceOrder so signers who act in parallel
-                    // (e.g. Dean and HR Officer) render on the same row/step,
-                    // rather than implying a strict one-after-another order.
-                    var groupedSteps = contract.SignerStatuses
-                        .GroupBy(s => s.SequenceOrder)
-                        .OrderBy(g => g.Key);
-                }
-                @foreach (var group in groupedSteps)
-                {
-                    var isParallelStep = group.Count() > 1;
-                    @foreach (var signer in group)
+                    @if (selectedRow != null)
                     {
-                        <div class="signer-row">
-                            <div>
-                                <div class="signer-role">@signer.Role</div>
-                                @if (signer.Decision == SignatureDecision.Signed)
-                                {
-                                    <div class="signer-name">
-                                        Signed by @(signer.SignerDisplayName ?? "—")
-                                        @(signer.SignedAtUtc?.ToString("dd MMM yyyy") ?? "")
-                                    </div>
-                                }
-                                else if (signer.Decision == SignatureDecision.Declined)
-                                {
-                                    <div class="signer-name" style="color:#8c2d2d;">Declined</div>
-                                }
-                                else
-                                {
-                                    <div class="signer-name">Awaiting signature</div>
-                                }
-                                @if (isParallelStep)
-                                {
-                                    <div class="signer-parallel-note">Signs in parallel at this step</div>
-                                }
-                            </div>
-                            <span class="badge @(signer.Decision == SignatureDecision.Signed ? "badge-active" : signer.Decision == SignatureDecision.Declined ? "badge-closed" : "badge-pending")">
-                                @signer.Decision
+                        <div class="selected-contract-meta">
+                            <span>
+                                <i class="bi bi-book"></i>
+                                @selectedRow.CourseCode
+                            </span>
+
+                            <span>
+                                <i class="bi bi-mortarboard"></i>
+                                @selectedRow.CourseTitle
                             </span>
                         </div>
                     }
-                }
+                </div>
+
+                <div class="contract-status @GetStatusClass(contract.Status)">
+                    <span class="status-dot"></span>
+                    @contract.Status
+                </div>
+
             </div>
 
-            <div class="mt-3 d-flex gap-2">
-                @if (!contract.IsSignedByLecturer && !contract.IsClosed)
-                {
-                    <form method="post" asp-page-handler="Sign">
-                        <input type="hidden" name="contractId" value="@contract.Id" />
-                        <button class="btn btn-success" type="submit">Sign Contract</button>
-                    </form>
-                }
-                else if (contract.IsSignedByLecturer)
-                {
-                    <span class="badge badge-active">Signed by you</span>
-                }
-                <a class="btn btn-outline-secondary" href="/Lecturer/Contracts">Close</a>
+            @if (selectedRow != null)
+            {
+                <div class="contract-detail-grid">
+
+                    <div class="contract-detail-item">
+                        <span class="detail-label">Course Code</span>
+                        <span class="detail-value">@selectedRow.CourseCode</span>
+                    </div>
+
+                    <div class="contract-detail-item">
+                        <span class="detail-label">Course</span>
+                        <span class="detail-value">@selectedRow.CourseTitle</span>
+                    </div>
+
+                    <div class="contract-detail-item">
+                        <span class="detail-label">Academic Year</span>
+                        <span class="detail-value">@selectedRow.AcademicYear</span>
+                    </div>
+
+                    <div class="contract-detail-item">
+                        <span class="detail-label">Campus</span>
+                        <span class="detail-value">@selectedRow.Campus</span>
+                    </div>
+
+                    <div class="contract-detail-item">
+                        <span class="detail-label">Allocated Hours</span>
+                        <span class="detail-value">
+                            @selectedRow.AllocatedHours.ToString("N1")
+                        </span>
+                    </div>
+
+                </div>
+            }
+
+            @if (contract.IsFullySigned)
+            {
+                <div class="fully-signed-banner">
+                    <div class="fully-signed-icon">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+
+                    <div>
+                        <strong>Contract fully approved</strong>
+                        <span>All required signatures have been completed.</span>
+                    </div>
+                </div>
+            }
+
+            <div class="contract-section">
+
+                <div class="section-heading">
+                    <div class="section-heading-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+
+                    <div>
+                        <h2>Contract Document</h2>
+                        <p>Review the terms and details of your contract.</p>
+                    </div>
+                </div>
+
+                <div class="contract-document">
+                    @Html.Raw(contract.Content)
+                </div>
+
             </div>
+
+            <div class="contract-section">
+
+                <div class="section-heading">
+                    <div class="section-heading-icon">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+
+                    <div>
+                        <h2>Signature Progress</h2>
+                        <p>Track the approval and signing progress.</p>
+                    </div>
+                </div>
+
+                <div class="signature-timeline">
+
+                    @foreach (var group in contract.SignerStatuses
+                        .GroupBy(s => s.SequenceOrder)
+                        .OrderBy(g => g.Key))
+                    {
+                        <div class="signature-step">
+
+                            <div class="step-number">
+                                @group.Key
+                            </div>
+
+                            <div class="step-content">
+
+                                @foreach (var signer in group)
+                                {
+                                    <div class="signer-row">
+
+                                        <div class="signer-information">
+
+                                            <div class="signer-icon @GetSignerIconClass(signer.Decision)">
+                                                <i class="bi @GetSignerIcon(signer.Decision)"></i>
+                                            </div>
+
+                                            <div class="signer-details">
+
+                                                <span class="signer-role">
+                                                    @signer.Role
+                                                </span>
+
+                                                @if (!string.IsNullOrWhiteSpace(signer.SignerDisplayName))
+                                                {
+                                                    <span class="signer-status-text">
+                                                        @signer.SignerDisplayName
+                                                    </span>
+                                                }
+
+                                                @if (signer.Decision == SignatureDecision.Signed &&
+                                                     signer.SignedAtUtc.HasValue)
+                                                {
+                                                    <span class="signer-signed-text">
+                                                        Signed
+                                                        @signer.SignedAtUtc.Value
+                                                            .ToLocalTime()
+                                                            .ToString("dd MMM yyyy, HH:mm")
+                                                    </span>
+                                                }
+                                                else if (signer.Decision == SignatureDecision.Declined)
+                                                {
+                                                    <span class="signer-declined-text">
+                                                        Signature declined
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="signer-status-text">
+                                                        Awaiting signature
+                                                    </span>
+                                                }
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="signer-status">
+                                            <span class="signature-badge @GetDecisionClass(signer.Decision)">
+                                                @GetDecisionText(signer.Decision)
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                }
+
+                                @if (group.Count() > 1)
+                                {
+                                    <div class="parallel-note">
+                                        <i class="bi bi-info-circle"></i>
+                                        <span>
+                                            These approval roles are part of the same signing stage.
+                                        </span>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+            <div class="contract-actions">
+
+                <div class="contract-action-information">
+
+                    @if (contract.IsSignedByLecturer)
+                    {
+                        <div class="you-signed-badge">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>You have signed this contract.</span>
+                        </div>
+                    }
+                    else if (contract.IsClosed)
+                    {
+                        <div class="you-signed-badge">
+                            <i class="bi bi-lock-fill"></i>
+                            <span>
+                                This contract is closed and can no longer be signed.
+                            </span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div>
+                            <strong>Action required</strong>
+                            <span>
+                                Please review the contract before confirming your signature.
+                            </span>
+                        </div>
+                    }
+
+                </div>
+
+                @if (!contract.IsSignedByLecturer &&
+                     !contract.IsClosed &&
+                     !contract.IsFullySigned)
+                {
+                    <div class="contract-action-buttons">
+
+                        <form method="post"
+                              asp-page-handler="Sign">
+
+                            <input type="hidden"
+                                   name="contractId"
+                                   value="@contract.Id" />
+
+                            <button type="submit"
+                                    class="sign-contract-button">
+                                <i class="bi bi-pen"></i>
+                                <span>Sign Contract</span>
+                            </button>
+
+                        </form>
+
+                    </div>
+                }
+
+            </div>
+
         </section>
     }
 
-    <section class="contract-list">
-        @if (!Model.Contracts.Any())
-        {
-            <div class="contract-card"><div><strong>No contracts assigned yet</strong><div class="text-muted">Contracts created for you will appear here.</div></div></div>
-        }
-        @foreach (var contract in Model.Contracts)
-        {
-            <article class="contract-card">
-                <div>
-                    <strong>@contract.Reference · @contract.CourseCode</strong>
-                    <div>@contract.CourseTitle</div>
-                    <div class="contract-meta"><span>@contract.AcademicYear</span><span>@contract.Campus</span><span>@contract.AllocatedHours.ToString("N1") hours</span></div>
+    <section class="contracts-section">
+
+        <div class="contracts-section-header">
+
+            <div>
+                <div class="section-eyebrow">
+                    CONTRACT MANAGEMENT
                 </div>
-                <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
-                    <span class="badge @(contract.Status == ContractStatus.Active ? "badge-active" : contract.IsClosed ? "badge-closed" : "badge-pending")">@(contract.IsSignedByLecturer ? "Signed by you" : contract.Status.ToString())</span>
-                    <a class="btn btn-sm btn-outline-success" href="/Lecturer/Contracts?ContractId=@contract.Id">View</a>
-                </div>
-            </article>
+
+                <h2>Your Contracts</h2>
+            </div>
+
+            <span class="contract-count">
+                @Model.Contracts.Count
+                @(Model.Contracts.Count == 1 ? "contract" : "contracts")
+            </span>
+
+        </div>
+
+        @if (Model.Contracts.Count > 0)
+        {
+            <div class="contract-list">
+
+                @foreach (var contract in Model.Contracts)
+                {
+                    <article class="contract-card">
+
+                        <div class="contract-card-main">
+
+                            <div class="contract-card-icon">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+
+                            <div class="contract-card-information">
+
+                                <div class="contract-card-reference">
+
+                                    <span>
+                                        @contract.Reference
+                                    </span>
+
+                                    <span class="contract-status @GetStatusClass(contract.Status)">
+                                        <span class="status-dot"></span>
+                                        @contract.Status
+                                    </span>
+
+                                </div>
+
+                                <h3>
+                                    @contract.CourseTitle
+                                </h3>
+
+                                <div class="contract-card-meta">
+
+                                    <span>
+                                        <i class="bi bi-book"></i>
+                                        @contract.CourseCode
+                                    </span>
+
+                                    <span>
+                                        <i class="bi bi-calendar3"></i>
+                                        @contract.AcademicYear
+                                    </span>
+
+                                    <span>
+                                        <i class="bi bi-building"></i>
+                                        @contract.Campus
+                                    </span>
+
+                                    <span>
+                                        <i class="bi bi-clock"></i>
+                                        @contract.AllocatedHours.ToString("N1") hours
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="contract-card-actions">
+
+                            @if (contract.IsSignedByLecturer)
+                            {
+                                <span class="signature-badge signature-signed">
+                                    <i class="bi bi-check-circle"></i>
+                                    Signed
+                                </span>
+                            }
+                            else if (contract.IsClosed)
+                            {
+                                <span class="signature-badge signature-declined">
+                                    <i class="bi bi-lock"></i>
+                                    Closed
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="signature-badge signature-pending">
+                                    <i class="bi bi-clock"></i>
+                                    Action Required
+                                </span>
+                            }
+
+                            <a asp-page="/Lecturer/Contracts"
+                               asp-route-ContractId="@contract.Id"
+                               class="view-contract-button">
+                                <span>View</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+
+                        </div>
+
+                    </article>
+                }
+
+            </div>
         }
+        else
+        {
+            <div class="empty-contracts">
+
+                <div class="empty-contract-icon">
+                    <i class="bi bi-file-earmark-x"></i>
+                </div>
+
+                <h3>No contracts available</h3>
+
+                <p>
+                    You do not have any academic contracts assigned to you yet.
+                </p>
+
+            </div>
+        }
+
     </section>
-</main>
+
+</section>
+
