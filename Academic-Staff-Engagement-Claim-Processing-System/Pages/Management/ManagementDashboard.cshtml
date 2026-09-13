@@ -1,0 +1,377 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.ManagementDashboardModel
+
+@{
+    ViewData["Title"] = "Management Dashboard";
+}
+
+@section Styles {
+    <link
+        rel="stylesheet"
+        href="~/css/MANAGEMENT/dashboard.css"
+        asp-append-version="true" />
+}
+
+<section class="management-dashboard">
+
+    <header class="dashboard-header">
+
+        <div class="dashboard-heading">
+
+            <span class="page-eyebrow">
+                MANAGEMENT PORTAL
+            </span>
+
+            <h1>
+                Contract Management
+            </h1>
+
+            <p>
+                Review and manage lecturer contracts assigned to your role.
+            </p>
+
+        </div>
+
+        <a
+            asp-page="/Management/Contracts"
+            class="primary-action">
+
+            <i class="bi bi-file-earmark-check-fill"></i>
+
+            <span>
+                Review Contracts
+            </span>
+
+        </a>
+
+    </header>
+
+
+    <section class="dashboard-summary">
+
+        <article class="summary-card summary-card-pending">
+
+            <div class="summary-card-top">
+
+                <div class="summary-icon">
+                    <i class="bi bi-file-earmark-diff-fill"></i>
+                </div>
+
+                <span class="summary-status">
+                    Action Required
+                </span>
+
+            </div>
+
+            <strong class="summary-value">
+                @Model.PendingContractCount
+            </strong>
+
+            <span class="summary-label">
+                Awaiting My Signature
+            </span>
+
+            <div class="summary-footer">
+
+                <span>
+                    <i class="bi bi-pen-fill"></i>
+                    Requires review
+                </span>
+
+                <a asp-page="/Management/Contracts">
+                    View
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card summary-card-signed">
+
+            <div class="summary-card-top">
+
+                <div class="summary-icon">
+                    <i class="bi bi-patch-check-fill"></i>
+                </div>
+
+                <span class="summary-status">
+                    Completed
+                </span>
+
+            </div>
+
+            <strong class="summary-value">
+                @Model.MySignedContractCount
+            </strong>
+
+            <span class="summary-label">
+                Contracts I Have Signed
+            </span>
+
+            <div class="summary-footer">
+
+                <span>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Your approvals
+                </span>
+
+                <span>
+                    Completed
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card summary-card-process">
+
+            <div class="summary-card-top">
+
+                <div class="summary-icon">
+                    <i class="bi bi-arrow-repeat"></i>
+                </div>
+
+                <span class="summary-status">
+                    In Progress
+                </span>
+
+            </div>
+
+            <strong class="summary-value">
+                @Model.InSigningProcessCount
+            </strong>
+
+            <span class="summary-label">
+                Contracts in Progress
+            </span>
+
+            <div class="summary-footer">
+
+                <span>
+                    <i class="bi bi-clock-history"></i>
+                    Currently being processed
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card summary-card-active">
+
+            <div class="summary-card-top">
+
+                <div class="summary-icon">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+
+                <span class="summary-status">
+                    Active
+                </span>
+
+            </div>
+
+            <strong class="summary-value">
+                @Model.ActiveContractsCount
+            </strong>
+
+            <span class="summary-label">
+                Active Contracts
+            </span>
+
+            <div class="summary-footer">
+
+                <span>
+                    <i class="bi bi-shield-check"></i>
+                    Fully executed
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <section class="dashboard-card contracts-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-eyebrow">
+                    ACTION REQUIRED
+                </span>
+
+                <h2>
+                    Contracts Awaiting My Signature
+                </h2>
+
+                <p>
+                    Review and sign contracts that have reached your approval stage.
+                </p>
+
+            </div>
+
+            <a
+                asp-page="/Management/Contracts"
+                class="section-link">
+
+                View All
+
+                <i class="bi bi-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+
+        @if (Model.PendingContracts.Count == 0)
+        {
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+
+                <h3>
+                    No pending contracts
+                </h3>
+
+                <p>
+                    There are currently no lecturer contracts awaiting your signature.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            <div class="table-wrapper">
+
+                <table class="contracts-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Contract</th>
+                            <th>Lecturer</th>
+                            <th>Department</th>
+                            <th>Course</th>
+                            <th>Hours</th>
+                            <th>Stage</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var contract in Model.PendingContracts)
+                        {
+                            <tr>
+
+                                <td>
+
+                                    <div class="contract-reference">
+
+                                        <div class="contract-icon">
+                                            <i class="bi bi-file-earmark-text-fill"></i>
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                C@(contract.ContractId.ToString("D3"))
+                                            </strong>
+
+                                            <span>
+                                                v@(contract.Version)
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="lecturer-name">
+                                        @contract.LecturerName
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+                                    @contract.Department
+                                </td>
+
+
+                                <td>
+
+                                    <span class="course-name">
+                                        @contract.CourseTitle
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <strong>
+                                        @contract.AllocatedHours.ToString("0.##")
+                                    </strong>
+
+                                    <span class="hours-label">
+                                        hrs
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="stage-badge">
+
+                                        <i class="bi bi-hourglass-split"></i>
+
+                                        @contract.CurrentStage
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <a
+                                        asp-page="/Management/Contracts"
+                                        asp-route-contractId="@contract.ContractId"
+                                        class="review-button">
+
+                                        <i class="bi bi-eye-fill"></i>
+
+                                        Review
+
+                                    </a>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </section>
+
+</section>

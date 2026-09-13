@@ -163,7 +163,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
 
                     onSuccess: () =>
                         Task.FromResult<IActionResult>(
-                            RedirectToPage("/ManagementDashboard")));
+                            RedirectToPage("/Management/ManagementDashboard")));
             }
 
             // ============================================================

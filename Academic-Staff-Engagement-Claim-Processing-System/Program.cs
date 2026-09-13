@@ -17,7 +17,6 @@ QuestPDF.Settings.License = LicenseType.Community;
 // CONFIGURATION
 // ============================================================
 
-// Disable reloadOnChange to prevent Linux inotify limit crashes on Render.
 builder.Configuration.Sources.Clear();
 
 builder.Configuration
@@ -66,10 +65,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // DATA PROTECTION — CLOUDFLARE R2
 // ============================================================
 
-var r2AccountId = builder.Configuration["R2:AccountId"];
-var r2AccessKeyId = builder.Configuration["R2:AccessKeyId"];
-var r2SecretAccessKey = builder.Configuration["R2:SecretAccessKey"];
-var r2BucketName = builder.Configuration["R2:BucketName"];
+var r2AccountId =
+    builder.Configuration["R2:AccountId"];
+
+var r2AccessKeyId =
+    builder.Configuration["R2:AccessKeyId"];
+
+var r2SecretAccessKey =
+    builder.Configuration["R2:SecretAccessKey"];
+
+var r2BucketName =
+    builder.Configuration["R2:BucketName"];
 
 if (string.IsNullOrWhiteSpace(r2AccountId) ||
     string.IsNullOrWhiteSpace(r2AccessKeyId) ||
@@ -82,8 +88,11 @@ if (string.IsNullOrWhiteSpace(r2AccountId) ||
 
 var r2Config = new AmazonS3Config
 {
-    ServiceURL = $"https://{r2AccountId}.r2.cloudflarestorage.com",
+    ServiceURL =
+        $"https://{r2AccountId}.r2.cloudflarestorage.com",
+
     ForcePathStyle = true,
+
     AuthenticationRegion = "auto"
 };
 
@@ -92,19 +101,23 @@ var r2Client = new AmazonS3Client(
     r2SecretAccessKey,
     r2Config);
 
-builder.Services.AddSingleton<IAmazonS3>(r2Client);
+builder.Services.AddSingleton<IAmazonS3>(
+    r2Client);
 
 // Custom XML repository for Cloudflare R2.
 // This avoids AWS streaming payloads that R2 does not support.
-var r2Repository = new CloudflareR2XmlRepository(
-    r2Client,
-    r2BucketName);
+var r2Repository =
+    new CloudflareR2XmlRepository(
+        r2Client,
+        r2BucketName);
 
 builder.Services.AddDataProtection()
-    .SetApplicationName("UnilakStaffClaimPortal")
+    .SetApplicationName(
+        "UnilakStaffClaimPortal")
     .AddKeyManagementOptions(options =>
     {
-        options.XmlRepository = r2Repository;
+        options.XmlRepository =
+            r2Repository;
     });
 
 builder.Services.AddSingleton<GovernmentIdProtector>();
@@ -118,26 +131,26 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode =
         StatusCodes.Status429TooManyRequests;
 
-    options.OnRejected = async (context, cancellationToken) =>
-    {
-        Console.WriteLine(
-            $"[RateLimiter] Rejected request from " +
-            $"{context.HttpContext.Connection.RemoteIpAddress} " +
-            $"to {context.HttpContext.Request.Path}");
+    options.OnRejected =
+        async (context, cancellationToken) =>
+        {
+            Console.WriteLine(
+                $"[RateLimiter] Rejected request from " +
+                $"{context.HttpContext.Connection.RemoteIpAddress} " +
+                $"to {context.HttpContext.Request.Path}");
 
-        context.HttpContext.Response.ContentType =
-            "text/plain";
+            context.HttpContext.Response.ContentType =
+                "text/plain";
 
-        await context.HttpContext.Response.WriteAsync(
-            "Too many attempts. Please wait a minute before trying again.",
-            cancellationToken);
-    };
+            await context.HttpContext.Response.WriteAsync(
+                "Too many attempts. Please wait a minute before trying again.",
+                cancellationToken);
+        };
 
     // ========================================================
     // LOGIN RATE LIMIT
     // ========================================================
 
-    // Each IP gets its own 5-attempts-per-minute budget.
     options.AddPolicy(
         "login-policy",
         httpContext =>
@@ -150,9 +163,13 @@ builder.Services.AddRateLimiter(options =>
                     new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 5,
-                        Window = TimeSpan.FromMinutes(1),
+
+                        Window =
+                            TimeSpan.FromMinutes(1),
+
                         QueueProcessingOrder =
                             QueueProcessingOrder.OldestFirst,
+
                         QueueLimit = 0
                     }));
 
@@ -165,8 +182,12 @@ builder.Services.AddRateLimiter(options =>
         configureOptions: opt =>
         {
             opt.PermitLimit = 100;
-            opt.Window = TimeSpan.FromMinutes(1);
+
+            opt.Window =
+                TimeSpan.FromMinutes(1);
+
             opt.SegmentsPerWindow = 4;
+
             opt.QueueLimit = 0;
         });
 });
@@ -181,7 +202,9 @@ builder.Services
     .AddCookie(options =>
     {
         options.LoginPath = "/Login";
-        options.AccessDeniedPath = "/AccessDenied";
+
+        options.AccessDeniedPath =
+            "/AccessDenied";
 
         options.ExpireTimeSpan =
             TimeSpan.FromHours(8);
@@ -190,6 +213,7 @@ builder.Services
 
         // Hardened Cookie Security
         options.Cookie.HttpOnly = true;
+
         options.Cookie.SameSite =
             SameSiteMode.Strict;
 
@@ -217,6 +241,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(
         "Lecturer",
         policy => policy.RequireRole("Lecturer"));
+
+    options.AddPolicy(
+        "Management",
+        policy => policy.RequireRole("Management"));
 });
 
 // ============================================================
@@ -235,8 +263,8 @@ builder.Services.AddRazorPages(options =>
         "Dean");
 
     options.Conventions.AuthorizeFolder(
-    "/Lecturer",
-    "Lecturer");
+        "/Lecturer",
+        "Lecturer");
 
     options.Conventions.AuthorizeFolder(
         "/Management",
@@ -246,11 +274,14 @@ builder.Services.AddRazorPages(options =>
         "/Shared");
 
     // RegisterUser allows initial bootstrap check in code —
-    // the Dean is now the bootstrap role (see DEAN/RegisterUser.cshtml.cs).
+    // the Dean is now the bootstrap role.
     options.Conventions.AllowAnonymousToPage(
         "/DEAN/RegisterUser");
 
-    // Public pages
+    // ========================================================
+    // PUBLIC PAGES
+    // ========================================================
+
     options.Conventions.AllowAnonymousToPage(
         "/Login");
 
@@ -311,7 +342,9 @@ builder.Services.AddScoped<MarksSigningService>();
 
 // Claims workflow
 builder.Services.AddScoped<ClaimSigningService>();
+
 builder.Services.AddScoped<ClaimSubmissionService>();
+
 builder.Services.AddScoped<OfficialDocumentService>();
 
 // ============================================================
