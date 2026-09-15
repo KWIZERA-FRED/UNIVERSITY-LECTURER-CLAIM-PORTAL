@@ -1,14 +1,16 @@
-using System.Net;
-using System.Security.Claims;
-
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 {
@@ -16,17 +18,20 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
     {
         private readonly ApplicationDbContext _context;
         private readonly AuditLogger _auditLogger;
+        private readonly EmailService _emailService;
 
         public AssignCourseModel(
             ApplicationDbContext context,
-            AuditLogger auditLogger)
+            AuditLogger auditLogger,
+            EmailService emailService)
         {
             _context = context;
             _auditLogger = auditLogger;
+            _emailService = emailService;
         }
 
         // ============================================================
-        // FORM FIELDS
+        // FORM PROPERTIES
         // ============================================================
 
         [BindProperty]
@@ -63,7 +68,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         public string? ErrorMessage { get; set; }
 
         // ============================================================
-        // LIGHTWEIGHT LECTURER DATA
+        // LECTURER OPTION
         // ============================================================
 
         public sealed class LecturerOption
@@ -71,6 +76,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             public int Id { get; set; }
 
             public string UserName { get; set; } = string.Empty;
+
+            public string Email { get; set; } = string.Empty;
 
             public LecturerRank? Rank { get; set; }
         }
@@ -93,7 +100,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             await LoadDataAsync();
 
             // --------------------------------------------------------
-            // BASIC VALIDATION
+            // VALIDATION
             // --------------------------------------------------------
 
             if (!SelectedCourse.HasValue)
@@ -168,10 +175,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
             // ========================================================
             // FIND LECTURER
-            //
-            // Deliberately project only the fields required here.
-            // This prevents GovernmentIdEncrypted from being
-            // materialized and decrypted.
             // ========================================================
 
             var lecturer = await _context.Lecturers
@@ -183,6 +186,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 {
                     Id = l.Id,
                     UserName = l.UserName,
+                    Email = l.Email,
                     Rank = l.Rank
                 })
                 .FirstOrDefaultAsync();
@@ -196,18 +200,25 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             }
 
             // ========================================================
-            // DUPLICATE ASSIGNMENT CHECK
+            // NORMALIZE ACADEMIC YEAR
             // ========================================================
 
-            var normalizedAcademicYear = AcademicYear.Trim();
+            var normalizedAcademicYear =
+                AcademicYear.Trim();
+
+            // ========================================================
+            // CHECK DUPLICATE ASSIGNMENT
+            // ========================================================
 
             var existingAssignment =
                 await _context.CourseAssignments
                     .AnyAsync(ca =>
                         ca.LecturerId == lecturer.Id &&
                         ca.CourseId == course.Id &&
-                        ca.AcademicYear == normalizedAcademicYear &&
-                        ca.Semester == Semester.Value &&
+                        ca.AcademicYear ==
+                            normalizedAcademicYear &&
+                        ca.Semester ==
+                            Semester.Value &&
                         ca.IsActive);
 
             if (existingAssignment)
@@ -220,99 +231,137 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             }
 
             // ========================================================
-            // DETERMINE HOURLY RATE
+            // GET HOURLY RATE
             // ========================================================
 
-            HourlyRate = GetRateForRank(lecturer.Rank);
+            HourlyRate =
+                GetRateForRank(lecturer.Rank);
 
             // ========================================================
             // CREATE COURSE ASSIGNMENT
             // ========================================================
 
-            var assignment = new CourseAssignment
-            {
-                LecturerId = lecturer.Id,
-                CourseId = course.Id,
+            var assignment =
+                new CourseAssignment
+                {
+                    LecturerId =
+                        lecturer.Id,
 
-                AcademicYear = normalizedAcademicYear,
+                    CourseId =
+                        course.Id,
 
-                Semester = Semester.Value,
-                Session = Session.Value,
-                Campus = Campus.Value,
+                    AcademicYear =
+                        normalizedAcademicYear,
 
-                AllocatedHours = AllocatedHours,
+                    Semester =
+                        Semester.Value,
 
-                IsApproved = false,
-                IsActive = true,
+                    Session =
+                        Session.Value,
 
-                CreatedAtUtc = DateTime.UtcNow
-            };
+                    Campus =
+                        Campus.Value,
 
-            _context.CourseAssignments.Add(assignment);
+                    AllocatedHours =
+                        AllocatedHours,
+
+                    IsApproved =
+                        false,
+
+                    IsActive =
+                        true,
+
+                    CreatedAtUtc =
+                        DateTime.UtcNow
+                };
+
+            _context.CourseAssignments.Add(
+                assignment);
 
             await _context.SaveChangesAsync();
 
             // ========================================================
-            // CREATE CONTRACT HTML SNAPSHOT
-            // ========================================================
-            //
-            // IMPORTANT:
-            //
-            // TemplateSeeder is NOT used here.
-            //
-            // The actual contract stored in Contract.Content comes
-            // from BuildContractHtml().
+            // GET GOVERNMENT ID
             // ========================================================
 
-            var contractDate = DateTime.UtcNow;
+            var governmentId =
+                await _context.Lecturers
+                    .AsNoTracking()
+                    .Where(l =>
+                        l.Id == lecturer.Id)
+                    .Select(l =>
+                        l.GovernmentIdEncrypted)
+                    .FirstOrDefaultAsync();
 
-            var content = BuildContractHtml(
-                contractDate,
-                lecturer.UserName,
-                lecturer.Rank?.ToString(),
-                course.Department,
-                assignment.Session.ToString(),
-                course.Code,
-                course.Title,
-                assignment.AcademicYear,
-                assignment.Semester.ToString(),
-                assignment.Campus.ToString(),
-                assignment.AllocatedHours,
-                HourlyRate);
+            // ========================================================
+            // CONTRACT DATE
+            // ========================================================
+
+            var contractDate =
+                DateTime.UtcNow;
+
+            // ========================================================
+            // BUILD CONTRACT HTML
+            // ========================================================
+
+            var content =
+                await BuildContractHtmlAsync(
+                    contractDate,
+                    lecturer.UserName,
+                    lecturer.Rank?.ToString(),
+                    governmentId,
+                    course.Department,
+                    assignment.Session.ToString(),
+                    course.Code,
+                    course.Title,
+                    assignment.AcademicYear,
+                    assignment.Semester.ToString(),
+                    assignment.Campus.ToString(),
+                    assignment.AllocatedHours,
+                    HourlyRate);
 
             // ========================================================
             // CREATE CONTRACT
             // ========================================================
 
-            var contract = new Contract(0, "1.0")
-            {
-                LecturerId = lecturer.Id,
-                CourseAssignmentId = assignment.Id,
+            var contract =
+                new Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract(
+                    0,
+                    "1.0")
+                {
+                    LecturerId =
+                        lecturer.Id,
 
-                Content = content,
+                    CourseAssignmentId =
+                        assignment.Id,
 
-                RatePerHour = HourlyRate,
+                    Content =
+                        content,
 
-                StartDateUtc = contractDate,
+                    RatePerHour =
+                        HourlyRate,
 
-                Status = ContractStatus.PendingSignature
-            };
+                    StartDateUtc =
+                        contractDate,
 
-            _context.Contracts.Add(contract);
+                    Status =
+                        ContractStatus.PendingSignature
+                };
+
+            _context.Contracts.Add(
+                contract);
 
             await _context.SaveChangesAsync();
 
             // ========================================================
-            // CREATE STRICT SEQUENTIAL SIGNATURE WORKFLOW
+            // CREATE SEQUENTIAL SIGNATURE STEPS
             // ========================================================
             //
-            // 1 Lecturer
-            // 2 Dean
-            // 3 HR Officer
-            // 4 DVCAR
-            // 5 Vice Chancellor
-            //
-            // There is NO parallel signing here.
+            // 1 = Lecturer
+            // 2 = Dean
+            // 3 = HR Officer
+            // 4 = DVCAR
+            // 5 = Vice Chancellor
             // ========================================================
 
             _context.ContractSignatures.AddRange(
@@ -351,592 +400,94 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             await _context.SaveChangesAsync();
 
             // ========================================================
-            // AUDIT
+            // NOTIFY LECTURER
             // ========================================================
 
-            int.TryParse(
-                User.FindFirst("UserId")?.Value,
-                out int parsedActorId);
+            if (!string.IsNullOrWhiteSpace(
+                    lecturer.Email))
+            {
+                try
+                {
+                    await _emailService
+                        .SendContractSigningNotificationAsync(
+                            lecturer.Email,
+                            lecturer.UserName,
+                            $"CON-{contract.Id:D6}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(
+                        $"Contract notification email failed for " +
+                        $"{lecturer.Email}, Contract " +
+                        $"CON-{contract.Id:D6}: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine(
+                    $"Contract CON-{contract.Id:D6} was created, " +
+                    "but the selected lecturer has no email address.");
+            }
+
+            // ========================================================
+            // AUDIT LOG
+            // ========================================================
+
+            var actorUsername =
+                User.Identity?.Name ??
+                "Unknown";
+
+            var actorRole =
+                User.FindFirstValue(
+                    ClaimTypes.Role) ??
+                "HOD";
+
+            int? actorId = null;
+
+            var actorIdClaim =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            if (int.TryParse(
+                    actorIdClaim,
+                    out var parsedActorId))
+            {
+                actorId = parsedActorId;
+            }
+
+            var ipAddress =
+                HttpContext.Connection
+                    .RemoteIpAddress?
+                    .ToString();
 
             await _auditLogger.LogAsync(
                 AuditAction.CourseAssigned,
-                User.Identity?.Name ?? "Unknown",
-                User.FindFirst(ClaimTypes.Role)?.Value ?? "Unknown",
-                parsedActorId > 0 ? parsedActorId : null,
-                "CourseAssignment",
-                assignment.Id,
-                $"{course.Code} assigned to {lecturer.UserName} " +
-                $"({normalizedAcademicYear}, {Semester.Value}, " +
-                $"{AllocatedHours}h at {HourlyRate:N0} RWF/hour)",
-                HttpContext.Connection.RemoteIpAddress?.ToString());
+                actorUsername,
+                actorRole,
+                actorId,
+                "Contract",
+                contract.Id,
+                $"Course '{course.Code} - {course.Title}' " +
+                $"assigned to lecturer '{lecturer.UserName}'. " +
+                $"Contract CON-{contract.Id:D6} created.",
+                ipAddress);
 
             // ========================================================
-            // CONTRACT PREVIEW
+            // GO TO CONTRACT PREVIEW
             // ========================================================
 
             return RedirectToPage(
                 "./ContractPreview",
                 new
                 {
-                    ContractId = contract.Id
+                    ContractId =
+                        contract.Id
                 });
         }
 
         // ============================================================
-        // BUILD OFFICIAL CONTRACT HTML
         // ============================================================
-
-        private string BuildContractHtml(
-            DateTime contractDate,
-            string? lecturerName,
-            string? academicRank,
-            string? department,
-            string? session,
-            string? courseCode,
-            string? courseTitle,
-            string? academicYear,
-            string? semester,
-            string? campus,
-            decimal allocatedHours,
-            decimal hourlyRate)
-        {
-            static string E(string? value)
-            {
-                return WebUtility.HtmlEncode(value ?? string.Empty);
-            }
-
-            var lecturer = E(lecturerName);
-            var rank = E(academicRank ?? "Not specified");
-
-            var dept = E(department);
-            var sess = E(session);
-
-            var course = E(courseCode);
-            var title = E(courseTitle);
-
-            var year = E(academicYear);
-            var sem = E(semester);
-            var campusName = E(campus);
-
-            var date =
-                contractDate.ToString("dd MMMM yyyy");
-
-            var hours =
-                allocatedHours.ToString("0.##");
-
-            var rate =
-                hourlyRate.ToString("N0") + " RWF";
-
-            return $"""
-<div class="official-contract">
-
-    <!-- =========================================================
-         UNILAK OFFICIAL LETTERHEAD
-         ========================================================= -->
-
-    <div class="contract-header">
-
-        <img src="/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-             alt="UNILAK Logo"
-             class="contract-logo" />
-
-        <div class="contract-university-name">
-            UNIVERSITY OF LAY ADVENTISTS OF KIGALI
-        </div>
-
-        <div class="contract-address">
-            PO Box 6392 Kigali, Rwanda
-        </div>
-
-        <div class="contract-contact">
-            Phone: +250(0)731743439 / +250(0)751743431
-        </div>
-
-        <div class="contract-web">
-            Website: www.unilak.ac.rw
-            &nbsp;&nbsp;&nbsp;&nbsp;
-            E-mail: info@unilak.ac.rw
-        </div>
-
-    </div>
-
-    <div class="contract-header-line"></div>
-
-
-    <!-- =========================================================
-         DATE
-         ========================================================= -->
-
-    <div class="contract-date">
-        Kigali, {date}
-    </div>
-
-
-    <!-- =========================================================
-         TITLE
-         ========================================================= -->
-
-    <div class="contract-title-section">
-
-        <h1>
-            EMPLOYMENT PART-TIME CONTRACT
-        </h1>
-
-    </div>
-
-
-    <!-- =========================================================
-         PARTIES
-         ========================================================= -->
-
-    <div class="contract-section">
-
-        <p>
-            Between the undersigned:
-        </p>
-
-        <p>
-            University of Lay Adventists of Kigali (UNILAK)
-            represented by Vice Chancellor
-            <strong>Prof. Jean NGAMIJE</strong> on one hand,
-        </p>
-
-        <p>
-            And the Employee,
-            <strong>{lecturer}</strong>,
-            having the Academic rank of
-            <strong>{rank}</strong>
-            with identity card/Passport No:
-            <strong>On file with UNILAK</strong>
-            on other hand;
-        </p>
-
-        <p>
-            The following has been agreed:
-        </p>
-
-    </div>
-
-
-    <!-- =========================================================
-         ARTICLE 1
-         ========================================================= -->
-
-    <div class="contract-article">
-
-        <h2>Article 1</h2>
-
-        <p>
-            UNILAK employs <strong>{lecturer}</strong> as
-            External/Internal part time lecturer in the faculty of
-            Computing and Information Sciences Department of
-            <strong>{dept}</strong>, Intake <strong>N/A</strong>,
-            Session <strong>{sess}</strong> to teach the course of
-            <strong>{course} — {title}</strong>,
-            Academic year <strong>{year}</strong>,
-            semester <strong>{sem}</strong>,
-            <strong>{campusName}</strong> Campus.
-        </p>
-
-    </div>
-
-
-    <!-- =========================================================
-         ARTICLE 2
-         ========================================================= -->
-
-    <div class="contract-article">
-
-        <h2>Article 2</h2>
-
-        <p>
-            The number of contact hours allocated to the course/module
-            if the course is taught through face-to-face mode is
-            <strong>{hours}</strong> hours and this include the theory,
-            practical as well as examinations. The rate per hour will
-            be <strong>{rate}</strong> (gross).
-        </p>
-
-    </div>
-
-
-    <!-- =========================================================
-         ARTICLE 3
-         ========================================================= -->
-
-    <div class="contract-article">
-
-        <h2>Article 3</h2>
-
-        <p>
-            The numbers of classes combined if the module/course is
-            taught through online teaching mode: <strong>0</strong>
-            and the total number of hours allocated to those combined
-            classes taught by one academic staff:
-            <strong>0</strong>.
-        </p>
-
-    </div>
-
-
-    <!-- =========================================================
-         ARTICLE 4
-         ========================================================= -->
-
-    <div class="contract-article">
-
-        <h2>Article 4</h2>
-
-        <p>
-            The employee is required to hand into the Deputy Vice
-            Chancellor for Academic and Research office his/her
-            application letter, CV, notarized copy of the degree/,
-            Equivalence if the degree is offered from foreigner
-            countries, as well as his/her nomination papers for his
-            previous academic rank.
-        </p>
-
-    </div>
-
-
-    <!-- =========================================================
-         ARTICLE 5
-         ========================================================= -->
-
-    <div class="contract-article">
-
-        <h2>Article 5</h2>
-
-        <p>
-            The Lecturer is required to submit to the Head of the
-            Department the following documents:
-        </p>
-
-        <ul>
-
-            <li>
-                Course materials such as Handout/syllabuses and other
-                supporting documents must be uploaded to UNILAK online
-                teaching platform and submitted to the Head of
-                department office before starting the class;
-            </li>
-
-            <li>
-                Final exam and marking scheme;
-            </li>
-
-            <li>
-                Continuous assessment papers:
-                assignments/quiz/test.
-            </li>
-
-        </ul>
-
-    </div>
-
-
-    <!-- =========================================================
-         ARTICLE 6
-         ========================================================= -->
-
-    <div class="contract-article">
-
-        <h2>Article 6</h2>
-
-        <p>
-            The sheet of marks properly recorded should be submitted
-            within fifteen days dating from the time of exam, in case
-            of urgency the institution is entitled to short this
-            deadline.
-        </p>
-
-    </div>
-
-
-    <!-- =========================================================
-         ARTICLE 7
-         ========================================================= -->
-
-    <div class="contract-article">
-
-        <h2>Article 7</h2>
-
-        <p>
-            Any teaching staff member is evaluated at the end of the
-            course and at the end of academic year by the hierarchy
-            based on:
-        </p>
-
-        <ul>
-
-            <li>
-                His/her scientific competence
-                (his/her handling of the course contents,
-                scientific articles and papers publishing);
-            </li>
-
-            <li>
-                His/her pedagogic competence
-                (methodology techniques, and strategies applied in
-                transmitting efficiently the course contents);
-            </li>
-
-            <li>
-                His/her moral aptitudes
-                (punctuality, objectivity, sense of responsibility,
-                commitment to students' education, etc…);
-            </li>
-
-        </ul>
-
-        <p>
-            In order to maintain or keep his/her course, a teacher
-            must get at least <strong>70%</strong> of mark of the
-            evaluation done by hierarchy.
-        </p>
-
-    </div>
-
-
-    <!-- =========================================================
-         ARTICLE 8
-         ========================================================= -->
-
-    <div class="contract-article">
-
-        <h2>Article 8</h2>
-
-        <p>
-            A non-informed absence (or late informed) brings prejudice
-            to the students in many regards, disturbs the functioning
-            of the teaching activities and seriously spoils the
-            reputation of the institution cannot be tolerated.
-        </p>
-
-    </div>
-
-
-    <!-- =========================================================
-         ARTICLE 9
-         ========================================================= -->
-
-    <div class="contract-article">
-
-        <h2>Article 9</h2>
-
-        <p>
-            The wage of the part-time employee will be set in
-            accordance with his/her Academic rank.
-        </p>
-
-    </div>
-
-
-    <!-- =========================================================
-         ARTICLE 10
-         ========================================================= -->
-
-    <div class="contract-article">
-
-        <h2>Article 10</h2>
-
-        <p>
-            Each party may terminate the appointment by giving to the
-            other party 15 days Notice in writing. However, the
-            University reserves the right to cancel the present
-            contract without prior notice in case the employee seems
-            to be inefficient, immoral, or absent without informing
-            the HOD.
-        </p>
-
-    </div>
-
-
-    <!-- =========================================================
-         SIGNATURES
-         ========================================================= -->
-
-    <div class="contract-signatures">
-
-        <h2>
-            SIGNATURES
-        </h2>
-
-        <table class="signature-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        Signatory
-                    </th>
-
-                    <th>
-                        Name
-                    </th>
-
-                    <th>
-                        Signature
-                    </th>
-
-                    <th>
-                        Date
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                <tr>
-
-                    <td>
-                        <strong>Lecturer</strong>
-                    </td>
-
-                    <td>
-                        {lecturer}
-                    </td>
-
-                    <td class="signature-placeholder">
-                        Pending electronic signature
-                    </td>
-
-                    <td>
-                        Pending
-                    </td>
-
-                </tr>
-
-                <tr>
-
-                    <td>
-                        <strong>Dean of Faculty</strong>
-                    </td>
-
-                    <td>
-                        Prof. NYESHEJA M. Enan
-                    </td>
-
-                    <td class="signature-placeholder">
-                        Pending electronic signature
-                    </td>
-
-                    <td>
-                        Pending
-                    </td>
-
-                </tr>
-
-                <tr>
-
-                    <td>
-                        <strong>Human Resource Officer</strong>
-                    </td>
-
-                    <td>
-                        Mr. NTAKIRUTIMANA Elison
-                    </td>
-
-                    <td class="signature-placeholder">
-                        Pending electronic signature
-                    </td>
-
-                    <td>
-                        Pending
-                    </td>
-
-                </tr>
-
-                <tr>
-
-                    <td>
-                        <strong>DVCAR</strong>
-                    </td>
-
-                    <td>
-                        Prof. HAKIZIMANA Emmanuel
-                    </td>
-
-                    <td class="signature-placeholder">
-                        Pending electronic signature
-                    </td>
-
-                    <td>
-                        Pending
-                    </td>
-
-                </tr>
-
-                <tr>
-
-                    <td>
-                        <strong>Vice Chancellor</strong>
-                    </td>
-
-                    <td>
-                        Prof. NGAMIJE Jean
-                    </td>
-
-                    <td class="signature-placeholder">
-                        Pending electronic signature
-                    </td>
-
-                    <td>
-                        Pending
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-
-    <!-- =========================================================
-         WORKFLOW NOTICE
-         ========================================================= -->
-
-    <div class="contract-workflow-notice">
-
-        <strong>
-            CONTRACT APPROVAL SEQUENCE
-        </strong>
-
-        <span>
-            Lecturer → Dean → Human Resource Officer →
-            DVCAR → Vice Chancellor
-        </span>
-
-    </div>
-
-
-    <!-- =========================================================
-         DOCUMENT FOOTER
-         ========================================================= -->
-
-    <div class="contract-document-footer">
-
-        <span>
-            University of Lay Adventists of Kigali
-        </span>
-
-        <span>
-            Academic Staff Engagement Claim Processing System
-        </span>
-
-    </div>
-
-</div>
-""";
-        }
-
-        // ============================================================
-        // LOAD PAGE DATA
+        // LOAD COURSES
         // ============================================================
 
         private async Task LoadDataAsync()
@@ -955,52 +506,397 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 {
                     Id = l.Id,
                     UserName = l.UserName,
+                    Email = l.Email,
                     Rank = l.Rank
                 })
                 .ToListAsync();
         }
 
         // ============================================================
-        // LECTURER DISPLAY NAME
-        // ============================================================
-
-        private static string GetLecturerDisplayName(
-            LecturerOption lecturer)
-        {
-            if (!string.IsNullOrWhiteSpace(lecturer.UserName))
-                return lecturer.UserName;
-
-            return "Lecturer #" + lecturer.Id;
-        }
-
-        // ============================================================
         // HOURLY RATE
-        // ============================================================
-        //
-        // These are the rates currently represented by this project.
-        // If the database later gets a dedicated Wage/HourlyRate field,
-        // this method should be replaced with a database lookup.
         // ============================================================
 
         private static decimal GetRateForRank(LecturerRank? rank)
         {
-            if (!rank.HasValue)
-                return 5000m;
-
-            return rank.Value switch
+            return rank switch
             {
                 LecturerRank.AssistantLecturer => 5000m,
-
                 LecturerRank.Lecturer => 7000m,
-
                 LecturerRank.SeniorLecturer => 9000m,
-
                 LecturerRank.AssociateProfessor => 11000m,
-
                 LecturerRank.Professor => 13000m,
-
                 _ => 5000m
             };
         }
+
+        // ============================================================
+        // BUILD CONTRACT HTML
+        // ============================================================
+
+        private async Task<string> BuildContractHtmlAsync(
+            DateTime contractDate,
+            string lecturerName,
+            string? academicRank,
+            string? governmentId,
+            string department,
+            string session,
+            string courseCode,
+            string courseTitle,
+            string academicYear,
+            string semester,
+            string campus,
+            decimal allocatedHours,
+            decimal hourlyRate)
+        {
+            var template =
+                await _context.Templates
+                    .AsNoTracking()
+                    .Select(t => t.Contract)
+                    .FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(template))
+            {
+                throw new InvalidOperationException(
+                    "The contract template could not be found in the database.");
+            }
+
+            // --------------------------------------------------------
+            // REPLACE DATABASE TEMPLATE PLACEHOLDERS
+            // --------------------------------------------------------
+
+            var mainContract = template
+                .Replace("{{LecturerName}}",
+                    WebUtility.HtmlEncode(lecturerName))
+                .Replace("{{AcademicRank}}",
+                    WebUtility.HtmlEncode(academicRank ?? "N/A"))
+                .Replace("{{GovernmentId}}",
+                    WebUtility.HtmlEncode(
+                        string.IsNullOrWhiteSpace(governmentId)
+                            ? "On file with UNILAK"
+                            : governmentId))
+                .Replace("{{Department}}",
+                    WebUtility.HtmlEncode(department))
+                .Replace("{{Intake}}",
+                    WebUtility.HtmlEncode(session))
+                .Replace("{{Session}}",
+                    WebUtility.HtmlEncode(session))
+                .Replace("{{CourseTitle}}",
+                    WebUtility.HtmlEncode(
+                        $"{courseCode} — {courseTitle}"))
+                .Replace("{{AcademicYear}}",
+                    WebUtility.HtmlEncode(academicYear))
+                .Replace("{{Semester}}",
+                    WebUtility.HtmlEncode(semester))
+                .Replace("{{Campus}}",
+                    WebUtility.HtmlEncode(campus))
+                .Replace("{{AllocatedHours}}",
+                    allocatedHours.ToString("0.##"))
+                .Replace("{{HourlyRate}}",
+                    $"{hourlyRate:N0} RWF")
+                .Replace("{{NumberOfOnlineClasses}}",
+                    "0")
+                .Replace("{{OnlineHours}}",
+                    "0");
+
+            // --------------------------------------------------------
+            // REMOVE THE ORIGINAL SIGNATURE SECTION
+            // --------------------------------------------------------
+
+            var signatureIndex =
+                mainContract.IndexOf(
+                    "SIGNATURES",
+                    StringComparison.OrdinalIgnoreCase);
+
+            if (signatureIndex >= 0)
+            {
+                mainContract =
+                    mainContract.Substring(
+                        0,
+                        signatureIndex);
+            }
+
+            // --------------------------------------------------------
+            // BUILD RENDERED HTML DOCUMENT
+            // --------------------------------------------------------
+
+            var html = new StringBuilder();
+
+            html.AppendLine(
+                "<div class=\"contract-content\">");
+
+            // --------------------------------------------------------
+            // UNILAK HEADER
+            // --------------------------------------------------------
+
+            html.AppendLine(
+                "<div class=\"contract-header\">");
+
+            html.AppendLine(
+                "<img src=\"/images/PNG_LOGO-_UNILAK-removebg-preview.png\" " +
+                "alt=\"UNILAK Logo\" class=\"contract-logo\" />");
+
+            html.AppendLine(
+                "<div class=\"university-name\">" +
+                "UNIVERSITY OF LAY ADVENTISTS OF KIGALI" +
+                "</div>");
+
+            html.AppendLine(
+                "<div>PO Box 6392 Kigali, Rwanda</div>");
+
+            html.AppendLine(
+                "<div>Phone: +250(0)731743439 / +250(0)751743431</div>");
+
+            html.AppendLine(
+                "<div>Website: www.unilak.ac.rw, " +
+                "E-mail: info@unilak.ac.rw</div>");
+
+            html.AppendLine(
+                "</div>");
+
+            // --------------------------------------------------------
+            // DATE
+            // --------------------------------------------------------
+
+            html.AppendLine(
+                $"<p class=\"contract-date\">" +
+                $"Kigali, {contractDate.ToLocalTime():dd MMMM yyyy}" +
+                $"</p>");
+
+            // --------------------------------------------------------
+            // TITLE
+            // --------------------------------------------------------
+
+            html.AppendLine(
+                "<h1>EMPLOYMENT PART-TIME CONTRACT</h1>");
+
+            // --------------------------------------------------------
+            // CONTRACT BODY
+            // --------------------------------------------------------
+
+            var blocks =
+                mainContract
+                    .Replace("\r\n", "\n")
+                    .Split(
+                        new[] { "\n\n" },
+                        StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var rawBlock in blocks)
+            {
+                var block =
+                    rawBlock.Trim();
+
+                if (string.IsNullOrWhiteSpace(block))
+                    continue;
+
+                // Skip the original database header/title.
+                if (block.Contains(
+                        "UNIVERSITY OF LAY ADVENTISTS OF KIGALI",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (block.StartsWith(
+                        "PO Box",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (block.StartsWith(
+                        "Phone:",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (block.StartsWith(
+                        "Website:",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (block.StartsWith(
+                        "Kigali,",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (block.Equals(
+                        "EMPLOYMENT PART-TIME CONTRACT",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // ----------------------------------------------------
+                // ARTICLE HEADINGS
+                // ----------------------------------------------------
+
+                if (block.StartsWith(
+                        "ARTICLE ",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    html.AppendLine(
+                        $"<h3>{WebUtility.HtmlEncode(block)}</h3>");
+
+                    continue;
+                }
+
+                // ----------------------------------------------------
+                // BULLET LISTS
+                // ----------------------------------------------------
+
+                var lines =
+                    block
+                        .Replace("\r\n", "\n")
+                        .Split(
+                            '\n',
+                            StringSplitOptions.RemoveEmptyEntries);
+
+                var bulletLines = new List<string>();
+
+                foreach (var line in lines)
+                {
+                    var trimmedLine =
+                        line.Trim();
+
+                    if (trimmedLine.StartsWith("-"))
+                    {
+                        bulletLines.Add(
+                            trimmedLine
+                                .TrimStart('-')
+                                .Trim());
+                    }
+                }
+
+                if (bulletLines.Count > 0)
+                {
+                    html.AppendLine("<ul>");
+
+                    foreach (var bullet in bulletLines)
+                    {
+                        html.AppendLine(
+                            $"<li>{WebUtility.HtmlEncode(bullet)}</li>");
+                    }
+
+                    html.AppendLine("</ul>");
+
+                    continue;
+                }
+
+                // ----------------------------------------------------
+                // NORMAL PARAGRAPH
+                // ----------------------------------------------------
+
+                var paragraph =
+                    string.Join(
+                        " ",
+                        lines.Select(
+                            line => line.Trim()));
+
+                html.AppendLine(
+                    $"<p>{WebUtility.HtmlEncode(paragraph)}</p>");
+            }
+
+            // --------------------------------------------------------
+            // SIGNATURE TABLE
+            // --------------------------------------------------------
+
+            html.AppendLine(
+                "<h3>SIGNATURES</h3>");
+
+            html.AppendLine(
+                "<table class=\"signature-table\">");
+
+            html.AppendLine("<thead>");
+            html.AppendLine("<tr>");
+            html.AppendLine("<th>Signatory</th>");
+            html.AppendLine("<th>Name</th>");
+            html.AppendLine("<th>Signature</th>");
+            html.AppendLine("<th>Date</th>");
+            html.AppendLine("</tr>");
+            html.AppendLine("</thead>");
+
+            html.AppendLine("<tbody>");
+
+            html.AppendLine("<tr>");
+            html.AppendLine("<td>Lecturer</td>");
+            html.AppendLine(
+                $"<td>{WebUtility.HtmlEncode(lecturerName)}</td>");
+            html.AppendLine(
+                "<td>{{LecturerSignature}}</td>");
+            html.AppendLine(
+                "<td>{{LecturerSignatureDate}}</td>");
+            html.AppendLine("</tr>");
+
+            html.AppendLine("<tr>");
+            html.AppendLine("<td>Dean</td>");
+            html.AppendLine("<td>Dean</td>");
+            html.AppendLine(
+                "<td>{{DeanSignature}}</td>");
+            html.AppendLine(
+                "<td>{{DeanSignatureDate}}</td>");
+            html.AppendLine("</tr>");
+
+            html.AppendLine("<tr>");
+            html.AppendLine("<td>Human Resource Officer</td>");
+            html.AppendLine("<td>Human Resource Officer</td>");
+            html.AppendLine(
+                "<td>{{HRSignature}}</td>");
+            html.AppendLine(
+                "<td>{{HRSignatureDate}}</td>");
+            html.AppendLine("</tr>");
+
+            html.AppendLine("<tr>");
+            html.AppendLine("<td>DVCAR</td>");
+            html.AppendLine("<td>DVCAR</td>");
+            html.AppendLine(
+                "<td>{{DVCARSignature}}</td>");
+            html.AppendLine(
+                "<td>{{DVCARSignatureDate}}</td>");
+            html.AppendLine("</tr>");
+
+            html.AppendLine("<tr>");
+            html.AppendLine("<td>Vice Chancellor</td>");
+            html.AppendLine("<td>Vice Chancellor</td>");
+            html.AppendLine(
+                "<td>{{VCSignature}}</td>");
+            html.AppendLine(
+                "<td>{{VCSignatureDate}}</td>");
+            html.AppendLine("</tr>");
+
+            html.AppendLine("</tbody>");
+            html.AppendLine("</table>");
+
+            // --------------------------------------------------------
+            // APPROVAL SEQUENCE
+            // --------------------------------------------------------
+
+            html.AppendLine(
+                "<p class=\"approval-sequence\">" +
+                "<strong>CONTRACT APPROVAL SEQUENCE</strong> " +
+                "Lecturer → Dean → Human Resource Officer → " +
+                "DVCAR → Vice Chancellor" +
+                "</p>");
+
+            // --------------------------------------------------------
+            // FOOTER
+            // --------------------------------------------------------
+
+            html.AppendLine(
+                "<div class=\"contract-footer\">" +
+                "University of Lay Adventists of Kigali " +
+                "Academic Staff Engagement Claim Processing System" +
+                "</div>");
+
+            html.AppendLine("</div>");
+
+            return html.ToString();
+        }
     }
 }
+
+
