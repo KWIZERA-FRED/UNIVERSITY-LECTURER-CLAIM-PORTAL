@@ -282,6 +282,12 @@ builder.Services.AddRazorPages(options =>
     // PUBLIC PAGES
     // ========================================================
 
+    // Logout is deliberately anonymous so an authenticated POST
+    // is never intercepted by an authorization handler, which
+    // could otherwise create a redirect loop.
+    options.Conventions.AllowAnonymousToPage(
+        "/Logout");
+
     options.Conventions.AllowAnonymousToPage(
         "/Login");
 
@@ -400,6 +406,52 @@ app.UseSession();
 
 // Authentication
 app.UseAuthentication();
+
+// ============================================================
+// NO-CACHE FOR AUTHENTICATED RESPONSES
+// ============================================================
+//
+// After logout, the browser must never re-serve a page that was
+// rendered while the user was authenticated — not from the disk
+// cache, not from the memory cache, and not from the back/forward
+// cache (bfcache).
+//
+// This middleware stamps every authenticated response with
+// no-store headers. Public pages (Login, Index, Error, static
+// files) are untouched and remain cacheable.
+//
+// Result: after logout, pressing Back, re-pasting the URL, or
+// using a bookmark always triggers a fresh request. The auth
+// cookie is gone, so the authorization pipeline redirects to
+// /Login.
+//
+
+app.Use(async (context, next) =>
+{
+    if (context.User?.Identity?.IsAuthenticated == true)
+    {
+        // OnStarting guarantees the headers are written even if
+        // a downstream handler sets its own later — but we only
+        // set them if nobody else has, so page-level cache
+        // headers still win.
+        context.Response.OnStarting(() =>
+        {
+            if (!context.Response.Headers.ContainsKey("Cache-Control"))
+            {
+                context.Response.Headers["Cache-Control"] =
+                    "no-cache, no-store, must-revalidate, max-age=0";
+
+                context.Response.Headers["Pragma"] = "no-cache";
+
+                context.Response.Headers["Expires"] = "0";
+            }
+
+            return Task.CompletedTask;
+        });
+    }
+
+    await next();
+});
 
 // Authorization
 app.UseAuthorization();

@@ -1,6 +1,9 @@
 /* ==========================================================================
    UNILAK DEAN PORTAL
    DASHBOARD PAGE — /DEAN/Index
+   ==========================================================================
+   Design language: navy / green / neutral surfaces.
+   Type scale: 12–17px body, 22–32px display.
    ========================================================================== */
 
 /* ==========================================================================
@@ -10,7 +13,7 @@
 :root {
     --dean-navy: #0f2742;
     --dean-navy-dark: #091c31;
-    --dean-navy-light: #183b60;
+    --dean-navy-light: #1e4166;
     --dean-green: #059669;
     --dean-green-dark: #047857;
     --dean-green-soft: #ecfdf5;
@@ -20,25 +23,31 @@
     --dean-blue-border: #bfdbfe;
     --dean-amber: #b45309;
     --dean-amber-soft: #fffbeb;
+    --dean-amber-border: #fde68a;
     --dean-red: #dc2626;
     --dean-red-soft: #fef2f2;
     --dean-red-border: #fecaca;
     --dean-purple: #7c3aed;
     --dean-purple-soft: #f5f3ff;
+    --dean-purple-border: #ddd6fe;
     --dean-surface: #ffffff;
+    --dean-surface-raised: #fafdff;
     --dean-background: #f5f7fb;
     --dean-border: #e2e8f0;
     --dean-border-light: #edf1f5;
     --dean-text: #172033;
     --dean-text-secondary: #475569;
     --dean-text-muted: #64748b;
+    --dean-shadow-xs: 0 1px 2px rgba(15, 39, 66, 0.04);
     --dean-shadow-sm: 0 2px 8px rgba(15, 39, 66, 0.05);
-    --dean-shadow-md: 0 8px 24px rgba(15, 39, 66, 0.07);
-    --dean-shadow-lg: 0 12px 35px rgba(15, 39, 66, 0.10);
-    --dean-radius: 12px;
+    --dean-shadow-md: 0 8px 24px rgba(15, 39, 66, 0.08);
+    --dean-shadow-lg: 0 16px 40px rgba(15, 39, 66, 0.10);
     --dean-radius-sm: 8px;
+    --dean-radius: 12px;
+    --dean-radius-lg: 16px;
     --dean-transition: 160ms ease;
 }
+
 
 /* ==========================================================================
    PAGE
@@ -48,9 +57,13 @@
     width: 100%;
     max-width: 1600px;
     margin: 0 auto;
-    padding: 0 0 24px;
+    padding: 0 0 40px;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--dean-text);
+    font-size: 14px;
+    line-height: 1.55;
 }
+
 
 /* ==========================================================================
    PAGE HEADER
@@ -60,8 +73,8 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 22px;
+    gap: 24px;
+    margin-bottom: 28px;
 }
 
 .page-header-main {
@@ -72,40 +85,43 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 7px;
-    margin-bottom: 7px;
+    gap: 8px;
+    margin-bottom: 10px;
     color: var(--dean-text-muted);
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
 }
 
     .breadcrumb i {
         color: #a8b4c2;
-        font-size: 9px;
+        font-size: 10px;
     }
 
     .breadcrumb .current {
         color: var(--dean-text-secondary);
-        font-weight: 700;
+        font-weight: 600;
     }
 
 .page-title {
     margin: 0;
     color: var(--dean-navy);
     font-family: "Poppins", "Segoe UI", sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: -0.45px;
-    line-height: 1.2;
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.7px;
+    line-height: 1.15;
 }
 
 .page-subtitle {
-    max-width: 700px;
-    margin: 6px 0 0;
+    max-width: 720px;
+    margin: 10px 0 0;
     color: var(--dean-text-muted);
-    font-size: 11px;
-    line-height: 1.55;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.6;
 }
+
 
 /* ==========================================================================
    SYSTEM STATUS
@@ -114,26 +130,28 @@
 .system-status {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     flex-shrink: 0;
-    padding: 7px 14px;
+    padding: 8px 14px;
     color: var(--dean-green-dark);
     background: var(--dean-green-soft);
     border: 1px solid var(--dean-green-border);
     border-radius: 999px;
-    font-size: 9px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
     white-space: nowrap;
 }
 
     .system-status .status-dot {
-        width: 6px;
-        height: 6px;
+        width: 8px;
+        height: 8px;
         flex-shrink: 0;
         border-radius: 50%;
         background: var(--dean-green);
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.10);
+        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12);
     }
+
 
 /* ==========================================================================
    STATISTICS GRID
@@ -142,19 +160,19 @@
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 13px;
-    margin-bottom: 23px;
+    gap: 18px;
+    margin-bottom: 34px;
 }
 
 .stat-card {
     position: relative;
     display: block;
     min-width: 0;
-    padding: 16px 18px;
+    padding: 22px 24px;
     color: inherit;
     background: var(--dean-surface);
     border: 1px solid var(--dean-border);
-    border-radius: var(--dean-radius);
+    border-radius: var(--dean-radius-lg);
     box-shadow: var(--dean-shadow-sm);
     text-decoration: none;
     overflow: hidden;
@@ -184,7 +202,7 @@
         }
 
     .stat-card:focus-visible {
-        outline: 3px solid rgba(5, 150, 105, 0.18);
+        outline: 3px solid rgba(5, 150, 105, 0.2);
         outline-offset: 2px;
     }
 
@@ -192,147 +210,255 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 14px;
+    gap: 12px;
+    margin-bottom: 18px;
 }
+
+
+/* ==========================================================================
+   STAT ICONS
+   ==========================================================================
+   Each stat-icon is a soft-filled tile: light tinted background,
+   thin border in a matching shade, and a saturated glyph inside.
+   The decorative circle in the top-right corner gives the tile a
+   subtle depth without competing with the glyph.
+   ========================================================================== */
 
 .stat-icon {
     position: relative;
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    border-radius: 10px;
-    font-size: 17px;
+    border-radius: 12px;
+    font-size: 20px;
     overflow: hidden;
+    border: 1px solid transparent;
+    transition: transform var(--dean-transition), box-shadow var(--dean-transition);
 }
 
+    /* Decorative soft circle in the top-right corner */
     .stat-icon::after {
         content: "";
         position: absolute;
-        top: -9px;
-        right: -9px;
-        width: 25px;
-        height: 25px;
+        top: -12px;
+        right: -12px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.45);
+        background: rgba(255, 255, 255, 0.55);
+        pointer-events: none;
     }
 
+    /* Glyph sits above the decorative circle */
     .stat-icon i {
         position: relative;
         z-index: 1;
+        line-height: 1;
     }
 
-    /* Stat Icon Variants */
-    .stat-icon.pending {
-        color: var(--dean-amber);
-        background: linear-gradient(135deg, #fff4d6, var(--dean-amber-soft));
-        border: 1px solid #fde68a;
-    }
-
-    .stat-icon.active {
-        color: var(--dean-green);
-        background: linear-gradient(135deg, #e3f8ef, var(--dean-green-soft));
-        border: 1px solid var(--dean-green-border);
-    }
-
-    .stat-icon.claims {
-        color: var(--dean-blue);
-        background: linear-gradient(135deg, #e8f0ff, var(--dean-blue-soft));
-        border: 1px solid var(--dean-blue-border);
-    }
-
-    .stat-icon.completed {
-        color: var(--dean-purple);
-        background: linear-gradient(135deg, #f1eaff, var(--dean-purple-soft));
-        border: 1px solid #ddd6fe;
-    }
-
-.stat-arrow {
-    color: #a0acb9;
-    font-size: 12px;
-    transition: transform var(--dean-transition), color var(--dean-transition);
+/* Slight lift when the parent stat card is hovered */
+.stat-card:hover .stat-icon {
+    transform: scale(1.04);
+    box-shadow: 0 6px 14px -6px rgba(15, 39, 66, 0.18);
 }
 
-.stat-card:hover .stat-arrow {
-    color: var(--dean-green);
+
+/* ==========================================================================
+   STAT ICON — COLOUR VARIANTS
+   ==========================================================================
+   Two naming conventions are supported so whichever your Razor
+   emits, the icon renders with the right palette:
+     • .stat-icon-blue / -green / -amber / -purple
+     • .stat-icon.pending / .active / .claims / .completed
+   ========================================================================== */
+
+/* ----- Contracts To Sign (amber) ----- */
+
+.stat-icon-blue,
+.stat-icon.pending {
+    color: var(--dean-amber);
+    background: linear-gradient(135deg, #fff4d6 0%, var(--dean-amber-soft) 100%);
+    border-color: var(--dean-amber-border);
+}
+
+
+/* ----- Active Contracts (green) ----- */
+
+.stat-icon-green,
+.stat-icon.active {
+    color: var(--dean-green-dark);
+    background: linear-gradient(135deg, #e3f8ef 0%, var(--dean-green-soft) 100%);
+    border-color: var(--dean-green-border);
+}
+
+
+/* ----- Claims To Sign (blue) ----- */
+
+.stat-icon-amber,
+.stat-icon.claims {
+    color: var(--dean-blue);
+    background: linear-gradient(135deg, #e8f0ff 0%, var(--dean-blue-soft) 100%);
+    border-color: var(--dean-blue-border);
+}
+
+
+/* ----- Completed Approvals (purple) ----- */
+
+.stat-icon-purple,
+.stat-icon.completed {
+    color: var(--dean-purple);
+    background: linear-gradient(135deg, #f1eaff 0%, var(--dean-purple-soft) 100%);
+    border-color: var(--dean-purple-border);
+}
+
+
+/* ==========================================================================
+   STAT CONTEXT (small circular indicator)
+   ========================================================================== */
+
+.stat-context {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    color: #a0acb9;
+    background: var(--dean-surface-raised);
+    border: 1px solid var(--dean-border-light);
+    border-radius: 50%;
+    font-size: 13px;
+    transition: transform var(--dean-transition), color var(--dean-transition), background var(--dean-transition), border-color var(--dean-transition);
+}
+
+.stat-card:hover .stat-context {
+    color: var(--dean-green-dark);
+    background: var(--dean-green-soft);
+    border-color: var(--dean-green-border);
     transform: translate(2px, -2px);
 }
 
-.stat-number {
-    color: var(--dean-navy);
-    font-family: "Poppins", "Segoe UI", sans-serif;
-    font-size: 25px;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.5px;
+
+/* ==========================================================================
+   STAT CONTENT
+   ========================================================================== */
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .stat-label {
-    margin-top: 7px;
     color: var(--dean-text-secondary);
-    font-size: 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.3;
+}
+
+.stat-value {
+    display: block;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 32px;
     font-weight: 700;
-    line-height: 1.35;
+    line-height: 1.05;
+    letter-spacing: -0.6px;
+    margin: 2px 0;
 }
 
 .stat-description {
-    margin-top: 3px;
     color: var(--dean-text-muted);
-    font-size: 9px;
-    line-height: 1.4;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.45;
 }
+
 
 /* ==========================================================================
    DASHBOARD SECTIONS
    ========================================================================== */
 
 .dashboard-section {
-    margin-bottom: 19px;
+    margin-bottom: 28px;
 }
 
 .section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
-    margin-bottom: 10px;
+    gap: 20px;
+    margin-bottom: 16px;
 }
 
 .section-heading {
     min-width: 0;
 }
 
+.section-heading-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.section-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 17px;
+    background: var(--dean-surface-raised);
+    border: 1px solid var(--dean-border-light);
+}
+
+    .section-icon.contracts-icon {
+        color: var(--dean-green-dark);
+        background: var(--dean-green-soft);
+        border-color: var(--dean-green-border);
+    }
+
+    .section-icon.claims-icon {
+        color: var(--dean-blue);
+        background: var(--dean-blue-soft);
+        border-color: var(--dean-blue-border);
+    }
+
 .section-title {
     margin: 0;
     color: var(--dean-navy);
     font-family: "Poppins", "Segoe UI", sans-serif;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
     line-height: 1.3;
 }
 
 .section-description {
-    margin: 3px 0 0;
+    margin: 4px 0 0;
     color: var(--dean-text-muted);
-    font-size: 9.5px;
-    line-height: 1.45;
+    font-size: 13px;
+    line-height: 1.5;
 }
 
 .section-action {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     flex-shrink: 0;
-    padding: 6px 12px;
+    padding: 9px 14px;
     color: var(--dean-green-dark);
     background: var(--dean-green-soft);
     border: 1px solid var(--dean-green-border);
     border-radius: var(--dean-radius-sm);
-    font-size: 9px;
-    font-weight: 700;
+    font-size: 12.5px;
+    font-weight: 600;
     text-decoration: none;
     transition: color var(--dean-transition), background var(--dean-transition), border-color var(--dean-transition), gap var(--dean-transition);
 }
@@ -341,17 +467,18 @@
         color: #ffffff;
         background: var(--dean-green);
         border-color: var(--dean-green);
-        gap: 9px;
+        gap: 12px;
     }
 
     .section-action:focus-visible {
-        outline: 3px solid rgba(5, 150, 105, 0.16);
+        outline: 3px solid rgba(5, 150, 105, 0.18);
         outline-offset: 2px;
     }
 
     .section-action i {
-        font-size: 9px;
+        font-size: 12px;
     }
+
 
 /* ==========================================================================
    TABLE CARD
@@ -370,10 +497,11 @@
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
 }
 
     .table-responsive::-webkit-scrollbar {
-        height: 6px;
+        height: 8px;
     }
 
     .table-responsive::-webkit-scrollbar-track {
@@ -389,36 +517,38 @@
             background: #94a3b8;
         }
 
+
 /* ==========================================================================
    DATA TABLE
    ========================================================================== */
 
 .data-table {
     width: 100%;
-    min-width: 760px;
+    min-width: 880px;
     border-collapse: collapse;
-    font-size: 10px;
+    font-size: 13px;
 }
 
     .data-table th {
-        padding: 10px 13px;
+        padding: 14px 18px;
         color: var(--dean-text-muted);
-        background: #f8fafc;
+        background: var(--dean-surface-raised);
         border-bottom: 1px solid var(--dean-border);
         text-align: left;
-        font-size: 8px;
-        font-weight: 800;
-        letter-spacing: 0.45px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
         line-height: 1.3;
         text-transform: uppercase;
         white-space: nowrap;
     }
 
     .data-table td {
-        padding: 11px 13px;
+        padding: 16px 18px;
         color: var(--dean-text-secondary);
         border-bottom: 1px solid var(--dean-border-light);
         vertical-align: middle;
+        font-size: 13px;
     }
 
     .data-table tbody tr {
@@ -426,7 +556,7 @@
     }
 
         .data-table tbody tr:hover {
-            background: #fafcfe;
+            background: var(--dean-surface-raised);
         }
 
         .data-table tbody tr:last-child td {
@@ -435,13 +565,14 @@
 
     .data-table th:first-child,
     .data-table td:first-child {
-        padding-left: 15px;
+        padding-left: 22px;
     }
 
     .data-table th:last-child,
     .data-table td:last-child {
-        padding-right: 15px;
+        padding-right: 22px;
     }
+
 
 /* ==========================================================================
    ACTION COLUMN
@@ -452,24 +583,65 @@
     white-space: nowrap;
 }
 
+
 /* ==========================================================================
    RECORD IDENTIFIERS
    ========================================================================== */
 
+.table-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--dean-navy);
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+    .table-primary.person-primary {
+        gap: 10px;
+    }
+
+.record-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-size: 14px;
+    background: var(--dean-surface-raised);
+    border: 1px solid var(--dean-border-light);
+}
+
+    .record-icon.contract-record-icon {
+        color: var(--dean-green-dark);
+        background: var(--dean-green-soft);
+        border-color: var(--dean-green-border);
+    }
+
+    .record-icon.claim-record-icon {
+        color: var(--dean-blue);
+        background: var(--dean-blue-soft);
+        border-color: var(--dean-blue-border);
+    }
+
 .record-id {
     display: inline-flex;
     align-items: center;
-    min-height: 23px;
-    padding: 3px 7px;
+    min-height: 26px;
+    padding: 4px 10px;
     color: var(--dean-navy);
     background: #f1f5f9;
     border: 1px solid var(--dean-border);
     border-radius: var(--dean-radius-sm);
-    font-size: 8.5px;
-    font-weight: 800;
-    letter-spacing: 0.2px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     white-space: nowrap;
 }
+
 
 /* ==========================================================================
    PERSON CELL
@@ -478,15 +650,15 @@
 .person-cell {
     display: flex;
     align-items: center;
-    gap: 8px;
-    min-width: 155px;
+    gap: 10px;
+    min-width: 170px;
     color: var(--dean-text);
     font-weight: 600;
 }
 
 .person-avatar {
-    width: 28px;
-    height: 28px;
+    width: 34px;
+    height: 34px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -495,29 +667,53 @@
     background: #eef3f8;
     border: 1px solid var(--dean-border);
     border-radius: 50%;
-    font-size: 10px;
+    font-size: 14px;
 }
 
 .muted-text {
     color: var(--dean-text-secondary);
+    font-size: 12.5px;
 }
 
 .course-name {
     color: var(--dean-text);
-    font-weight: 600;
+    font-weight: 500;
+    font-size: 13px;
 }
 
 .hours-value {
     color: var(--dean-navy);
-    font-weight: 700;
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: -0.1px;
     white-space: nowrap;
 }
 
+    .hours-value small {
+        color: var(--dean-text-muted);
+        font-family: inherit;
+        font-weight: 500;
+        font-size: 11px;
+        letter-spacing: 0.02em;
+        margin-left: 2px;
+    }
+
 .contract-reference {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     color: var(--dean-navy-light);
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 12.5px;
     white-space: nowrap;
 }
+
+    .contract-reference i {
+        color: var(--dean-green);
+        font-size: 14px;
+    }
+
 
 /* ==========================================================================
    STATUS BADGES
@@ -527,117 +723,146 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    min-height: 22px;
-    padding: 4px 9px;
+    gap: 7px;
+    min-height: 28px;
+    padding: 0 12px;
     border-radius: 999px;
-    font-size: 8px;
-    font-weight: 700;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
     line-height: 1;
     white-space: nowrap;
+    border: 1px solid transparent;
 }
 
-    .status-badge .status-dot {
-        width: 5px;
-        height: 5px;
+    .status-badge .status-dot,
+    .status-badge .badge-dot {
+        width: 6px;
+        height: 6px;
         flex-shrink: 0;
         border-radius: 50%;
     }
 
     /* Pending */
-    .status-badge.pending {
-        color: #92400e;
+
+    .status-badge.pending,
+    .status-badge.status-pending {
+        color: var(--dean-amber);
         background: var(--dean-amber-soft);
-        border: 1px solid #fde68a;
+        border-color: var(--dean-amber-border);
     }
 
-        .status-badge.pending .status-dot {
+        .status-badge.pending .status-dot,
+        .status-badge.pending .badge-dot,
+        .status-badge.status-pending .badge-dot {
             background: var(--dean-amber);
-            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.10);
         }
 
     /* Review */
-    .status-badge.review {
+
+    .status-badge.review,
+    .status-badge.status-review {
         color: var(--dean-blue);
         background: var(--dean-blue-soft);
-        border: 1px solid var(--dean-blue-border);
+        border-color: var(--dean-blue-border);
     }
 
-        .status-badge.review .status-dot {
+        .status-badge.review .status-dot,
+        .status-badge.status-review .status-dot {
             background: var(--dean-blue);
         }
 
     /* Active / Approved / Completed */
+
     .status-badge.active,
     .status-badge.approved,
-    .status-badge.completed {
+    .status-badge.completed,
+    .status-badge.status-active,
+    .status-badge.status-approved,
+    .status-badge.status-completed {
         color: var(--dean-green-dark);
         background: var(--dean-green-soft);
-        border: 1px solid var(--dean-green-border);
+        border-color: var(--dean-green-border);
     }
 
         .status-badge.active .status-dot,
         .status-badge.approved .status-dot,
-        .status-badge.completed .status-dot {
+        .status-badge.completed .status-dot,
+        .status-badge.status-active .status-dot,
+        .status-badge.status-active .badge-dot,
+        .status-badge.status-approved .badge-dot,
+        .status-badge.status-completed .badge-dot {
             background: var(--dean-green);
         }
 
     /* Declined / Rejected */
+
     .status-badge.declined,
-    .status-badge.rejected {
-        color: #991b1b;
+    .status-badge.rejected,
+    .status-badge.status-declined,
+    .status-badge.status-rejected {
+        color: var(--dean-red);
         background: var(--dean-red-soft);
-        border: 1px solid var(--dean-red-border);
+        border-color: var(--dean-red-border);
     }
 
         .status-badge.declined .status-dot,
-        .status-badge.rejected .status-dot {
+        .status-badge.rejected .status-dot,
+        .status-badge.status-declined .badge-dot,
+        .status-badge.status-rejected .badge-dot {
             background: var(--dean-red);
         }
 
+
 /* ==========================================================================
-   REVIEW BUTTON
+   TABLE ACTION BUTTON
    ========================================================================== */
 
+.table-action,
 .review-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    min-width: 72px;
-    min-height: 29px;
-    padding: 6px 12px;
+    gap: 7px;
+    min-height: 36px;
+    padding: 0 14px;
     color: #ffffff;
     background: var(--dean-green);
     border: 1px solid var(--dean-green);
     border-radius: var(--dean-radius-sm);
     text-decoration: none;
-    font-size: 8.5px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
     line-height: 1;
     transition: background var(--dean-transition), border-color var(--dean-transition), transform var(--dean-transition), box-shadow var(--dean-transition);
 }
 
+    .table-action:hover,
     .review-btn:hover {
         color: #ffffff;
         background: var(--dean-green-dark);
         border-color: var(--dean-green-dark);
-        box-shadow: 0 4px 10px rgba(5, 150, 105, 0.16);
+        box-shadow: 0 6px 14px rgba(5, 150, 105, 0.2);
         transform: translateY(-1px);
     }
 
+    .table-action:focus-visible,
     .review-btn:focus-visible {
-        outline: 3px solid rgba(5, 150, 105, 0.18);
+        outline: 3px solid rgba(5, 150, 105, 0.2);
         outline-offset: 2px;
     }
 
+    .table-action:active,
     .review-btn:active {
         transform: translateY(0);
     }
 
+    .table-action i,
     .review-btn i {
-        font-size: 9px;
+        font-size: 12px;
     }
+
 
 /* ==========================================================================
    EMPTY STATE
@@ -647,40 +872,50 @@
     display: flex;
     align-items: center;
     flex-direction: column;
-    padding: 45px 20px;
+    padding: 64px 24px;
     text-align: center;
 }
 
+.empty-state-icon,
 .empty-icon {
-    width: 52px;
-    height: 52px;
+    width: 64px;
+    height: 64px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 11px;
+    margin-bottom: 18px;
     color: var(--dean-green-dark);
     background: var(--dean-green-soft);
     border: 1px solid var(--dean-green-border);
     border-radius: 50%;
-    font-size: 22px;
-    box-shadow: 0 5px 14px rgba(5, 150, 105, 0.07);
+    font-size: 26px;
+    box-shadow: 0 8px 20px rgba(5, 150, 105, 0.08);
 }
+
+    .empty-state-icon.claims-empty-icon {
+        color: var(--dean-blue);
+        background: var(--dean-blue-soft);
+        border-color: var(--dean-blue-border);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+    }
 
 .empty-state h3 {
     margin: 0;
     color: var(--dean-navy);
     font-family: "Poppins", "Segoe UI", sans-serif;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
 }
 
 .empty-state p {
-    max-width: 420px;
-    margin: 5px auto 0;
+    max-width: 440px;
+    margin: 8px auto 0;
     color: var(--dean-text-muted);
-    font-size: 9.5px;
-    line-height: 1.55;
+    font-size: 13px;
+    line-height: 1.6;
 }
+
 
 /* ==========================================================================
    SECONDARY BUTTON
@@ -690,16 +925,16 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    min-height: 29px;
-    padding: 6px 12px;
+    gap: 7px;
+    min-height: 36px;
+    padding: 0 14px;
     color: var(--dean-navy);
     background: var(--dean-surface);
     border: 1px solid var(--dean-border);
     border-radius: var(--dean-radius-sm);
     text-decoration: none;
-    font-size: 8.5px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
     transition: color var(--dean-transition), background var(--dean-transition), border-color var(--dean-transition), transform var(--dean-transition);
 }
 
@@ -711,34 +946,46 @@
     }
 
     .secondary-btn:focus-visible {
-        outline: 3px solid rgba(5, 150, 105, 0.16);
+        outline: 3px solid rgba(5, 150, 105, 0.18);
         outline-offset: 2px;
     }
 
+
 /* ==========================================================================
-   RESPONSIVE
+   RESPONSIVE — LARGE TABLET
    ========================================================================== */
 
 @media (max-width: 1200px) {
+
     .stats-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
+        gap: 16px;
     }
 
     .page-title {
-        font-size: 23px;
+        font-size: 28px;
+    }
+
+    .stat-value {
+        font-size: 28px;
     }
 
     .data-table {
-        min-width: 760px;
+        min-width: 820px;
     }
 }
 
+
+/* ==========================================================================
+   RESPONSIVE — TABLET
+   ========================================================================== */
+
 @media (max-width: 900px) {
+
     .page-header {
         align-items: flex-start;
         flex-direction: column;
-        gap: 11px;
+        gap: 14px;
     }
 
     .system-status {
@@ -746,170 +993,217 @@
     }
 
     .stats-grid {
-        gap: 11px;
-    }
-
-    .section-header {
-        align-items: flex-start;
-    }
-}
-
-@media (max-width: 700px) {
-    .dashboard-page {
-        width: 100%;
-    }
-
-    .page-header {
-        margin-bottom: 19px;
-    }
-
-    .breadcrumb {
-        margin-bottom: 6px;
-        font-size: 9px;
-    }
-
-    .page-title {
-        font-size: 20px;
-        letter-spacing: -0.25px;
-    }
-
-    .page-subtitle {
-        margin-top: 5px;
-        font-size: 10px;
-        line-height: 1.5;
-    }
-
-    .system-status {
-        padding: 6px 12px;
-        font-size: 8.5px;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 9px;
-        margin-bottom: 19px;
-    }
-
-    .stat-card {
-        padding: 14px 16px;
-        border-radius: 11px;
-    }
-
-    .stat-card-top {
-        margin-bottom: 12px;
-    }
-
-    .stat-icon {
-        width: 38px;
-        height: 38px;
-        font-size: 16px;
-    }
-
-    .stat-number {
-        font-size: 23px;
-    }
-
-    .dashboard-section {
-        margin-bottom: 17px;
+        gap: 14px;
+        margin-bottom: 28px;
     }
 
     .section-header {
         align-items: flex-start;
         flex-direction: column;
-        gap: 7px;
-        margin-bottom: 9px;
-    }
-
-    .section-title {
-        font-size: 13px;
-    }
-
-    .section-description {
-        font-size: 9px;
+        gap: 12px;
     }
 
     .section-action {
         align-self: flex-start;
-        font-size: 8.5px;
-    }
-
-    .table-card {
-        border-radius: 10px;
-    }
-
-    .data-table {
-        min-width: 720px;
-    }
-
-        .data-table th {
-            padding: 9px 11px;
-            font-size: 7.5px;
-        }
-
-        .data-table td {
-            padding: 10px 11px;
-        }
-
-            .data-table th:first-child,
-            .data-table td:first-child {
-                padding-left: 12px;
-            }
-
-            .data-table th:last-child,
-            .data-table td:last-child {
-                padding-right: 12px;
-            }
-
-    .empty-state {
-        padding: 35px 16px;
     }
 }
 
-@media (max-width: 480px) {
+
+/* ==========================================================================
+   RESPONSIVE — MOBILE
+   ========================================================================== */
+
+@media (max-width: 700px) {
+
+    .dashboard-page {
+        width: 100%;
+        padding: 0 0 28px;
+    }
+
+    .page-header {
+        margin-bottom: 22px;
+    }
+
+    .breadcrumb {
+        margin-bottom: 8px;
+        font-size: 11px;
+    }
+
     .page-title {
-        font-size: 18px;
+        font-size: 24px;
+        letter-spacing: -0.4px;
     }
 
     .page-subtitle {
-        font-size: 9.5px;
+        margin-top: 8px;
+        font-size: 13px;
+        line-height: 1.55;
     }
 
     .system-status {
-        font-size: 8px;
+        padding: 7px 12px;
+        font-size: 11px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 24px;
     }
 
     .stat-card {
-        padding: 13px 14px;
+        padding: 18px 20px;
+        border-radius: var(--dean-radius);
+    }
+
+    .stat-card-top {
+        margin-bottom: 14px;
     }
 
     .stat-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+
+    .stat-value {
+        font-size: 26px;
+    }
+
+    .dashboard-section {
+        margin-bottom: 22px;
+    }
+
+    .section-title {
+        font-size: 15.5px;
+    }
+
+    .section-description {
+        font-size: 12px;
+    }
+
+    .section-icon {
         width: 36px;
         height: 36px;
         font-size: 15px;
     }
 
-    .stat-number {
-        font-size: 21px;
+    .table-card {
+        border-radius: var(--dean-radius-sm);
     }
 
-    .section-title {
-        font-size: 12.5px;
+    .data-table {
+        min-width: 780px;
     }
 
-    .section-description {
-        font-size: 8.5px;
-    }
+        .data-table th {
+            padding: 12px 14px;
+            font-size: 10.5px;
+        }
+
+        .data-table td {
+            padding: 14px;
+            font-size: 12.5px;
+        }
+
+            .data-table th:first-child,
+            .data-table td:first-child {
+                padding-left: 16px;
+            }
+
+            .data-table th:last-child,
+            .data-table td:last-child {
+                padding-right: 16px;
+            }
 
     .empty-state {
-        padding: 32px 14px;
+        padding: 48px 20px;
+    }
+
+    .empty-state-icon,
+    .empty-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 22px;
+    }
+
+    .empty-state h3 {
+        font-size: 15px;
+    }
+
+    .empty-state p {
+        font-size: 12.5px;
     }
 }
 
+
 /* ==========================================================================
-   ACCESSIBILITY
+   RESPONSIVE — SMALL MOBILE
+   ========================================================================== */
+
+@media (max-width: 480px) {
+
+    .page-title {
+        font-size: 22px;
+    }
+
+    .page-subtitle {
+        font-size: 12.5px;
+    }
+
+    .system-status {
+        font-size: 10.5px;
+    }
+
+    .stat-card {
+        padding: 16px 18px;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 17px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    .stat-description {
+        font-size: 11.5px;
+    }
+
+    .section-title {
+        font-size: 15px;
+    }
+
+    .section-description {
+        font-size: 11.5px;
+    }
+
+    .table-action,
+    .review-btn {
+        min-height: 34px;
+        padding: 0 12px;
+        font-size: 11.5px;
+    }
+
+    .empty-state {
+        padding: 40px 18px;
+    }
+}
+
+
+/* ==========================================================================
+   REDUCED MOTION
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -918,24 +1212,33 @@
     }
 
     .stat-card,
-    .stat-arrow,
+    .stat-context,
     .section-action,
+    .table-action,
     .review-btn,
     .secondary-btn,
-    .data-table tbody tr {
+    .data-table tbody tr,
+    .stat-icon {
         transition: none !important;
     }
 
-        .stat-card:hover {
+        .stat-card:hover,
+        .table-action:hover,
+        .review-btn:hover,
+        .secondary-btn:hover,
+        .section-action:hover,
+        .stat-card:hover .stat-icon {
             transform: none !important;
         }
 }
+
 
 /* ==========================================================================
    PRINT
    ========================================================================== */
 
 @media print {
+
     .dashboard-page {
         max-width: none;
         padding: 0;
@@ -947,7 +1250,8 @@
         border: 1px solid #ccc;
     }
 
-        .stat-card:hover {
+        .stat-card:hover,
+        .stat-card:hover .stat-icon {
             transform: none !important;
         }
 
@@ -955,6 +1259,7 @@
         min-width: 0 !important;
     }
 
+    .table-action,
     .review-btn,
     .secondary-btn,
     .section-action {
@@ -969,4 +1274,13 @@
         border-color: #999 !important;
         color: #000 !important;
     }
+
+    .stat-icon {
+        border-color: #ccc !important;
+        background: transparent !important;
+    }
+
+        .stat-icon::after {
+            display: none !important;
+        }
 }

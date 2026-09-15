@@ -30,6 +30,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             ManagementTitle.HROfficer => "HR Officer",
             ManagementTitle.DVCAR => "DVCAR",
             ManagementTitle.ViceChancellor => "Vice Chancellor",
+            ManagementTitle.ExamOffice => "Exam Officer",
+            ManagementTitle.DirectorOfQuality => "Director of Quality",
             _ => Title.ToString()
         };
 
@@ -95,11 +97,32 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             DisplayName = management.UserName;
             Title = management.Title;
 
-            // Only management members who participate in the
-            // contract-signing sequence should access this dashboard.
+            // ========================================================
+            // ROLE ROUTING
+            // ========================================================
+            //
+            // The contract dashboard is for management members who
+            // actually participate in the contract-signing chain:
+            //   HR Officer → DVCAR → Vice Chancellor
+            //
+            // Everyone else is sent to the domain page that matches
+            // their responsibility:
+            //   Exam Office        → verifies marks
+            //   Director of Quality → reviews claims
+            //
+
             if (!IsContractSigner(Title))
             {
-                return RedirectToPage("/Login");
+                return Title switch
+                {
+                    ManagementTitle.ExamOffice =>
+                        RedirectToPage("/Management/Marks"),
+
+                    ManagementTitle.DirectorOfQuality =>
+                        RedirectToPage("/Management/Claims"),
+
+                    _ => RedirectToPage("/Login")
+                };
             }
 
             var signerRole = MapTitleToSignerRole(Title);
@@ -185,6 +208,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
         // ============================================================
         // CONTRACT SIGNER VALIDATION
         // ============================================================
+        //
+        // Only HR Officer, DVCAR, and Vice Chancellor sign contracts.
+        //
+        // Exam Office verifies marks — a separate workflow.
+        // Director of Quality reviews claims — a separate workflow.
+        //
 
         private static bool IsContractSigner(ManagementTitle title)
         {
@@ -233,9 +262,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
 
         // ============================================================
         // LEGACY CLAIMS ROLE MAPPING
+        // ============================================================
+        //
         // Kept temporarily so the existing Claims page continues
         // to compile while the current development focus is contracts.
-        // ============================================================
+        //
+
         public static ApprovalRole MapTitleToApprovalRole(ManagementTitle title) => title switch
         {
             ManagementTitle.HROfficer => ApprovalRole.HROfficer,

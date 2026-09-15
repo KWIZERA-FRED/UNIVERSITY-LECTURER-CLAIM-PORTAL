@@ -865,3 +865,46 @@ a {
         display: none;
     }
 }
+
+
+/* ==============================================================
+   LOGOUT FORM (WRAPS THE LOGOUT BUTTON IN THE TOPBAR)
+   ==============================================================
+   A neutral inline-flex wrapper so the <form> does not disturb
+   the topbar layout and adds no visual chrome of its own.
+   ============================================================== */
+
+.dean-logout-form {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+
+    /* ==============================================================
+   LOGOUT BUTTON — UA RESET
+   ==============================================================
+   <button> elements ship with user-agent defaults: grey
+   background (buttonface), 3D bevel border, system font, and
+   centred text. The existing .dean-logout rule above provides
+   the real visual style — white text, thin translucent border,
+   rounded corners, padding, and hover behaviour.
+
+   This block strips ONLY the UA defaults that .dean-logout does
+   not explicitly override, so the <button> renders identically
+   to the old <a class="dean-logout"> element.
+   ============================================================== */
+
+    .dean-logout-form .dean-logout {
+        -webkit-appearance: none;
+        appearance: none;
+        font: inherit;
+        cursor: pointer;
+        /* Neutralise the UA's default grey background so the
+       .dean-logout hover background is the only background
+       ever shown. */
+        background: transparent;
+    }

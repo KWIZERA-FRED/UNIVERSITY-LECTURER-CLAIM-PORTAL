@@ -1,3 +1,8 @@
+/* ============================================================
+   UNILAK PORTAL
+   MANAGEMENT SHARED LAYOUT
+   Visual parity with the Lecturer shell.
+   ============================================================ */
 
 :root {
     --primary: #002147;
@@ -32,12 +37,13 @@
    ============================================================ */
 
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 html {
+    min-height: 100%;
     scroll-behavior: smooth;
 }
 
@@ -46,30 +52,25 @@ body {
     background: var(--background);
     color: var(--text);
     font-family: var(--font-primary);
-    font-size: 14px;
-    line-height: 1.6;
-    overflow-x: hidden;
-}
-
-a {
-    color: inherit;
-    text-decoration: none;
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 button,
 input,
 select,
 textarea {
-    font: inherit;
+    font-family: inherit;
 }
 
 button {
-    border: 0;
+    cursor: pointer;
 }
 
-img {
-    max-width: 100%;
-    display: block;
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
 
@@ -79,6 +80,7 @@ img {
 
 .management-app {
     min-height: 100vh;
+    background: var(--background);
 }
 
 
@@ -96,7 +98,7 @@ img {
     align-items: center;
     justify-content: space-between;
     padding: 0 20px;
-    background: var(--primary);
+    background: #0B2559;
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     z-index: 1000;
     box-shadow: 0 3px 12px rgba(0, 28, 64, 0.18);
@@ -108,31 +110,41 @@ img {
    ============================================================ */
 
 .navbar-left {
-    min-width: 0;
     display: flex;
     align-items: center;
-    gap: 14px;
+    min-width: 0;
 }
 
+
+/* ============================================================
+   MOBILE SIDEBAR TOGGLE
+   ============================================================ */
+
 .sidebar-toggle {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     display: none;
     align-items: center;
     justify-content: center;
-    color: #FFFFFF;
-    background: transparent;
+    margin-right: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 8px;
-    cursor: pointer;
-    transition: background var(--transition), color var(--transition);
+    background: rgba(255, 255, 255, 0.06);
+    color: #FFFFFF;
+    transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
 
     .sidebar-toggle:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .sidebar-toggle:active {
+        transform: scale(0.96);
     }
 
     .sidebar-toggle i {
-        font-size: 22px;
+        font-size: 19px;
     }
 
 
@@ -143,9 +155,8 @@ img {
 .brand {
     display: flex;
     align-items: center;
-    gap: 11px;
+    gap: 10px;
     min-width: 0;
-    color: #FFFFFF;
 }
 
 .brand-logo {
@@ -156,6 +167,9 @@ img {
     justify-content: center;
     flex-shrink: 0;
     overflow: hidden;
+    border-radius: 8px;
+    background: #FFFFFF;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
     .brand-logo img {
@@ -165,26 +179,26 @@ img {
     }
 
 .brand-text {
-    min-width: 0;
     display: flex;
     flex-direction: column;
-    line-height: 1.15;
+    min-width: 0;
 }
 
 .brand-title {
     color: #FFFFFF;
-    font-family: var(--font-primary);
+    font-family: var(--font-secondary);
     font-size: 14px;
-    font-weight: 800;
-    letter-spacing: -0.2px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .brand-subtitle {
-    margin-top: 3px;
-    color: rgba(255, 255, 255, 0.68);
-    font-family: var(--font-secondary);
+    margin-top: 2px;
+    color: rgba(255, 255, 255, 0.64);
     font-size: 9px;
     font-weight: 500;
+    line-height: 1.2;
     white-space: nowrap;
 }
 
@@ -196,82 +210,108 @@ img {
 .navbar-right {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 10px;
 }
+
+
+/* ============================================================
+   USER INFORMATION
+   ============================================================ */
 
 .navbar-user {
     display: flex;
     align-items: center;
     gap: 9px;
+    min-height: 42px;
+    padding: 4px 11px 4px 5px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.055);
+    transition: background var(--transition), border-color var(--transition);
 }
 
+    .navbar-user:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.17);
+    }
+
 .user-avatar {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 50%;
+    flex-shrink: 0;
+    border: 1px solid rgba(0, 155, 99, 0.38);
+    border-radius: 7px;
+    background: rgba(0, 155, 99, 0.16);
+    color: #49D69D;
 }
 
     .user-avatar i {
-        font-size: 17px;
+        font-size: 15px;
     }
 
 .user-details {
     display: flex;
     flex-direction: column;
-    line-height: 1.2;
+    min-width: 0;
 }
 
 .user-name {
-    max-width: 180px;
+    max-width: 170px;
     overflow: hidden;
+    color: #FFFFFF;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.3;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #FFFFFF;
-    font-size: 12px;
-    font-weight: 700;
 }
 
 .user-role {
-    margin-top: 3px;
-    color: rgba(255, 255, 255, 0.62);
-    font-size: 10px;
+    margin-top: 1px;
+    color: rgba(255, 255, 255, 0.54);
+    font-size: 8px;
     font-weight: 500;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
+
+
+/* ============================================================
+   LOGOUT
+   ============================================================ */
 
 .logout-form {
     margin: 0;
 }
 
 .logout-button {
-    min-height: 36px;
+    height: 38px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 7px;
-    padding: 0 12px;
-    color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0 13px;
+    border: 1px solid rgba(255, 255, 255, 0.13);
     border-radius: 7px;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
-    transition: background var(--transition), border-color var(--transition);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 10.5px;
+    font-weight: 500;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
 }
 
-    .logout-button:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.18);
+    .logout-button i {
+        font-size: 14px;
     }
 
-    .logout-button i {
-        font-size: 15px;
+    .logout-button:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: #FFFFFF;
     }
 
 
@@ -281,6 +321,7 @@ img {
 
 .app-body {
     min-height: 100vh;
+    padding-top: var(--navbar-height);
 }
 
 
@@ -296,10 +337,12 @@ img {
     width: var(--sidebar-width);
     background: var(--surface);
     border-right: 1px solid var(--border);
-    z-index: 900;
     overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 900;
     scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
+    scrollbar-color: #D5DEE6 transparent;
+    transition: transform 0.25s ease;
 }
 
     .sidebar::-webkit-scrollbar {
@@ -311,80 +354,129 @@ img {
     }
 
     .sidebar::-webkit-scrollbar-thumb {
-        background: var(--border);
+        background: #D5DEE6;
         border-radius: 10px;
     }
+
+
+/* ============================================================
+   SIDEBAR CONTENT
+   ============================================================ */
 
 .sidebar-content {
     min-height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 22px 13px 16px;
+    padding: 25px 12px 14px;
 }
 
 
 /* ============================================================
-   SIDEBAR NAVIGATION
+   NAVIGATION
    ============================================================ */
 
 .sidebar-navigation {
-    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .navigation-heading {
-    padding: 0 11px;
-    margin-bottom: 9px;
-    color: var(--text-muted);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 0.9px;
+    padding: 0 9px;
+    margin-bottom: 12px;
+    color: var(--accent);
+    font-family: var(--font-secondary);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
 }
 
+
+/* ============================================================
+   SIDEBAR LINKS
+   ============================================================ */
+
 .sidebar-link {
-    min-height: 43px;
+    position: relative;
+    min-height: 42px;
     display: flex;
     align-items: center;
-    gap: 11px;
-    padding: 0 11px;
-    margin-bottom: 4px;
-    color: var(--text-secondary);
+    gap: 10px;
+    margin-bottom: 3px;
+    padding: 0 10px;
+    border: 1px solid transparent;
     border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    transition: background var(--transition), color var(--transition), transform var(--transition);
+    color: #52677D;
+    font-size: 10.5px;
+    font-weight: 500;
+    transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
 }
 
     .sidebar-link:hover {
-        color: var(--primary);
-        background: var(--surface-soft);
+        background: #F6FAF8;
+        color: var(--accent-dark);
     }
 
     .sidebar-link.active {
-        color: var(--primary);
-        background: var(--accent-light);
-        box-shadow: inset 3px 0 0 var(--accent);
+        background: #EFFBF6;
+        border-color: #C9F0DF;
+        color: var(--accent-dark);
+        box-shadow: 0 3px 10px rgba(0, 155, 99, 0.07);
     }
 
-        .sidebar-link.active .sidebar-icon {
-            color: var(--accent);
+        .sidebar-link.active::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: 7px;
+            width: 2px;
+            height: 18px;
+            transform: translateY(-50%);
+            border-radius: 4px;
+            background: var(--accent);
         }
 
+    .sidebar-link:focus-visible {
+        outline: 3px solid rgba(0, 155, 99, 0.14);
+        outline-offset: 2px;
+    }
+
+
+/* ============================================================
+   SIDEBAR ICON
+   ============================================================ */
+
 .sidebar-icon {
-    width: 21px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: var(--text-muted);
-    transition: color var(--transition);
+    border-radius: 7px;
+    background: #F2F6F9;
+    color: #60758A;
+    transition: background var(--transition), color var(--transition);
 }
 
     .sidebar-icon i {
-        font-size: 16px;
+        font-size: 13px;
     }
 
+.sidebar-link:hover .sidebar-icon {
+    background: #E6F7F0;
+    color: var(--accent-dark);
+}
+
+.sidebar-link.active .sidebar-icon {
+    background: #D8F4E8;
+    color: var(--accent-dark);
+}
+
 .sidebar-label {
-    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 
@@ -395,51 +487,53 @@ img {
 .sidebar-profile {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-    padding: 13px 11px;
-    background: var(--surface-soft);
-    border: 1px solid var(--border-light);
-    border-radius: 9px;
+    gap: 9px;
+    margin: auto 3px 0;
+    padding: 10px;
+    border: 1px solid #CCEFE0;
+    border-radius: 8px;
+    background: #F4FCF8;
 }
 
 .profile-icon {
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: var(--accent);
-    background: var(--accent-light);
-    border: 1px solid var(--accent-border);
-    border-radius: 8px;
+    border: 1px solid #BCEBD8;
+    border-radius: 7px;
+    background: #FFFFFF;
+    color: var(--accent-dark);
 }
 
     .profile-icon i {
-        font-size: 16px;
+        font-size: 12px;
     }
 
 .profile-content {
-    min-width: 0;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .profile-title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--text);
-    font-size: 10px;
+    color: #173C30;
+    font-size: 9px;
     font-weight: 700;
+    line-height: 1.3;
 }
 
 .profile-text {
-    margin-top: 2px;
-    color: var(--text-muted);
-    font-size: 8px;
+    margin-top: 1px;
+    overflow: hidden;
+    color: #6B8179;
+    font-size: 7.5px;
+    font-weight: 500;
     line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 
@@ -448,9 +542,9 @@ img {
    ============================================================ */
 
 .main-content {
-    min-height: 100vh;
+    min-height: calc(100vh - var(--navbar-height));
     margin-left: var(--sidebar-width);
-    padding-top: var(--navbar-height);
+    padding: 28px 30px 40px;
     background: var(--background);
 }
 
@@ -462,18 +556,33 @@ img {
 .sidebar-overlay {
     position: fixed;
     inset: 0;
-    display: none;
-    background: rgba(0, 20, 40, 0.42);
+    background: rgba(0, 28, 64, 0.44);
+    opacity: 0;
+    visibility: hidden;
     z-index: 850;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 
     .sidebar-overlay.visible {
-        display: block;
+        opacity: 1;
+        visibility: visible;
     }
 
 
 /* ============================================================
-   RESPONSIVE — TABLET
+   FOCUS STATES
+   ============================================================ */
+
+.brand:focus-visible,
+.sidebar-toggle:focus-visible,
+.logout-button:focus-visible {
+    outline: 3px solid rgba(0, 155, 99, 0.28);
+    outline-offset: 2px;
+}
+
+
+/* ============================================================
+   TABLET
    ============================================================ */
 
 @media (max-width: 1100px) {
@@ -482,34 +591,56 @@ img {
         --sidebar-width: 210px;
     }
 
-    .navbar-right {
-        gap: 12px;
+    .main-content {
+        padding: 25px 24px 35px;
     }
 
-    .user-name {
-        max-width: 140px;
+    .user-details {
+        display: none;
+    }
+
+    .navbar-user {
+        padding-right: 5px;
     }
 }
 
 
 /* ============================================================
-   RESPONSIVE — MOBILE
+   MOBILE
    ============================================================ */
 
 @media (max-width: 900px) {
 
+    :root {
+        --navbar-height: 60px;
+    }
+
     .top-navbar {
-        padding: 0 14px;
+        height: var(--navbar-height);
+        padding: 0 15px;
     }
 
     .sidebar-toggle {
         display: flex;
     }
 
+    .brand-logo {
+        width: 35px;
+        height: 35px;
+    }
+
+    .brand-title {
+        font-size: 13px;
+    }
+
+    .brand-subtitle {
+        display: none;
+    }
+
     .sidebar {
+        top: var(--navbar-height);
         transform: translateX(-100%);
-        transition: transform 0.25s ease;
-        box-shadow: 6px 0 18px rgba(0, 33, 71, 0.12);
+        box-shadow: 8px 0 25px rgba(0, 33, 71, 0.14);
     }
 
         .sidebar.open {
@@ -517,90 +648,97 @@ img {
         }
 
     .main-content {
+        min-height: calc(100vh - var(--navbar-height));
         margin-left: 0;
+        padding: 22px 18px 30px;
     }
 
-    .navbar-right {
-        gap: 8px;
-    }
-
-    .user-details {
-        display: none;
-    }
-
-    .logout-button span {
-        display: none;
+    body.sidebar-open {
+        overflow: hidden;
     }
 
     .logout-button {
         width: 36px;
+        height: 36px;
         padding: 0;
     }
+
+        .logout-button span {
+            display: none;
+        }
 }
 
 
 /* ============================================================
-   RESPONSIVE — SMALL MOBILE
+   SMALL MOBILE
    ============================================================ */
 
-@media (max-width: 600px) {
+@media (max-width: 560px) {
 
     .top-navbar {
-        height: 60px;
+        padding: 0 11px;
     }
 
-    :root {
-        --navbar-height: 60px;
+    .sidebar-toggle {
+        width: 34px;
+        height: 34px;
+        margin-right: 7px;
     }
 
-    .brand-subtitle {
-        display: none;
-    }
-
-    .brand-title {
-        font-size: 13px;
+    .brand {
+        gap: 7px;
     }
 
     .brand-logo {
+        width: 33px;
+        height: 33px;
+    }
+
+    .brand-title {
+        font-size: 12px;
+    }
+
+    .navbar-right {
+        gap: 6px;
+    }
+
+    .navbar-user {
+        border: none;
+        background: transparent;
+        padding: 0;
+    }
+
+    .user-avatar {
         width: 34px;
         height: 34px;
     }
 
-    .navbar-right {
-        gap: 5px;
+    .main-content {
+        padding: 18px 13px 25px;
     }
 
     .sidebar {
-        top: var(--navbar-height);
-        width: min(280px, 82vw);
+        width: min(248px, 84vw);
     }
 }
 
 
 /* ============================================================
-   ACCESSIBILITY
+   VERY SMALL SCREENS
    ============================================================ */
 
-.sidebar-link:focus-visible,
-.sidebar-toggle:focus-visible,
-.logout-button:focus-visible,
-.brand:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-}
+@media (max-width: 380px) {
 
+    .brand-text {
+        max-width: 125px;
+    }
 
-/* ============================================================
-   REDUCED MOTION
-   ============================================================ */
+    .brand-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-@media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-        scroll-behavior: auto !important;
-        transition: none !important;
+    .user-avatar {
+        display: none;
     }
 }
-

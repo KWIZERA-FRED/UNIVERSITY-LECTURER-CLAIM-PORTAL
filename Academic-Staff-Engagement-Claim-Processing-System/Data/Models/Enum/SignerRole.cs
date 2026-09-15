@@ -9,6 +9,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
         Dean = 2,
         HROfficer = 3,
         DVCAR = 4,
-        ViceChancellor = 5
+        ViceChancellor = 5,
+        ExamOffice = 6
     }
 }

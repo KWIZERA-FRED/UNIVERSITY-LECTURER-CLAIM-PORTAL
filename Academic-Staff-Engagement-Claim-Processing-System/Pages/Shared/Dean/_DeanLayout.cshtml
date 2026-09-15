@@ -133,18 +133,26 @@
 
                 <div class="dean-topbar-divider"></div>
 
-                <a href="/Login"
-                   class="dean-logout"
-                   aria-label="Logout">
+                <form method="post"
+                      asp-page="/Logout"
+                      class="dean-logout-form">
 
-                    <i class="bi bi-box-arrow-right"
-                       aria-hidden="true"></i>
+                    @Html.AntiForgeryToken()
 
-                    <span>
-                        Logout
-                    </span>
+                    <button type="submit"
+                            class="dean-logout"
+                            aria-label="Logout">
 
-                </a>
+                        <i class="bi bi-box-arrow-right"
+                           aria-hidden="true"></i>
+
+                        <span>
+                            Logout
+                        </span>
+
+                    </button>
+
+                </form>
 
             </div>
 

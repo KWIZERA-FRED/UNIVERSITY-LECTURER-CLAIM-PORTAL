@@ -14,7 +14,7 @@
     }
 
     bool IsDashboard =
-        IsActive("/ManagementDashboard");
+        IsActive("/Management/ManagementDashboard");
 
     bool IsContracts =
         IsActive("/Management/Contracts");
@@ -36,40 +36,33 @@
 
     <meta charset="utf-8" />
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
     <title>
         @ViewData["Title"] - UNILAK Portal
     </title>
 
-    <link
-        rel="icon"
-        type="image/png"
-        href="~/images/PNG_LOGO-_UNILAK-removebg-preview.png" />
+    <link rel="icon"
+          type="image/png"
+          href="~/images/PNG_LOGO-_UNILAK-removebg-preview.png" />
 
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com" />
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
 
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin />
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
+          rel="stylesheet" />
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-    <link
-        rel="stylesheet"
-        href="~/css/MANAGEMENT/layout.css"
-        asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/MANAGEMENT/layout.css"
+          asp-append-version="true" />
 
     @RenderSection("Styles", required: false)
 
@@ -79,30 +72,31 @@
 
     <div class="management-app">
 
+        <!-- ============================================================
+             TOP NAVBAR
+             ============================================================ -->
+
         <header class="top-navbar">
 
             <div class="navbar-left">
 
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Toggle navigation"
-                    aria-expanded="false">
+                <button type="button"
+                        class="sidebar-toggle"
+                        id="sidebarToggle"
+                        aria-label="Toggle navigation"
+                        aria-expanded="false">
 
                     <i class="bi bi-list"></i>
 
                 </button>
 
-                <a
-                    asp-page="/ManagementDashboard"
-                    class="brand">
+                <a asp-page="/Management/ManagementDashboard"
+                   class="brand">
 
                     <div class="brand-logo">
 
-                        <img
-                            src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-                            alt="UNILAK Logo" />
+                        <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                             alt="UNILAK Logo" />
 
                     </div>
 
@@ -122,14 +116,13 @@
 
             </div>
 
+
             <div class="navbar-right">
 
                 <div class="navbar-user">
 
                     <div class="user-avatar">
-
                         <i class="bi bi-person"></i>
-
                     </div>
 
                     <div class="user-details">
@@ -146,17 +139,16 @@
 
                 </div>
 
-                <form
-                    method="post"
-                    action="/LogOut"
-                    class="logout-form">
+
+                <form method="post"
+                      asp-page="/Logout"
+                      class="logout-form">
 
                     @Html.AntiForgeryToken()
 
-                    <button
-                        type="submit"
-                        class="logout-button"
-                        title="Sign out">
+                    <button type="submit"
+                            class="logout-button"
+                            title="Sign out">
 
                         <i class="bi bi-box-arrow-right"></i>
 
@@ -173,31 +165,37 @@
         </header>
 
 
+        <!-- ============================================================
+             APPLICATION BODY
+             ============================================================ -->
+
         <div class="app-body">
 
-            <aside
-                class="sidebar"
-                id="managementSidebar">
+
+            <!-- ========================================================
+                 SIDEBAR
+                 ======================================================== -->
+
+            <aside class="sidebar"
+                   id="managementSidebar">
 
                 <div class="sidebar-content">
 
-                    <nav
-                        class="sidebar-navigation"
-                        aria-label="Management navigation">
+                    <nav class="sidebar-navigation"
+                         aria-label="Management navigation">
 
                         <div class="navigation-heading">
                             MANAGEMENT MENU
                         </div>
 
 
-                        <a
-                            asp-page="/ManagementDashboard"
-                            class="sidebar-link @(IsDashboard ? "active" : "")">
+                        <!-- DASHBOARD -->
+
+                        <a asp-page="/Management/ManagementDashboard"
+                           class="sidebar-link @(IsDashboard ? "active" : "")">
 
                             <span class="sidebar-icon">
-
                                 <i class="bi bi-grid-1x2-fill"></i>
-
                             </span>
 
                             <span class="sidebar-label">
@@ -207,14 +205,13 @@
                         </a>
 
 
-                        <a
-                            asp-page="/Management/Contracts"
-                            class="sidebar-link @(IsContracts ? "active" : "")">
+                        <!-- CONTRACTS -->
+
+                        <a asp-page="/Management/Contracts"
+                           class="sidebar-link @(IsContracts ? "active" : "")">
 
                             <span class="sidebar-icon">
-
                                 <i class="bi bi-file-earmark-text-fill"></i>
-
                             </span>
 
                             <span class="sidebar-label">
@@ -226,12 +223,14 @@
                     </nav>
 
 
+                    <!-- ==================================================
+                         SIDEBAR PROFILE
+                         ================================================== -->
+
                     <div class="sidebar-profile">
 
                         <div class="profile-icon">
-
                             <i class="bi bi-person-badge-fill"></i>
-
                         </div>
 
                         <div class="profile-content">
@@ -253,6 +252,10 @@
             </aside>
 
 
+            <!-- ========================================================
+                 MAIN CONTENT
+                 ======================================================== -->
+
             <main class="main-content">
 
                 @RenderBody()
@@ -264,141 +267,139 @@
     </div>
 
 
-    <div
-        class="sidebar-overlay"
-        id="sidebarOverlay">
+    <!-- ================================================================
+         MOBILE SIDEBAR OVERLAY
+         ================================================================ -->
+
+    <div class="sidebar-overlay"
+         id="sidebarOverlay"
+         aria-hidden="true">
     </div>
 
 
+    <!-- ================================================================
+         SIDEBAR SCRIPT
+         ================================================================ -->
+
     <script>
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
+        document.addEventListener("DOMContentLoaded", function () {
 
-                const sidebar =
-                    document.getElementById(
-                        "managementSidebar"
-                    );
+            const sidebar =
+                document.getElementById("managementSidebar");
 
-                const toggle =
-                    document.getElementById(
-                        "sidebarToggle"
-                    );
+            const toggle =
+                document.getElementById("sidebarToggle");
 
-                const overlay =
-                    document.getElementById(
-                        "sidebarOverlay"
-                    );
-
-                if (!sidebar || !toggle || !overlay) {
-                    return;
-                }
+            const overlay =
+                document.getElementById("sidebarOverlay");
 
 
-                function openSidebar() {
-
-                    sidebar.classList.add("open");
-
-                    overlay.classList.add("visible");
-
-                    toggle.setAttribute(
-                        "aria-expanded",
-                        "true"
-                    );
-
-                    document.body.classList.add(
-                        "sidebar-open"
-                    );
-                }
-
-
-                function closeSidebar() {
-
-                    sidebar.classList.remove("open");
-
-                    overlay.classList.remove("visible");
-
-                    toggle.setAttribute(
-                        "aria-expanded",
-                        "false"
-                    );
-
-                    document.body.classList.remove(
-                        "sidebar-open"
-                    );
-                }
-
-
-                toggle.addEventListener(
-                    "click",
-                    function () {
-
-                        if (
-                            sidebar.classList.contains(
-                                "open"
-                            )
-                        ) {
-
-                            closeSidebar();
-
-                        } else {
-
-                            openSidebar();
-
-                        }
-
-                    }
-                );
-
-
-                overlay.addEventListener(
-                    "click",
-                    closeSidebar
-                );
-
-
-                document.querySelectorAll(
-                    ".sidebar-link"
-                ).forEach(
-                    function (link) {
-
-                        link.addEventListener(
-                            "click",
-                            function () {
-
-                                if (
-                                    window.innerWidth <= 900
-                                ) {
-
-                                    closeSidebar();
-
-                                }
-
-                            }
-                        );
-
-                    }
-                );
-
-
-                window.addEventListener(
-                    "resize",
-                    function () {
-
-                        if (
-                            window.innerWidth > 900
-                        ) {
-
-                            closeSidebar();
-
-                        }
-
-                    }
-                );
-
+            if (!sidebar || !toggle || !overlay) {
+                return;
             }
-        );
+
+
+            function openSidebar() {
+
+                sidebar.classList.add("open");
+
+                overlay.classList.add("visible");
+
+                toggle.setAttribute(
+                    "aria-expanded",
+                    "true"
+                );
+
+                overlay.setAttribute(
+                    "aria-hidden",
+                    "false"
+                );
+
+                document.body.classList.add(
+                    "sidebar-open"
+                );
+            }
+
+
+            function closeSidebar() {
+
+                sidebar.classList.remove("open");
+
+                overlay.classList.remove("visible");
+
+                toggle.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+                overlay.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+                document.body.classList.remove(
+                    "sidebar-open"
+                );
+            }
+
+
+            toggle.addEventListener(
+                "click",
+                function () {
+
+                    if (
+                        sidebar.classList.contains("open")
+                    ) {
+
+                        closeSidebar();
+
+                    } else {
+
+                        openSidebar();
+
+                    }
+
+                }
+            );
+
+
+            overlay.addEventListener(
+                "click",
+                closeSidebar
+            );
+
+
+            document
+                .querySelectorAll(".sidebar-link")
+                .forEach(function (link) {
+
+                    link.addEventListener(
+                        "click",
+                        function () {
+
+                            if (window.innerWidth <= 900) {
+                                closeSidebar();
+                            }
+
+                        }
+                    );
+
+                });
+
+
+            window.addEventListener(
+                "resize",
+                function () {
+
+                    if (window.innerWidth > 900) {
+                        closeSidebar();
+                    }
+
+                }
+            );
+
+        });
 
     </script>
 
