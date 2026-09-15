@@ -1,4 +1,5 @@
-﻿@page
+﻿
+@page
 @model IndexModel
 
 @{
@@ -10,14 +11,23 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="UNILAK Academic Staff Engagement & Claim Processing System">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="UNILAK Academic Staff Engagement & Claim Processing System">
 
     <title>@ViewData["Title"]</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
           rel="stylesheet">
@@ -28,386 +38,682 @@
     <link rel="stylesheet"
           href="~/css/index.css"
           asp-append-version="true">
+
 </head>
 
 <body>
 
+    <!-- =====================================================
+         NAVIGATION
+         ===================================================== -->
+
     <nav class="navbar">
+
         <div class="navbar-container">
 
             <div class="navbar-left">
 
-                <a href="/" class="logo-link">
+                <a href="/"
+                   class="logo-link"
+                   aria-label="UNILAK Portal Home">
+
                     <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
                          alt="UNILAK Logo"
                          class="navbar-logo">
+
                 </a>
 
-                <a href="/" class="navbar-brand">
-                    <span class="navbar-brand-title">UNILAK Portal</span>
-                    <span class="navbar-brand-subtitle">Academic Staff Engagement System</span>
+                <a href="/"
+                   class="navbar-brand">
+
+                    <span class="navbar-brand-title">
+                        UNILAK Portal
+                    </span>
+
+                    <span class="navbar-brand-subtitle">
+                        Academic Staff Engagement System
+                    </span>
+
                 </a>
 
             </div>
 
+
             <ul class="navbar-nav">
 
                 <li>
-                    <a href="/" class="nav-link active">
+
+                    <a href="/"
+                       class="nav-link active">
+
                         <i class="bi bi-house-door-fill"></i>
-                        <span>Home</span>
+
+                        <span>
+                            Home
+                        </span>
+
                     </a>
+
                 </li>
 
+
                 <li>
-                    <a href="#features" class="nav-link">
+
+                    <a href="#features"
+                       class="nav-link">
+
                         <i class="bi bi-grid-fill"></i>
-                        <span>Features</span>
+
+                        <span>
+                            Features
+                        </span>
+
                     </a>
+
                 </li>
 
+
                 <li>
-                    <a href="/Login" class="nav-btn-login">
+
+                    <a href="/Login"
+                       class="nav-btn-login">
+
                         <i class="bi bi-box-arrow-in-right"></i>
-                        <span>Login</span>
+
+                        <span>
+                            Sign In
+                        </span>
+
                     </a>
+
                 </li>
 
             </ul>
 
         </div>
+
     </nav>
 
 
-    <section class="hero">
+    <!-- =====================================================
+         HERO
+         ===================================================== -->
 
-        <div class="hero-overlay"></div>
+    <main>
 
-        <div class="hero-content">
+        <section class="hero">
 
-            <span class="hero-badge">
-                <i class="bi bi-shield-check"></i>
-                Official Academic Portal
-            </span>
+            <div class="hero-overlay"></div>
 
-            <h1 class="hero-title">
-                Lecturer Engagement
-                <span>&amp; Claim Management</span>
-            </h1>
+            <div class="hero-content">
 
-            <p class="hero-subtitle">
-                Streamline academic staff engagements, attendance tracking,
-                contract workflows, and payment claims in one secure platform.
-            </p>
+                <h1 class="hero-title">
 
-            <div class="hero-buttons">
+                    Lecturer Engagement
 
-                <a href="/Login" class="btn btn-primary">
-                    <span>Staff Login</span>
-                </a>
+                    <span>
+                        &amp; Claim Management
+                    </span>
 
-                <a href="#features" class="btn btn-secondary">
-                    <span>Explore Features</span>
-                </a>
-
-            </div>
-
-        </div>
-
-    </section>
+                </h1>
 
 
-    <section class="features" id="features">
+                <p class="hero-subtitle">
 
-        <div class="section-header">
+                    Streamline academic staff engagements, attendance
+                    tracking, contracts, and payment claims through
+                    one secure and centralized university platform.
 
-            <span class="section-label">PLATFORM</span>
-
-            <h2>Core Platform Features</h2>
-
-            <p>
-                Everything academic staff and administrators need to manage
-                engagements and claims seamlessly.
-            </p>
-
-        </div>
+                </p>
 
 
-        <div class="features-marquee">
+                <div class="hero-buttons">
 
-            <div class="features-track">
+                    <a href="/Login"
+                       class="btn btn-primary">
 
-                <!-- SET 1 -->
+                        <i class="bi bi-box-arrow-in-right"></i>
 
-                <div class="feature-card">
+                        <span>
+                            Staff Login
+                        </span>
 
-                    <div class="feature-icon">
-                        <i class="bi bi-person-workspace"></i>
-                    </div>
-
-                    <h3>Staff Engagements</h3>
-
-                    <p>
-                        Manage lecturer appointments, course assignments,
-                        and engagement records efficiently.
-                    </p>
-
-                    <a href="/Login" class="feature-link">
-                        <span>Manage Engagements</span>
-                        <i class="bi bi-arrow-right"></i>
                     </a>
 
-                </div>
 
+                    <a href="#features"
+                       class="btn btn-secondary">
 
-                <div class="feature-card">
+                        <i class="bi bi-arrow-down-circle"></i>
 
-                    <div class="feature-icon">
-                        <i class="bi bi-calendar-check-fill"></i>
-                    </div>
+                        <span>
+                            Explore Platform
+                        </span>
 
-                    <h3>Attendance Tracking</h3>
-
-                    <p>
-                        Record and monitor teaching attendance and completed
-                        hours for every academic session.
-                    </p>
-
-                    <a href="/Login" class="feature-link">
-                        <span>Track Attendance</span>
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
-
-                </div>
-
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">
-                        <i class="bi bi-file-earmark-text-fill"></i>
-                    </div>
-
-                    <h3>Digital Contracts</h3>
-
-                    <p>
-                        Generate, manage, and access signed academic staff
-                        contracts digitally and securely.
-                    </p>
-
-                    <a href="/Login" class="feature-link">
-                        <span>View Contracts</span>
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
-
-                </div>
-
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">
-                        <i class="bi bi-cash-coin"></i>
-                    </div>
-
-                    <h3>Payment Claims</h3>
-
-                    <p>
-                        Submit, review, approve, and track academic staff
-                        payment claims transparently.
-                    </p>
-
-                    <a href="/Login" class="feature-link">
-                        <span>Manage Claims</span>
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
-
-                </div>
-
-
-                <!-- SET 2 — duplicate for seamless loop -->
-
-                <div class="feature-card" aria-hidden="true">
-
-                    <div class="feature-icon">
-                        <i class="bi bi-person-workspace"></i>
-                    </div>
-
-                    <h3>Staff Engagements</h3>
-
-                    <p>
-                        Manage lecturer appointments, course assignments,
-                        and engagement records efficiently.
-                    </p>
-
-                    <a href="/Login" class="feature-link" tabindex="-1">
-                        <span>Manage Engagements</span>
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
-
-                </div>
-
-
-                <div class="feature-card" aria-hidden="true">
-
-                    <div class="feature-icon">
-                        <i class="bi bi-calendar-check-fill"></i>
-                    </div>
-
-                    <h3>Attendance Tracking</h3>
-
-                    <p>
-                        Record and monitor teaching attendance and completed
-                        hours for every academic session.
-                    </p>
-
-                    <a href="/Login" class="feature-link" tabindex="-1">
-                        <span>Track Attendance</span>
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
-
-                </div>
-
-
-                <div class="feature-card" aria-hidden="true">
-
-                    <div class="feature-icon">
-                        <i class="bi bi-file-earmark-text-fill"></i>
-                    </div>
-
-                    <h3>Digital Contracts</h3>
-
-                    <p>
-                        Generate, manage, and access signed academic staff
-                        contracts digitally and securely.
-                    </p>
-
-                    <a href="/Login" class="feature-link" tabindex="-1">
-                        <span>View Contracts</span>
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
-
-                </div>
-
-
-                <div class="feature-card" aria-hidden="true">
-
-                    <div class="feature-icon">
-                        <i class="bi bi-cash-coin"></i>
-                    </div>
-
-                    <h3>Payment Claims</h3>
-
-                    <p>
-                        Submit, review, approve, and track academic staff
-                        payment claims transparently.
-                    </p>
-
-                    <a href="/Login" class="feature-link" tabindex="-1">
-                        <span>Manage Claims</span>
-                        <i class="bi bi-arrow-right"></i>
                     </a>
 
                 </div>
 
             </div>
 
-        </div>
-
-    </section>
+        </section>
 
 
-    <section class="audience">
+        <!-- =================================================
+             TRUST STRIP
+             ================================================= -->
 
-        <div class="section-header">
+        <section class="trust-strip"
+                 aria-label="Platform capabilities">
 
-            <span class="section-label">USERS</span>
+            <div class="trust-container">
 
-            <h2>Who Uses This Platform?</h2>
-
-            <p>
-                Connecting academic staff and university administration
-                in a unified ecosystem.
-            </p>
-
-        </div>
+                <span class="trust-label">
+                    Secure Academic Workflow
+                </span>
 
 
-        <div class="audience-grid">
+                <div class="trust-items">
 
-            <div class="audience-card">
+                    <span class="trust-item">
 
-                <div class="audience-icon">
-                    <i class="bi bi-mortarboard-fill"></i>
-                </div>
+                        <i class="bi bi-person-lock"></i>
 
-                <div>
+                        Role-Based Access
 
-                    <h3>Academic Staff</h3>
+                    </span>
 
-                    <p>
-                        View course engagements, log teaching hours,
-                        manage digital contracts, and track remuneration claims.
-                    </p>
+
+                    <span class="trust-divider"></span>
+
+
+                    <span class="trust-item">
+
+                        <i class="bi bi-file-earmark-check"></i>
+
+                        Digital Contracts
+
+                    </span>
+
+
+                    <span class="trust-divider"></span>
+
+
+                    <span class="trust-item">
+
+                        <i class="bi bi-activity"></i>
+
+                        Approval Tracking
+
+                    </span>
+
+
+                    <span class="trust-divider"></span>
+
+
+                    <span class="trust-item">
+
+                        <i class="bi bi-database-check"></i>
+
+                        Centralized Records
+
+                    </span>
 
                 </div>
 
             </div>
 
-
-            <div class="audience-card">
-
-                <div class="audience-icon">
-                    <i class="bi bi-person-gear"></i>
-                </div>
-
-                <div>
-
-                    <h3>Administrators</h3>
-
-                    <p>
-                        Authorize engagements, verify attendance logs,
-                        execute contracts, and process verified payment claims.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
+        </section>
 
 
-    <section class="cta">
+        <!-- =================================================
+             FEATURES
+             ================================================= -->
 
-        <div class="cta-content">
+        <section class="features"
+                 id="features">
 
-            <div class="cta-icon">
-                <i class="bi bi-shield-lock-fill"></i>
-            </div>
+            <div class="section-header">
 
-            <div class="cta-text">
+                <span class="section-label">
+                    PLATFORM
+                </span>
 
-                <h2>Ready to access the portal?</h2>
+                <h2>
+                    Core Platform Features
+                </h2>
 
                 <p>
-                    Sign in with your UNILAK staff credentials to manage
-                    your academic engagements.
+                    Everything academic staff and university
+                    administrators need to manage engagements,
+                    attendance, contracts, and claims efficiently.
                 </p>
 
             </div>
 
-            <a href="/Login" class="btn btn-cta">
-                <span>Login to Portal</span>
-            </a>
 
-        </div>
+            <div class="features-grid">
 
-    </section>
 
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+
+                        <i class="bi bi-person-workspace"></i>
+
+                    </div>
+
+                    <h3>
+                        Staff Engagements
+                    </h3>
+
+                    <p>
+                        Manage lecturer appointments, course
+                        assignments, and engagement records
+                        through a centralized workflow.
+                    </p>
+
+                    <a href="/Login"
+                       class="feature-link">
+
+                        Manage Engagements
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+
+                        <i class="bi bi-calendar-check-fill"></i>
+
+                    </div>
+
+                    <h3>
+                        Attendance Tracking
+                    </h3>
+
+                    <p>
+                        Record and monitor teaching attendance
+                        and completed teaching hours for
+                        academic sessions.
+                    </p>
+
+                    <a href="/Login"
+                       class="feature-link">
+
+                        Track Attendance
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+
+                        <i class="bi bi-file-earmark-text-fill"></i>
+
+                    </div>
+
+                    <h3>
+                        Digital Contracts
+                    </h3>
+
+                    <p>
+                        Generate, manage, review, and access
+                        academic staff contracts through a
+                        structured digital signing workflow.
+                    </p>
+
+                    <a href="/Login"
+                       class="feature-link">
+
+                        View Contracts
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+
+                        <i class="bi bi-cash-coin"></i>
+
+                    </div>
+
+                    <h3>
+                        Payment Claims
+                    </h3>
+
+                    <p>
+                        Submit, review, approve, and track
+                        academic staff payment claims with
+                        greater transparency.
+                    </p>
+
+                    <a href="/Login"
+                       class="feature-link">
+
+                        Manage Claims
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </article>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             HOW IT WORKS
+             ================================================= -->
+
+        <section class="how-it-works">
+
+            <div class="section-header">
+
+                <span class="section-label">
+                    WORKFLOW
+                </span>
+
+                <h2>
+                    How the Platform Works
+                </h2>
+
+                <p>
+                    A structured workflow connects academic
+                    staff and university administration from
+                    engagement through claim approval.
+                </p>
+
+            </div>
+
+
+            <div class="workflow">
+
+
+                <div class="workflow-step">
+
+                    <div class="workflow-number">
+                        01
+                    </div>
+
+                    <h3>
+                        Engagement
+                    </h3>
+
+                    <p>
+                        Academic staff are registered and
+                        assigned teaching engagements.
+                    </p>
+
+                </div>
+
+
+                <div class="workflow-step">
+
+                    <div class="workflow-number">
+                        02
+                    </div>
+
+                    <h3>
+                        Contract
+                    </h3>
+
+                    <p>
+                        Engagement details are converted
+                        into a digital academic contract.
+                    </p>
+
+                </div>
+
+
+                <div class="workflow-step">
+
+                    <div class="workflow-number">
+                        03
+                    </div>
+
+                    <h3>
+                        Attendance
+                    </h3>
+
+                    <p>
+                        Teaching activities and completed
+                        hours are recorded and monitored.
+                    </p>
+
+                </div>
+
+
+                <div class="workflow-step">
+
+                    <div class="workflow-number">
+                        04
+                    </div>
+
+                    <h3>
+                        Claim
+                    </h3>
+
+                    <p>
+                        Verified teaching activity supports
+                        the submission of payment claims.
+                    </p>
+
+                </div>
+
+
+                <div class="workflow-step">
+
+                    <div class="workflow-number">
+                        05
+                    </div>
+
+                    <h3>
+                        Approval
+                    </h3>
+
+                    <p>
+                        Claims proceed through the required
+                        institutional review and approval process.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             USERS
+             ================================================= -->
+
+        <section class="audience">
+
+            <div class="section-header">
+
+                <span class="section-label">
+                    USERS
+                </span>
+
+                <h2>
+                    Built for the UNILAK Community
+                </h2>
+
+                <p>
+                    A unified platform designed to support
+                    academic staff and the university
+                    administration throughout the engagement
+                    lifecycle.
+                </p>
+
+            </div>
+
+
+            <div class="audience-grid">
+
+
+                <article class="audience-card">
+
+                    <div class="audience-icon">
+
+                        <i class="bi bi-mortarboard-fill"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h3>
+                            Academic Staff
+                        </h3>
+
+                        <p>
+                            View course engagements, manage
+                            digital contracts, record teaching
+                            activities, and track remuneration
+                            claims from one place.
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+                <article class="audience-card">
+
+                    <div class="audience-icon">
+
+                        <i class="bi bi-building-gear"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h3>
+                            Department &amp; Faculty Administration
+                        </h3>
+
+                        <p>
+                            Manage staff, course assignments,
+                            engagements, contracts, attendance,
+                            and claim verification workflows.
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+                <article class="audience-card">
+
+                    <div class="audience-icon">
+
+                        <i class="bi bi-person-gear"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h3>
+                            University Management
+                        </h3>
+
+                        <p>
+                            Review institutional workflows,
+                            authorize engagements, monitor
+                            approvals, and oversee verified
+                            academic payment claims.
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CTA
+             ================================================= -->
+
+        <section class="cta">
+
+            <div class="cta-content">
+
+
+                <div class="cta-icon">
+
+                    <i class="bi bi-shield-lock-fill"></i>
+
+                </div>
+
+
+                <div class="cta-text">
+
+                    <h2>
+                        Access the UNILAK Staff Portal
+                    </h2>
+
+                    <p>
+                        Sign in using your authorized university
+                        credentials to manage your academic
+                        engagements and related activities.
+                    </p>
+
+                </div>
+
+
+                <a href="/Login"
+                   class="btn btn-cta">
+
+                    <span>
+                        Sign In to Portal
+                    </span>
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
 
     <footer class="footer">
 
         <div class="footer-content">
+
 
             <div class="footer-brand">
 
@@ -415,12 +721,16 @@
                      alt="UNILAK Logo"
                      class="footer-logo">
 
+
                 <div>
 
-                    <h3>UNILAK Portal</h3>
+                    <h3>
+                        UNILAK Portal
+                    </h3>
 
                     <p>
-                        Academic Staff Engagement &amp; Claim Processing System
+                        Academic Staff Engagement &amp;
+                        Claim Processing System
                     </p>
 
                 </div>
@@ -434,6 +744,7 @@
                     © @DateTime.Now.Year
                     University of Lay Adventists of Kigali
                 </p>
+
 
                 <p class="footer-text">
 
@@ -451,6 +762,8 @@
 
     </footer>
 
+
 </body>
 
 </html>
+
