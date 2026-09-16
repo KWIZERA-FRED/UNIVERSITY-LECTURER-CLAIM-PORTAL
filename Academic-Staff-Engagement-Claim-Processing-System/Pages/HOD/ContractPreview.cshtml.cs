@@ -1,15 +1,17 @@
-
-using System.Net;
-using System.Text.RegularExpressions;
-
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using ContractModel =
+    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD;
 
@@ -130,7 +132,8 @@ public class ContractPreviewModel : PageModel
             .AsNoTracking()
             .Where(s =>
                 s.ContractId == contract.Id)
-            .OrderBy(s => s.SequenceOrder)
+            .OrderBy(s =>
+                s.SequenceOrder)
             .ToListAsync();
 
         // ============================================================
@@ -140,15 +143,20 @@ public class ContractPreviewModel : PageModel
         SignatureSteps = signatures
             .Select(s => new SignatureStepRow
             {
-                SequenceOrder = s.SequenceOrder,
+                SequenceOrder =
+                    s.SequenceOrder,
 
-                Role = s.SignerRole,
+                Role =
+                    s.SignerRole,
 
-                Decision = s.Decision,
+                Decision =
+                    s.Decision,
 
-                SignedAtUtc = s.SignedAtUtc,
+                SignedAtUtc =
+                    s.SignedAtUtc,
 
-                Comments = s.Comments,
+                Comments =
+                    s.Comments,
 
                 SignatureFilePath =
                     s.SignatureFilePath
@@ -530,4 +538,3 @@ public class ContractPreviewModel : PageModel
         public string? SignatureFilePath { get; init; }
     }
 }
-
