@@ -512,16 +512,21 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
         private static decimal GetRateForRank(
             LecturerRank? rank)
-        {
-            return rank switch
-            {
-                LecturerRank.AssistantLecturer => 5000m,
-                LecturerRank.Lecturer => 7000m,
-                LecturerRank.SeniorLecturer => 9000m,
-                LecturerRank.AssociateProfessor => 11000m,
-                LecturerRank.Professor => 13000m,
-                _ => 5000m
-            };
+                {
+                    if (!rank.HasValue)
+                        return 7000m;
+
+                    return rank.Value switch
+                    {
+                        LecturerRank.TutorialAssistant => 7000m,
+                        LecturerRank.AssistantLecturer => 10000m,
+                        LecturerRank.LecturerWithMasters => 14000m,
+                        LecturerRank.LecturerWithPhD => 16000m,
+                        LecturerRank.SeniorLecturer => 18000m,
+                        LecturerRank.AssistantProfessor => 20000m,
+                        LecturerRank.Professor => 25000m,
+                        _ => 7000m
+                    };
         }
 
         // ============================================================
