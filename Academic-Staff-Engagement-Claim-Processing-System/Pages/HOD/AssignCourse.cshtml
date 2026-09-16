@@ -421,20 +421,33 @@
 
                         <i class="bi bi-hourglass-split"></i>
 
-                        <input asp-for="AllocatedHours"
-                               id="allocatedHours"
-                               class="form-control"
-                               type="number"
-                               min="1"
-                               max="500"
-                               step="0.01"
-                               placeholder="Enter number of hours"
-                               required />
+                        <select asp-for="AllocatedHoursOption"
+                                id="allocatedHours"
+                                class="form-select"
+                                required>
+
+                            <option value="">
+                                Select hours
+                            </option>
+
+                            <option value="Thirty">
+                                30 hours
+                            </option>
+
+                            <option value="FortyFive">
+                                45 hours
+                            </option>
+
+                            <option value="Sixty">
+                                60 hours
+                            </option>
+
+                        </select>
 
                     </div>
 
                     <span class="field-help">
-                        Enter the total teaching hours allocated to this lecturer.
+                        Teaching hours are fixed at 30, 45, or 60 hours per assignment.
                     </span>
 
                 </div>
@@ -466,6 +479,46 @@
 
                                 <div class="rate-value"
                                      id="rateDisplay">
+
+                                    RWF 0
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     TOTAL AMOUNT
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label>
+                        Total Amount
+                    </label>
+
+                    <div class="rate-box">
+
+                        <div class="rate-content">
+
+                            <div class="rate-icon">
+                                <i class="bi bi-calculator"></i>
+                            </div>
+
+                            <div>
+
+                                <div class="rate-label">
+                                    Rate &times; hours
+                                </div>
+
+                                <div class="rate-value"
+                                     id="totalDisplay">
 
                                     RWF 0
 
@@ -570,6 +623,14 @@
         document.getElementById("rateDisplay");
 
 
+    const totalDisplay =
+        document.getElementById("totalDisplay");
+
+
+    const allocatedHoursSelect =
+        document.getElementById("allocatedHours");
+
+
     /* ============================================================
        RATE BY ACADEMIC RANK
     ============================================================ */
@@ -578,29 +639,52 @@
 
         switch (rank) {
 
-            case "TeachingAssistant":
-                return 4000;
-
-            case "AssistantLecturer":
-                return 5000;
-
-            case "Lecturer":
+            case "TutorialAssistant":
                 return 7000;
 
-            case "SeniorLecturer":
-                return 9000;
+            case "AssistantLecturer":
+                return 10000;
 
-            case "AssociateProfessor":
-                return 11000;
+            case "LecturerWithMasters":
+                return 14000;
+
+            case "LecturerWithPhD":
+                return 16000;
+
+            case "SeniorLecturer":
+                return 18000;
+
+            case "AssistantProfessor":
+                return 20000;
 
             case "Professor":
-                return 13000;
-
-            case "ProfessorEmeritus":
-                return 13000;
+                return 25000;
 
             default:
-                return 5000;
+                return 7000;
+        }
+    }
+
+
+    /* ============================================================
+       HOURS FROM SELECTED OPTION
+    ============================================================ */
+
+    function getSelectedHours() {
+
+        switch (allocatedHoursSelect.value) {
+
+            case "Thirty":
+                return 30;
+
+            case "FortyFive":
+                return 45;
+
+            case "Sixty":
+                return 60;
+
+            default:
+                return 0;
         }
     }
 
@@ -647,6 +731,8 @@
             rateDisplay.textContent =
                 "RWF 0";
 
+            updateTotal(0);
+
             return;
         }
 
@@ -666,6 +752,29 @@
         rateDisplay.textContent =
             "RWF " + rate.toLocaleString();
 
+
+        updateTotal(rate);
+
+    }
+
+
+    /* ============================================================
+       UPDATE TOTAL AMOUNT
+    ============================================================ */
+
+    function updateTotal(rate) {
+
+        const hours =
+            getSelectedHours();
+
+
+        const total =
+            rate * hours;
+
+
+        totalDisplay.textContent =
+            "RWF " + total.toLocaleString();
+
     }
 
 
@@ -681,6 +790,38 @@
         );
 
         updateLecturer();
+    }
+
+
+    /* ============================================================
+       HOURS CHANGE EVENT
+    ============================================================ */
+
+    if (allocatedHoursSelect) {
+
+        allocatedHoursSelect.addEventListener(
+            "change",
+            function () {
+
+                const id =
+                    lecturerSelect.value;
+
+
+                const lecturer =
+                    lecturerData[id];
+
+
+                const rate =
+                    lecturer
+                        ? getRateForRank(lecturer.Rank)
+                        : 0;
+
+
+                updateTotal(rate);
+
+            }
+        );
+
     }
 
 </script>

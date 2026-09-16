@@ -48,7 +48,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         public Campus? Campus { get; set; }
 
         [BindProperty]
-        public decimal AllocatedHours { get; set; }
+        public TeachingHoursOption? AllocatedHoursOption { get; set; }
 
         // ============================================================
         // PAGE DATA
@@ -132,21 +132,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return Page();
             }
 
-            if (AllocatedHours <= 0)
+            if (!AllocatedHoursOption.HasValue)
             {
                 ErrorMessage =
-                    "Please enter a valid number of teaching hours.";
+                    "Please select the number of teaching hours " +
+                    "(30, 45, or 60).";
 
                 return Page();
             }
 
-            if (AllocatedHours > 500)
-            {
-                ErrorMessage =
-                    "Allocated hours cannot exceed 500.";
-
-                return Page();
-            }
+            var allocatedHours = (decimal)AllocatedHoursOption.Value;
 
             // ========================================================
             // FIND COURSE
@@ -240,7 +235,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 Session = Session.Value,
                 Campus = Campus.Value,
 
-                AllocatedHours = AllocatedHours,
+                AllocatedHours = allocatedHours,
 
                 IsApproved = false,
                 IsActive = true,
@@ -367,7 +362,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 assignment.Id,
                 $"{course.Code} assigned to {lecturer.UserName} " +
                 $"({normalizedAcademicYear}, {Semester.Value}, " +
-                $"{AllocatedHours}h at {HourlyRate:N0} RWF/hour)",
+                $"{allocatedHours}h at {HourlyRate:N0} RWF/hour)",
                 HttpContext.Connection.RemoteIpAddress?.ToString());
 
             // ========================================================
@@ -985,21 +980,25 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         private static decimal GetRateForRank(LecturerRank? rank)
         {
             if (!rank.HasValue)
-                return 5000m;
+                return 7000m;
 
             return rank.Value switch
             {
-                LecturerRank.AssistantLecturer => 5000m,
+                LecturerRank.TutorialAssistant => 7000m,
 
-                LecturerRank.Lecturer => 7000m,
+                LecturerRank.AssistantLecturer => 10000m,
 
-                LecturerRank.SeniorLecturer => 9000m,
+                LecturerRank.LecturerWithMasters => 14000m,
 
-                LecturerRank.AssociateProfessor => 11000m,
+                LecturerRank.LecturerWithPhD => 16000m,
 
-                LecturerRank.Professor => 13000m,
+                LecturerRank.SeniorLecturer => 18000m,
 
-                _ => 5000m
+                LecturerRank.AssistantProfessor => 20000m,
+
+                LecturerRank.Professor => 25000m,
+
+                _ => 7000m
             };
         }
     }
