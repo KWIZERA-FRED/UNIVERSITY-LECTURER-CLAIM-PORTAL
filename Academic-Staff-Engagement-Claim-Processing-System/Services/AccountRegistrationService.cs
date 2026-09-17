@@ -1,408 +1,946 @@
-using System.Security.Cryptography;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
-using LecturerModel = Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
+using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 {
-    public class AccountRegistrationResult
-    {
-        public bool Succeeded { get; set; }
-        public string? ErrorMessage { get; set; }
-        public string? SuccessMessage { get; set; }
-    }
-
     public class AccountRegistrationRequest
     {
         public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Department { get; set; } = string.Empty;
-        public string Rank { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
-        public string GovernmentId { get; set; } = string.Empty;
-        public string SignatureData { get; set; } = string.Empty;
-        public ManagementTitle? ManagementTitle { get; set; }
 
-        // Only meaningful when Role == "Lecturer". Which employment
-        // type the HOD selected for this lecturer — part-time or
-        // full-time. Defaults to PartTimeLecturer only if somehow
-        // left unset, but the page-level validation requires it.
+        public string Email { get; set; } = string.Empty;
+
+        public string Department { get; set; } = string.Empty;
+
+        public string Rank { get; set; } = string.Empty;
+
+        public string Role { get; set; } = string.Empty;
+
+        public string GovernmentId { get; set; } = string.Empty;
+
+        public string SignatureData { get; set; } = string.Empty;
+
+        public string? ManagementTitle { get; set; }
+
         public UserRole? LecturerType { get; set; }
 
-        // Who is registering this account — used both for
-        // Lecturer.SignatureCapturedByHodId attribution and for the
-        // audit log. Comes from the authenticated caller, never a
-        // form field.
         public int RegisteringUserId { get; set; }
+
         public string ActorUsername { get; set; } = string.Empty;
+
         public string ActorRole { get; set; } = string.Empty;
+
         public string? IpAddress { get; set; }
     }
+
+
+    public class AccountRegistrationResult
+    {
+        public bool Succeeded { get; private set; }
+
+        public string? SuccessMessage { get; set; }
+
+        public string? ErrorMessage { get; private set; }
+
+        public int? CreatedUserId { get; private set; }
+
+        public string? Username { get; private set; }
+
+
+        public static AccountRegistrationResult Success(
+            string message,
+            int createdUserId,
+            string username)
+        {
+            return new AccountRegistrationResult
+            {
+                Succeeded = true,
+                SuccessMessage = message,
+                CreatedUserId = createdUserId,
+                Username = username
+            };
+        }
+
+
+        public static AccountRegistrationResult Fail(
+            string message)
+        {
+            return new AccountRegistrationResult
+            {
+                Succeeded = false,
+                ErrorMessage = message
+            };
+        }
+    }
+
 
     public class AccountRegistrationService
     {
         private readonly ApplicationDbContext _context;
-        private readonly EmailService _emailService;
-        private readonly IWebHostEnvironment _environment;
+
         private readonly AuditLogger _auditLogger;
+
+        private readonly EmailService _emailService;
+
+        private readonly ILogger<AccountRegistrationService> _logger;
+
+        private readonly IWebHostEnvironment _environment;
+
 
         public AccountRegistrationService(
             ApplicationDbContext context,
+            AuditLogger auditLogger,
             EmailService emailService,
-            IWebHostEnvironment environment,
-            AuditLogger auditLogger)
+            ILogger<AccountRegistrationService> logger,
+            IWebHostEnvironment environment)
         {
             _context = context;
-            _emailService = emailService;
-            _environment = environment;
             _auditLogger = auditLogger;
+            _emailService = emailService;
+            _logger = logger;
+            _environment = environment;
         }
 
-        public async Task<AccountRegistrationResult> RegisterAsync(AccountRegistrationRequest request)
+
+        public async Task<AccountRegistrationResult> RegisterAsync(
+            AccountRegistrationRequest request)
         {
+            if (request == null)
+            {
+                return AccountRegistrationResult.Fail(
+                    "The registration request is invalid.");
+            }
+
+
+            request.Name =
+                request.Name?.Trim()
+                ?? string.Empty;
+
+            request.Email =
+                request.Email?.Trim()
+                ?? string.Empty;
+
+            request.Department =
+                request.Department?.Trim()
+                ?? string.Empty;
+
+            request.Rank =
+                request.Rank?.Trim()
+                ?? string.Empty;
+
+            request.Role =
+                request.Role?.Trim()
+                ?? string.Empty;
+
+            request.GovernmentId =
+                request.GovernmentId?.Trim()
+                ?? string.Empty;
+
+
             if (string.IsNullOrWhiteSpace(request.Name))
-                return Fail("Please enter the user's full name.");
+            {
+                return AccountRegistrationResult.Fail(
+                    "Full name is required.");
+            }
+
 
             if (string.IsNullOrWhiteSpace(request.Email))
-                return Fail("Please enter the user's email address.");
+            {
+                return AccountRegistrationResult.Fail(
+                    "Email address is required.");
+            }
+
 
             if (string.IsNullOrWhiteSpace(request.Role))
-                return Fail("Please select the user's system role.");
-
-            if (string.IsNullOrWhiteSpace(request.SignatureData))
-                return Fail("Please provide the user's digital signature.");
-
-            string name = request.Name.Trim();
-            string email = request.Email.Trim().ToLowerInvariant();
-            string role = request.Role.Trim();
-            string rank = request.Rank?.Trim() ?? string.Empty;
-            string department = request.Department?.Trim() ?? string.Empty;
-            string governmentId = request.GovernmentId?.Trim() ?? string.Empty;
-
-            if (!role.Equals("Lecturer", StringComparison.OrdinalIgnoreCase) &&
-                !role.Equals("HOD", StringComparison.OrdinalIgnoreCase) &&
-                !role.Equals("Dean", StringComparison.OrdinalIgnoreCase) &&
-                !role.Equals("Management", StringComparison.OrdinalIgnoreCase))
             {
-                return Fail("Invalid system role selected.");
+                return AccountRegistrationResult.Fail(
+                    "User role is required.");
             }
 
-            LecturerRank? lecturerRank = null;
 
-            if (role.Equals("Lecturer", StringComparison.OrdinalIgnoreCase))
+            if (!IsValidEmail(request.Email))
             {
-                if (string.IsNullOrWhiteSpace(governmentId))
-                    return Fail("Please enter the lecturer's Government ID.");
-
-                if (string.IsNullOrWhiteSpace(rank))
-                    return Fail("Please select the lecturer's academic rank.");
-
-                if (!Enum.TryParse<LecturerRank>(rank.Replace(" ", ""), true, out var parsedRank))
-                    return Fail("The selected lecturer rank is invalid.");
-
-                lecturerRank = parsedRank;
-
-                if (request.LecturerType is null)
-                    return Fail("Please select whether this lecturer is part-time or full-time.");
+                return AccountRegistrationResult.Fail(
+                    "The email address is not valid.");
             }
 
-            if (role.Equals("HOD", StringComparison.OrdinalIgnoreCase) &&
-                string.IsNullOrWhiteSpace(department))
+
+            if (request.Role.Equals(
+                    "Lecturer",
+                    StringComparison.OrdinalIgnoreCase))
             {
-                return Fail("Please enter the HOD's department.");
+                if (string.IsNullOrWhiteSpace(
+                    request.GovernmentId))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Government ID is required.");
+                }
+
+
+                if (string.IsNullOrWhiteSpace(
+                    request.Rank))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Academic rank is required.");
+                }
+
+
+                if (!request.LecturerType.HasValue)
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Lecturer employment type is required.");
+                }
+
+
+                if (request.LecturerType.Value !=
+                        UserRole.PartTimeLecturer &&
+                    request.LecturerType.Value !=
+                        UserRole.FullTimeLecturer)
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Only Part-Time Lecturer or Full-Time Lecturer is allowed.");
+                }
+
+
+                if (string.IsNullOrWhiteSpace(
+                    request.SignatureData))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Digital signature is required.");
+                }
             }
 
-            if (role.Equals("Management", StringComparison.OrdinalIgnoreCase) &&
-                request.ManagementTitle is null)
-            {
-                return Fail("Please select the Management office (HR Officer, DVCAR, or Vice Chancellor).");
-            }
-
-            string username = name;
-
-            bool usernameExists =
-                await _context.AdminAccounts.AnyAsync(a => a.UserName == username) ||
-                await _context.Lecturers.AnyAsync(l => l.UserName == username);
-
-            if (usernameExists)
-                return Fail($"The username '{username}' already exists. Please use a different name.");
 
             bool emailExists =
-                await _context.AdminAccounts.AnyAsync(a => a.Email == email) ||
-                await _context.Lecturers.AnyAsync(l => l.Email == email);
+                await _context.Lecturers
+                    .AnyAsync(x =>
+                        x.Email == request.Email)
+                ||
+                await _context.AdminAccounts
+                    .AnyAsync(x =>
+                        x.Email == request.Email);
+
 
             if (emailExists)
-                return Fail($"An account with the email address '{email}' already exists.");
-
-            string password = GeneratePassword();
-
-            string signatureFilePath;
-            try
             {
-                signatureFilePath = await SaveSignatureAsync(request.SignatureData, username);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"SIGNATURE ERROR: {ex}");
-                return Fail("The user's signature could not be saved.");
+                return AccountRegistrationResult.Fail(
+                    $"An account with the email '{request.Email}' already exists.");
             }
 
-            string signatureAbsolutePath = Path.Combine(
-                _environment.WebRootPath,
-                signatureFilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
 
-            string signatureHash;
-            try
+            string username =
+                request.Name;
+
+
+            bool usernameExists =
+                await _context.Lecturers
+                    .AnyAsync(x =>
+                        x.UserName == username)
+                ||
+                await _context.AdminAccounts
+                    .AnyAsync(x =>
+                        x.UserName == username);
+
+
+            if (usernameExists)
             {
-                signatureHash = await CalculateFileHashAsync(signatureAbsolutePath);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"SIGNATURE HASH ERROR: {ex}");
-                return Fail("The user's signature could not be verified.");
+                return AccountRegistrationResult.Fail(
+                    $"An account with the username '{username}' already exists.");
             }
 
-            // ------------------------------------------------------------
-            // CREATE ACCOUNT + AUDIT LOG — same transaction, so a failure
-            // in either one rolls back both. Email is deliberately sent
-            // AFTER commit, outside the transaction: a slow/failed email
-            // should never hold a DB transaction open, and a failed email
-            // should never undo an otherwise-successful account creation.
-            // ------------------------------------------------------------
 
-            var strategy = _context.Database.CreateExecutionStrategy();
+            string password =
+                GenerateSecurePassword();
 
-            var outcome = await strategy.ExecuteAsync(() => CreateAccountAsync(
-                role, username, email, department, lecturerRank, request, password,
-                signatureFilePath, signatureHash));
 
-            if (outcome.Failure is not null)
-                return outcome.Failure;
+            string? signatureFilePath =
+                null;
 
-            return await FinishAsync(email, name, username, password, outcome.AccountTypeLabel);
-        }
+            string? signatureHash =
+                null;
 
-        private sealed class CreateAccountOutcome
-        {
-            public AccountRegistrationResult? Failure { get; init; }
-            public string AccountTypeLabel { get; init; } = string.Empty;
-        }
-
-        private async Task<CreateAccountOutcome> CreateAccountAsync(
-            string role, string username, string email, string department, LecturerRank? lecturerRank,
-            AccountRegistrationRequest request, string password, string signatureFilePath, string signatureHash)
-        {
-            using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                int createdId;
-                string entityType;
-                string accountTypeLabel;
-
-                if (role.Equals("Lecturer", StringComparison.OrdinalIgnoreCase))
+                if (!request.Role.Equals(
+                        "Lecturer",
+                        StringComparison.OrdinalIgnoreCase))
                 {
-                    var registeringHod = await _context.Hods
-                        .FirstOrDefaultAsync(h => h.Id == request.RegisteringUserId);
+                    return AccountRegistrationResult.Fail(
+                        $"The role '{request.Role}' is not supported by this registration workflow.");
+                }
 
-                    if (registeringHod is null)
-                    {
-                        await transaction.RollbackAsync();
-                        return new CreateAccountOutcome { Failure = Fail("A registering HOD account could not be found.") };
-                    }
 
-                    var lecturer = new LecturerModel(0, username, email)
+                var registeringHod =
+                    await _context.Hods
+                        .FirstOrDefaultAsync(
+                            h => h.Id ==
+                                 request.RegisteringUserId);
+
+
+                if (registeringHod == null)
+                {
+                    return AccountRegistrationResult.Fail(
+                        "The registering HOD account could not be found.");
+                }
+
+
+                var signatureResult =
+                    await SaveSignatureAsync(
+                        request.SignatureData,
+                        username);
+
+
+                if (!signatureResult.Success)
+                {
+                    return AccountRegistrationResult.Fail(
+                        signatureResult.ErrorMessage
+                        ??
+                        "The digital signature could not be saved.");
+                }
+
+
+                signatureFilePath =
+                    signatureResult.FilePath;
+
+
+                signatureHash =
+                    ComputeSha256FromBase64Png(
+                        request.SignatureData);
+
+
+                if (!Enum.TryParse<LecturerRank>(
+                        request.Rank,
+                        true,
+                        out LecturerRank lecturerRank))
+                {
+                    DeleteSignatureFileIfExists(
+                        signatureFilePath);
+
+                    return AccountRegistrationResult.Fail(
+                        "The selected academic rank is invalid.");
+                }
+
+
+                var lecturer =
+                    new Lecturer(
+                        0,
+                        username,
+                        request.Email)
                     {
                         Rank = lecturerRank,
-                        Type = request.LecturerType!.Value
+
+                        Type =
+                            request.LecturerType.Value
                     };
 
-                    var hasher = new PasswordHasher<LecturerModel>();
-                    lecturer.SetPasswordHash(hasher.HashPassword(lecturer, password));
-                    lecturer.SetGovernmentIdEncrypted(request.GovernmentId.Trim());
-                    lecturer.CaptureSignature(signatureFilePath, signatureHash, registeringHod.Id);
 
-                    _context.Lecturers.Add(lecturer);
-                    await _context.SaveChangesAsync();
+                var passwordHasher =
+                    new PasswordHasher<Lecturer>();
 
-                    createdId = lecturer.Id;
-                    entityType = "Lecturer";
-                    accountTypeLabel = "Lecturer";
-                }
-                else if (role.Equals("HOD", StringComparison.OrdinalIgnoreCase))
+
+                lecturer.SetPasswordHash(
+                    passwordHasher.HashPassword(
+                        lecturer,
+                        password));
+
+
+                lecturer.SetGovernmentIdEncrypted(
+                    request.GovernmentId);
+
+
+                lecturer.CaptureSignature(
+                    signatureFilePath,
+                    signatureHash,
+                    registeringHod.Id);
+
+
+                var strategy =
+                    _context.Database
+                        .CreateExecutionStrategy();
+
+
+                AccountRegistrationResult?
+                    registrationResult = null;
+
+
+                await strategy.ExecuteAsync(
+                    async () =>
+                    {
+                        await using var transaction =
+                            await _context.Database
+                                .BeginTransactionAsync();
+
+
+                        try
+                        {
+                            _context.Lecturers.Add(
+                                lecturer);
+
+
+                            await _context.SaveChangesAsync();
+
+
+                            _auditLogger.Add(
+                                AuditAction.AccountCreated,
+                                request.ActorUsername,
+                                request.ActorRole,
+                                request.RegisteringUserId > 0
+                                    ? request.RegisteringUserId
+                                    : null,
+                                "Lecturer",
+                                lecturer.Id,
+                                $"Lecturer account created. Username: {username}. Email: {request.Email}.",
+                                request.IpAddress);
+
+
+                            await _context.SaveChangesAsync();
+
+
+                            await transaction.CommitAsync();
+
+
+                            registrationResult =
+                                AccountRegistrationResult.Success(
+                                    $"{request.Name} was registered successfully.",
+                                    lecturer.Id,
+                                    username);
+                        }
+                        catch
+                        {
+                            await transaction.RollbackAsync();
+
+                            throw;
+                        }
+                    });
+
+
+                if (registrationResult == null)
                 {
-                    var hod = new Hod(0, username, email, department);
-                    var hasher = new PasswordHasher<AdminAccount>();
-                    hod.SetPasswordHash(hasher.HashPassword(hod, password));
-                    hod.CaptureSignature(signatureFilePath, signatureHash);
+                    DeleteSignatureFileIfExists(
+                        signatureFilePath);
 
-                    _context.Hods.Add(hod);
-                    await _context.SaveChangesAsync();
-
-                    createdId = hod.Id;
-                    entityType = "HOD";
-                    accountTypeLabel = "HOD";
+                    return AccountRegistrationResult.Fail(
+                        "The lecturer account could not be created.");
                 }
-                else if (role.Equals("Dean", StringComparison.OrdinalIgnoreCase))
+
+
+                /*
+                 * The database transaction has already been committed.
+                 *
+                 * Therefore, an email failure does NOT delete or roll back
+                 * the lecturer account.
+                 */
+                try
                 {
-                    var dean = new Dean(0, username, email);
-                    var hasher = new PasswordHasher<AdminAccount>();
-                    dean.SetPasswordHash(hasher.HashPassword(dean, password));
-                    dean.CaptureSignature(signatureFilePath, signatureHash);
+                    await _emailService
+                        .SendWelcomeEmailAsync(
+                            request.Email,
+                            request.Name,
+                            username,
+                            password);
 
-                    _context.Deans.Add(dean);
-                    await _context.SaveChangesAsync();
 
-                    createdId = dean.Id;
-                    entityType = "Dean";
-                    accountTypeLabel = "Dean";
+                    registrationResult.SuccessMessage =
+                        $"{request.Name} was registered successfully and the welcome email was sent.";
                 }
-                else // Management
+                catch (Exception emailException)
                 {
-                    var management = new Management(0, username, email, request.ManagementTitle!.Value);
-                    var hasher = new PasswordHasher<AdminAccount>();
-                    management.SetPasswordHash(hasher.HashPassword(management, password));
-                    management.CaptureSignature(signatureFilePath, signatureHash);
+                    _logger.LogError(
+                        emailException,
+                        "Lecturer account was created but welcome email failed for {Email}.",
+                        request.Email);
 
-                    _context.ManagementAccounts.Add(management);
-                    await _context.SaveChangesAsync();
 
-                    createdId = management.Id;
-                    entityType = "Management";
-                    accountTypeLabel = $"Management ({request.ManagementTitle})";
+                    registrationResult.SuccessMessage =
+                        $"{request.Name} was registered successfully, but the welcome email could not be sent.";
                 }
 
-                await _auditLogger.LogAsync(
-                    AuditAction.AccountCreated,
-                    request.ActorUsername,
-                    request.ActorRole,
-                    request.RegisteringUserId > 0 ? request.RegisteringUserId : (int?)null,
-                    entityType,
-                    createdId,
-                    $"Username: {username}",
-                    request.IpAddress);
 
-                await transaction.CommitAsync();
-                return new CreateAccountOutcome { AccountTypeLabel = accountTypeLabel };
+                return registrationResult;
             }
-            catch (Exception ex)
+            catch (DbUpdateException dbException)
             {
-                await transaction.RollbackAsync();
-                Console.WriteLine($"DATABASE ERROR: {ex}");
-                return new CreateAccountOutcome { Failure = Fail("The user account could not be saved to the database.") };
+                _logger.LogError(
+                    dbException,
+                    "Database error while registering user {Name} / {Email}.",
+                    request.Name,
+                    request.Email);
+
+
+                DeleteSignatureFileIfExists(
+                    signatureFilePath);
+
+
+                return AccountRegistrationResult.Fail(
+                    GetDatabaseErrorMessage(
+                        dbException));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Unexpected error while registering user {Name} / {Email}.",
+                    request.Name,
+                    request.Email);
+
+
+                DeleteSignatureFileIfExists(
+                    signatureFilePath);
+
+
+                return AccountRegistrationResult.Fail(
+                    "An unexpected error occurred while creating the account. Check the application logs for details.");
             }
         }
 
-        private async Task<AccountRegistrationResult> FinishAsync(
-            string email, string name, string username, string password, string accountType)
-        {
-            var result = new AccountRegistrationResult { Succeeded = true };
 
+        private async Task<SignatureSaveResult>
+            SaveSignatureAsync(
+                string signatureData,
+                string username)
+        {
             try
             {
-                await _emailService.SendWelcomeEmailAsync(email, name, username, password);
-                result.SuccessMessage =
-                    $"{accountType} account for {name} was registered successfully. " +
-                    $"The login credentials have been sent to {email}.";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"EMAIL ERROR: {ex}");
-                result.SuccessMessage =
-                    $"{accountType} account for {name} was created successfully, " +
-                    $"but the welcome email could not be sent. Username: {username}";
-            }
+                if (string.IsNullOrWhiteSpace(
+                    signatureData))
+                {
+                    return SignatureSaveResult.CreateFailure(
+                        "Digital signature is required.");
+                }
 
-            return result;
+
+                const string prefix =
+                    "data:image/png;base64,";
+
+
+                if (!signatureData.StartsWith(
+                        prefix,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return SignatureSaveResult.CreateFailure(
+                        "The signature must be a PNG image.");
+                }
+
+
+                string base64 =
+                    signatureData[prefix.Length..];
+
+
+                byte[] imageBytes;
+
+
+                try
+                {
+                    imageBytes =
+                        Convert.FromBase64String(
+                            base64);
+                }
+                catch (FormatException)
+                {
+                    return SignatureSaveResult.CreateFailure(
+                        "The digital signature data is invalid.");
+                }
+
+
+                if (imageBytes.Length == 0)
+                {
+                    return SignatureSaveResult.CreateFailure(
+                        "The digital signature is empty.");
+                }
+
+
+                const int maxSignatureSize =
+                    500 * 1024;
+
+
+                if (imageBytes.Length >
+                    maxSignatureSize)
+                {
+                    return SignatureSaveResult.CreateFailure(
+                        "The digital signature is too large. Please sign again.");
+                }
+
+
+                if (!IsPng(imageBytes))
+                {
+                    return SignatureSaveResult.CreateFailure(
+                        "The uploaded signature is not a valid PNG image.");
+                }
+
+
+                string webRoot =
+                    _environment.WebRootPath;
+
+
+                if (string.IsNullOrWhiteSpace(
+                    webRoot))
+                {
+                    return SignatureSaveResult.CreateFailure(
+                        "The web root directory could not be located.");
+                }
+
+
+                string signatureDirectory =
+                    Path.Combine(
+                        webRoot,
+                        "uploads",
+                        "signatures");
+
+
+                Directory.CreateDirectory(
+                    signatureDirectory);
+
+
+                string safeFileName =
+                    $"{Guid.NewGuid():N}.png";
+
+
+                string physicalPath =
+                    Path.Combine(
+                        signatureDirectory,
+                        safeFileName);
+
+
+                await File.WriteAllBytesAsync(
+                    physicalPath,
+                    imageBytes);
+
+
+                string relativePath =
+                    $"/uploads/signatures/{safeFileName}";
+
+
+                return SignatureSaveResult.CreateSuccess(
+                    relativePath);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Error saving signature for {Username}.",
+                    username);
+
+
+                return SignatureSaveResult.CreateFailure(
+                    "The digital signature could not be saved.");
+            }
         }
 
-        private static AccountRegistrationResult Fail(string message) =>
-            new() { Succeeded = false, ErrorMessage = message };
 
-        private async Task<string> SaveSignatureAsync(string signatureData, string username)
+        private static string
+            ComputeSha256FromBase64Png(
+                string signatureData)
         {
-            const string prefix = "data:image/png;base64,";
+            const string prefix =
+                "data:image/png;base64,";
 
-            if (!signatureData.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("Invalid signature format.");
 
-            byte[] imageBytes;
-            try
+            if (!signatureData.StartsWith(
+                    prefix,
+                    StringComparison.OrdinalIgnoreCase))
             {
-                imageBytes = Convert.FromBase64String(signatureData.Substring(prefix.Length));
-            }
-            catch
-            {
-                throw new InvalidOperationException("The signature image is invalid.");
+                throw new InvalidOperationException(
+                    "Invalid signature format.");
             }
 
-            if (imageBytes.Length == 0)
-                throw new InvalidOperationException("The signature image is empty.");
 
-            const int maxSignatureBytes = 500_000;
-            if (imageBytes.Length > maxSignatureBytes)
-                throw new InvalidOperationException("The signature image is too large. Please use a smaller image.");
+            string base64 =
+                signatureData[prefix.Length..];
 
-            byte[] pngSignature = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
-            if (imageBytes.Length < pngSignature.Length ||
-                !imageBytes.Take(pngSignature.Length).SequenceEqual(pngSignature))
-            {
-                throw new InvalidOperationException("The signature image is not a valid PNG file.");
-            }
 
-            string signaturesDirectory = Path.Combine(_environment.WebRootPath, "uploads", "signatures");
-            Directory.CreateDirectory(signaturesDirectory);
+            byte[] bytes =
+                Convert.FromBase64String(
+                    base64);
 
-            string safeUsername = string.Concat(
-                username.Where(c => char.IsLetterOrDigit(c) || c == '_' || c == '-'));
 
-            if (string.IsNullOrWhiteSpace(safeUsername))
-                safeUsername = "user";
+            using SHA256 sha256 =
+                SHA256.Create();
 
-            string fileName = $"{safeUsername}_{Guid.NewGuid():N}.png";
-            string absolutePath = Path.Combine(signaturesDirectory, fileName);
 
-            await File.WriteAllBytesAsync(absolutePath, imageBytes);
+            byte[] hash =
+                sha256.ComputeHash(bytes);
 
-            return $"/uploads/signatures/{fileName}";
-        }
 
-        private static async Task<string> CalculateFileHashAsync(string filePath)
-        {
-            await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            using var sha256 = SHA256.Create();
-            byte[] hash = await sha256.ComputeHashAsync(stream);
             return Convert.ToHexString(hash);
         }
 
-        private static string GeneratePassword()
+
+        private static bool IsPng(
+            byte[] bytes)
         {
-            const string uppercase = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-            const string lowercase = "abcdefghijkmnopqrstuvwxyz";
-            const string numbers = "23456789";
-            const string symbols = "@#$%";
-            string allCharacters = uppercase + lowercase + numbers + symbols;
-
-            var password = new char[10];
-            password[0] = uppercase[RandomNumberGenerator.GetInt32(uppercase.Length)];
-            password[1] = lowercase[RandomNumberGenerator.GetInt32(lowercase.Length)];
-            password[2] = numbers[RandomNumberGenerator.GetInt32(numbers.Length)];
-            password[3] = symbols[RandomNumberGenerator.GetInt32(symbols.Length)];
-
-            for (int i = 4; i < password.Length; i++)
-                password[i] = allCharacters[RandomNumberGenerator.GetInt32(allCharacters.Length)];
-
-            for (int i = password.Length - 1; i > 0; i--)
+            if (bytes.Length < 8)
             {
-                int j = RandomNumberGenerator.GetInt32(i + 1);
-                (password[i], password[j]) = (password[j], password[i]);
+                return false;
             }
 
-            return new string(password);
+
+            return bytes[0] == 0x89 &&
+                   bytes[1] == 0x50 &&
+                   bytes[2] == 0x4E &&
+                   bytes[3] == 0x47 &&
+                   bytes[4] == 0x0D &&
+                   bytes[5] == 0x0A &&
+                   bytes[6] == 0x1A &&
+                   bytes[7] == 0x0A;
+        }
+
+
+        private static string
+            GenerateSecurePassword()
+        {
+            const string upper =
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            const string lower =
+                "abcdefghijklmnopqrstuvwxyz";
+
+            const string numbers =
+                "0123456789";
+
+            const string symbols =
+                "!@#$%^&*_-+=";
+
+            const string all =
+                upper +
+                lower +
+                numbers +
+                symbols;
+
+
+            const int length =
+                14;
+
+
+            var password =
+                new char[length];
+
+
+            password[0] =
+                GetRandomCharacter(
+                    upper);
+
+            password[1] =
+                GetRandomCharacter(
+                    lower);
+
+            password[2] =
+                GetRandomCharacter(
+                    numbers);
+
+            password[3] =
+                GetRandomCharacter(
+                    symbols);
+
+
+            for (int i = 4;
+                 i < length;
+                 i++)
+            {
+                password[i] =
+                    GetRandomCharacter(
+                        all);
+            }
+
+
+            Shuffle(password);
+
+
+            return new string(
+                password);
+        }
+
+
+        private static char
+            GetRandomCharacter(
+                string characters)
+        {
+            int index =
+                RandomNumberGenerator
+                    .GetInt32(
+                        characters.Length);
+
+
+            return characters[index];
+        }
+
+
+        private static void Shuffle(
+            char[] characters)
+        {
+            for (int i =
+                    characters.Length - 1;
+                 i > 0;
+                 i--)
+            {
+                int j =
+                    RandomNumberGenerator
+                        .GetInt32(
+                            i + 1);
+
+
+                (characters[i], characters[j]) =
+                    (characters[j], characters[i]);
+            }
+        }
+
+
+        private static bool IsValidEmail(
+            string email)
+        {
+            try
+            {
+                var address =
+                    new System.Net.Mail.MailAddress(
+                        email);
+
+
+                return address.Address.Equals(
+                    email,
+                    StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        private static string
+            GetDatabaseErrorMessage(
+                DbUpdateException exception)
+        {
+            Exception? current =
+                exception;
+
+
+            while (current != null)
+            {
+                if (!string.IsNullOrWhiteSpace(
+                    current.Message))
+                {
+                    string message =
+                        current.Message
+                            .ToLowerInvariant();
+
+
+                    if (message.Contains("unique") ||
+                        message.Contains("duplicate") ||
+                        message.Contains("ux_") ||
+                        message.Contains(
+                            "cannot insert duplicate"))
+                    {
+                        return
+                            "The account could not be created because the username or email already exists.";
+                    }
+                }
+
+
+                current =
+                    current.InnerException;
+            }
+
+
+            return
+                "The account could not be saved to the database. Check the application logs for the database error.";
+        }
+
+
+        private static void
+            DeleteSignatureFileIfExists(
+                string? relativePath)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(
+                    relativePath))
+                {
+                    return;
+                }
+
+
+                string cleanPath =
+                    relativePath.TrimStart(
+                        '/',
+                        '\\');
+
+
+                string physicalPath =
+                    Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        cleanPath);
+
+
+                if (File.Exists(
+                    physicalPath))
+                {
+                    File.Delete(
+                        physicalPath);
+                }
+            }
+            catch
+            {
+                // Do not replace the original
+                // registration error with a
+                // cleanup error.
+            }
+        }
+
+
+        private class SignatureSaveResult
+        {
+            public bool Success
+            {
+                get;
+                private set;
+            }
+
+
+            public string? FilePath
+            {
+                get;
+                private set;
+            }
+
+
+            public string? ErrorMessage
+            {
+                get;
+                private set;
+            }
+
+
+            public static SignatureSaveResult
+                CreateSuccess(
+                    string filePath)
+            {
+                return new SignatureSaveResult
+                {
+                    Success = true,
+
+                    FilePath = filePath
+                };
+            }
+
+
+            public static SignatureSaveResult
+                CreateFailure(
+                    string message)
+            {
+                return new SignatureSaveResult
+                {
+                    Success = false,
+
+                    ErrorMessage = message
+                };
+            }
         }
     }
 }

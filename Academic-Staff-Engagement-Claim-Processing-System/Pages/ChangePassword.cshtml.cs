@@ -302,7 +302,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
         private static string DashboardPathFor(LecturerModel lecturer)
         {
             return lecturer.Type == UserRole.PartTimeLecturer
-                ? "/Lecturer/Part/Index"
+                ? "/Lecturer/Index"
                 : "/Lecturer/Index";
         }
     }

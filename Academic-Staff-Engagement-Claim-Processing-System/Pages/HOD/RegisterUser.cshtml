@@ -2,480 +2,988 @@
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.RegisterUserModel
 
 @{
-    Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
-    ViewData["Title"] = "Register New User";
+Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
+ViewData["Title"] = "Register Lecturers";
 }
 
-<link rel="stylesheet" href="~/css/HOD/register-user.css" asp-append-version="true" />
+<link rel="stylesheet"
+      href="~/css/HOD/register-user.css"
+      asp-append-version="true" />
 
 <div class="register-page">
 
-    <!-- PAGE HEADER -->
-    <div class="page-header">
+<div class="register-page-header">
 
-        <div class="page-heading">
-
-            <div class="page-icon">
-                <i class="bi bi-person-plus-fill"></i>
-            </div>
-
-            <div>
-                <h1>Register New User</h1>
-
-                <p>
-                    Create a new Lecturer account and capture their digital signature.
-                </p>
-            </div>
-
+    <div>
+        <div class="page-eyebrow">
+            HOD MANAGEMENT
         </div>
+
+        <h1>Register Lecturers</h1>
+
+        <p>
+            Create lecturer accounts and securely capture their
+            registration information and digital signatures.
+        </p>
+    </div>
+
+</div>
+
+
+@if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+{
+    <div class="register-alert register-alert-success">
+        <div class="alert-icon">
+            <i class="bi bi-check-lg"></i>
+        </div>
+
+        <div>
+            <strong>Registration completed</strong>
+            <span>@Model.SuccessMessage</span>
+        </div>
+    </div>
+}
+
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="register-alert register-alert-error">
+        <div class="alert-icon">
+            <i class="bi bi-exclamation-lg"></i>
+        </div>
+
+        <div>
+            <strong>Registration issue</strong>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    </div>
+}
+
+
+@if (Model.RegistrationResults.Count > 0)
+{
+    <div class="registration-results">
+
+        <div class="results-header">
+            <div>
+                <h2>Registration Results</h2>
+                <p>Results from the current registration request.</p>
+            </div>
+        </div>
+
+        @foreach (var result in Model.RegistrationResults)
+        {
+            <div class="registration-result">
+                <i class="bi bi-dot"></i>
+                <span>@result</span>
+            </div>
+        }
+
+    </div>
+}
+
+
+<form method="post"
+      id="registerForm"
+      autocomplete="off">
+
+    @Html.AntiForgeryToken()
+
+    <div id="lecturerContainer">
+
+        @for (int i = 0; i < Model.Users.Count; i++)
+        {
+            <div class="lecturer-card"
+                 data-index="@i">
+
+                <div class="lecturer-card-header">
+
+                    <div class="lecturer-number">
+
+                        <div class="lecturer-number-icon">
+                            <i class="bi bi-person"></i>
+                        </div>
+
+                        <div>
+                            <strong>Lecturer @(i + 1)</strong>
+                            <span>Registration details</span>
+                        </div>
+
+                    </div>
+
+                    <button type="button"
+                            class="remove-lecturer"
+                            onclick="removeLecturer(this)"
+                            @(Model.Users.Count == 1 ? "disabled" : null)>
+                        <i class="bi bi-trash3"></i>
+                        Remove
+                    </button>
+
+                </div>
+
+
+                <div class="lecturer-card-body">
+
+                    <div class="form-section">
+
+                        <div class="section-heading">
+                            <span class="section-number">01</span>
+
+                            <div>
+                                <h3>Personal Information</h3>
+                                <p>Enter the lecturer's basic account information.</p>
+                            </div>
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <div class="form-group form-group-full">
+                                <label for="name_@i">
+                                    Full Name
+                                    <span>*</span>
+                                </label>
+
+                                <input type="text"
+                                       id="name_@i"
+                                       name="Users[@i].Name"
+                                       value="@Model.Users[i].Name"
+                                       class="form-control"
+                                       placeholder="Enter lecturer's full name"
+                                       maxlength="150"
+                                       autocomplete="off" />
+
+                                <span class="field-error"
+                                      asp-validation-for="Users[i].Name"></span>
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="email_@i">
+                                    Email Address
+                                    <span>*</span>
+                                </label>
+
+                                <input type="email"
+                                       id="email_@i"
+                                       name="Users[@i].Email"
+                                       value="@Model.Users[i].Email"
+                                       class="form-control"
+                                       placeholder="lecturer@example.com"
+                                       maxlength="150"
+                                       autocomplete="off" />
+
+                                <span class="field-error"
+                                      asp-validation-for="Users[i].Email"></span>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="governmentId_@i">
+                                    Government ID
+                                    <span>*</span>
+                                </label>
+
+                                <input type="text"
+                                       id="governmentId_@i"
+                                       name="Users[@i].GovernmentId"
+                                       value="@Model.Users[i].GovernmentId"
+                                       class="form-control"
+                                       placeholder="Enter government ID"
+                                       maxlength="100"
+                                       autocomplete="off" />
+
+                                <span class="field-error"
+                                      asp-validation-for="Users[i].GovernmentId"></span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-divider"></div>
+
+
+                    <div class="form-section">
+
+                        <div class="section-heading">
+                            <span class="section-number">02</span>
+
+                            <div>
+                                <h3>Academic Information</h3>
+                                <p>Specify the lecturer's employment type and academic rank.</p>
+                            </div>
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label for="lecturerType_@i">
+                                    Employment Type
+                                    <span>*</span>
+                                </label>
+
+                                <select id="lecturerType_@i"
+                                        name="Users[@i].LecturerType"
+                                        class="form-control">
+
+                                    @if (Model.Users[i].LecturerType == "PartTimeLecturer")
+                                    {
+                                        <option value="PartTimeLecturer" selected>
+                                            Part-Time Lecturer
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="PartTimeLecturer">
+                                            Part-Time Lecturer
+                                        </option>
+                                    }
+
+                                    @if (Model.Users[i].LecturerType == "FullTimeLecturer")
+                                    {
+                                        <option value="FullTimeLecturer" selected>
+                                            Full-Time Lecturer
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="FullTimeLecturer">
+                                            Full-Time Lecturer
+                                        </option>
+                                    }
+
+                                </select>
+
+                                <span class="field-error"
+                                      asp-validation-for="Users[i].LecturerType"></span>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="rank_@i">
+                                    Academic Rank
+                                    <span>*</span>
+                                </label>
+
+                                <select id="rank_@i"
+                                        name="Users[@i].Rank"
+                                        class="form-control">
+
+                                    <option value="">
+                                        Select academic rank
+                                    </option>
+
+                                    <option value="TutorialAssistant"
+                                            selected="@(Model.Users[i].Rank == "TutorialAssistant")">
+                                        Tutorial Assistant
+                                    </option>
+
+                                    <option value="AssistantLecturer"
+                                            selected="@(Model.Users[i].Rank == "AssistantLecturer")">
+                                        Assistant Lecturer
+                                    </option>
+
+                                    <option value="LecturerWithMasters"
+                                            selected="@(Model.Users[i].Rank == "LecturerWithMasters")">
+                                        Lecturer With Masters
+                                    </option>
+
+                                    <option value="LecturerWithPhD"
+                                            selected="@(Model.Users[i].Rank == "LecturerWithPhD")">
+                                        Lecturer With PhD
+                                    </option>
+
+                                    <option value="SeniorLecturer"
+                                            selected="@(Model.Users[i].Rank == "SeniorLecturer")">
+                                        Senior Lecturer
+                                    </option>
+
+                                    <option value="AssistantProfessor"
+                                            selected="@(Model.Users[i].Rank == "AssistantProfessor")">
+                                        Assistant Professor
+                                    </option>
+
+                                    <option value="Professor"
+                                            selected="@(Model.Users[i].Rank == "Professor")">
+                                        Professor
+                                    </option>
+
+                                </select>
+
+                                <span class="field-error"
+                                      asp-validation-for="Users[i].Rank"></span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-divider"></div>
+
+
+                    <div class="form-section">
+
+                        <div class="section-heading">
+                            <span class="section-number">03</span>
+
+                            <div>
+                                <h3>Digital Signature</h3>
+                                <p>
+                                    The lecturer must provide a signature for secure account registration.
+                                </p>
+                            </div>
+                        </div>
+
+
+                        <div class="signature-area">
+
+                            <div class="signature-instructions">
+                                <i class="bi bi-pen"></i>
+
+                                <div>
+                                    <strong>Draw signature below</strong>
+                                    <span>
+                                        Use your mouse or touchscreen to provide the lecturer's signature.
+                                    </span>
+                                </div>
+                            </div>
+
+
+                            <div class="signature-wrapper">
+
+                                <canvas class="signature-pad"
+                                        width="900"
+                                        height="220"></canvas>
+
+                                <div class="signature-line"></div>
+
+                                <div class="signature-label">
+                                    Digital Signature
+                                </div>
+
+                            </div>
+
+
+                            <input type="hidden"
+                                   name="Users[@i].SignatureData"
+                                   class="signatureData"
+                                   value="@Model.Users[i].SignatureData" />
+
+
+                            <div class="signature-actions">
+
+                                <span class="signature-status">
+                                    <i class="bi bi-shield-check"></i>
+                                    Signature is stored securely
+                                </span>
+
+                                <button type="button"
+                                        class="clear-signature"
+                                        onclick="clearSignature(this)">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                    Clear Signature
+                                </button>
+
+                            </div>
+
+                            <span class="field-error signature-error"
+                                  asp-validation-for="Users[i].SignatureData"></span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
 
     </div>
 
 
-    <!-- SUCCESS MESSAGE -->
-    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
-    {
-        <div class="alert-message success-message">
+    <button type="button"
+            id="addLecturerButton"
+            class="add-lecturer-button">
+        <i class="bi bi-plus-lg"></i>
+        Add Another Lecturer
+    </button>
 
-            <i class="bi bi-check-circle-fill"></i>
 
-            <div>
-                <strong>Registration Successful</strong>
-                <span>@Model.SuccessMessage</span>
-            </div>
+    <div class="form-actions">
 
+        <div class="form-security-note">
+            <i class="bi bi-shield-lock"></i>
+
+            <span>
+                Registration information is protected and recorded in the system audit log.
+            </span>
         </div>
-    }
 
+        <button type="submit"
+                id="registerButton"
+                class="register-submit-button">
 
-    <!-- ERROR MESSAGE -->
-    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-    {
-        <div class="alert-message error-message">
-
-            <i class="bi bi-exclamation-circle-fill"></i>
-
-            <div>
-                <strong>Registration Failed</strong>
-                <span>@Model.ErrorMessage</span>
-            </div>
-
-        </div>
-    }
-
-
-    <!-- REGISTRATION CARD -->
-    <section class="register-card">
-
-        <div class="card-header">
-
-            <div>
-                <h2>Lecturer Information</h2>
-
-                <p>
-                    Enter the lecturer's account and employment details below.
-                </p>
-            </div>
-
-            <span class="required-note">
-                <span class="required">*</span>
-                Required fields
+            <span class="button-text">
+                <i class="bi bi-person-plus"></i>
+                Register Lecturers
             </span>
 
-        </div>
+            <span class="button-loading">
+                <span class="loading-spinner"></span>
+                Registering...
+            </span>
+
+        </button>
+
+    </div>
+
+</form>
+
+</div>
+
+@section Scripts
+{ <partial name="_ValidationScriptsPartial" />
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        document
+            .querySelectorAll(".lecturer-card")
+            .forEach(function (card) {
+                initializeSignatureCard(card);
+            });
 
 
-        <form method="post" id="registerForm">
+        document
+            .getElementById("addLecturerButton")
+            .addEventListener("click", function () {
+                addLecturer();
+            });
 
-            <div class="form-grid">
 
-                <!-- FULL NAME -->
-                <div class="form-group">
+        document
+            .getElementById("registerForm")
+            .addEventListener("submit", function (event) {
 
-                    <label>
-                        Full Name
-                        <span class="required">*</span>
-                    </label>
+                rebuildLecturerIndexes();
 
-                    <div class="input-wrapper">
+                let valid = true;
 
+                document
+                    .querySelectorAll(".lecturer-card")
+                    .forEach(function (card) {
+
+                        const signatureInput =
+                            card.querySelector(".signatureData");
+
+                        if (!signatureInput.value) {
+
+                            valid = false;
+
+                            const error =
+                                card.querySelector(".signature-error");
+
+                            if (error) {
+                                error.textContent =
+                                    "Digital signature is required.";
+                            }
+                        }
+                    });
+
+
+                if (!valid) {
+
+                    event.preventDefault();
+
+                    const firstError =
+                        document.querySelector(".signature-error");
+
+                    if (firstError) {
+                        firstError.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+                    }
+
+                    return;
+                }
+
+
+                const button =
+                    document.getElementById("registerButton");
+
+                button.disabled = true;
+
+                button
+                    .querySelector(".button-text")
+                    .style.display = "none";
+
+                button
+                    .querySelector(".button-loading")
+                    .style.display = "inline-flex";
+
+            });
+
+    });
+
+
+    function addLecturer() {
+
+        const container =
+            document.getElementById("lecturerContainer");
+
+        const currentCount =
+            container.querySelectorAll(".lecturer-card").length;
+
+        const index =
+            currentCount;
+
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "lecturer-card";
+
+        card.dataset.index =
+            index;
+
+
+        card.innerHTML = 
+
+            <div class="lecturer-card-header">
+
+                <div class="lecturer-number">
+
+                    <div class="lecturer-number-icon">
                         <i class="bi bi-person"></i>
-
-                        <input type="text"
-                               asp-for="Name"
-                               class="form-control"
-                               placeholder="Enter full name"
-                               autocomplete="name"
-                               required />
-
-                    </div>
-
-                    <span asp-validation-for="Name" class="validation-message"></span>
-
-                </div>
-
-
-                <!-- EMAIL -->
-                <div class="form-group">
-
-                    <label>
-                        Email Address
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-envelope"></i>
-
-                        <input type="email"
-                               asp-for="Email"
-                               class="form-control"
-                               placeholder="Enter email address"
-                               autocomplete="email"
-                               required />
-
-                    </div>
-
-                    <span asp-validation-for="Email" class="validation-message"></span>
-
-                </div>
-
-
-                <!-- SYSTEM ROLE -->
-                <div class="form-group">
-
-                    <label>
-                        System Role
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-shield-check"></i>
-
-                        <select asp-for="Role"
-                                class="form-select"
-                                id="roleSelect"
-                                required>
-
-                            <option value="Lecturer" selected>
-                                Lecturer
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <div class="field-help">
-                        HODs can only create Lecturer accounts.
-                    </div>
-
-                </div>
-
-
-                <!-- EMPLOYMENT TYPE -->
-                <div class="form-group">
-
-                    <label>
-                        Employment Type
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-briefcase"></i>
-
-                        <select asp-for="LecturerType"
-                                id="lecturerTypeInput"
-                                class="form-select"
-                                required>
-
-                            <option value="">
-                                Select employment type
-                            </option>
-
-                            <option value="PartTimeLecturer">
-                                Part-Time
-                            </option>
-
-                            <option value="FullTimeLecturer">
-                                Full-Time
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <div class="field-help">
-                        Determines the lecturer's rate and contract type.
-                    </div>
-
-                </div>
-
-
-                <!-- GOVERNMENT ID -->
-                <div class="form-group">
-
-                    <label>
-                        Government ID
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-card-text"></i>
-
-                        <input type="text"
-                               asp-for="GovernmentId"
-                               id="governmentIdInput"
-                               class="form-control"
-                               placeholder="Enter government ID"
-                               required />
-
-                    </div>
-
-                    <div class="field-help">
-                        Required for the lecturer's account.
-                    </div>
-
-                    <span asp-validation-for="GovernmentId" class="validation-message"></span>
-
-                </div>
-
-
-                <!-- ACADEMIC RANK -->
-                <div class="form-group">
-
-                    <label>
-                        Academic Rank
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-mortarboard"></i>
-
-                        <select asp-for="Rank"
-                                id="rankInput"
-                                class="form-select"
-                                required>
-
-                            <option value="">
-                                Select academic rank
-                            </option>
-
-                            <option value="TutorialAssistant">
-                                Tutorial Assistant
-                            </option>
-
-                            <option value="AssistantLecturer">
-                                Assistant Lecturer
-                            </option>
-
-                            <option value="LecturerWithMasters">
-                                Lecturer (Masters)
-                            </option>
-
-                            <option value="LecturerWithPhD">
-                                Lecturer (PhD)
-                            </option>
-
-                            <option value="SeniorLecturer">
-                                Senior Lecturer
-                            </option>
-
-                            <option value="AssistantProfessor">
-                                Assistant Professor
-                            </option>
-
-                            <option value="Professor">
-                                Professor
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <div class="field-help">
-                        Select the lecturer's current academic rank.
-                    </div>
-
-                </div>
-
-
-                <!-- ROLE INFORMATION -->
-                <div class="role-info">
-
-                    <div class="role-info-icon">
-                        <i class="bi bi-info-circle-fill"></i>
                     </div>
 
                     <div>
-                        <strong>Lecturer account requirements</strong>
-
-                        <p>
-                            A Lecturer account requires a Government ID,
-                            academic rank, employment type, and digital signature.
-                        </p>
+                        <strong>Lecturer ${index + 1}</strong>
+                        <span>Registration details</span>
                     </div>
 
                 </div>
 
+                <button type="button"
+                        class="remove-lecturer"
+                        onclick="removeLecturer(this)">
 
-                <!-- DIGITAL SIGNATURE -->
-                <div class="signature-section">
-
-                    <div class="section-heading">
-
-                        <div>
-                            <h3>Digital Signature</h3>
-
-                            <p>
-                                Capture the lecturer's signature using the signing area below.
-                            </p>
-                        </div>
-
-                        <span class="required-badge">
-                            Required
-                        </span>
-
-                    </div>
-
-
-                    <div class="signature-container">
-
-                        <div class="signature-canvas-wrapper">
-
-                            <canvas id="signaturePad"></canvas>
-
-                            <div class="signature-placeholder"
-                                 id="signaturePlaceholder">
-
-                                <i class="bi bi-pen"></i>
-
-                                <span>
-                                    Sign here
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="signature-footer">
-
-                            <div class="signature-status">
-
-                                <span class="status-indicator"></span>
-
-                                <span>
-                                    Signature will be securely saved with the account.
-                                </span>
-
-                            </div>
-
-                            <button type="button"
-                                    class="clear-signature"
-                                    id="clearSignature">
-
-                                <i class="bi bi-arrow-counterclockwise"></i>
-
-                                Clear
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- INFORMATION BOX -->
-                <div class="info-box">
-
-                    <i class="bi bi-shield-check"></i>
-
-                    <div>
-
-                        <strong>Account creation</strong>
-
-                        <p>
-                            After registration, the system will automatically generate
-                            the lecturer's username and password. Login credentials will
-                            be sent to the email address provided above.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- FORM ACTIONS -->
-            <div class="form-actions">
-
-                <a href="/HOD/Index"
-                   class="cancel-button">
-
-                    Cancel
-
-                </a>
-
-                <button type="submit"
-                        class="submit-button">
-
-                    <i class="bi bi-person-check-fill"></i>
-
-                    Create Lecturer Account
+                    <i class="bi bi-trash3"></i>
+                    Remove
 
                 </button>
 
             </div>
 
 
-            <!-- SIGNATURE DATA -->
-            <input type="hidden"
-                   asp-for="SignatureData"
-                   id="signatureData" />
+            <div class="lecturer-card-body">
 
-        </form>
+                <div class="form-section">
 
-    </section>
+                    <div class="section-heading">
 
-</div>
+                        <span class="section-number">
+                            01
+                        </span>
+
+                        <div>
+                            <h3>Personal Information</h3>
+                            <p>
+                                Enter the lecturer's basic account information.
+                            </p>
+                        </div>
+
+                    </div>
 
 
-@section Scripts {
+                    <div class="form-grid">
 
-    <partial name="_ValidationScriptsPartial" />
+                        <div class="form-group form-group-full">
 
-    <script>
+                            <label>
+                                Full Name
+                                <span>*</span>
+                            </label>
 
-        const governmentIdInput =
-            document.getElementById("governmentIdInput");
+                            <input type="text"
+                                   name="Users[${index}].Name"
+                                   class="form-control"
+                                   placeholder="Enter lecturer's full name"
+                                   maxlength="150"
+                                   autocomplete="off" />
 
-        const rankInput =
-            document.getElementById("rankInput");
+                            <span class="field-error"></span>
 
-        const lecturerTypeInput =
-            document.getElementById("lecturerTypeInput");
+                        </div>
 
-        const signatureData =
-            document.getElementById("signatureData");
 
-        const signaturePlaceholder =
-            document.getElementById("signaturePlaceholder");
+                        <div class="form-group">
+
+                            <label>
+                                Email Address
+                                <span>*</span>
+                            </label>
+
+                            <input type="email"
+                                   name="Users[${index}].Email"
+                                   class="form-control"
+                                   placeholder="lecturer@example.com"
+                                   maxlength="150"
+                                   autocomplete="off" />
+
+                            <span class="field-error"></span>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Government ID
+                                <span>*</span>
+                            </label>
+
+                            <input type="text"
+                                   name="Users[${index}].GovernmentId"
+                                   class="form-control"
+                                   placeholder="Enter government ID"
+                                   maxlength="100"
+                                   autocomplete="off" />
+
+                            <span class="field-error"></span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-divider"></div>
+
+
+                <div class="form-section">
+
+                    <div class="section-heading">
+
+                        <span class="section-number">
+                            02
+                        </span>
+
+                        <div>
+                            <h3>Academic Information</h3>
+                            <p>
+                                Specify the lecturer's employment type and academic rank.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label>
+                                Employment Type
+                                <span>*</span>
+                            </label>
+
+                            <select name="Users[${index}].LecturerType"
+                                    class="form-control">
+
+                                <option value="PartTimeLecturer">
+                                    Part-Time Lecturer
+                                </option>
+
+                                <option value="FullTimeLecturer">
+                                    Full-Time Lecturer
+                                </option>
+
+                            </select>
+
+                            <span class="field-error"></span>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Academic Rank
+                                <span>*</span>
+                            </label>
+
+                            <select name="Users[${index}].Rank"
+                                    class="form-control">
+
+                                <option value="">
+                                    Select academic rank
+                                </option>
+
+                                <option value="TutorialAssistant">
+                                    Tutorial Assistant
+                                </option>
+
+                                <option value="AssistantLecturer">
+                                    Assistant Lecturer
+                                </option>
+
+                                <option value="LecturerWithMasters">
+                                    Lecturer With Masters
+                                </option>
+
+                                <option value="LecturerWithPhD">
+                                    Lecturer With PhD
+                                </option>
+
+                                <option value="SeniorLecturer">
+                                    Senior Lecturer
+                                </option>
+
+                                <option value="AssistantProfessor">
+                                    Assistant Professor
+                                </option>
+
+                                <option value="Professor">
+                                    Professor
+                                </option>
+
+                            </select>
+
+                            <span class="field-error"></span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-divider"></div>
+
+
+                <div class="form-section">
+
+                    <div class="section-heading">
+
+                        <span class="section-number">
+                            03
+                        </span>
+
+                        <div>
+                            <h3>Digital Signature</h3>
+                            <p>
+                                The lecturer must provide a signature for secure account registration.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="signature-area">
+
+                        <div class="signature-instructions">
+
+                            <i class="bi bi-pen"></i>
+
+                            <div>
+                                <strong>Draw signature below</strong>
+
+                                <span>
+                                    Use your mouse or touchscreen to provide the lecturer's signature.
+                                </span>
+                            </div>
+
+                        </div>
+
+
+                        <div class="signature-wrapper">
+
+                            <canvas class="signature-pad"
+                                    width="900"
+                                    height="220"></canvas>
+
+                            <div class="signature-line"></div>
+
+                            <div class="signature-label">
+                                Digital Signature
+                            </div>
+
+                        </div>
+
+
+                        <input type="hidden"
+                               name="Users[${index}].SignatureData"
+                               class="signatureData" />
+
+
+                        <div class="signature-actions">
+
+                            <span class="signature-status">
+
+                                <i class="bi bi-shield-check"></i>
+
+                                Signature is stored securely
+
+                            </span>
+
+
+                            <button type="button"
+                                    class="clear-signature"
+                                    onclick="clearSignature(this)">
+
+                                <i class="bi bi-arrow-counterclockwise"></i>
+
+                                Clear Signature
+
+                            </button>
+
+                        </div>
+
+
+                        <span class="field-error signature-error"></span>
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+
+        container.appendChild(card);
+
+        initializeSignatureCard(card);
+
+        rebuildLecturerIndexes();
+
+        card.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+
+    function removeLecturer(button) {
+
+        const cards =
+            document.querySelectorAll(".lecturer-card");
+
+        if (cards.length <= 1) {
+            return;
+        }
+
+
+        const card =
+            button.closest(".lecturer-card");
+
+        if (!card) {
+            return;
+        }
+
+
+        card.remove();
+
+        rebuildLecturerIndexes();
+
+    }
+
+
+    function rebuildLecturerIndexes() {
+
+        const cards =
+            document.querySelectorAll(".lecturer-card");
+
+
+        cards.forEach(function (card, index) {
+
+            card.dataset.index =
+                index;
+
+
+            const heading =
+                card.querySelector(
+                    ".lecturer-number strong");
+
+            if (heading) {
+                heading.textContent =
+                    `Lecturer ${index + 1}`;
+            }
+
+
+            card.querySelectorAll("[name]")
+                .forEach(function (element) {
+
+                    const name =
+                        element.getAttribute("name");
+
+                    if (!name) {
+                        return;
+                    }
+
+
+                    element.setAttribute(
+                        "name",
+                        name.replace(
+                            /Users\[\d+\]/,
+                            `Users[${index}]`
+                        )
+                    );
+
+                });
+
+        });
+
+
+        const removeButtons =
+            document.querySelectorAll(
+                ".remove-lecturer");
+
+        removeButtons.forEach(function (button) {
+
+            button.disabled =
+                cards.length <= 1;
+
+        });
+
+    }
+
+
+    function initializeSignatureCard(card) {
 
         const canvas =
-            document.getElementById("signaturePad");
+            card.querySelector(".signature-pad");
 
-        const ctx =
+        const signatureInput =
+            card.querySelector(".signatureData");
+
+
+        if (!canvas || !signatureInput) {
+            return;
+        }
+
+
+        const context =
             canvas.getContext("2d");
 
         let drawing = false;
-        let hasSignature = false;
 
 
         function resizeCanvas() {
@@ -484,20 +992,28 @@
                 canvas.getBoundingClientRect();
 
             const ratio =
-                window.devicePixelRatio || 1;
+                Math.max(
+                    window.devicePixelRatio || 1,
+                    1
+                );
+
 
             const existingSignature =
-                hasSignature
-                    ? canvas.toDataURL("image/png")
-                    : null;
+                signatureInput.value;
+
 
             canvas.width =
                 rect.width * ratio;
 
             canvas.height =
-                rect.height * ratio;
+                220 * ratio;
 
-            ctx.setTransform(
+
+            canvas.style.height =
+                "220px";
+
+
+            context.setTransform(
                 ratio,
                 0,
                 0,
@@ -506,10 +1022,15 @@
                 0
             );
 
-            ctx.lineWidth = 2;
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
-            ctx.strokeStyle = "#174c3c";
+
+            context.lineWidth =
+                2.2;
+
+            context.lineCap =
+                "round";
+
+            context.lineJoin =
+                "round";
 
 
             if (existingSignature) {
@@ -520,12 +1041,12 @@
                 image.onload =
                     function () {
 
-                        ctx.drawImage(
+                        context.drawImage(
                             image,
                             0,
                             0,
                             rect.width,
-                            rect.height
+                            220
                         );
 
                     };
@@ -533,246 +1054,201 @@
                 image.src =
                     existingSignature;
             }
+
         }
 
 
         resizeCanvas();
 
-        window.addEventListener(
-            "resize",
-            resizeCanvas
-        );
 
-
-        function getPosition(e) {
+        function getPosition(event) {
 
             const rect =
                 canvas.getBoundingClientRect();
 
-
-            if (
-                e.touches &&
-                e.touches.length > 0
-            ) {
+            if (event.touches &&
+                event.touches.length > 0) {
 
                 return {
-
                     x:
-                        e.touches[0].clientX -
+                        event.touches[0].clientX -
                         rect.left,
 
                     y:
-                        e.touches[0].clientY -
+                        event.touches[0].clientY -
                         rect.top
-
                 };
 
             }
 
 
             return {
-
                 x:
-                    e.clientX -
+                    event.clientX -
                     rect.left,
 
                 y:
-                    e.clientY -
+                    event.clientY -
                     rect.top
-
             };
+
         }
 
 
-        function startDrawing(e) {
+        function startDrawing(event) {
 
-            e.preventDefault();
+            event.preventDefault();
 
             drawing = true;
-            hasSignature = true;
-
-            signaturePlaceholder.classList.add("hidden");
 
             const position =
-                getPosition(e);
+                getPosition(event);
 
-            ctx.beginPath();
+            context.beginPath();
 
-            ctx.moveTo(
+            context.moveTo(
                 position.x,
                 position.y
             );
+
         }
 
 
-        function draw(e) {
+        function draw(event) {
 
             if (!drawing) {
                 return;
             }
 
-            e.preventDefault();
+            event.preventDefault();
 
             const position =
-                getPosition(e);
+                getPosition(event);
 
-            ctx.lineTo(
+            context.lineTo(
                 position.x,
                 position.y
             );
 
-            ctx.stroke();
+            context.stroke();
+
         }
 
 
-        function stopDrawing() {
+        function stopDrawing(event) {
 
             if (!drawing) {
                 return;
+            }
+
+            if (event) {
+                event.preventDefault();
             }
 
             drawing = false;
 
-            signatureData.value =
-                canvas.toDataURL("image/png");
+            context.closePath();
+
+            signatureInput.value =
+                canvas.toDataURL(
+                    "image/png"
+                );
+
+
+            const error =
+                card.querySelector(
+                    ".signature-error");
+
+            if (error) {
+                error.textContent = "";
+            }
+
         }
 
 
         canvas.addEventListener(
             "mousedown",
-            startDrawing
-        );
+            startDrawing);
 
         canvas.addEventListener(
             "mousemove",
-            draw
-        );
+            draw);
 
         canvas.addEventListener(
             "mouseup",
-            stopDrawing
-        );
+            stopDrawing);
 
         canvas.addEventListener(
             "mouseleave",
-            stopDrawing
-        );
+            stopDrawing);
 
 
         canvas.addEventListener(
             "touchstart",
             startDrawing,
-            {
-                passive: false
-            }
-        );
+            { passive: false });
 
         canvas.addEventListener(
             "touchmove",
             draw,
-            {
-                passive: false
-            }
-        );
+            { passive: false });
 
         canvas.addEventListener(
             "touchend",
-            stopDrawing
+            stopDrawing,
+            { passive: false });
+
+    }
+
+
+    function clearSignature(button) {
+
+        const card =
+            button.closest(".lecturer-card");
+
+        if (!card) {
+            return;
+        }
+
+
+        const canvas =
+            card.querySelector(".signature-pad");
+
+        const signatureInput =
+            card.querySelector(".signatureData");
+
+
+        if (!canvas || !signatureInput) {
+            return;
+        }
+
+
+        const context =
+            canvas.getContext("2d");
+
+
+        context.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
         );
 
 
-        document.getElementById(
-            "clearSignature"
-        ).addEventListener(
-            "click",
-            function () {
-
-                const rect =
-                    canvas.getBoundingClientRect();
-
-                ctx.clearRect(
-                    0,
-                    0,
-                    rect.width,
-                    rect.height
-                );
-
-                hasSignature = false;
-
-                signatureData.value = "";
-
-                signaturePlaceholder.classList.remove("hidden");
-
-            }
-        );
+        signatureInput.value =
+            "";
 
 
-        document.getElementById(
-            "registerForm"
-        ).addEventListener(
-            "submit",
-            function (e) {
+        const error =
+            card.querySelector(
+                ".signature-error");
 
-                if (!hasSignature) {
+        if (error) {
+            error.textContent = "";
+        }
 
-                    e.preventDefault();
+    }
 
-                    alert(
-                        "Please provide the lecturer's digital signature."
-                    );
-
-                    return;
-                }
-
-
-                if (!governmentIdInput.value.trim()) {
-
-                    e.preventDefault();
-
-                    alert(
-                        "Please enter the lecturer's Government ID."
-                    );
-
-                    governmentIdInput.focus();
-
-                    return;
-                }
-
-
-                if (!rankInput.value) {
-
-                    e.preventDefault();
-
-                    alert(
-                        "Please select the lecturer's academic rank."
-                    );
-
-                    rankInput.focus();
-
-                    return;
-                }
-
-
-                if (!lecturerTypeInput.value) {
-
-                    e.preventDefault();
-
-                    alert(
-                        "Please select whether this lecturer is part-time or full-time."
-                    );
-
-                    lecturerTypeInput.focus();
-
-                    return;
-                }
-
-
-                signatureData.value =
-                    canvas.toDataURL("image/png");
-
-            }
-        );
-
-    </script>
+</script>
 
 }

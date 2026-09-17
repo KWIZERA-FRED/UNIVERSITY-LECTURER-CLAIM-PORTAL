@@ -1,14 +1,10 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using System.Threading.Tasks;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 {
-    // Thin wrapper around the create + save pattern for AuditLog.
-    // Deliberately does its own SaveChangesAsync() call, separate from
-    // whatever the caller is doing — audit writes are insert-only and
-    // shouldn't get tangled up in a caller's concurrency-retry logic
-    // (e.g. Login's optimistic-concurrency retry on the user entity).
     public class AuditLogger
     {
         private readonly ApplicationDbContext _context;
@@ -18,7 +14,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             _context = context;
         }
 
-        public async Task LogAsync(
+        /// <summary>
+        /// Adds an audit record to the current DbContext without saving it.
+        /// This is useful when the audit record must be committed together
+        /// with another database operation inside the same transaction.
+        /// </summary>
+        public void Add(
             AuditAction action,
             string actorUsername,
             string actorRole,
@@ -39,6 +40,31 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 ipAddress);
 
             _context.AuditLogs.Add(entry);
+        }
+
+        /// <summary>
+        /// Adds and immediately saves an audit record.
+        /// Existing workflows can continue using this method.
+        /// </summary>
+        public async Task LogAsync(
+            AuditAction action,
+            string actorUsername,
+            string actorRole,
+            int? actorId = null,
+            string? entityType = null,
+            int? entityId = null,
+            string? details = null,
+            string? ipAddress = null)
+        {
+            Add(
+                action,
+                actorUsername,
+                actorRole,
+                actorId,
+                entityType,
+                entityId,
+                details,
+                ipAddress);
 
             await _context.SaveChangesAsync();
         }
