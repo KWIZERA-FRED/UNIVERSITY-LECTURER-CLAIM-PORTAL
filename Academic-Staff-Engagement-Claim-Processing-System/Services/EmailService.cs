@@ -31,8 +31,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             string username,
             string password)
         {
-            if (string.IsNullOrWhiteSpace(
-                    recipientEmail))
+            if (string.IsNullOrWhiteSpace(recipientEmail))
             {
                 throw new ArgumentException(
                     "Recipient email is required.",
@@ -40,8 +39,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             }
 
             var emailSettings =
-                _configuration
-                    .GetSection("EmailSettings");
+                _configuration.GetSection("EmailSettings");
 
             string senderName =
                 emailSettings["SenderName"]
@@ -77,19 +75,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     "EmailSettings:SenderPassword is missing from configuration.");
 
             recipientName =
-                string.IsNullOrWhiteSpace(
-                    recipientName)
+                string.IsNullOrWhiteSpace(recipientName)
                     ? "Staff Member"
                     : recipientName.Trim();
 
             username =
-                string.IsNullOrWhiteSpace(
-                    username)
+                string.IsNullOrWhiteSpace(username)
                     ? "your username"
                     : username.Trim();
 
-            var message =
-                new MimeMessage();
+            var message = new MimeMessage();
 
             message.From.Add(
                 new MailboxAddress(
@@ -148,11 +143,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 senderEmail,
                 senderPassword);
 
-            await smtp.SendAsync(
-                message);
+            await smtp.SendAsync(message);
 
-            await smtp.DisconnectAsync(
-                true);
+            await smtp.DisconnectAsync(true);
 
             _logger.LogInformation(
                 "Welcome email sent to {RecipientEmail}.",
@@ -168,8 +161,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             string recipientName,
             string contractReference)
         {
-            if (string.IsNullOrWhiteSpace(
-                    recipientEmail))
+            if (string.IsNullOrWhiteSpace(recipientEmail))
             {
                 throw new ArgumentException(
                     "Recipient email is required.",
@@ -177,8 +169,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             }
 
             var emailSettings =
-                _configuration
-                    .GetSection("EmailSettings");
+                _configuration.GetSection("EmailSettings");
 
             string senderName =
                 emailSettings["SenderName"]
@@ -214,19 +205,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     "EmailSettings:SenderPassword is missing from configuration.");
 
             recipientName =
-                string.IsNullOrWhiteSpace(
-                    recipientName)
+                string.IsNullOrWhiteSpace(recipientName)
                     ? "Staff Member"
                     : recipientName.Trim();
 
             contractReference =
-                string.IsNullOrWhiteSpace(
-                    contractReference)
+                string.IsNullOrWhiteSpace(contractReference)
                     ? "the contract"
                     : contractReference.Trim();
 
-            var message =
-                new MimeMessage();
+            var message = new MimeMessage();
 
             message.From.Add(
                 new MailboxAddress(
@@ -283,16 +271,179 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 senderEmail,
                 senderPassword);
 
-            await smtp.SendAsync(
-                message);
+            await smtp.SendAsync(message);
 
-            await smtp.DisconnectAsync(
-                true);
+            await smtp.DisconnectAsync(true);
 
             _logger.LogInformation(
                 "Contract signing notification sent to {RecipientEmail} for {ContractReference}.",
                 recipientEmail,
                 contractReference);
+        }
+
+        // ============================================================
+        // MARKS SUBMISSION NOTIFICATION
+        // ============================================================
+
+        public async Task SendMarksSubmissionNotificationAsync(
+            string recipientEmail,
+            string recipientName,
+            string lecturerName,
+            string courseName,
+            string academicYear,
+            string semester,
+            string submissionReference)
+        {
+            if (string.IsNullOrWhiteSpace(recipientEmail))
+            {
+                throw new ArgumentException(
+                    "Recipient email is required.",
+                    nameof(recipientEmail));
+            }
+
+            var emailSettings =
+                _configuration.GetSection("EmailSettings");
+
+            string senderName =
+                emailSettings["SenderName"]
+                ?? throw new InvalidOperationException(
+                    "EmailSettings:SenderName is missing from configuration.");
+
+            string senderEmail =
+                emailSettings["SenderEmail"]
+                ?? throw new InvalidOperationException(
+                    "EmailSettings:SenderEmail is missing from configuration.");
+
+            string smtpServer =
+                emailSettings["SmtpServer"]
+                ?? throw new InvalidOperationException(
+                    "EmailSettings:SmtpServer is missing from configuration.");
+
+            string smtpPortRaw =
+                emailSettings["SmtpPort"]
+                ?? throw new InvalidOperationException(
+                    "EmailSettings:SmtpPort is missing from configuration.");
+
+            if (!int.TryParse(
+                    smtpPortRaw,
+                    out int smtpPort))
+            {
+                throw new InvalidOperationException(
+                    $"Invalid SmtpPort configured: '{smtpPortRaw}'.");
+            }
+
+            string senderPassword =
+                emailSettings["SenderPassword"]
+                ?? throw new InvalidOperationException(
+                    "EmailSettings:SenderPassword is missing from configuration.");
+
+            recipientName =
+                string.IsNullOrWhiteSpace(recipientName)
+                    ? "Exam Office"
+                    : recipientName.Trim();
+
+            lecturerName =
+                string.IsNullOrWhiteSpace(lecturerName)
+                    ? "Lecturer"
+                    : lecturerName.Trim();
+
+            courseName =
+                string.IsNullOrWhiteSpace(courseName)
+                    ? "Assigned Course"
+                    : courseName.Trim();
+
+            academicYear =
+                string.IsNullOrWhiteSpace(academicYear)
+                    ? "N/A"
+                    : academicYear.Trim();
+
+            semester =
+                string.IsNullOrWhiteSpace(semester)
+                    ? "N/A"
+                    : semester.Trim();
+
+            submissionReference =
+                string.IsNullOrWhiteSpace(submissionReference)
+                    ? "N/A"
+                    : submissionReference.Trim();
+
+            var message = new MimeMessage();
+
+            message.From.Add(
+                new MailboxAddress(
+                    senderName,
+                    senderEmail));
+
+            message.To.Add(
+                new MailboxAddress(
+                    recipientName,
+                    recipientEmail));
+
+            message.Subject =
+                "New Marks Submission Requires Review";
+
+            message.Body =
+                new TextPart("plain")
+                {
+                    Text =
+                        string.Join(
+                            Environment.NewLine,
+
+                            $"Dear {recipientName},",
+
+                            "",
+
+                            "A new marks submission has been received and is waiting for review and signing.",
+
+                            "",
+
+                            "Submission Details",
+
+                            "---------------------------",
+
+                            $"Lecturer: {lecturerName}",
+
+                            $"Course: {courseName}",
+
+                            $"Academic Year: {academicYear}",
+
+                            $"Semester: {semester}",
+
+                            $"Submission Reference: {submissionReference}",
+
+                            "",
+
+                            "Please log in to the UNILAK Staff Engagement Portal to review and sign the submitted marks.",
+
+                            "",
+
+                            "Kind regards,",
+
+                            "",
+
+                            "UNILAK Staff Engagement Portal")
+                };
+
+            using var smtp =
+                new MailKit.Net.Smtp.SmtpClient();
+
+            await smtp.ConnectAsync(
+                smtpServer,
+                smtpPort,
+                SecureSocketOptions.StartTls);
+
+            await smtp.AuthenticateAsync(
+                senderEmail,
+                senderPassword);
+
+            await smtp.SendAsync(message);
+
+            await smtp.DisconnectAsync(true);
+
+            _logger.LogInformation(
+                "Marks submission notification sent to {RecipientEmail} for submission {SubmissionReference}.",
+                recipientEmail,
+                submissionReference);
         }
     }
 }

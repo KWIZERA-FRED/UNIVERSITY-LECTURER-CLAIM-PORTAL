@@ -86,7 +86,8 @@
                 </h2>
 
                 <p>
-                    Select the course and academic period, then upload the completed marks sheet.
+                    Select your assigned course. The academic period is automatically taken
+                    from the course assignment.
                 </p>
 
             </div>
@@ -103,13 +104,18 @@
 
                 <div class="form-grid">
 
+                    <!-- =================================================
+                         COURSE
+                         ================================================= -->
+
                     <div class="form-group form-group-full">
 
                         <label asp-for="CourseAssignmentId">
                             Course
                         </label>
 
-                        <select asp-for="CourseAssignmentId">
+                        <select asp-for="CourseAssignmentId"
+                                id="courseAssignment">
 
                             <option value="0">
                                 Select course
@@ -117,8 +123,14 @@
 
                             @foreach (var assignment in Model.Assignments)
                             {
-                                <option value="@assignment.Id">
+                                <option value="@assignment.Id"
+                                        data-academic-year="@assignment.AcademicYear"
+                                        data-semester="@assignment.Semester"
+                                        data-session="@assignment.Session"
+                                        data-campus="@assignment.Campus">
+
                                     @assignment.Course.Code - @assignment.Course.Title
+
                                 </option>
                             }
 
@@ -129,57 +141,62 @@
 
                     <div class="form-group">
 
-                        <label asp-for="AcademicYear">
+                        <label>
                             Academic Year
                         </label>
 
-                        <select asp-for="AcademicYear">
-
-                            <option value="">
-                                Select academic year
-                            </option>
-
-                            @foreach (var year in Model.Assignments
-                                .Select(a => a.AcademicYear)
-                                .Distinct()
-                                .OrderByDescending(y => y))
-                            {
-                                <option value="@year">
-                                    @year
-                                </option>
-                            }
-
-                        </select>
+                        <input type="text"
+                               id="academicYear"
+                               class="form-control"
+                               readonly
+                               placeholder="Select a course" />
 
                     </div>
 
 
                     <div class="form-group">
 
-                        <label asp-for="Semester">
+                        <label>
                             Semester
                         </label>
 
-                        <select asp-for="Semester">
+                        <input type="text"
+                               id="semester"
+                               class="form-control"
+                               readonly
+                               placeholder="Select a course" />
 
-                            <option value="">
-                                Select semester
-                            </option>
+                    </div>
 
-                            @foreach (var semester in Enum.GetValues<Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums.Semester>())
-                            {
-                                <option value="@semester">
-                                    @semester
-                                </option>
-                            }
+                    <div class="form-group">
 
-                        </select>
+                        <label>
+                            Session
+                        </label>
+
+                        <input type="text"
+                               id="session"
+                               class="form-control"
+                               readonly
+                               placeholder="Select a course" />
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>
+                            Campus
+                        </label>
+
+                        <input type="text"
+                               id="campus"
+                               class="form-control"
+                               readonly
+                               placeholder="Select a course" />
 
                     </div>
 
                 </div>
-
-
                 <div class="form-group upload-form-group">
 
                     <label asp-for="MarksFile">
@@ -219,8 +236,6 @@
                     </div>
 
                 </div>
-
-
                 <div class="format-box">
 
                     <div class="format-title">
@@ -272,8 +287,6 @@
                     </div>
 
                 </div>
-
-
                 <div class="security-note">
 
                     <span class="security-icon">
@@ -289,8 +302,6 @@
                 </div>
 
             </div>
-
-
             <div class="marks-form-actions">
 
                 <button type="submit"
@@ -319,17 +330,100 @@
             const fileName =
                 document.getElementById("fileName");
 
-            if (input.files && input.files.length > 0) {
+            if (input.files &&
+                input.files.length > 0) {
 
                 fileName.textContent =
-                    "Selected: " + input.files[0].name;
+                    "Selected: " +
+                    input.files[0].name;
 
-            } else {
+            }
+            else {
 
                 fileName.textContent = "";
 
             }
         }
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                const courseSelect =
+                    document.getElementById(
+                        "courseAssignment"
+                    );
+
+                const academicYear =
+                    document.getElementById(
+                        "academicYear"
+                    );
+
+                const semester =
+                    document.getElementById(
+                        "semester"
+                    );
+
+                const session =
+                    document.getElementById(
+                        "session"
+                    );
+
+                const campus =
+                    document.getElementById(
+                        "campus"
+                    );
+
+
+                function updateAssignmentDetails() {
+
+                    const selectedOption =
+                        courseSelect.options[
+                            courseSelect.selectedIndex
+                        ];
+
+
+                    if (!selectedOption ||
+                        !selectedOption.value ||
+                        selectedOption.value === "0") {
+
+                        academicYear.value = "";
+                        semester.value = "";
+                        session.value = "";
+                        campus.value = "";
+
+                        return;
+                    }
+
+
+                    academicYear.value =
+                        selectedOption.dataset.academicYear || "";
+
+
+                    semester.value =
+                        selectedOption.dataset.semester || "";
+
+
+                    session.value =
+                        selectedOption.dataset.session || "";
+
+
+                    campus.value =
+                        selectedOption.dataset.campus || "";
+                }
+
+
+                courseSelect.addEventListener(
+                    "change",
+                    updateAssignmentDetails
+                );
+
+
+                updateAssignmentDetails();
+
+            }
+        );
+
     </script>
 
 }

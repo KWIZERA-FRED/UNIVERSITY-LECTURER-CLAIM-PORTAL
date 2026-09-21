@@ -24,26 +24,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
             _context = context;
             _marksSigningService = marksSigningService;
         }
-
-        // ============================================================
-        // FORM
-        // ============================================================
-
         [BindProperty]
         public int CourseAssignmentId { get; set; }
 
         [BindProperty]
-        public string AcademicYear { get; set; } = string.Empty;
-
-        [BindProperty]
-        public Semester Semester { get; set; }
-
-        [BindProperty]
         public IFormFile? MarksFile { get; set; }
-
-        // ============================================================
-        // DISPLAY
-        // ============================================================
 
         public string LecturerName { get; private set; } = string.Empty;
 
@@ -53,10 +38,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
         public string? ErrorMessage { get; private set; }
 
         public string? SuccessMessage { get; private set; }
-
-        // ============================================================
-        // GET
-        // ============================================================
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -73,11 +54,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
             return Page();
         }
-
-        // ============================================================
-        // POST
-        // ============================================================
-
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync()
         {
@@ -90,56 +66,47 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
             LecturerName = lecturer.UserName;
 
-            // --------------------------------------------------------
-            // BASIC INPUT VALIDATION
-            // --------------------------------------------------------
-
             if (CourseAssignmentId <= 0)
             {
-                ErrorMessage = "Please select your course.";
+                ErrorMessage = "Please select a course.";
 
                 await LoadAssignmentsAsync(lecturer.Id);
 
                 return Page();
             }
+            var assignment =
+                await _context.CourseAssignments
+                    .Include(ca => ca.Course)
+                    .FirstOrDefaultAsync(ca =>
+                        ca.Id == CourseAssignmentId &&
+                        ca.LecturerId == lecturer.Id &&
+                        ca.IsActive &&
+                        ca.Course != null &&
+                        ca.Course.IsActive);
 
-            if (string.IsNullOrWhiteSpace(AcademicYear))
+            if (assignment == null)
             {
-                ErrorMessage = "Please select the academic year.";
+                ErrorMessage =
+                    "The selected course is no longer available for submission.";
 
                 await LoadAssignmentsAsync(lecturer.Id);
 
                 return Page();
             }
-
-            if (!Enum.IsDefined(typeof(Semester), Semester))
-            {
-                ErrorMessage = "Please select a valid semester.";
-
-                await LoadAssignmentsAsync(lecturer.Id);
-
-                return Page();
-            }
-
             if (MarksFile == null || MarksFile.Length == 0)
             {
-                ErrorMessage = "Please upload the Excel marks sheet.";
+                ErrorMessage =
+                    "Please upload the Excel marks sheet.";
 
                 await LoadAssignmentsAsync(lecturer.Id);
 
                 return Page();
             }
-
-            // --------------------------------------------------------
-            // SECURITY-SENSITIVE VALIDATION AND STORAGE
-            // ARE HANDLED BY MarksSigningService
-            // --------------------------------------------------------
-
             var result = await _marksSigningService.SubmitAsync(
                 lecturer.Id,
-                CourseAssignmentId,
-                AcademicYear.Trim(),
-                Semester,
+                assignment.Id,
+                assignment.AcademicYear,
+                assignment.Semester,
                 MarksFile,
                 lecturer.UserName,
                 HttpContext.Connection
@@ -156,43 +123,21 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
                 return Page();
             }
-
-            // --------------------------------------------------------
-            // SUCCESS
-            // --------------------------------------------------------
-
             SuccessMessage =
                 $"Marks submitted successfully. " +
                 $"Reference: {result.SubmissionReference}";
 
-            // Clear the form after successful submission.
             CourseAssignmentId = 0;
-            AcademicYear = string.Empty;
-            Semester = default;
             MarksFile = null;
 
             await LoadAssignmentsAsync(lecturer.Id);
 
             return Page();
         }
-
-        // ============================================================
-        // GET AUTHENTICATED LECTURER
-        // ============================================================
-
         private async Task<
             Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer?>
             GetAuthenticatedLecturerAsync()
         {
-            /*
-             * Login.cshtml.cs creates this claim:
-             *
-             * new Claim("UserId", userId.ToString())
-             *
-             * We use the authenticated claim rather than
-             * accepting a lecturer ID from the browser.
-             */
-
             var userIdValue = User.FindFirstValue("UserId");
 
             if (!int.TryParse(
@@ -207,11 +152,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
                     l.Id == lecturerId &&
                     l.IsActive);
         }
-
-        // ============================================================
-        // LOAD ONLY THIS LECTURER'S ASSIGNMENTS
-        // ============================================================
-
         private async Task LoadAssignmentsAsync(int lecturerId)
         {
             Assignments =
@@ -221,9 +161,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
                     .Where(ca =>
                         ca.LecturerId == lecturerId &&
                         ca.IsActive &&
-                        ca.IsApproved &&
+                        ca.Course != null &&
                         ca.Course.IsActive)
-                    .OrderBy(ca => ca.AcademicYear)
+                    .OrderByDescending(ca => ca.AcademicYear)
                     .ThenBy(ca => ca.Course.Code)
                     .ToListAsync();
         }

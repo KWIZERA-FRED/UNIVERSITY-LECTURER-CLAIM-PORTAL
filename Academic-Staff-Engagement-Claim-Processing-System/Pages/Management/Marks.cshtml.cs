@@ -96,7 +96,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
                         .FirstOrDefaultAsync(ms =>
                             ms.Id == SubmissionId.Value &&
                             ms.Status ==
-                            MarksSubmissionStatus.Pending);
+                                MarksSubmissionStatus.Pending);
 
                 if (submission is null)
                 {
@@ -108,13 +108,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
                     SelectedSubmission =
                         new MarksReviewDto
                         {
-                            Id = submission.Id,
+                            Id =
+                                submission.Id,
+
                             Reference =
                                 submission.SubmissionReference,
+
                             LecturerName =
                                 submission.Lecturer.UserName,
+
                             CourseTitle =
                                 submission.Course.Title,
+
                             FileName =
                                 submission.FileName
                         };
@@ -125,7 +130,90 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
         }
 
         // ============================================================
-        // APPROVE
+        // DOWNLOAD MARKS FILE
+        // ============================================================
+
+        public async Task<IActionResult> OnGetDownloadAsync(
+            int submissionId)
+        {
+            if (!await IsExamOfficeAsync())
+            {
+                return Forbid();
+            }
+
+            if (submissionId <= 0)
+            {
+                return NotFound();
+            }
+
+            var submission =
+                await _context.MarksSubmissions
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(ms =>
+                        ms.Id == submissionId &&
+                        ms.Status ==
+                            MarksSubmissionStatus.Pending);
+
+            if (submission == null)
+            {
+                return NotFound(
+                    "The marks submission could not be found or is no longer awaiting review.");
+            }
+
+            if (string.IsNullOrWhiteSpace(
+                    submission.SubmissionReference))
+            {
+                return NotFound(
+                    "The marks file reference is missing.");
+            }
+
+            string fileName =
+                $"{submission.SubmissionReference}.xlsx";
+
+            string filePath =
+                Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    "uploads",
+                    "marks",
+                    fileName);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound(
+                    "The marks file could not be found in application storage.");
+            }
+
+            byte[] fileBytes;
+
+            try
+            {
+                fileBytes =
+                    await System.IO.File.ReadAllBytesAsync(
+                        filePath);
+            }
+            catch
+            {
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    "The marks file could not be read.");
+            }
+
+            string downloadName =
+                string.IsNullOrWhiteSpace(
+                    submission.FileName)
+                    ? fileName
+                    : Path.GetFileName(
+                        submission.FileName);
+
+            return File(
+                fileBytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                downloadName);
+        }
+
+        // ============================================================
+        // APPROVE / SIGN
         // ============================================================
 
         public async Task<IActionResult> OnPostApproveAsync()
@@ -139,18 +227,29 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
             var (actorId, actorUsername, ipAddress) =
                 GetActorContext();
 
+            if (actorId <= 0)
+            {
+                ErrorMessage =
+                    "The Exam Office account could not be identified.";
+
+                await LoadPendingListAsync();
+
+                return Page();
+            }
+
             var result =
                 await _marksService.ReviewAsync(
-                    SubmissionId.Value,
+                    actorId,
                     true,
                     null,
-                    actorId,
+                    SubmissionId.Value,
                     actorUsername,
                     ipAddress);
 
             if (!result.Succeeded)
             {
-                ErrorMessage = result.ErrorMessage;
+                ErrorMessage =
+                    result.ErrorMessage;
             }
             else
             {
@@ -159,6 +258,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
             }
 
             await LoadPendingListAsync();
+
+            SubmissionId = null;
+            SelectedSubmission = null;
 
             return Page();
         }
@@ -175,7 +277,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
                 return RedirectToPage("/ManagementDashboard");
             }
 
-            if (string.IsNullOrWhiteSpace(DeclineReason))
+            if (string.IsNullOrWhiteSpace(
+                    DeclineReason))
             {
                 ErrorMessage =
                     "Please provide a reason for declining this submission.";
@@ -188,18 +291,29 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
             var (actorId, actorUsername, ipAddress) =
                 GetActorContext();
 
+            if (actorId <= 0)
+            {
+                ErrorMessage =
+                    "The Exam Office account could not be identified.";
+
+                await LoadPendingListAsync();
+
+                return Page();
+            }
+
             var result =
                 await _marksService.ReviewAsync(
-                    SubmissionId.Value,
+                    actorId,
                     false,
                     DeclineReason,
-                    actorId,
+                    SubmissionId.Value,
                     actorUsername,
                     ipAddress);
 
             if (!result.Succeeded)
             {
-                ErrorMessage = result.ErrorMessage;
+                ErrorMessage =
+                    result.ErrorMessage;
             }
             else
             {
@@ -208,6 +322,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
             }
 
             await LoadPendingListAsync();
+
+            SubmissionId = null;
+            SelectedSubmission = null;
+            DeclineReason = null;
 
             return Page();
         }
@@ -221,7 +339,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
             var username =
                 User.Identity?.Name;
 
-            if (string.IsNullOrWhiteSpace(username))
+            if (string.IsNullOrWhiteSpace(
+                    username))
             {
                 return false;
             }
@@ -253,7 +372,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
                     .Select(ms =>
                         new PendingMarksRow
                         {
-                            Id = ms.Id,
+                            Id =
+                                ms.Id,
 
                             Reference =
                                 ms.SubmissionReference,
@@ -287,7 +407,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
                 out int actorId);
 
             string actorUsername =
-                User.Identity?.Name ?? "Unknown";
+                User.Identity?.Name ??
+                "Unknown";
 
             string? ipAddress =
                 HttpContext.Connection

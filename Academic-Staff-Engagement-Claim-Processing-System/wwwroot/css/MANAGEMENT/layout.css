@@ -1,14 +1,9 @@
-/* ============================================================
-   UNILAK PORTAL
-   MANAGEMENT SHARED LAYOUT
-   Visual parity with the Lecturer shell.
-   ============================================================ */
 
 :root {
     --primary: #002147;
     --primary-dark: #001C40;
     --primary-light: #0B2545;
-    --accent: #009B63;
+     --accent: #009B63;
     --accent-dark: #007F51;
     --accent-light: #E8F8F1;
     --accent-border: #C8EFDF;
@@ -29,43 +24,29 @@
     --font-primary: "Plus Jakarta Sans", sans-serif;
     --font-secondary: "Poppins", sans-serif;
     --transition: 0.2s ease;
+  
 }
-
-
-/* ============================================================
-   RESET
-   ============================================================ */
-
 * {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
 }
 
 html {
+    width: 100%;
     min-height: 100%;
-    scroll-behavior: smooth;
+    font-size: 16px;
 }
 
 body {
+    width: 100%;
     min-height: 100vh;
-    background: var(--background);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
     color: var(--text);
+    background: var(--background);
     font-family: var(--font-primary);
-    font-size: 13px;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-}
-
-button,
-input,
-select,
-textarea {
-    font-family: inherit;
-}
-
-button {
-    cursor: pointer;
 }
 
 a {
@@ -73,84 +54,56 @@ a {
     text-decoration: none;
 }
 
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
 
-/* ============================================================
-   APPLICATION
-   ============================================================ */
+button {
+    margin: 0;
+}
 
+img {
+    max-width: 100%;
+    display: block;
+}
 .management-app {
+    width: 100%;
     min-height: 100vh;
     background: var(--background);
 }
 
-
-/* ============================================================
-   TOP NAVBAR
-   ============================================================ */
-
 .top-navbar {
     position: fixed;
     top: 0;
-    left: 0;
     right: 0;
+    left: 0;
+    z-index: 1000;
+     width: 100%;
     height: var(--navbar-height);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
-    background: #0B2559;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-    z-index: 1000;
-    box-shadow: 0 3px 12px rgba(0, 28, 64, 0.18);
+    padding: 0 22px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+   
 }
-
-
-/* ============================================================
-   NAVBAR LEFT
-   ============================================================ */
 
 .navbar-left {
+    min-width: 0;
     display: flex;
     align-items: center;
-    min-width: 0;
 }
 
-
-/* ============================================================
-   MOBILE SIDEBAR TOGGLE
-   ============================================================ */
-
-.sidebar-toggle {
-    width: 36px;
-    height: 36px;
-    display: none;
+.navbar-right {
+    display: flex;
     align-items: center;
-    justify-content: center;
-    margin-right: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.06);
-    color: #FFFFFF;
-    transition: background var(--transition), border-color var(--transition), transform var(--transition);
+    gap: 20px;
 }
-
-    .sidebar-toggle:hover {
-        background: rgba(255, 255, 255, 0.12);
-        border-color: rgba(255, 255, 255, 0.28);
-    }
-
-    .sidebar-toggle:active {
-        transform: scale(0.96);
-    }
-
-    .sidebar-toggle i {
-        font-size: 19px;
-    }
-
-
-/* ============================================================
-   BRAND
-   ============================================================ */
 
 .brand {
     display: flex;
@@ -167,9 +120,6 @@ a {
     justify-content: center;
     flex-shrink: 0;
     overflow: hidden;
-    border-radius: 8px;
-    background: #FFFFFF;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
     .brand-logo img {
@@ -179,333 +129,251 @@ a {
     }
 
 .brand-text {
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    min-width: 0;
+    justify-content: center;
 }
 
 .brand-title {
-    color: #FFFFFF;
-    font-family: var(--font-secondary);
+    color: var(--primary);
     font-size: 14px;
-    font-weight: 700;
-    line-height: 1.2;
-    white-space: nowrap;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0.2px;
 }
 
 .brand-subtitle {
-    margin-top: 2px;
-    color: rgba(255, 255, 255, 0.64);
-    font-size: 9px;
-    font-weight: 500;
-    line-height: 1.2;
-    white-space: nowrap;
+    margin-top: 3px;
+    color: var(--text-muted);
+    font-size: 8px;
+    font-weight: 600;
+    line-height: 1.1;
 }
 
-
-/* ============================================================
-   NAVBAR RIGHT
-   ============================================================ */
-
-.navbar-right {
-    display: flex;
+.sidebar-toggle {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    margin-right: 10px;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: color var(--transition), background var(--transition), border-color var(--transition);
+    
 }
 
+    .sidebar-toggle:hover {
+        color: var(--primary);
+        background: var(--surface-soft);
+        border-color: var(--border-light);
+    }
 
-/* ============================================================
-   USER INFORMATION
-   ============================================================ */
-
+    .sidebar-toggle i {
+        font-size: 15px;
+    }
 .navbar-user {
     display: flex;
     align-items: center;
     gap: 9px;
-    min-height: 42px;
-    padding: 4px 11px 4px 5px;
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.055);
-    transition: background var(--transition), border-color var(--transition);
 }
 
-    .navbar-user:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.17);
-    }
-
 .user-avatar {
-    width: 32px;
-    height: 32px;
-    display: flex;
+    width: 34px;
+    height: 34px;
+     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    border: 1px solid rgba(0, 155, 99, 0.38);
-    border-radius: 7px;
-    background: rgba(0, 155, 99, 0.16);
-    color: #49D69D;
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px solid var(--accent-border);
+    border-radius: 50%;
+    
 }
 
     .user-avatar i {
-        font-size: 15px;
+        font-size: 13px;
     }
 
 .user-details {
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    min-width: 0;
 }
 
 .user-name {
-    max-width: 170px;
+    max-width: 150px;
     overflow: hidden;
-    color: #FFFFFF;
-    font-size: 10.5px;
-    font-weight: 600;
-    line-height: 1.3;
+     color: var(--text);
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.25;
     text-overflow: ellipsis;
     white-space: nowrap;
+   
 }
 
 .user-role {
-    margin-top: 1px;
-    color: rgba(255, 255, 255, 0.54);
+    margin-top: 2px;
+    color: var(--text-muted);
     font-size: 8px;
-    font-weight: 500;
-    line-height: 1.3;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-weight: 600;
+    line-height: 1.25;
 }
-
-
-/* ============================================================
-   LOGOUT
-   ============================================================ */
-
 .logout-form {
     margin: 0;
+    padding: 0;
 }
 
 .logout-button {
-    height: 38px;
+    min-height: 34px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 7px;
-    padding: 0 13px;
-    border: 1px solid rgba(255, 255, 255, 0.13);
-    border-radius: 7px;
+    padding: 0 10px;
+    color: var(--text-secondary);
     background: transparent;
-    color: rgba(255, 255, 255, 0.72);
-    font-size: 10.5px;
-    font-weight: 500;
-    transition: background var(--transition), border-color var(--transition), color var(--transition);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color var(--transition), background var(--transition), border-color var(--transition);
+   
 }
 
-    .logout-button i {
-        font-size: 14px;
-    }
-
     .logout-button:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.25);
-        color: #FFFFFF;
+        color: var(--danger);
+        background: var(--danger-light);
+        border-color: #F3CDD2;
     }
 
-
-/* ============================================================
-   APPLICATION BODY
-   ============================================================ */
+    .logout-button i {
+        font-size: 11px;
+    }
 
 .app-body {
+    width: 100%;
     min-height: 100vh;
     padding-top: var(--navbar-height);
 }
-
-
-/* ============================================================
-   SIDEBAR
-   ============================================================ */
-
 .sidebar {
     position: fixed;
     top: var(--navbar-height);
-    left: 0;
     bottom: 0;
+    left: 0;
+     z-index: 900;
     width: var(--sidebar-width);
     background: var(--surface);
     border-right: 1px solid var(--border);
     overflow-y: auto;
     overflow-x: hidden;
-    z-index: 900;
-    scrollbar-width: thin;
-    scrollbar-color: #D5DEE6 transparent;
-    transition: transform 0.25s ease;
+    
 }
-
-    .sidebar::-webkit-scrollbar {
-        width: 5px;
-    }
-
-    .sidebar::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .sidebar::-webkit-scrollbar-thumb {
-        background: #D5DEE6;
-        border-radius: 10px;
-    }
-
-
-/* ============================================================
-   SIDEBAR CONTENT
-   ============================================================ */
 
 .sidebar-content {
     min-height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 25px 12px 14px;
+     padding: 22px 12px 15px;
+   
 }
 
-
-/* ============================================================
-   NAVIGATION
-   ============================================================ */
-
 .sidebar-navigation {
+    flex: 1;
     display: flex;
     flex-direction: column;
 }
 
 .navigation-heading {
-    padding: 0 9px;
-    margin-bottom: 12px;
-    color: var(--accent);
-    font-family: var(--font-secondary);
+    display: block;
+     margin: 0 10px 9px;
+    color: var(--text-muted);
     font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
+    font-weight: 800;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
+    
 }
-
-
-/* ============================================================
-   SIDEBAR LINKS
-   ============================================================ */
-
 .sidebar-link {
-    position: relative;
-    min-height: 42px;
+    min-height: 39px;
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 3px;
     padding: 0 10px;
+    color: var(--text-secondary);
     border: 1px solid transparent;
-    border-radius: 8px;
-    color: #52677D;
-    font-size: 10.5px;
-    font-weight: 500;
-    transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 650;
+    transition: color var(--transition), background var(--transition), border-color var(--transition);
+   
 }
 
     .sidebar-link:hover {
-        background: #F6FAF8;
-        color: var(--accent-dark);
+        color: var(--primary);
+        background: var(--surface-soft);
+        border-color: var(--border-light);
     }
 
     .sidebar-link.active {
-        background: #EFFBF6;
-        border-color: #C9F0DF;
         color: var(--accent-dark);
-        box-shadow: 0 3px 10px rgba(0, 155, 99, 0.07);
+        background: var(--accent-light);
+        border-color: var(--accent-border);
+        font-weight: 750;
     }
-
-        .sidebar-link.active::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            right: 7px;
-            width: 2px;
-            height: 18px;
-            transform: translateY(-50%);
-            border-radius: 4px;
-            background: var(--accent);
-        }
-
-    .sidebar-link:focus-visible {
-        outline: 3px solid rgba(0, 155, 99, 0.14);
-        outline-offset: 2px;
-    }
-
-
-/* ============================================================
-   SIDEBAR ICON
-   ============================================================ */
 
 .sidebar-icon {
-    width: 28px;
-    height: 28px;
-    display: flex;
+    width: 20px;
+     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    border-radius: 7px;
-    background: #F2F6F9;
-    color: #60758A;
-    transition: background var(--transition), color var(--transition);
+    
 }
 
     .sidebar-icon i {
         font-size: 13px;
     }
 
-.sidebar-link:hover .sidebar-icon {
-    background: #E6F7F0;
-    color: var(--accent-dark);
-}
-
-.sidebar-link.active .sidebar-icon {
-    background: #D8F4E8;
-    color: var(--accent-dark);
-}
-
 .sidebar-label {
+    min-width: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
+     text-overflow: ellipsis;
     white-space: nowrap;
+    
 }
-
-
-/* ============================================================
-   SIDEBAR PROFILE
-   ============================================================ */
-
 .sidebar-profile {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 9px;
-    margin: auto 3px 0;
-    padding: 10px;
-    border: 1px solid #CCEFE0;
+     margin-top: 18px;
+    padding: 12px 10px;
+    background: var(--surface-soft);
+    border: 1px solid var(--border-light);
     border-radius: 8px;
-    background: #F4FCF8;
+    
 }
 
 .profile-icon {
-    width: 28px;
-    height: 28px;
-    display: flex;
+    width: 30px;
+    height: 30px;
+     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    border: 1px solid #BCEBD8;
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px solid var(--accent-border);
     border-radius: 7px;
-    background: #FFFFFF;
-    color: var(--accent-dark);
+    
 }
 
     .profile-icon i {
@@ -513,120 +381,138 @@ a {
     }
 
 .profile-content {
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    min-width: 0;
 }
 
 .profile-title {
-    color: #173C30;
+    color: var(--text);
     font-size: 9px;
-    font-weight: 700;
+    font-weight: 800;
     line-height: 1.3;
 }
 
 .profile-text {
-    margin-top: 1px;
-    overflow: hidden;
-    color: #6B8179;
-    font-size: 7.5px;
+    margin-top: 3px;
+    color: var(--text-muted);
+    font-size: 8px;
     font-weight: 500;
-    line-height: 1.35;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.45;
 }
-
-
-/* ============================================================
-   MAIN CONTENT
-   ============================================================ */
-
 .main-content {
     min-height: calc(100vh - var(--navbar-height));
-    margin-left: var(--sidebar-width);
-    padding: 28px 30px 40px;
+     margin-left: var(--sidebar-width);
     background: var(--background);
+    
 }
-
-
-/* ============================================================
-   SIDEBAR OVERLAY
-   ============================================================ */
-
 .sidebar-overlay {
+    display: none;
     position: fixed;
-    inset: 0;
-    background: rgba(0, 28, 64, 0.44);
-    opacity: 0;
-    visibility: hidden;
+    inset: var(--navbar-height) 0 0 0;
     z-index: 850;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
+    background: rgba(0, 33, 71, 0.35);
+    
+}
+.sidebar::-webkit-scrollbar {
+    width: 5px;
 }
 
-    .sidebar-overlay.visible {
-        opacity: 1;
-        visibility: visible;
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
     }
 
-
-/* ============================================================
-   FOCUS STATES
-   ============================================================ */
-
-.brand:focus-visible,
-.sidebar-toggle:focus-visible,
-.logout-button:focus-visible {
-    outline: 3px solid rgba(0, 155, 99, 0.28);
+.sidebar-link:focus-visible,
+.logout-button:focus-visible,
+.sidebar-toggle:focus-visible {
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
 
 
-/* ============================================================
-   TABLET
-   ============================================================ */
+@media (max-width: 900px) {
 
-@media (max-width: 1100px) {
-
+    
     :root {
-        --sidebar-width: 210px;
+        --sidebar-width: 205px;
     }
 
-    .main-content {
-        padding: 25px 24px 35px;
+    .top-navbar {
+        padding: 0 17px;
+    }
+
+    .navbar-right {
+        gap: 12px;
     }
 
     .user-details {
         display: none;
     }
 
-    .navbar-user {
-        padding-right: 5px;
+    .main-content {
+        margin-left: var(--sidebar-width);
     }
+
+    
 }
 
+@media (max-width: 700px) {
 
-/* ============================================================
-   MOBILE
-   ============================================================ */
-
-@media (max-width: 900px) {
-
+    
     :root {
-        --navbar-height: 60px;
+        --sidebar-width: 0px;
     }
 
     .top-navbar {
-        height: var(--navbar-height);
-        padding: 0 15px;
+        height: 60px;
+        padding: 0 13px;
     }
 
-    .sidebar-toggle {
-        display: flex;
+    .app-body {
+        padding-top: 60px;
+    }
+
+    .sidebar {
+        top: 60px;
+        width: 221px;
+        transform: translateX(-100%);
+        transition: transform var(--transition);
+        box-shadow: 5px 0 18px rgba(0, 33, 71, 0.08);
+    }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+    .sidebar-overlay {
+        display: block;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--transition), visibility var(--transition);
+    }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+    .main-content {
+        margin-left: 0;
+        min-height: calc(100vh - 60px);
     }
 
     .brand-logo {
-        width: 35px;
-        height: 35px;
+        width: 34px;
+        height: 34px;
     }
 
     .brand-title {
@@ -634,111 +520,61 @@ a {
     }
 
     .brand-subtitle {
-        display: none;
+        font-size: 7px;
     }
 
-    .sidebar {
-        top: var(--navbar-height);
-        transform: translateX(-100%);
-        box-shadow: 8px 0 25px rgba(0, 33, 71, 0.14);
-    }
-
-        .sidebar.open {
-            transform: translateX(0);
-        }
-
-    .main-content {
-        min-height: calc(100vh - var(--navbar-height));
-        margin-left: 0;
-        padding: 22px 18px 30px;
-    }
-
-    body.sidebar-open {
-        overflow: hidden;
+    .navbar-right {
+        gap: 7px;
     }
 
     .logout-button {
-        width: 36px;
-        height: 36px;
+        width: 34px;
+        min-width: 34px;
         padding: 0;
     }
 
         .logout-button span {
             display: none;
         }
+
+    
 }
 
 
-/* ============================================================
-   SMALL MOBILE
-   ============================================================ */
+@media (max-width: 430px) {
 
-@media (max-width: 560px) {
-
+    
     .top-navbar {
-        padding: 0 11px;
+        padding: 0 10px;
     }
 
-    .sidebar-toggle {
-        width: 34px;
-        height: 34px;
-        margin-right: 7px;
-    }
-
-    .brand {
-        gap: 7px;
-    }
-
-    .brand-logo {
-        width: 33px;
-        height: 33px;
-    }
-
-    .brand-title {
-        font-size: 12px;
-    }
-
-    .navbar-right {
-        gap: 6px;
+    .brand-text {
+        display: none;
     }
 
     .navbar-user {
-        border: none;
-        background: transparent;
-        padding: 0;
+        gap: 0;
     }
 
     .user-avatar {
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
     }
 
-    .main-content {
-        padding: 18px 13px 25px;
-    }
-
-    .sidebar {
-        width: min(248px, 84vw);
-    }
+    
 }
 
 
-/* ============================================================
-   VERY SMALL SCREENS
-   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
 
-@media (max-width: 380px) {
-
-    .brand-text {
-        max-width: 125px;
+    
+    .sidebar,
+    .sidebar-overlay,
+    .sidebar-link,
+    .logout-button,
+    .sidebar-toggle {
+        transition: none;
     }
 
-    .brand-title {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .user-avatar {
-        display: none;
-    }
+    
 }
