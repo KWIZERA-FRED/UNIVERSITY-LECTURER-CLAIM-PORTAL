@@ -2,319 +2,345 @@
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer.SubmitClaimModel
 
 @{
-    ViewData["Title"] = "Submit Claim";
-    Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
+ViewData["Title"] = "Submit Claim";
+Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
 }
 
-@section Styles {
-    <link rel="stylesheet"
-          href="~/css/Lecturer/submit-claim.css"
-          asp-append-version="true" />
+@section Styles { <link rel="stylesheet"
+       href="~/css/Lecturer/submit-claim.css"
+       asp-append-version="true" />
 }
 
 <section class="submit-claim-page">
 
-    <header class="claim-page-header">
+<header class="claim-page-header">
 
-        <div class="claim-heading">
+    <div class="claim-heading">
 
-            <span class="page-eyebrow">
-                Lecturer Portal
+        <span class="page-eyebrow">
+            Lecturer Portal
+        </span>
+
+        <h1>
+            Submit Claim
+        </h1>
+
+        <p>
+            Select an assigned course and submit a claim using verified marks and MIS attendance.
+        </p>
+
+    </div>
+
+</header>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="claim-alert claim-alert-error">
+        <span class="claim-alert-icon">
+            <i class="bi bi-exclamation-circle"></i>
+        </span>
+
+        <span>
+            @Model.ErrorMessage
+        </span>
+    </div>
+}
+
+<section class="claim-form-card">
+
+    <div class="claim-section-header">
+
+        <div class="claim-section-icon">
+            <i class="bi bi-cash-stack"></i>
+        </div>
+
+        <div>
+
+            <span class="section-eyebrow">
+                Payment Claim
             </span>
 
-            <h1>
-                Submit Claim
-            </h1>
+            <h2>
+                Teaching Claim Details
+            </h2>
 
             <p>
-                Submit a teaching claim after marks have been submitted
-                and signed in MIS.
+                Select one of your assigned courses to verify the supporting evidence.
             </p>
 
         </div>
 
-    </header>
+    </div>
 
+    <form method="post">
 
-    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-    {
-        <div class="claim-alert claim-alert-error">
+        <div class="claim-form-body">
 
-            <span class="claim-alert-icon">
-                <i class="bi bi-exclamation-circle"></i>
-            </span>
+            <div class="form-grid">
 
-            <span>
-                @Model.ErrorMessage
-            </span>
+                <div class="form-group form-group-full">
 
-        </div>
-    }
+                    <label for="course">
+                        Course
+                    </label>
 
+                    <select asp-for="SelectedCourseAssignmentId"
+                            id="course"
+                            onchange="updateClaimVerification()">
 
-    <section class="claim-form-card">
+                        <option value="">
+                            Select course
+                        </option>
 
-        <div class="claim-section-header">
+                        @foreach (var course in Model.Courses)
+                        {
+                            <option value="@course.AssignmentId"
+                                    data-submitted="@course.MarksSubmitted.ToString().ToLowerInvariant()"
+                                    data-signed="@course.MarksSigned.ToString().ToLowerInvariant()"
+                                    data-hours="@course.AllocatedHours">
 
-            <div class="claim-section-icon">
-                <i class="bi bi-cash-stack"></i>
-            </div>
+                                @course.Code - @course.Name
+                                (@course.AcademicYear, @course.Semester, @course.AllocatedHours hours)
 
-            <div>
-
-                <span class="section-eyebrow">
-                    Payment Claim
-                </span>
-
-                <h2>
-                    Teaching Claim Details
-                </h2>
-
-                <p>
-                    Provide the verified teaching hours for the selected course.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <form method="post">
-
-            <div class="claim-form-body">
-
-                <div class="form-grid">
-
-                    <div class="form-group form-group-full">
-
-                        <label for="course">
-                            Course
-                        </label>
-
-                        <select asp-for="SelectedCourseAssignmentId"
-                                id="course"
-                                onchange="updateMisStatus()">
-
-                            <option value="">
-                                Select course
                             </option>
+                        }
 
-                            @foreach (var course in Model.Courses)
-                            {
-                                <option value="@course.AssignmentId"
-                                        data-submitted="@course.MarksSubmitted.ToString().ToLowerInvariant()"
-                                        data-signed="@course.MarksSigned.ToString().ToLowerInvariant()">
-
-                                    @course.Code - @course.Name
-                                    (@course.AcademicYear, @course.AllocatedHours hours)
-
-                                </option>
-                            }
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="hours">
-                            Verified Teaching Hours
-                        </label>
-
-                        <input asp-for="Hours"
-                               id="hours"
-                               type="number"
-                               min="0.5"
-                               step="0.5"
-                               placeholder="Enter the allocated hours" />
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="lecturer">
-                            Lecturer
-                        </label>
-
-                        <input id="lecturer"
-                               value="@Model.LecturerName"
-                               readonly />
-
-                    </div>
+                    </select>
 
                 </div>
 
+                <div class="form-group">
 
-                <section class="mis-verification">
+                    <label for="hours">
+                        Allocated Teaching Hours
+                    </label>
 
-                    <div class="mis-header">
+                    <input asp-for="Hours"
+                           id="hours"
+                           type="number"
+                           min="0"
+                           step="0.5"
+                           readonly />
 
-                        <div class="mis-header-icon">
-                            <i class="bi bi-database-check"></i>
-                        </div>
+                </div>
 
-                        <div>
+                <div class="form-group">
 
-                            <h3>
-                                MIS Verification
-                            </h3>
+                    <label for="lecturer">
+                        Lecturer
+                    </label>
 
-                            <p>
-                                Course marks must be submitted and signed before a claim can be created.
-                            </p>
+                    <input id="lecturer"
+                           value="@Model.LecturerName"
+                           readonly />
 
-                        </div>
+                </div>
 
-                    </div>
+            </div>
 
+            <section class="mis-verification">
 
-                    <div class="mis-status-grid">
+                <div class="mis-header">
 
-                        <div class="status-item">
-
-                            <div class="status-item-label">
-                                Marks Submitted
-                            </div>
-
-                            <div class="status-value"
-                                 id="marks-submitted-status">
-
-                                <i class="bi bi-dash-circle"></i>
-
-                                Select a course
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="status-item">
-
-                            <div class="status-item-label">
-                                Marks Signed
-                            </div>
-
-                            <div class="status-value"
-                                 id="marks-signed-status">
-
-                                <i class="bi bi-dash-circle"></i>
-
-                                Select a course
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <div class="claim-information">
-
-                    <div class="claim-information-icon">
-                        <i class="bi bi-info-circle-fill"></i>
+                    <div class="mis-header-icon">
+                        <i class="bi bi-shield-check"></i>
                     </div>
 
                     <div>
 
-                        <strong>
-                            Before submitting
-                        </strong>
+                        <h3>
+                            Claim Evidence Verification
+                        </h3>
 
                         <p>
-                            The number of hours must exactly match the approved allocation.
-                            The system verifies that an active, fully signed contract and an
-                            Exam Office-signed marks submission exist before creating the claim.
+                            Marks are verified from this system. Attendance is retrieved from the simulated MIS integration.
                         </p>
 
                     </div>
 
                 </div>
 
+                <div class="mis-status-grid">
+
+                    <div class="status-item">
+
+                        <div class="status-item-label">
+                            Marks Submission
+                        </div>
+
+                        <div class="status-value"
+                             id="marks-submitted-status">
+
+                            <i class="bi bi-dash-circle"></i>
+
+                            Select a course
+
+                        </div>
+
+                    </div>
+
+                    <div class="status-item">
+
+                        <div class="status-item-label">
+                            Exam Office Signature
+                        </div>
+
+                        <div class="status-value"
+                             id="marks-signed-status">
+
+                            <i class="bi bi-dash-circle"></i>
+
+                            Select a course
+
+                        </div>
+
+                    </div>
+
+                    <div class="status-item">
+
+                        <div class="status-item-label">
+                            MIS Attendance
+                        </div>
+
+                        <div class="status-value status-information"
+                             id="attendance-status">
+
+                            <i class="bi bi-cloud-arrow-down"></i>
+
+                            Retrieved when claim is submitted
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <div class="claim-information">
+
+                <div class="claim-information-icon">
+                    <i class="bi bi-info-circle-fill"></i>
+                </div>
+
+                <div>
+
+                    <strong>
+                        Before submitting
+                    </strong>
+
+                    <p>
+                        The selected course must have an active fully signed contract and an Exam Office-signed marks submission. The system then retrieves attendance from MIS and attaches both the signed marks and attendance record to the claim.
+                    </p>
+
+                </div>
+
             </div>
 
+        </div>
 
-            <div class="claim-form-actions">
+        <div class="claim-form-actions">
 
-                <button type="submit"
-                        class="submit-claim-button">
+            <button type="submit"
+                    class="submit-claim-button">
 
-                    <i class="bi bi-file-earmark-check"></i>
+                <i class="bi bi-file-earmark-check"></i>
 
-                    Submit Claim
+                Generate Claim
 
-                </button>
+            </button>
 
-            </div>
+        </div>
 
-        </form>
-
-    </section>
+    </form>
 
 </section>
 
 
+</section>
+
 @section Scripts {
 
-    <script>
-        function updateMisStatus() {
 
-            const select = document.getElementById("course");
+<script>
+    function updateClaimVerification() {
+        const select = document.getElementById("course");
+        const option = select.options[select.selectedIndex];
 
-            const option = select.options[select.selectedIndex];
+        const submittedElement =
+            document.getElementById("marks-submitted-status");
 
-            const submittedElement =
-                document.getElementById("marks-submitted-status");
+        const signedElement =
+            document.getElementById("marks-signed-status");
 
-            const signedElement =
-                document.getElementById("marks-signed-status");
+        const attendanceElement =
+            document.getElementById("attendance-status");
 
+        const hoursInput =
+            document.getElementById("hours");
 
-            if (!option || !option.value) {
+        if (!option || !option.value) {
 
-                submittedElement.className = "status-value";
-                submittedElement.innerHTML =
-                    '<i class="bi bi-dash-circle"></i> Select a course';
+            submittedElement.className = "status-value";
+            submittedElement.innerHTML =
+                '<i class="bi bi-dash-circle"></i> Select a course';
 
-                signedElement.className = "status-value";
-                signedElement.innerHTML =
-                    '<i class="bi bi-dash-circle"></i> Select a course';
+            signedElement.className = "status-value";
+            signedElement.innerHTML =
+                '<i class="bi bi-dash-circle"></i> Select a course';
 
-                return;
-            }
+            attendanceElement.className =
+                "status-value status-information";
 
+            attendanceElement.innerHTML =
+                '<i class="bi bi-cloud-arrow-down"></i> Retrieved when claim is submitted';
 
-            const submitted =
-                option.getAttribute("data-submitted") === "true";
+            hoursInput.value = "";
 
-            const signed =
-                option.getAttribute("data-signed") === "true";
-
-
-            submittedElement.className =
-                "status-value" + (submitted ? "" : " status-negative");
-
-            submittedElement.innerHTML = submitted
-                ? '<i class="bi bi-check-circle-fill"></i> Verified'
-                : '<i class="bi bi-x-circle-fill"></i> Not submitted';
-
-
-            signedElement.className =
-                "status-value" + (signed ? "" : " status-negative");
-
-            signedElement.innerHTML = signed
-                ? '<i class="bi bi-check-circle-fill"></i> Verified'
-                : '<i class="bi bi-x-circle-fill"></i> Not signed';
+            return;
         }
 
+        const submitted =
+            option.getAttribute("data-submitted") === "true";
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            updateMisStatus
-        );
-    </script>
+        const signed =
+            option.getAttribute("data-signed") === "true";
+
+        const hours =
+            option.getAttribute("data-hours");
+
+        hoursInput.value = hours || "";
+
+        submittedElement.className =
+            "status-value" +
+            (submitted ? "" : " status-negative");
+
+        submittedElement.innerHTML =
+            submitted
+                ? '<i class="bi bi-check-circle-fill"></i> Submitted'
+                : '<i class="bi bi-x-circle-fill"></i> Not submitted';
+
+        signedElement.className =
+            "status-value" +
+            (signed ? "" : " status-negative");
+
+        signedElement.innerHTML =
+            signed
+                ? '<i class="bi bi-check-circle-fill"></i> Signed by Exam Office'
+                : '<i class="bi bi-x-circle-fill"></i> Not signed';
+
+        attendanceElement.className =
+            "status-value status-information";
+
+        attendanceElement.innerHTML =
+            '<i class="bi bi-cloud-arrow-down"></i> Retrieved from MIS during submission';
+    }
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        updateClaimVerification
+    );
+</script>
+
 
 }

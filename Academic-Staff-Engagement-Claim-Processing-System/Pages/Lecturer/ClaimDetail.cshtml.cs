@@ -13,7 +13,7 @@ public class ClaimDetailModel : PageModel
 {
     private readonly ApplicationDbContext _context;
 
-    public ClaimDetailModel(ApplicationDbContext context)
+public ClaimDetailModel(ApplicationDbContext context)
     {
         _context = context;
     }
@@ -30,9 +30,7 @@ public class ClaimDetailModel : PageModel
         var lecturerId = GetLecturerId();
 
         if (lecturerId is null)
-        {
             return Challenge();
-        }
 
         if (ClaimId <= 0)
         {
@@ -47,6 +45,10 @@ public class ClaimDetailModel : PageModel
             .Include(c => c.CourseAssignment)
                 .ThenInclude(a => a.Course)
             .Include(c => c.Contract)
+            .Include(c => c.MarksSubmission)
+                .ThenInclude(m => m!.ReviewedByManagement)
+            .Include(c => c.Attendance)
+                .ThenInclude(a => a!.Records)
             .Include(c => c.Approvals)
                 .ThenInclude(a => a.ApprovedByAdminAccount)
             .FirstOrDefaultAsync(c =>
@@ -69,8 +71,7 @@ public class ClaimDetailModel : PageModel
                 {
                     token = claim.QrCodeToken
                 },
-                Request.Scheme
-            );
+                Request.Scheme);
 
         Claim = new ClaimDetailView
         {
@@ -109,26 +110,110 @@ public class ClaimDetailModel : PageModel
             PublicDocumentsUrl =
                 publicUrl,
 
+            QrCodeToken =
+                claim.QrCodeToken,
+
+            Marks =
+                claim.MarksSubmission is null
+                    ? null
+                    : new MarksEvidenceView
+                    {
+                        SubmissionId =
+                            claim.MarksSubmission.Id,
+
+                        Reference =
+                            claim.MarksSubmission.SubmissionReference,
+
+                        FileName =
+                            claim.MarksSubmission.FileName,
+
+                        Status =
+                            claim.MarksSubmission.Status,
+
+                        SignedAtUtc =
+                            claim.MarksSubmission.ReviewedAtUtc,
+
+                        SignedBy =
+                            claim.MarksSubmission
+                                .ReviewedByManagement
+                                ?.UserName,
+
+                        FilePath =
+                            claim.MarksSubmission.FilePath
+                    },
+
+            Attendance =
+                claim.Attendance is null
+                    ? null
+                    : new AttendanceEvidenceView
+                    {
+                        MisReference =
+                            claim.Attendance.MisReference,
+
+                        LecturerName =
+                            claim.Attendance.LecturerName,
+
+                        CourseCode =
+                            claim.Attendance.CourseCode,
+
+                        CourseTitle =
+                            claim.Attendance.CourseTitle,
+
+                        AcademicYear =
+                            claim.Attendance.AcademicYear,
+
+                        Semester =
+                            claim.Attendance.Semester,
+
+                        TotalSessions =
+                            claim.Attendance.TotalSessions,
+
+                        AttendedSessions =
+                            claim.Attendance.AttendedSessions,
+
+                        RetrievedAtUtc =
+                            claim.Attendance.RetrievedAtUtc,
+
+                        Records =
+                            claim.Attendance.Records
+                                .OrderBy(r => r.SessionDate)
+                                .Select(r =>
+                                    new AttendanceRecordView
+                                    {
+                                        SessionDate =
+                                            r.SessionDate,
+
+                                        SessionTitle =
+                                            r.SessionTitle,
+
+                                        Attended =
+                                            r.Attended
+                                    })
+                                .ToList()
+                    },
+
             Steps =
                 claim.Approvals
                     .OrderBy(a => a.SequenceOrder)
-                    .Select(a => new ApprovalStepView
-                    {
-                        Role =
-                            a.ApprovalRole,
+                    .Select(a =>
+                        new ApprovalStepView
+                        {
+                            Role =
+                                a.ApprovalRole,
 
-                        Decision =
-                            a.Decision,
+                            Decision =
+                                a.Decision,
 
-                        ApproverName =
-                            a.ApprovedByAdminAccount?.UserName,
+                            ApproverName =
+                                a.ApprovedByAdminAccount
+                                    ?.UserName,
 
-                        DecidedAtUtc =
-                            a.DecidedAtUtc,
+                            DecidedAtUtc =
+                                a.DecidedAtUtc,
 
-                        Comments =
-                            a.Comments
-                    })
+                            Comments =
+                                a.Comments
+                        })
                     .ToList()
         };
 
@@ -180,6 +265,13 @@ public class ClaimDetailModel : PageModel
 
         public string? PublicDocumentsUrl { get; init; }
 
+        public string QrCodeToken { get; init; } =
+            string.Empty;
+
+        public MarksEvidenceView? Marks { get; init; }
+
+        public AttendanceEvidenceView? Attendance { get; init; }
+
         public List<ApprovalStepView> Steps { get; init; } =
             new();
 
@@ -189,6 +281,66 @@ public class ClaimDetailModel : PageModel
 
         public bool IsRejected =>
             Status == ClaimStatus.Rejected;
+    }
+
+    public sealed class MarksEvidenceView
+    {
+        public int SubmissionId { get; init; }
+
+        public string Reference { get; init; } =
+            string.Empty;
+
+        public string FileName { get; init; } =
+            string.Empty;
+
+        public MarksSubmissionStatus Status { get; init; }
+
+        public DateTime? SignedAtUtc { get; init; }
+
+        public string? SignedBy { get; init; }
+
+        public string FilePath { get; init; } =
+            string.Empty;
+    }
+
+    public sealed class AttendanceEvidenceView
+    {
+        public string MisReference { get; init; } =
+            string.Empty;
+
+        public string LecturerName { get; init; } =
+            string.Empty;
+
+        public string CourseCode { get; init; } =
+            string.Empty;
+
+        public string CourseTitle { get; init; } =
+            string.Empty;
+
+        public string AcademicYear { get; init; } =
+            string.Empty;
+
+        public string Semester { get; init; } =
+            string.Empty;
+
+        public int TotalSessions { get; init; }
+
+        public int AttendedSessions { get; init; }
+
+        public DateTime RetrievedAtUtc { get; init; }
+
+        public List<AttendanceRecordView> Records { get; init; } =
+            new();
+    }
+
+    public sealed class AttendanceRecordView
+    {
+        public DateTime SessionDate { get; init; }
+
+        public string SessionTitle { get; init; } =
+            string.Empty;
+
+        public bool Attended { get; init; }
     }
 
     public sealed class ApprovalStepView
@@ -206,39 +358,24 @@ public class ClaimDetailModel : PageModel
         public string RoleLabel =>
             Role switch
             {
-                ApprovalRole.Dean =>
-                    "Dean",
-
-                ApprovalRole.HROfficer =>
-                    "HR Officer",
-
-                ApprovalRole.DVCAR =>
-                    "DVCAR",
-
-                ApprovalRole.ViceChancellor =>
-                    "Vice Chancellor",
-
-                ApprovalRole.HOD =>
-                    "HOD",
-
-                ApprovalRole.Management =>
-                    "Management",
-
-                _ =>
-                    Role.ToString()
+                ApprovalRole.Dean => "Dean",
+                ApprovalRole.HROfficer => "HR Officer",
+                ApprovalRole.DVCAR => "DVCAR",
+                ApprovalRole.ViceChancellor => "Vice Chancellor",
+                ApprovalRole.HOD => "HOD",
+                ApprovalRole.Management => "Management",
+                ApprovalRole.DirectorOfQuality => "Director of Quality",
+                _ => Role.ToString()
             };
 
         public string BadgeClass =>
             Decision switch
             {
-                ApprovalDecision.Approved =>
-                    "badge-active",
-
-                ApprovalDecision.Rejected =>
-                    "badge-closed",
-
-                _ =>
-                    "badge-pending"
+                ApprovalDecision.Approved => "badge-active",
+                ApprovalDecision.Rejected => "badge-closed",
+                _ => "badge-pending"
             };
     }
+
+
 }

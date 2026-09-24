@@ -3,372 +3,607 @@
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer.ClaimDetailModel
 
 @{
-    ViewData["Title"] = "Claim Detail";
-    Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
+ViewData["Title"] = "Claim Detail";
+Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
 }
 
-@section Styles {
-    <link
-        rel="stylesheet"
-        href="~/css/Lecturer/claim-detail.css"
-        asp-append-version="true" />
+@section Styles { <link rel="stylesheet"
+       href="~/css/Lecturer/claim-detail.css"
+       asp-append-version="true" />
 }
 
 <section class="claim-detail-page">
 
-    <header class="claim-detail-header">
 
-        <div class="claim-detail-heading">
+<header class="claim-detail-header">
 
-            <span class="page-eyebrow">
-                Lecturer Portal
+    <div class="claim-detail-heading">
+
+        <span class="page-eyebrow">
+            Lecturer Portal
+        </span>
+
+        <h1>
+            Claim Detail
+        </h1>
+
+        <p>
+            Review your claim, signed marks and attendance evidence.
+        </p>
+
+    </div>
+
+    <a class="back-button"
+       href="/Lecturer/Claims">
+
+        <i class="bi bi-arrow-left"></i>
+
+        Back to Claims
+
+    </a>
+
+</header>
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="claim-alert claim-alert-error">
+
+        <span class="claim-alert-icon">
+            <i class="bi bi-exclamation-circle-fill"></i>
+        </span>
+
+        <div>
+
+            <strong>
+                Claim unavailable
+            </strong>
+
+            <span>
+                @Model.ErrorMessage
             </span>
-
-            <h1>
-                Claim Detail
-            </h1>
-
-            <p>
-                Track your claim's approval progress and access official documents.
-            </p>
 
         </div>
 
-        <a
-            class="back-button"
-            href="/Lecturer/Claims">
+    </div>
+}
+else if (Model.Claim is not null)
+{
+    var claim = Model.Claim;
 
-            <i class="bi bi-arrow-left"></i>
+    <section class="claim-detail-card">
 
-            Back to Claims
-
-        </a>
-
-    </header>
-
-
-    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-    {
-        <div class="claim-alert claim-alert-error">
-
-            <span class="claim-alert-icon">
-                <i class="bi bi-exclamation-circle-fill"></i>
-            </span>
+        <div class="claim-card-header">
 
             <div>
 
-                <strong>
-                    Claim unavailable
-                </strong>
-
-                <span>
-                    @Model.ErrorMessage
+                <span class="section-eyebrow">
+                    Claim Reference
                 </span>
+
+                <h2>
+                    @claim.Reference
+                </h2>
+
+            </div>
+
+            <span class="claim-status-badge @(claim.IsFullyApproved ? "status-approved" : claim.IsRejected ? "status-rejected" : "status-pending")">
+                @claim.Status
+            </span>
+
+        </div>
+
+        <div class="claim-meta-grid">
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Course
+                </div>
+
+                <div class="meta-value">
+                    @claim.CourseCode - @claim.CourseTitle
+                </div>
+
+            </div>
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Contract
+                </div>
+
+                <div class="meta-value">
+                    @claim.ContractReference
+                </div>
+
+            </div>
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Academic Year
+                </div>
+
+                <div class="meta-value">
+                    @claim.AcademicYear
+                </div>
+
+            </div>
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Campus
+                </div>
+
+                <div class="meta-value">
+                    @claim.Campus
+                </div>
+
+            </div>
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Hours Claimed
+                </div>
+
+                <div class="meta-value">
+                    @claim.HoursClaimed.ToString("N1")
+                </div>
+
+            </div>
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Submitted
+                </div>
+
+                <div class="meta-value">
+                    @(claim.SubmittedAtUtc.HasValue
+                        ? claim.SubmittedAtUtc.Value.ToString("dd MMM yyyy HH:mm")
+                        : "-")
+                </div>
 
             </div>
 
         </div>
-    }
-    else if (Model.Claim is not null)
-    {
-        var claim = Model.Claim;
 
-        <section class="claim-detail-card">
+        @if (!string.IsNullOrWhiteSpace(claim.Description))
+        {
+            <div class="claim-description">
 
-            <div class="claim-card-header">
-
-                <div>
-
-                    <span class="section-eyebrow">
-                        Claim Reference
-                    </span>
-
-                    <h2>
-                        @claim.Reference
-                    </h2>
-
+                <div class="meta-label">
+                    Description
                 </div>
 
-                <span
-                    class="claim-status-badge @(claim.IsFullyApproved ? "status-approved" : claim.IsRejected ? "status-rejected" : "status-pending")">
+                <div class="description-value">
+                    @claim.Description
+                </div>
 
-                    @claim.Status
+            </div>
+        }
 
+    </section>
+
+    <section class="claim-detail-card">
+
+        <div class="card-section-heading">
+
+            <div class="section-icon">
+                <i class="bi bi-file-earmark-spreadsheet"></i>
+            </div>
+
+            <div>
+
+                <span class="section-eyebrow">
+                    Supporting Evidence
                 </span>
+
+                <h2>
+                    Signed Marks
+                </h2>
+
+                <p>
+                    This is the marks submission signed by the Exam Office and attached to this claim.
+                </p>
 
             </div>
 
+        </div>
 
+        @if (claim.Marks is not null)
+        {
             <div class="claim-meta-grid">
 
                 <div class="meta-item">
 
                     <div class="meta-label">
-                        Course
+                        Submission Reference
                     </div>
 
                     <div class="meta-value">
-                        @claim.CourseCode - @claim.CourseTitle
+                        @claim.Marks.Reference
                     </div>
 
                 </div>
 
-
                 <div class="meta-item">
 
                     <div class="meta-label">
-                        Contract
+                        File
                     </div>
 
                     <div class="meta-value">
-                        @claim.ContractReference
+                        @claim.Marks.FileName
                     </div>
 
                 </div>
 
-
                 <div class="meta-item">
 
                     <div class="meta-label">
-                        Academic Year
+                        Status
                     </div>
 
                     <div class="meta-value">
-                        @claim.AcademicYear
+                        @claim.Marks.Status
                     </div>
 
                 </div>
 
-
                 <div class="meta-item">
 
                     <div class="meta-label">
-                        Campus
+                        Signed By
                     </div>
 
                     <div class="meta-value">
-                        @claim.Campus
+                        @(claim.Marks.SignedBy ?? "Exam Office")
                     </div>
 
                 </div>
 
-
                 <div class="meta-item">
 
                     <div class="meta-label">
-                        Hours Claimed
+                        Signed
                     </div>
 
                     <div class="meta-value">
-                        @claim.HoursClaimed.ToString("N1")
-                    </div>
-
-                </div>
-
-
-                <div class="meta-item">
-
-                    <div class="meta-label">
-                        Submitted
-                    </div>
-
-                    <div class="meta-value">
-                        @(claim.SubmittedAtUtc.HasValue
-                            ? claim.SubmittedAtUtc.Value.ToString("dd MMM yyyy")
+                        @(claim.Marks.SignedAtUtc.HasValue
+                            ? claim.Marks.SignedAtUtc.Value.ToString("dd MMM yyyy HH:mm")
                             : "-")
                     </div>
 
                 </div>
 
             </div>
+        }
+        else
+        {
+            <div class="documents-unavailable">
 
+                <i class="bi bi-exclamation-circle"></i>
 
-            @if (!string.IsNullOrWhiteSpace(claim.Description))
-            {
-                <div class="claim-description">
+                <span>
+                    No signed marks submission is attached to this claim.
+                </span>
+
+            </div>
+        }
+
+    </section>
+
+    <section class="claim-detail-card">
+
+        <div class="card-section-heading">
+
+            <div class="section-icon">
+                <i class="bi bi-calendar2-check"></i>
+            </div>
+
+            <div>
+
+                <span class="section-eyebrow">
+                    MIS Evidence
+                </span>
+
+                <h2>
+                    Attendance Record
+                </h2>
+
+                <p>
+                    Attendance retrieved from MIS when this claim was created.
+                </p>
+
+            </div>
+
+        </div>
+
+        @if (claim.Attendance is not null)
+        {
+            <div class="claim-meta-grid">
+
+                <div class="meta-item">
 
                     <div class="meta-label">
-                        Description
+                        MIS Reference
                     </div>
 
-                    <div class="description-value">
-                        @claim.Description
+                    <div class="meta-value">
+                        @claim.Attendance.MisReference
                     </div>
 
                 </div>
-            }
 
-        </section>
+                <div class="meta-item">
 
+                    <div class="meta-label">
+                        Total Sessions
+                    </div>
 
-        <section class="claim-detail-card">
+                    <div class="meta-value">
+                        @claim.Attendance.TotalSessions
+                    </div>
 
-            <div class="card-section-heading">
-
-                <div class="section-icon">
-                    <i class="bi bi-diagram-3"></i>
                 </div>
 
-                <div>
+                <div class="meta-item">
 
-                    <span class="section-eyebrow">
-                        Approval Process
-                    </span>
+                    <div class="meta-label">
+                        Attended Sessions
+                    </div>
 
-                    <h2>
-                        Approval Timeline
-                    </h2>
+                    <div class="meta-value">
+                        @claim.Attendance.AttendedSessions
+                    </div>
 
-                    <p>
-                        Track the progress of your claim through each approval stage.
-                    </p>
+                </div>
+
+                <div class="meta-item">
+
+                    <div class="meta-label">
+                        Retrieved
+                    </div>
+
+                    <div class="meta-value">
+                        @claim.Attendance.RetrievedAtUtc.ToString("dd MMM yyyy HH:mm")
+                    </div>
 
                 </div>
 
             </div>
 
+            <div class="attendance-table-wrapper">
 
-            @if (claim.Steps.Any())
-            {
-                <div class="approval-timeline">
+                <table class="attendance-table">
 
-                    @foreach (var step in claim.Steps)
-                    {
-                        <div class="timeline-step">
+                    <thead>
 
-                            <div class="timeline-role">
-                                @step.RoleLabel
-                            </div>
+                        <tr>
 
-                            <div class="timeline-content">
+                            <th>
+                                Date
+                            </th>
 
-                                <div class="timeline-status">
+                            <th>
+                                Session
+                            </th>
 
-                                    <span class="step-badge @step.BadgeClass">
-                                        @step.Decision
-                                    </span>
+                            <th>
+                                Attendance
+                            </th>
 
-                                    @if (step.DecidedAtUtc.HasValue)
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var record in claim.Attendance.Records)
+                        {
+                            <tr>
+
+                                <td>
+                                    @record.SessionDate.ToString("dd MMM yyyy")
+                                </td>
+
+                                <td>
+                                    @record.SessionTitle
+                                </td>
+
+                                <td>
+
+                                    @if (record.Attended)
                                     {
-                                        <span class="timeline-date">
-
-                                            @step.DecidedAtUtc.Value.ToString("dd MMM yyyy")
-
-                                            @if (!string.IsNullOrWhiteSpace(step.ApproverName))
-                                            {
-                                                <span>
-                                                    · @step.ApproverName
-                                                </span>
-                                            }
-
+                                        <span class="attendance-present">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Present
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="attendance-absent">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                            Absent
                                         </span>
                                     }
 
-                                </div>
+                                </td>
 
-                                @if (!string.IsNullOrWhiteSpace(step.Comments))
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="documents-unavailable">
+
+                <i class="bi bi-info-circle"></i>
+
+                <span>
+                    No MIS attendance record is attached to this claim.
+                </span>
+
+            </div>
+        }
+
+    </section>
+
+    <section class="claim-detail-card">
+
+        <div class="card-section-heading">
+
+            <div class="section-icon">
+                <i class="bi bi-qr-code"></i>
+            </div>
+
+            <div>
+
+                <span class="section-eyebrow">
+                    QR Access
+                </span>
+
+                <h2>
+                    Claim Evidence Access
+                </h2>
+
+                <p>
+                    This simulated access represents the URL that will later be embedded in the claim QR code.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="document-actions">
+
+            <a class="document-button"
+               href="/Public/ClaimDocuments?token=@claim.QrCodeToken"
+               target="_blank"
+               rel="noopener noreferrer">
+
+                <i class="bi bi-qr-code"></i>
+
+                Open Simulated QR Claim View
+
+            </a>
+
+        </div>
+
+    </section>
+
+    <section class="claim-detail-card">
+
+        <div class="card-section-heading">
+
+            <div class="section-icon">
+                <i class="bi bi-diagram-3"></i>
+            </div>
+
+            <div>
+
+                <span class="section-eyebrow">
+                    Approval Process
+                </span>
+
+                <h2>
+                    Approval Timeline
+                </h2>
+
+                <p>
+                    Track the progress of your claim through each approval stage.
+                </p>
+
+            </div>
+
+        </div>
+
+        @if (claim.Steps.Any())
+        {
+            <div class="approval-timeline">
+
+                @foreach (var step in claim.Steps)
+                {
+                    <div class="timeline-step">
+
+                        <div class="timeline-role">
+                            @step.RoleLabel
+                        </div>
+
+                        <div class="timeline-content">
+
+                            <div class="timeline-status">
+
+                                <span class="step-badge @step.BadgeClass">
+                                    @step.Decision
+                                </span>
+
+                                @if (step.DecidedAtUtc.HasValue)
                                 {
-                                    <div class="step-comments">
-                                        @step.Comments
-                                    </div>
+                                    <span class="timeline-date">
+
+                                        @step.DecidedAtUtc.Value.ToString("dd MMM yyyy")
+
+                                        @if (!string.IsNullOrWhiteSpace(step.ApproverName))
+                                        {
+                                            <span>
+                                                · @step.ApproverName
+                                            </span>
+                                        }
+
+                                    </span>
                                 }
 
                             </div>
 
+                            @if (!string.IsNullOrWhiteSpace(step.Comments))
+                            {
+                                <div class="step-comments">
+                                    @step.Comments
+                                </div>
+                            }
+
                         </div>
-                    }
-
-                </div>
-            }
-            else
-            {
-                <div class="timeline-empty">
-
-                    <div class="timeline-empty-icon">
-                        <i class="bi bi-clock-history"></i>
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Approval process pending
-                        </strong>
-
-                        <p>
-                            No approval activity has been recorded for this claim yet.
-                        </p>
 
                     </div>
+                }
 
-                </div>
-            }
-
-        </section>
-
-
-        @if (claim.IsFullyApproved)
+            </div>
+        }
+        else
         {
-            <section class="claim-detail-card documents-card">
+            <div class="timeline-empty">
 
-                <div class="card-section-heading">
+                <div class="timeline-empty-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
 
-                    <div class="section-icon">
-                        <i class="bi bi-file-earmark-check"></i>
-                    </div>
+                <div>
 
-                    <div>
+                    <strong>
+                        Approval process pending
+                    </strong>
 
-                        <span class="section-eyebrow">
-                            Official Documents
-                        </span>
-
-                        <h2>
-                            Claim Documents
-                        </h2>
-
-                        <p>
-                            Your claim has been approved. Access the official claim documents below.
-                        </p>
-
-                    </div>
+                    <p>
+                        No approval activity has been recorded for this claim yet.
+                    </p>
 
                 </div>
 
-
-                @if (!string.IsNullOrWhiteSpace(claim.PublicDocumentsUrl))
-                {
-                    <div class="document-actions">
-
-                        <a
-                            class="document-button"
-                            href="@claim.PublicDocumentsUrl"
-                            target="_blank"
-                            rel="noopener noreferrer">
-
-                            <i class="bi bi-folder2-open"></i>
-
-                            Open Claim Documents
-
-                        </a>
-
-                    </div>
-                }
-                else
-                {
-                    <div class="documents-unavailable">
-
-                        <i class="bi bi-info-circle"></i>
-
-                        <span>
-                            Official documents are not currently available.
-                        </span>
-
-                    </div>
-                }
-
-            </section>
+            </div>
         }
 
-    }
+    </section>
+
+}
+
 
 </section>

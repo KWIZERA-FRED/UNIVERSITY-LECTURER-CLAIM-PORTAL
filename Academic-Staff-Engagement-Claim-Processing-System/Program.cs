@@ -121,6 +121,9 @@ builder.Services.AddDataProtection()
     });
 
 builder.Services.AddSingleton<GovernmentIdProtector>();
+builder.Services.AddScoped<IMisAttendanceService, MisAttendanceService>();
+builder.Services.AddScoped<ClaimSubmissionService>();
+
 
 // ============================================================
 // RATE LIMITING

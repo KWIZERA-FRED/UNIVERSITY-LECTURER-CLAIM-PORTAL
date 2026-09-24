@@ -4,10 +4,10 @@ using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.EntityFrameworkCore;
 
 using ClaimModel =
-    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim;
+Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim;
 
 using ContractModel =
-    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract;
+Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 {
@@ -15,70 +15,40 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
     {
         private readonly GovernmentIdProtector _governmentIdProtector;
 
-        public ApplicationDbContext(
-            DbContextOptions<ApplicationDbContext> options,
-            GovernmentIdProtector governmentIdProtector)
-            : base(options)
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        GovernmentIdProtector governmentIdProtector)
+        : base(options)
         {
             _governmentIdProtector = governmentIdProtector;
         }
 
-        // ============================================================
-        // LECTURER
-        // ============================================================
-
         public DbSet<Lecturer> Lecturers => Set<Lecturer>();
-
-        // ============================================================
-        // ADMIN ACCOUNTS
-        // ============================================================
 
         public DbSet<AdminAccount> AdminAccounts => Set<AdminAccount>();
         public DbSet<Hod> Hods => Set<Hod>();
         public DbSet<Dean> Deans => Set<Dean>();
         public DbSet<Management> ManagementAccounts => Set<Management>();
 
-        // ============================================================
-        // ACADEMIC
-        // ============================================================
-
         public DbSet<Course> Courses => Set<Course>();
         public DbSet<CourseAssignment> CourseAssignments => Set<CourseAssignment>();
         public DbSet<MarksSubmission> MarksSubmissions => Set<MarksSubmission>();
 
-        // ============================================================
-        // CONTRACTS
-        // ============================================================
-
         public DbSet<ContractModel> Contracts => Set<ContractModel>();
         public DbSet<ContractSignature> ContractSignatures => Set<ContractSignature>();
 
-        // ============================================================
-        // CLAIMS
-        // ============================================================
-
         public DbSet<ClaimModel> Claims => Set<ClaimModel>();
         public DbSet<ClaimApproval> ClaimApprovals => Set<ClaimApproval>();
-
-        // ============================================================
-        // TEMPLATES
-        // ============================================================
+        public DbSet<ClaimAttendance> ClaimAttendances => Set<ClaimAttendance>();
+        public DbSet<ClaimAttendanceRecord> ClaimAttendanceRecords => Set<ClaimAttendanceRecord>();
 
         public DbSet<Template> Templates => Set<Template>();
-
-        // ============================================================
-        // AUDIT LOG
-        // ============================================================
 
         public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // ========================================================
-            // ADMIN ACCOUNT - TPH INHERITANCE
-            // ========================================================
 
             modelBuilder.Entity<AdminAccount>()
                 .ToTable("AdminAccounts");
@@ -98,14 +68,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasValue<Dean>(ApprovalRole.Dean)
                 .HasValue<Management>(ApprovalRole.Management);
 
-            // Do not create a separate database column for the
-            // abstract Role property. The discriminator represents it.
             modelBuilder.Entity<AdminAccount>()
                 .Ignore(a => a.Role);
-
-            // ========================================================
-            // ADMIN ACCOUNT
-            // ========================================================
 
             modelBuilder.Entity<AdminAccount>()
                 .Property(a => a.UserName)
@@ -146,27 +110,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasIndex(a => a.Email)
                 .IsUnique();
 
-            // ========================================================
-            // HOD
-            // ========================================================
-
             modelBuilder.Entity<Hod>()
                 .Property(h => h.Department)
                 .HasMaxLength(100)
                 .IsRequired();
 
-            // ========================================================
-            // MANAGEMENT
-            // ========================================================
-
             modelBuilder.Entity<Management>()
                 .Property(m => m.Title)
                 .HasConversion<int>()
                 .IsRequired();
-
-            // ========================================================
-            // LECTURER
-            // ========================================================
 
             modelBuilder.Entity<Lecturer>()
                 .ToTable("Lecturers");
@@ -233,16 +185,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasIndex(l => l.Email)
                 .IsUnique();
 
-            // Lecturer signature captured by HOD
             modelBuilder.Entity<Lecturer>()
                 .HasOne(l => l.SignatureCapturedByHod)
                 .WithMany()
                 .HasForeignKey(l => l.SignatureCapturedByHodId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            // ========================================================
-            // COURSE
-            // ========================================================
 
             modelBuilder.Entity<Course>()
                 .ToTable("Courses");
@@ -273,10 +220,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
             modelBuilder.Entity<Course>()
                 .HasIndex(c => c.Code)
                 .IsUnique();
-
-            // ========================================================
-            // COURSE ASSIGNMENT
-            // ========================================================
 
             modelBuilder.Entity<CourseAssignment>()
                 .ToTable("CourseAssignments");
@@ -327,10 +270,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasForeignKey(ca => ca.ApprovedByHodId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // ========================================================
-            // CONTRACT
-            // ========================================================
-
             modelBuilder.Entity<ContractModel>()
                 .ToTable("Contracts");
 
@@ -373,10 +312,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasForeignKey(c => c.CourseAssignmentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // ========================================================
-            // CONTRACT SIGNATURE
-            // ========================================================
-
             modelBuilder.Entity<ContractSignature>()
                 .ToTable("ContractSignatures");
 
@@ -394,8 +329,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .Property(cs => cs.SignatureHash)
                 .HasMaxLength(256);
 
-            // Stores the exact signature image used for this
-            // particular contract-signing event.
             modelBuilder.Entity<ContractSignature>()
                 .Property(cs => cs.SignatureFilePath)
                 .HasMaxLength(500);
@@ -430,17 +363,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 })
                 .IsUnique();
 
-            // ========================================================
-            // CLAIMS
-            // ========================================================
-
             modelBuilder.Entity<ClaimModel>()
                 .Property(c => c.HoursClaimed)
                 .HasPrecision(6, 2);
-
-            // ========================================================
-            // MARKS SUBMISSION
-            // ========================================================
 
             modelBuilder.Entity<MarksSubmission>()
                 .ToTable("MarksSubmissions");
@@ -524,10 +449,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                     ms.AcademicYear
                 });
 
-            // ========================================================
-            // AUDIT LOG
-            // ========================================================
-
             modelBuilder.Entity<AuditLog>()
                 .ToTable("AuditLogs");
 
@@ -558,9 +479,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .Property(a => a.IpAddress)
                 .HasMaxLength(45);
 
-            // Deliberately NOT a RowVersion / concurrency token —
-            // this table is insert-only, rows are never updated.
-
             modelBuilder.Entity<AuditLog>()
                 .HasIndex(a => a.OccurredAtUtc);
 
@@ -570,6 +488,24 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                     a.EntityType,
                     a.EntityId
                 });
+            modelBuilder.Entity<ClaimAttendance>()
+            .ToTable("ClaimAttendances");
+
+            modelBuilder.Entity<ClaimAttendance>()
+            .HasIndex(ca => ca.ClaimId)
+            .IsUnique();
+
+            modelBuilder.Entity<ClaimAttendanceRecord>()
+            .ToTable("ClaimAttendanceRecord");
+
+            modelBuilder.Entity<ClaimAttendanceRecord>()
+            .HasOne(car => car.ClaimAttendance)
+            .WithMany(ca => ca.Records)
+            .HasForeignKey(car => car.ClaimAttendanceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
+
+
 }
