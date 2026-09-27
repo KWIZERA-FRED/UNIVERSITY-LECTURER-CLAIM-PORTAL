@@ -1,287 +1,272 @@
+/* ================================================================
+   UNILAK ASECPS — HOD REGISTER LECTURERS
+   ================================================================ */
+
+
 :root {
-    --register-primary: #0f2b4a;
-    --register-primary-light: #1a3f64;
-    --register-accent: #2a7f5e;
-    --register-accent-light: #e1f0e8;
-    --register-background: #f0f4fa;
-    --register-border: #dce4ed;
-    --register-text: #1a2634;
-    --register-muted: #4d6278;
-    --register-white: #ffffff;
-    --register-danger: #b54747;
-    --register-danger-light: #fff1f1;
-    --register-shadow: 0 8px 24px rgba(15, 43, 74, 0.06);
+    --primary: #0f2742;
+    --primary-dark: #091c31;
+    --accent: #059669;
+    --accent-dark: #047857;
+    --accent-light: #a7f3d0;
+    --accent-soft: #ecfdf5;
+    --surface: #ffffff;
+    --surface-raised: #fafbfc;
+    --background: #f5f7fb;
+    --border: #e2e8f0;
+    --border-light: #edf1f5;
+    --border-strong: #cbd5e1;
+    --text: #172033;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-inverse: #ffffff;
+    --success-bg: #ecfdf5;
+    --success-border: #a7f3d0;
+    --danger: #dc2626;
+    --danger-dark: #b91c1c;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-full: 9999px;
+    --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --transition: 160ms ease;
 }
 
 
-/* ---------------------------------------------------------
-   PAGE
---------------------------------------------------------- */
+/* ================================================================
+   PAGE SHELL
+   ================================================================ */
 
 .register-page {
     width: 100%;
-    min-height: 100%;
-    padding: 30px 34px 50px;
-    background: var(--register-background);
-    color: var(--register-text);
-}
-
-
-/* ---------------------------------------------------------
-   PAGE HEADER
---------------------------------------------------------- */
-
-.register-page-header {
-    width: 100%;
-    max-width: 1180px;
-    margin: 0 auto 25px;
-}
-
-.page-eyebrow {
-    margin-bottom: 7px;
-    color: var(--register-accent);
-    font-size: 0.69rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-}
-
-.register-page-header h1 {
-    margin: 0;
-    color: var(--register-primary);
-    font-size: 1.65rem;
-    font-weight: 750;
-    letter-spacing: -0.025em;
-}
-
-.register-page-header p {
-    margin: 7px 0 0;
-    max-width: 680px;
-    color: var(--register-muted);
-    font-size: 0.82rem;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px clamp(24px, 3vw, 48px) 50px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    color: var(--text);
+    font-family: var(--font-primary);
+    font-size: 14px;
     line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
 }
 
+    .register-page *,
+    .register-page *::before,
+    .register-page *::after {
+        box-sizing: border-box;
+    }
 
-/* ---------------------------------------------------------
-   ALERTS
---------------------------------------------------------- */
+    .register-page button,
+    .register-page input,
+    .register-page select,
+    .register-page textarea {
+        font: inherit;
+    }
 
-.register-alert {
-    width: 100%;
-    max-width: 1180px;
-    margin: 0 auto 18px;
+
+/* ================================================================
+   PAGE HEADER
+   ================================================================ */
+
+.page-header {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 13px 15px;
-    border: 1px solid;
-    border-radius: 11px;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 4px;
 }
 
-    .register-alert .alert-icon {
-        width: 30px;
-        height: 30px;
-        flex: 0 0 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        font-size: 0.9rem;
-    }
-
-    .register-alert > div:last-child {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .register-alert strong {
-        font-size: 0.76rem;
-        font-weight: 750;
-    }
-
-    .register-alert span {
-        font-size: 0.74rem;
-        line-height: 1.5;
-    }
-
-.register-alert-success {
-    background: var(--register-accent-light);
-    border-color: #b9d9ca;
-    color: #205b43;
-}
-
-    .register-alert-success .alert-icon {
-        background: #ffffff;
-        color: var(--register-accent);
-    }
-
-.register-alert-error {
-    background: var(--register-danger-light);
-    border-color: #e8caca;
-    color: #8b3535;
-}
-
-    .register-alert-error .alert-icon {
-        background: #ffffff;
-        color: var(--register-danger);
-    }
-
-
-/* ---------------------------------------------------------
-   RESULTS
---------------------------------------------------------- */
-
-.registration-results {
-    width: 100%;
-    max-width: 1180px;
-    margin: 0 auto 22px;
-    background: var(--register-white);
-    border: 1px solid var(--register-border);
-    border-radius: 13px;
-    overflow: hidden;
-    box-shadow: var(--register-shadow);
-}
-
-.results-header {
-    padding: 14px 17px;
-    border-bottom: 1px solid var(--register-border);
-    background: #f7faf8;
-}
-
-    .results-header h2 {
+    .page-header h1 {
         margin: 0;
-        color: var(--register-primary);
-        font-size: 0.84rem;
-        font-weight: 750;
+        color: var(--primary);
+        font-family: var(--font-secondary);
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.6px;
+        line-height: 1.2;
     }
 
-    .results-header p {
-        margin: 3px 0 0;
-        color: var(--register-muted);
-        font-size: 0.68rem;
+    .page-header p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 450;
+        line-height: 1.5;
+        max-width: 640px;
     }
 
-.registration-result {
+
+/* ================================================================
+   ALERTS
+   ================================================================ */
+
+.page-alert {
     display: flex;
-    align-items: flex-start;
-    gap: 5px;
-    padding: 9px 17px;
-    border-bottom: 1px solid #edf1f4;
-    color: var(--register-muted);
-    font-size: 0.7rem;
-    line-height: 1.45;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 1px solid;
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    line-height: 1.5;
 }
 
-    .registration-result:last-child {
-        border-bottom: 0;
+    .page-alert i {
+        font-size: 14px;
+        flex-shrink: 0;
     }
 
-    .registration-result i {
-        color: var(--register-accent);
-        font-size: 1rem;
+.page-alert-success {
+    background: var(--success-bg);
+    border-color: var(--success-border);
+    color: var(--accent-dark);
+}
+
+    .page-alert-success i {
+        color: var(--accent);
+    }
+
+.page-alert-error {
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+    color: var(--danger-dark);
+}
+
+    .page-alert-error i {
+        color: var(--danger);
+    }
+
+
+/* ================================================================
+   SECTION CARD (results)
+   ================================================================ */
+
+.section-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+    .section-header h2 {
+        margin: 0;
+        color: var(--primary);
+        font-family: var(--font-secondary);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+        line-height: 1.3;
+    }
+
+.results-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.result-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px 22px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+    .result-row:last-child {
+        border-bottom: none;
+    }
+
+    .result-row i {
+        color: var(--accent);
+        font-size: 16px;
         line-height: 1;
+        margin-top: -2px;
+        flex-shrink: 0;
     }
 
 
-/* ---------------------------------------------------------
-   LECTURER CARD
---------------------------------------------------------- */
+/* ================================================================
+   FORM
+   ================================================================ */
 
 #registerForm {
-    width: 100%;
-    max-width: 1180px;
-    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
+
+#lecturerContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+
+/* ================================================================
+   LECTURER CARD
+   ================================================================ */
 
 .lecturer-card {
-    width: 100%;
-    margin-bottom: 24px;
-    background: var(--register-white);
-    border: 1px solid var(--register-border);
-    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: var(--register-shadow);
 }
-
-
-/* ---------------------------------------------------------
-   CARD HEADER
---------------------------------------------------------- */
 
 .lecturer-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 15px;
-    padding: 15px 18px;
-    background: #f7faf8;
-    border-bottom: 1px solid var(--register-border);
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--border-light);
 }
 
-.lecturer-number {
-    display: flex;
-    align-items: center;
-    gap: 11px;
+.lecturer-title strong {
+    color: var(--primary);
+    font-family: var(--font-secondary);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
 }
-
-.lecturer-number-icon {
-    width: 34px;
-    height: 34px;
-    flex: 0 0 34px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9px;
-    background: var(--register-accent-light);
-    color: var(--register-accent);
-    font-size: 0.85rem;
-}
-
-.lecturer-number > div:last-child {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.lecturer-number strong {
-    color: var(--register-primary);
-    font-size: 0.8rem;
-    font-weight: 750;
-}
-
-.lecturer-number span {
-    color: var(--register-muted);
-    font-size: 0.65rem;
-}
-
-
-/* ---------------------------------------------------------
-   REMOVE BUTTON
---------------------------------------------------------- */
 
 .remove-lecturer {
-    min-height: 34px;
-    padding: 0 11px;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 6px;
-    border: 1px solid #e8caca;
-    border-radius: 8px;
-    background: #fff8f8;
-    color: var(--register-danger);
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-secondary);
     font-family: inherit;
-    font-size: 0.67rem;
-    font-weight: 700;
+    font-size: 11.5px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
 }
 
     .remove-lecturer:hover:not(:disabled) {
-        background: #ffecec;
-        border-color: #d9a7a7;
+        background: var(--danger-bg);
+        border-color: var(--danger-border);
+        color: var(--danger-dark);
     }
 
     .remove-lecturer:disabled {
@@ -289,72 +274,57 @@
         cursor: not-allowed;
     }
 
-
-/* ---------------------------------------------------------
-   CARD BODY
---------------------------------------------------------- */
+    .remove-lecturer i {
+        font-size: 12px;
+    }
 
 .lecturer-card-body {
-    padding: 22px 22px 24px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 
-/* ---------------------------------------------------------
-   FORM SECTION
---------------------------------------------------------- */
+/* ================================================================
+   FORM SECTIONS
+   ================================================================ */
 
 .form-section {
-    width: 100%;
-}
-
-.section-heading {
     display: flex;
-    align-items: flex-start;
-    gap: 11px;
-    margin-bottom: 17px;
+    flex-direction: column;
+    gap: 14px;
 }
 
-.section-number {
-    width: 27px;
-    height: 27px;
-    flex: 0 0 27px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 7px;
-    background: #edf3f8;
-    color: var(--register-primary-light);
-    font-size: 0.61rem;
-    font-weight: 800;
-    letter-spacing: 0.03em;
-}
-
-.section-heading h3 {
+.form-section-title {
     margin: 0;
-    color: var(--register-primary);
-    font-size: 0.8rem;
-    font-weight: 750;
+    color: var(--primary);
+    font-family: var(--font-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.1px;
+    line-height: 1.3;
 }
 
-.section-heading p {
-    margin: 3px 0 0;
-    color: var(--register-muted);
-    font-size: 0.67rem;
-    line-height: 1.45;
+.form-divider {
+    height: 1px;
+    background: var(--border-light);
 }
 
 
-/* ---------------------------------------------------------
+/* ================================================================
    FORM GRID
---------------------------------------------------------- */
+   ================================================================ */
 
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 17px 20px;
+    gap: 14px;
 }
 
 .form-group {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
 }
 
@@ -362,333 +332,271 @@
     grid-column: 1 / -1;
 }
 
-
-/* ---------------------------------------------------------
-   LABELS
---------------------------------------------------------- */
-
 .form-group label {
     display: block;
     margin-bottom: 6px;
-    color: var(--register-primary);
-    font-size: 0.68rem;
-    font-weight: 700;
+    color: var(--text-secondary);
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.4;
 }
 
     .form-group label span {
-        color: var(--register-danger);
+        color: var(--danger);
     }
 
 
-/* ---------------------------------------------------------
-   INPUTS
---------------------------------------------------------- */
+/* ================================================================
+   FORM CONTROLS
+   ================================================================ */
 
 .form-control {
     width: 100%;
-    min-height: 41px;
-    padding: 9px 11px;
-    border: 1px solid var(--register-border);
-    border-radius: 8px;
+    min-height: 40px;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
     outline: none;
-    background: #ffffff;
-    color: var(--register-text);
+    background: var(--surface);
+    color: var(--text);
     font-family: inherit;
-    font-size: 0.72rem;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    font-size: 12.5px;
+    transition: border-color var(--transition), box-shadow var(--transition);
 }
 
     .form-control::placeholder {
-        color: #94a2b0;
+        color: var(--text-muted);
+    }
+
+    .form-control:hover {
+        border-color: var(--border-strong);
     }
 
     .form-control:focus {
-        border-color: var(--register-accent);
-        box-shadow: 0 0 0 3px rgba(42, 127, 94, 0.09);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
     }
 
 select.form-control {
     cursor: pointer;
+    appearance: auto;
 }
 
 
-/* ---------------------------------------------------------
+/* ================================================================
    VALIDATION
---------------------------------------------------------- */
+   ================================================================ */
 
 .field-error {
     display: block;
     min-height: 14px;
     margin-top: 4px;
-    color: var(--register-danger);
-    font-size: 0.62rem;
+    color: var(--danger);
+    font-size: 11px;
     line-height: 1.35;
 }
 
 .input-validation-error,
 .form-control.input-validation-error {
-    border-color: #d88e8e;
-    background: #fffafa;
+    border-color: var(--danger-border);
+    background: var(--danger-bg);
 }
 
     .input-validation-error:focus {
-        border-color: var(--register-danger);
-        box-shadow: 0 0 0 3px rgba(181, 71, 71, 0.08);
+        border-color: var(--danger);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
     }
 
 
-/* ---------------------------------------------------------
-   DIVIDER
---------------------------------------------------------- */
-
-.form-divider {
-    height: 1px;
-    margin: 25px 0;
-    background: #edf1f4;
-}
-
-
-/* ---------------------------------------------------------
-   SIGNATURE
---------------------------------------------------------- */
+/* ================================================================
+   SIGNATURE PAD
+   ================================================================ */
 
 .signature-area {
-    width: 100%;
-}
-
-.signature-instructions {
     display: flex;
-    align-items: center;
-    gap: 9px;
-    margin-bottom: 12px;
-    padding: 10px 12px;
-    border: 1px solid #dbe9e1;
-    border-radius: 8px;
-    background: #f7fbf9;
+    flex-direction: column;
+    gap: 12px;
 }
-
-    .signature-instructions > i {
-        width: 27px;
-        height: 27px;
-        flex: 0 0 27px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 7px;
-        background: var(--register-accent-light);
-        color: var(--register-accent);
-        font-size: 0.75rem;
-    }
-
-    .signature-instructions > div {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .signature-instructions strong {
-        color: var(--register-primary);
-        font-size: 0.67rem;
-        font-weight: 750;
-    }
-
-    .signature-instructions span {
-        color: var(--register-muted);
-        font-size: 0.62rem;
-    }
-
 
 .signature-wrapper {
     position: relative;
     width: 100%;
-    height: 220px;
+    height: 320px; /* ← taller desktop pad */
     overflow: hidden;
-    border: 1px solid var(--register-border);
-    border-radius: 9px;
-    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
 }
 
 .signature-pad {
     display: block;
     width: 100%;
-    height: 220px;
+    height: 100%;
     touch-action: none;
     cursor: crosshair;
+    background: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .signature-line {
     position: absolute;
-    left: 25px;
-    right: 25px;
-    bottom: 42px;
+    left: 24px;
+    right: 24px;
+    bottom: 48px;
     height: 1px;
-    background: #b9c4ce;
+    background: var(--border-strong);
     pointer-events: none;
+    user-select: none;
 }
 
 .signature-label {
     position: absolute;
-    left: 25px;
-    bottom: 20px;
-    color: #8b98a5;
-    font-size: 0.58rem;
+    left: 24px;
+    bottom: 22px;
+    color: var(--text-muted);
+    font-size: 10px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
     pointer-events: none;
+    user-select: none;
 }
-
 
 .signature-actions {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    margin-top: 9px;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
-.signature-status {
+
+/* ================================================================
+   BUTTONS
+   ================================================================ */
+
+.primary-button,
+.secondary-button {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    color: var(--register-accent);
-    font-size: 0.62rem;
-    font-weight: 650;
-}
-
-    .signature-status i {
-        font-size: 0.72rem;
-    }
-
-
-.clear-signature {
-    min-height: 31px;
-    padding: 0 9px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    border: 1px solid var(--register-border);
-    border-radius: 7px;
-    background: #ffffff;
-    color: var(--register-muted);
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+    min-height: 38px;
+    padding: 0 18px;
+    border-radius: var(--radius-sm);
     font-family: inherit;
-    font-size: 0.62rem;
-    font-weight: 650;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
     cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
 
-    .clear-signature:hover {
-        border-color: #bac8d5;
-        background: #f7f9fb;
-        color: var(--register-primary);
+.primary-button {
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--text-inverse);
+}
+
+    .primary-button:hover:not(:disabled) {
+        background: var(--accent-dark);
+        border-color: var(--accent-dark);
+    }
+
+    .primary-button:active:not(:disabled) {
+        transform: scale(0.99);
+    }
+
+    .primary-button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+.secondary-button {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+}
+
+    .secondary-button:hover {
+        background: var(--surface-raised);
+        border-color: var(--border-strong);
+        color: var(--text);
+    }
+
+    .primary-button i,
+    .secondary-button i {
+        font-size: 13px;
     }
 
 
-/* ---------------------------------------------------------
-   ADD LECTURER
---------------------------------------------------------- */
+/* ================================================================
+   ADD LECTURER BUTTON
+   ================================================================ */
 
 .add-lecturer-button {
-    width: 100%;
-    min-height: 43px;
-    margin-bottom: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    border: 1px dashed #8ab9a5;
-    border-radius: 9px;
-    background: var(--register-accent-light);
-    color: var(--register-accent);
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--accent);
     font-family: inherit;
-    font-size: 0.69rem;
-    font-weight: 750;
+    font-size: 12.5px;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
 }
 
     .add-lecturer-button:hover {
-        background: #d7ebe1;
-        border-color: var(--register-accent);
+        background: var(--accent-soft);
+        border-color: var(--accent);
+        color: var(--accent-dark);
     }
 
     .add-lecturer-button i {
-        font-size: 0.8rem;
+        font-size: 14px;
     }
 
 
-/* ---------------------------------------------------------
+/* ================================================================
    FORM ACTIONS
---------------------------------------------------------- */
+   ================================================================ */
 
 .form-actions {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 15px 17px;
-    border: 1px solid var(--register-border);
-    border-radius: 11px;
-    background: #ffffff;
+    justify-content: flex-end;
+    gap: 16px;
+    padding: 16px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
 }
 
-.form-security-note {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    color: var(--register-muted);
-    font-size: 0.62rem;
-    line-height: 1.4;
-}
 
-    .form-security-note i {
-        color: var(--register-accent);
-        font-size: 0.75rem;
-    }
-
-
-.register-submit-button {
-    min-height: 40px;
-    padding: 0 16px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 0;
-    border-radius: 8px;
-    background: var(--register-primary);
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 0.68rem;
-    font-weight: 750;
-    cursor: pointer;
-    transition: background 0.15s ease, transform 0.15s ease;
-}
-
-    .register-submit-button:hover:not(:disabled) {
-        background: var(--register-primary-light);
-    }
-
-    .register-submit-button:active:not(:disabled) {
-        transform: translateY(1px);
-    }
-
-    .register-submit-button:disabled {
-        opacity: 0.75;
-        cursor: not-allowed;
-    }
-
-    .register-submit-button i {
-        margin-right: 6px;
-    }
+/* ================================================================
+   LOADING STATE
+   ================================================================ */
 
 .button-loading {
     display: none;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
 }
-
-
-/* ---------------------------------------------------------
-   LOADING SPINNER
---------------------------------------------------------- */
 
 .loading-spinner {
     width: 13px;
@@ -706,14 +614,32 @@ select.form-control {
 }
 
 
-/* ---------------------------------------------------------
-   RESPONSIVE
---------------------------------------------------------- */
+/* ================================================================
+   FOCUS ACCESSIBILITY
+   ================================================================ */
+
+.primary-button:focus-visible,
+.secondary-button:focus-visible,
+.add-lecturer-button:focus-visible,
+.remove-lecturer:focus-visible,
+.form-control:focus-visible {
+    outline: 2px solid rgba(5, 150, 105, 0.4);
+    outline-offset: 2px;
+}
+
+
+/* ================================================================
+   RESPONSIVE — TABLET
+   ================================================================ */
 
 @media (max-width: 800px) {
 
     .register-page {
         padding: 22px 18px 40px;
+    }
+
+    .page-header h1 {
+        font-size: 22px;
     }
 
     .form-grid {
@@ -724,89 +650,86 @@ select.form-control {
         grid-column: auto;
     }
 
+    .lecturer-card-body {
+        padding: 18px;
+    }
+
     .form-actions {
+        flex-direction: column-reverse;
         align-items: stretch;
-        flex-direction: column;
     }
 
     .register-submit-button {
         width: 100%;
     }
+
+    .signature-wrapper {
+        height: 260px;
+    }
 }
 
 
-@media (max-width: 700px) {
+/* ================================================================
+   RESPONSIVE — SMALL MOBILE
+   ================================================================ */
+
+@media (max-width: 520px) {
+
+    .register-page {
+        padding: 18px 12px 32px;
+    }
+
+    .page-header h1 {
+        font-size: 20px;
+    }
 
     .lecturer-card-header {
-        align-items: stretch;
+        padding: 12px 18px;
         flex-direction: column;
+        align-items: stretch;
     }
 
     .remove-lecturer {
         width: 100%;
+        justify-content: center;
     }
 
     .lecturer-card-body {
-        padding: 18px 15px 20px;
+        padding: 16px;
     }
 
-    .section-heading {
-        margin-bottom: 14px;
+    .signature-wrapper {
+        height: 220px;
+    }
+
+    .signature-line {
+        bottom: 42px;
+    }
+
+    .signature-label {
+        bottom: 18px;
     }
 
     .signature-actions {
-        align-items: stretch;
-        flex-direction: column;
+        justify-content: stretch;
     }
 
     .clear-signature {
-        justify-content: center;
+        width: 100%;
     }
 }
 
 
-@media (max-width: 480px) {
+/* ================================================================
+   REDUCED MOTION
+   ================================================================ */
 
-    .register-page {
-        padding: 18px 12px 30px;
-    }
+@media (prefers-reduced-motion: reduce) {
 
-    .register-page-header h1 {
-        font-size: 1.4rem;
-    }
-
-    .lecturer-card {
-        border-radius: 11px;
-    }
-
-    .lecturer-card-header {
-        padding: 13px 14px;
-    }
-
-    .lecturer-number-icon {
-        width: 31px;
-        height: 31px;
-        flex-basis: 31px;
-    }
-
-    .form-divider {
-        margin: 21px 0;
-    }
-
-    .signature-wrapper,
-    .signature-pad {
-        height: 190px;
-    }
-
-    .signature-wrapper {
-        height: 190px;
-    }
-
-    .signature-line {
-        bottom: 38px;
-    }
-
-    .signature-label {
-        bottom: 17px;
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
     }
 }

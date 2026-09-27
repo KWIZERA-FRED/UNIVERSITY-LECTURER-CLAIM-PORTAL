@@ -3,836 +3,160 @@
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
-    Layout = null;
+    Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
     ViewData["Title"] = "Contract Preview";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-    <meta charset="utf-8" />
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
-
-    <title>
-        Contract Preview · UNILAK ASECPS
-    </title>
-
-    <link rel="preconnect"
-          href="https://fonts.googleapis.com" />
-
-    <link rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossorigin />
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600&display=swap"
-          rel="stylesheet" />
-
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-
+@section Styles {
     <link rel="stylesheet"
           href="~/css/HOD/contract-preview.css"
           asp-append-version="true" />
+}
 
-</head>
+<section class="preview-page">
 
-<body>
+    <header class="page-header">
 
-    <!-- =========================================================
-         NAVBAR
-         ========================================================= -->
+        <div class="page-header-main">
+            <h1>Contract Preview</h1>
+            <p>Review the generated academic staff employment contract before the institutional signing workflow begins.</p>
+        </div>
 
-    <header class="navbar">
+        <div class="page-header-actions">
 
-        <div class="navbar-container">
+            <button type="button"
+                    class="secondary-button"
+                    onclick="window.print()">
 
-            <div class="navbar-left">
+                <i class="bi bi-printer"></i>
+                Print
 
-                <a href="/HOD"
-                   class="brand-link">
+            </button>
 
-                    <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-                         alt="UNILAK Logo"
-                         class="navbar-logo" />
-
-                    <div class="brand-text">
-
-                        <strong>
-                            UNILAK
-                        </strong>
-
-                        <span>
-                            ASECPS
-                        </span>
-
-                    </div>
-
-                </a>
-
-            </div>
-
-
-            <div class="navbar-right">
-
-                <div class="user-context">
-
-                    <div class="user-context-icon">
-                        <i class="bi bi-person-workspace"></i>
-                    </div>
-
-                    <div class="user-context-text">
-
-                        <strong>
-                            @(User.Identity?.Name ?? "HOD")
-                        </strong>
-
-                        <span>
-                            Head of Department
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <a href="/Login"
-                   class="logout-btn">
-
-                    <i class="bi bi-box-arrow-right"></i>
-
-                    <span>
-                        Logout
-                    </span>
-
-                </a>
-
-            </div>
+            <a href="/HOD/Contracts" class="primary-button">
+                <i class="bi bi-file-earmark-text"></i>
+                View Contracts
+            </a>
 
         </div>
 
     </header>
 
-
-    <!-- =========================================================
-         MAIN
-         ========================================================= -->
-
-    <main class="main">
-
-        <div class="main-container">
-
-
-            <!-- =================================================
-                 BREADCRUMB
-                 ================================================= -->
-
-            <div class="breadcrumb">
-
-                <a href="/HOD">
-                    HOD Dashboard
-                </a>
-
-                <i class="bi bi-chevron-right"></i>
-
-                <a href="/HOD/AssignCourse">
-                    Assign Course
-                </a>
-
-                <i class="bi bi-chevron-right"></i>
-
-                <span>
-                    Contract Preview
-                </span>
-
-            </div>
-
-
-            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-            {
-
-                <!-- =============================================
-                     ERROR
-                     ============================================= -->
-
-                <section class="error-panel">
-
-                    <div class="error-icon">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Contract Could Not Be Loaded
-                        </strong>
-
-                        <span>
-                            @Model.ErrorMessage
-                        </span>
-
-                    </div>
-
-                </section>
-
-            }
-            else
-            {
-
-                <!-- =============================================
-                     PAGE HEADER
-                     ============================================= -->
-
-                <section class="page-header">
-
-                    <div class="page-heading">
-
-                        <div class="page-icon">
-
-                            <i class="bi bi-file-earmark-text-fill"></i>
-
-                        </div>
-
-                        <div>
-
-                            <span class="eyebrow">
-                                CONTRACT MANAGEMENT
-                            </span>
-
-                            <h1>
-                                Contract Preview
-                            </h1>
-
-                            <p>
-                                Review the generated academic staff
-                                employment contract before the
-                                institutional signing workflow begins.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="page-actions">
-
-                        <button type="button"
-                                class="action-btn secondary"
-                                onclick="window.print()">
-
-                            <i class="bi bi-printer"></i>
-
-                            Print
-
-                        </button>
-
-
-                        <a href="/HOD/Contracts"
-                           class="action-btn primary">
-
-                            <i class="bi bi-file-earmark-text"></i>
-
-                            View Contracts
-
-                        </a>
-
-                    </div>
-
-                </section>
-
-
-                <!-- =============================================
-                     CONTRACT SUMMARY
-                     ============================================= -->
-
-                <section class="summary-card">
-
-                    <div class="summary-header">
-
-                        <div>
-
-                            <span class="summary-eyebrow">
-                                CONTRACT GENERATED
-                            </span>
-
-                            <h2>
-                                CON-@Model.ContractId.ToString("D6")
-                            </h2>
-
-                            <p>
-                                This contract has been created from the
-                                selected academic staff course assignment.
-                            </p>
-
-                        </div>
-
-
-                        <div class="summary-status">
-
-                            @switch (Model.Status)
-                            {
-                                case ContractStatus.PendingSignature:
-
-                                    <span class="status-badge pending">
-                                        <i class="bi bi-clock-fill"></i>
-                                        Pending Signature
-                                    </span>
-
-                                    break;
-
-                                case ContractStatus.Active:
-
-                                    <span class="status-badge active">
-                                        <i class="bi bi-check-circle-fill"></i>
-                                        Active
-                                    </span>
-
-                                    break;
-
-                                case ContractStatus.Expired:
-
-                                    <span class="status-badge expired">
-                                        <i class="bi bi-calendar-x-fill"></i>
-                                        Expired
-                                    </span>
-
-                                    break;
-
-                                case ContractStatus.Terminated:
-
-                                    <span class="status-badge terminated">
-                                        <i class="bi bi-x-circle-fill"></i>
-                                        Terminated
-                                    </span>
-
-                                    break;
-
-                                default:
-
-                                    <span class="status-badge default">
-                                        @Model.Status
-                                    </span>
-
-                                    break;
-                            }
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="summary-grid">
-
-
-                        <div class="summary-item">
-
-                            <div class="summary-icon green">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Lecturer
-                                </span>
-
-                                <strong>
-                                    @Model.LecturerName
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="summary-item">
-
-                            <div class="summary-icon blue">
-                                <i class="bi bi-book-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Course
-                                </span>
-
-                                <strong>
-                                    @Model.CourseCode —
-                                    @Model.CourseTitle
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="summary-item">
-
-                            <div class="summary-icon purple">
-                                <i class="bi bi-calendar3"></i>
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Academic Year
-                                </span>
-
-                                <strong>
-                                    @Model.AcademicYear
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="summary-item">
-
-                            <div class="summary-icon orange">
-                                <i class="bi bi-layers-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Semester
-                                </span>
-
-                                <strong>
-                                    @Model.Semester
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="summary-item">
-
-                            <div class="summary-icon cyan">
-                                <i class="bi bi-building-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Campus
-                                </span>
-
-                                <strong>
-                                    @Model.Campus
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="summary-item">
-
-                            <div class="summary-icon red">
-                                <i class="bi bi-clock-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Session
-                                </span>
-
-                                <strong>
-                                    @Model.Session
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="summary-item">
-
-                            <div class="summary-icon green">
-                                <i class="bi bi-hourglass-split"></i>
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Allocated Hours
-                                </span>
-
-                                <strong>
-                                    @Model.AllocatedHours.ToString("0.##")
-                                    hours
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="summary-item">
-
-                            <div class="summary-icon blue">
-                                <i class="bi bi-cash-stack"></i>
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Hourly Rate
-                                </span>
-
-                                <strong>
-                                    @Model.RatePerHour.ToString("N0")
-                                    RWF / hour
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- =============================================
-                     WORKFLOW
-                     ============================================= -->
-
-                <section class="workflow-card">
-
-                    <div class="section-header">
-
-                        <div class="section-header-icon">
-
-                            <i class="bi bi-diagram-3-fill"></i>
-
-                        </div>
-
-                        <div>
-
-                            <h2>
-                                Contract Signature Workflow
-                            </h2>
-
-                            <p>
-                                The approval sequence is strictly sequential.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="workflow">
-
-                        <div class="workflow-step active">
-
-                            <div class="workflow-number">
-                                1
-                            </div>
-
-                            <div>
-                                <strong>
-                                    Lecturer
-                                </strong>
-
-                                <span>
-                                    First signature
-                                </span>
-                            </div>
-
-                        </div>
-
-
-                        <div class="workflow-arrow">
-                            <i class="bi bi-chevron-right"></i>
-                        </div>
-
-
-                        <div class="workflow-step">
-
-                            <div class="workflow-number">
-                                2
-                            </div>
-
-                            <div>
-                                <strong>
-                                    Dean
-                                </strong>
-
-                                <span>
-                                    Faculty approval
-                                </span>
-                            </div>
-
-                        </div>
-
-
-                        <div class="workflow-arrow">
-                            <i class="bi bi-chevron-right"></i>
-                        </div>
-
-
-                        <div class="workflow-step">
-
-                            <div class="workflow-number">
-                                3
-                            </div>
-
-                            <div>
-                                <strong>
-                                    HR Officer
-                                </strong>
-
-                                <span>
-                                    HR verification
-                                </span>
-                            </div>
-
-                        </div>
-
-
-                        <div class="workflow-arrow">
-                            <i class="bi bi-chevron-right"></i>
-                        </div>
-
-
-                        <div class="workflow-step">
-
-                            <div class="workflow-number">
-                                4
-                            </div>
-
-                            <div>
-                                <strong>
-                                    DVCAR
-                                </strong>
-
-                                <span>
-                                    Academic approval
-                                </span>
-                            </div>
-
-                        </div>
-
-
-                        <div class="workflow-arrow">
-                            <i class="bi bi-chevron-right"></i>
-                        </div>
-
-
-                        <div class="workflow-step">
-
-                            <div class="workflow-number">
-                                5
-                            </div>
-
-                            <div>
-                                <strong>
-                                    Vice Chancellor
-                                </strong>
-
-                                <span>
-                                    Final approval
-                                </span>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- =============================================
-                     OFFICIAL DOCUMENT
-                     ============================================= -->
-
-                <section class="document-card">
-
-                    <div class="document-header">
-
-                        <div class="document-heading">
-
-                            <div class="document-icon">
-
-                                <i class="bi bi-file-earmark-richtext-fill"></i>
-
-                            </div>
-
-                            <div>
-
-                                <h2>
-                                    Official Contract Document
-                                </h2>
-
-                                <p>
-                                    Generated contract snapshot
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="document-tools">
-
-                            <span class="readonly-badge">
-
-                                <i class="bi bi-lock-fill"></i>
-
-                                Read Only
-
-                            </span>
-
-
-                            <button type="button"
-                                    class="document-print"
-                                    onclick="window.print()">
-
-                                <i class="bi bi-printer"></i>
-
-                                Print
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="document-stage">
-
-                        <article class="contract-document">
-
-                            @if (string.IsNullOrWhiteSpace(Model.ContractContent))
-                            {
-
-                                <div class="document-empty">
-
-                                    <i class="bi bi-file-earmark-x"></i>
-
-                                    <strong>
-                                        Contract content is unavailable.
-                                    </strong>
-
-                                    <span>
-                                        The contract does not contain
-                                        generated content.
-                                    </span>
-
-                                </div>
-
-                            }
-                            else
-                            {
-
-                                @Html.Raw(Model.ContractContent)
-
-                            }
-
-                        </article>
-
-                    </div>
-
-                </section>
-
-
-                <!-- =============================================
-                     INFORMATION NOTICE
-                     ============================================= -->
-
-                <section class="information-notice">
-
-                    <div class="information-icon">
-
-                        <i class="bi bi-shield-check-fill"></i>
-
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Official approval process
-                        </strong>
-
-                        <p>
-                            The generated contract is read-only from the
-                            HOD preview. Signing follows the authorized
-                            sequence:
-                            Lecturer → Dean → HR Officer → DVCAR →
-                            Vice Chancellor.
-                            The contract becomes active only after the
-                            Vice Chancellor completes the final signature.
-                        </p>
-
-                    </div>
-
-                </section>
-
-            }
-
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="page-alert page-alert-error">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@Model.ErrorMessage</span>
         </div>
+    }
+    else
+    {
+        <section class="section-card">
 
-    </main>
+            <header class="section-header">
 
+                <h2>CON-@Model.ContractId.ToString("D6")</h2>
 
-    <!-- =========================================================
-         FOOTER
-         ========================================================= -->
+                @switch (Model.Status)
+                {
+                    case ContractStatus.PendingSignature:
+                        <span class="status-badge status-pending">Pending Signature</span>
+                        break;
 
-    <footer class="footer">
+                    case ContractStatus.Active:
+                        <span class="status-badge status-active">Active</span>
+                        break;
 
-        <div class="footer-container">
+                    case ContractStatus.Expired:
+                        <span class="status-badge status-neutral">Expired</span>
+                        break;
 
-            <div class="footer-brand">
+                    case ContractStatus.Terminated:
+                        <span class="status-badge status-danger">Terminated</span>
+                        break;
 
-                <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-                     alt="UNILAK Logo"
-                     class="footer-logo" />
+                    default:
+                        <span class="status-badge status-neutral">@Model.Status</span>
+                        break;
+                }
 
-                <div>
+            </header>
 
-                    <strong>
-                        UNILAK Portal
-                    </strong>
+            <div class="detail-grid">
 
-                    <span>
-                        Academic Staff Engagement & Claim Processing System
-                    </span>
+                <div class="detail-item">
+                    <span class="detail-label">Lecturer</span>
+                    <span class="detail-value">@Model.LecturerName</span>
+                </div>
 
+                <div class="detail-item">
+                    <span class="detail-label">Course</span>
+                    <span class="detail-value">@Model.CourseCode — @Model.CourseTitle</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Academic Year</span>
+                    <span class="detail-value">@Model.AcademicYear</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Semester</span>
+                    <span class="detail-value">@Model.Semester</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Campus</span>
+                    <span class="detail-value">@Model.Campus</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Session</span>
+                    <span class="detail-value">@Model.Session</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Allocated Hours</span>
+                    <span class="detail-value">@Model.AllocatedHours.ToString("0.##") hours</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Hourly Rate</span>
+                    <span class="detail-value">@Model.RatePerHour.ToString("N0") RWF / hour</span>
                 </div>
 
             </div>
 
+        </section>
 
-            <div class="footer-right">
+        <section class="section-card">
 
-                <span>
-                    © @DateTime.Now.Year University of Lay Adventists of Kigali
-                </span>
+            <header class="section-header">
+                <h2>Official Contract Document</h2>
+                <span class="section-meta">Read-only preview</span>
+            </header>
 
-                <span class="footer-separator">
-                    •
-                </span>
+            <div class="document-stage">
 
-                <span>
-                    HOD Portal
-                </span>
+                <article class="contract-document">
+
+                    @if (string.IsNullOrWhiteSpace(Model.ContractContent))
+                    {
+                        <div class="document-empty">
+                            <i class="bi bi-file-earmark-x"></i>
+                            <strong>Contract content is unavailable.</strong>
+                            <span>The contract does not contain generated content.</span>
+                        </div>
+                    }
+                    else
+                    {
+                        @Html.Raw(Model.ContractContent)
+                    }
+
+                </article>
 
             </div>
 
-        </div>
+        </section>
+    }
 
-    </footer>
-
-</body>
-</html>
+</section>

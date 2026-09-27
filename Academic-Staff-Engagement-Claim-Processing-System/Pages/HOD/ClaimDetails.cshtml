@@ -1,0 +1,482 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ClaimDetailsModel
+
+@{
+    Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
+    ViewData["Title"] = "Claim Review";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/HOD/claims.css"
+          asp-append-version="true" />
+}
+
+<section class="claims-page">
+
+    <header class="page-header">
+
+        <div class="page-header-main">
+            <h1>Claim Review</h1>
+            <p>Verify the lecturer's claim and make your HOD decision.</p>
+        </div>
+
+        <div class="page-header-actions">
+
+            <a asp-page="/HOD/Claims" class="secondary-button">
+                <i class="bi bi-arrow-left"></i>
+                Back to Claims
+            </a>
+
+        </div>
+
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="page-alert page-alert-success">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@Model.SuccessMessage</span>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="page-alert page-alert-error">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
+
+    @if (Model.SelectedClaim is not null)
+    {
+        var claim = Model.SelectedClaim;
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>CL@(claim.ClaimId.ToString("D3"))</h2>
+                <span class="status-badge status-pending">Pending HOD Review</span>
+            </header>
+
+            <div class="detail-grid">
+
+                <div class="detail-item">
+                    <span class="detail-label">Lecturer</span>
+                    <span class="detail-value">@claim.LecturerName</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Contract</span>
+                    <span class="detail-value">C@(claim.ContractId.ToString("D3"))</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Hours Claimed</span>
+                    <span class="detail-value">@claim.HoursClaimed.ToString("N2") h</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Approval Step</span>
+                    <span class="detail-value">HOD</span>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Claim Description</h2>
+            </header>
+
+            <div class="detail-notes">
+
+                @if (!string.IsNullOrWhiteSpace(claim.Description))
+                {
+                    <p>@claim.Description</p>
+                }
+                else
+                {
+                    <p class="muted-text">No claim description was provided.</p>
+                }
+
+            </div>
+
+        </section>
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Contract Verification</h2>
+            </header>
+
+            @if (claim.ContractSigned)
+            {
+                <div class="detail-notes">
+
+                    <div class="status-information">
+
+                        <i class="bi bi-shield-check"></i>
+
+                        <div>
+
+                            <strong>Contract Signed</strong>
+
+                            <span>
+                                The lecturer's contract has been signed and is available for verification.
+                            </span>
+
+                            @if (claim.ContractSignedAtUtc.HasValue)
+                            {
+                                <small>
+                                    Signed @claim.ContractSignedAtUtc.Value
+                                        .ToLocalTime()
+                                        .ToString("dd MMMM yyyy 'at' HH:mm")
+                                </small>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <div class="detail-notes">
+
+                    <div class="status-warning">
+
+                        <i class="bi bi-lock-fill"></i>
+
+                        <div>
+
+                            <strong>Contract Not Signed</strong>
+
+                            <span>
+                                This claim cannot be fully verified because the associated contract has not been signed.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </section>
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Claim Documents</h2>
+            </header>
+
+            @if (!string.IsNullOrWhiteSpace(claim.QrCodeToken))
+            {
+                <div class="section-actions">
+
+                    <a href="/Public/ClaimDocuments?token=@claim.QrCodeToken"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="primary-button">
+
+                        <i class="bi bi-folder2-open"></i>
+                        View Contract &amp; Claim Documents
+
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>No secure claim document package is available.</p>
+                </div>
+            }
+
+        </section>
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Marks Submission</h2>
+            </header>
+
+            @if (claim.MarksSigned && claim.MarksSubmissionId.HasValue)
+            {
+                <div class="detail-grid">
+
+                    <div class="detail-item">
+                        <span class="detail-label">File</span>
+                        <span class="detail-value">
+                            @(string.IsNullOrWhiteSpace(claim.MarksFileName)
+                                ? "Signed Marks Submission"
+                                : claim.MarksFileName)
+                        </span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Signed By</span>
+                        <span class="detail-value">
+                            @(string.IsNullOrWhiteSpace(claim.MarksSignedByName)
+                                ? "Exam Office"
+                                : claim.MarksSignedByName)
+                        </span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Signed</span>
+                        <span class="detail-value">
+                            @(claim.MarksSignedAtUtc.HasValue
+                                ? claim.MarksSignedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                                : "—")
+                        </span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Reference</span>
+                        <span class="detail-value">
+                            @(string.IsNullOrWhiteSpace(claim.MarksReference)
+                                ? "—"
+                                : claim.MarksReference)
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="section-actions">
+
+                    <a asp-page-handler="DownloadMarks"
+                       asp-route-claimId="@claim.ClaimId"
+                       asp-route-marksId="@claim.MarksSubmissionId"
+                       class="secondary-button">
+
+                        <i class="bi bi-download"></i>
+                        Download Marks
+
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>A signed marks submission is not currently available for this claim.</p>
+                </div>
+            }
+
+        </section>
+
+        @if (!claim.IsThisRolesTurn)
+        {
+            <section class="section-card">
+
+                <header class="section-header">
+                    <h2>HOD Action Blocked</h2>
+                </header>
+
+                <div class="detail-notes">
+
+                    <div class="status-warning">
+
+                        <i class="bi bi-lock-fill"></i>
+
+                        <div>
+
+                            <strong>Action Currently Blocked</strong>
+
+                            <span>
+                                @(claim.BlockedReason ??
+                                    "An earlier required approval on this claim is still pending.")
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+        }
+        else
+        {
+            <form method="post"
+                  asp-page-handler="Approve"
+                  id="checklistForm">
+
+                <input type="hidden" asp-for="ClaimId" value="@claim.ClaimId" />
+
+                <section class="section-card checklist-card">
+
+                    <header class="section-header">
+                        <h2>Course Completion Checklist</h2>
+                    </header>
+
+                    <div class="checklist-body">
+
+                        <p class="checklist-intro">
+                            Confirm each minimum course requirement before approving this claim.
+                            All items are required.
+                        </p>
+
+                        <ul class="checklist">
+
+                            <li class="checklist-item">
+                                <label>
+                                    <input type="checkbox" asp-for="Checklist.NotesUploadedToELearning" />
+                                    <span class="checklist-label">
+                                        Lecturer's notes / materials are properly uploaded on the E-Learning platform
+                                    </span>
+                                </label>
+                            </li>
+
+                            <li class="checklist-item">
+                                <label>
+                                    <input type="checkbox" asp-for="Checklist.IndividualGroupWorkOnELearning" />
+                                    <span class="checklist-label">
+                                        Individual work, group work and participation are available on the E-Learning platform
+                                    </span>
+                                </label>
+                            </li>
+
+                            <li class="checklist-item">
+                                <label>
+                                    <input type="checkbox" asp-for="Checklist.MarksAvailableInMIS" />
+                                    <span class="checklist-label">
+                                        Marks are available in MIS
+                                    </span>
+                                </label>
+                            </li>
+
+                            <li class="checklist-item">
+                                <label>
+                                    <input type="checkbox" asp-for="Checklist.MarksApprovedByHOD" />
+                                    <span class="checklist-label">
+                                        Marks are approved by HOD
+                                    </span>
+                                </label>
+                            </li>
+
+                            <li class="checklist-item">
+                                <label>
+                                    <input type="checkbox" asp-for="Checklist.HardCopySubmittedToHodAndRegistrar" />
+                                    <span class="checklist-label">
+                                        A hard copy mark sheets are submitted in the office of HOD and Registrar's office
+                                    </span>
+                                </label>
+                            </li>
+
+                            <li class="checklist-item">
+                                <label>
+                                    <input type="checkbox" asp-for="Checklist.ExamAndMarkingSchemeAvailable" />
+                                    <span class="checklist-label">
+                                        Copy of exam and marking scheme are available in the office of HOD
+                                    </span>
+                                </label>
+                            </li>
+
+                            <li class="checklist-item">
+                                <label>
+                                    <input type="checkbox" asp-for="Checklist.ClassAttendanceListAvailable" />
+                                    <span class="checklist-label">
+                                        List of students' class attendance
+                                    </span>
+                                </label>
+                            </li>
+
+                            <li class="checklist-item">
+                                <label>
+                                    <input type="checkbox" asp-for="Checklist.ExamScriptsReturned" />
+                                    <span class="checklist-label">
+                                        Scripts of exams (CAT and Final exams) are returned to department / examination office
+                                    </span>
+                                </label>
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </section>
+
+                <section class="section-card">
+
+                    <header class="section-header">
+                        <h2>HOD Decision</h2>
+                        <span class="section-meta">Action required</span>
+                    </header>
+
+                    <div class="decision-actions">
+
+                        <button type="submit"
+                                class="primary-button"
+                                onclick="return confirm('Approve this claim? All checklist items have been confirmed.');">
+
+                            <i class="bi bi-check-circle-fill"></i>
+                            Approve Claim
+
+                        </button>
+
+                    </div>
+
+                    <div class="reject-panel">
+
+                        <div class="reject-panel-header">
+
+                            <strong>Reject Claim</strong>
+
+                            <span>Provide a clear reason for the rejection.</span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </form>
+
+            <form method="post"
+                  asp-page-handler="Reject"
+                  class="reject-form">
+
+                <input type="hidden" asp-for="ClaimId" value="@claim.ClaimId" />
+
+                <div class="form-group">
+
+                    <label asp-for="RejectReason">Rejection Reason</label>
+
+                    <textarea asp-for="RejectReason"
+                              rows="4"
+                              maxlength="1000"
+                              placeholder="Explain why this claim is being rejected…"
+                              required></textarea>
+
+                </div>
+
+                <div class="reject-actions">
+
+                    <button type="submit"
+                            class="danger-button"
+                            onclick="return confirm('Reject this claim?');">
+
+                        <i class="bi bi-x-circle"></i>
+                        Reject Claim
+
+                    </button>
+
+                </div>
+
+            </form>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <p>That claim could not be found, or is not awaiting HOD approval.</p>
+        </div>
+    }
+
+</section>

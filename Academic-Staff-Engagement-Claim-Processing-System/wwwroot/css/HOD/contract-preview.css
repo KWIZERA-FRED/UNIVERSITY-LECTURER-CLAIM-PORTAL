@@ -1,801 +1,375 @@
 /* ================================================================
-   UNILAK ASECPS — HOD CONTRACT PREVIEW
-================================================================ */
+   UNILAK ASECPS
+   HOD — CONTRACT PREVIEW
+   ================================================================ */
+
+
+/* ================================================================
+   DESIGN TOKENS
+   ================================================================ */
 
 :root {
-    --navy: #071a33;
-    --navy-dark: #020617;
-    --green: #059669;
-    --green-dark: #047857;
-    --green-soft: #ecfdf5;
-    --green-border: #a7f3d0;
-    --blue: #2563eb;
-    --blue-soft: #eff6ff;
-    --blue-border: #bfdbfe;
-    --purple: #7c3aed;
-    --purple-soft: #f5f3ff;
-    --orange: #d97706;
-    --orange-soft: #fffbeb;
-    --cyan: #0891b2;
-    --cyan-soft: #ecfeff;
-    --red: #b91c1c;
-    --red-soft: #fef2f2;
-    --text: #0f172a;
+    --primary: #0f2742;
+    --primary-dark: #091c31;
+    --accent: #059669;
+    --accent-dark: #047857;
+    --accent-light: #a7f3d0;
+    --accent-soft: #ecfdf5;
+    --surface: #ffffff;
+    --surface-raised: #fafbfc;
+    --background: #f5f7fb;
+    --border: #e2e8f0;
+    --border-light: #edf1f5;
+    --border-strong: #cbd5e1;
+    --text: #172033;
     --text-secondary: #475569;
     --text-muted: #64748b;
-    --border: #e2e8f0;
-    --border-light: #edf2f7;
-    --background: #f8fafc;
-    --white: #ffffff;
-    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-    --shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-    --shadow-lg: 0 12px 30px rgba(15, 23, 42, 0.08);
-    --radius: 13px;
-    --radius-lg: 16px;
+    --text-inverse: #ffffff;
+    --warning: #b45309;
+    --warning-bg: #fffbeb;
+    --danger: #dc2626;
+    --danger-dark: #b91c1c;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-full: 9999px;
+    --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-document: "Times New Roman", Times, Georgia, serif;
+    --transition: 160ms ease;
 }
 
 
 /* ================================================================
-   RESET
-================================================================ */
+   PAGE SHELL
+   ================================================================ */
 
-* {
-    margin: 0;
-    padding: 0;
+.preview-page {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px clamp(24px, 3vw, 48px) 50px;
     box-sizing: border-box;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    background: var(--background);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     color: var(--text);
-    font-family: "Plus Jakarta Sans", "Poppins", sans-serif;
-    line-height: 1.6;
+    font-family: var(--font-primary);
+    font-size: 14px;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
 }
 
-a {
-    color: inherit;
-    text-decoration: none;
-}
-
-button {
-    font-family: inherit;
-}
-
-
-/* ================================================================
-   NAVBAR
-================================================================ */
-
-.navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 80px;
-    z-index: 1000;
-    background: var(--navy);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.navbar-container {
-    width: 100%;
-    height: 100%;
-    padding: 0 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.navbar-left,
-.navbar-right {
-    display: flex;
-    align-items: center;
-}
-
-.brand-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.navbar-logo {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-    filter: drop-shadow( 0 2px 5px rgba(0, 0, 0, 0.3) );
-}
-
-.brand-text {
-    display: flex;
-    align-items: baseline;
-    gap: 7px;
-}
-
-    .brand-text strong {
-        color: #ffffff;
-        font-size: 20px;
-        font-weight: 800;
-        letter-spacing: -0.4px;
+    .preview-page *,
+    .preview-page *::before,
+    .preview-page *::after {
+        box-sizing: border-box;
     }
 
-    .brand-text span {
-        color: #94a3b8;
-        font-size: 12px;
-        font-weight: 500;
-        letter-spacing: 0.8px;
-    }
-
-.navbar-right {
-    gap: 22px;
-}
-
-.user-context {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-}
-
-.user-context-icon {
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    color: #34d399;
-    background: rgba(16, 185, 129, 0.12);
-    font-size: 17px;
-}
-
-.user-context-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
-}
-
-    .user-context-text strong {
-        color: #ffffff;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .user-context-text span {
-        margin-top: 3px;
-        color: #94a3b8;
-        font-size: 10px;
-    }
-
-.logout-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 8px;
-    color: #e2e8f0;
-    background: rgba(255, 255, 255, 0.06);
-    font-size: 12px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-    .logout-btn:hover {
-        color: var(--navy);
-        background: #ffffff;
-    }
-
-
-/* ================================================================
-   MAIN
-================================================================ */
-
-.main {
-    width: 100%;
-    min-height: calc(100vh - 80px);
-    margin-top: 80px;
-    padding: 38px 38px 65px;
-}
-
-.main-container {
-    width: 100%;
-    max-width: 1240px;
-    margin: 0 auto;
-}
-
-
-/* ================================================================
-   BREADCRUMB
-================================================================ */
-
-.breadcrumb {
-    margin-bottom: 17px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-muted);
-    font-size: 10px;
-    font-weight: 500;
-}
-
-    .breadcrumb a {
-        color: var(--green-dark);
-        font-weight: 700;
-    }
-
-    .breadcrumb i {
-        color: #94a3b8;
-        font-size: 8px;
+    .preview-page button {
+        font: inherit;
     }
 
 
 /* ================================================================
    PAGE HEADER
-================================================================ */
+   ================================================================ */
 
 .page-header {
-    margin-bottom: 24px;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 25px;
-}
-
-.page-heading {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-}
-
-.page-icon {
-    width: 50px;
-    height: 50px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--green-border);
-    border-radius: 12px;
-    background: var(--green-soft);
-    color: var(--green);
-    font-size: 21px;
-}
-
-.eyebrow {
-    display: block;
-    margin-bottom: 4px;
-    color: var(--green);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-}
-
-.page-heading h1 {
-    color: var(--text);
-    font-size: 27px;
-    font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: -0.6px;
-}
-
-.page-heading p {
-    max-width: 700px;
-    margin-top: 6px;
-    color: var(--text-muted);
-    font-family: "Poppins", sans-serif;
-    font-size: 10px;
-}
-
-.page-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.action-btn {
-    min-height: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    padding: 0 12px;
-    border-radius: 8px;
-    font-size: 9px;
-    font-weight: 700;
-    transition: 0.2s ease;
-}
-
-    .action-btn.secondary {
-        border: 1px solid var(--border);
-        background: #ffffff;
-        color: var(--text-secondary);
-    }
-
-        .action-btn.secondary:hover {
-            border-color: var(--green-border);
-            color: var(--green-dark);
-            background: var(--green-soft);
-        }
-
-    .action-btn.primary {
-        background: var(--green);
-        color: #ffffff;
-    }
-
-        .action-btn.primary:hover {
-            background: var(--green-dark);
-        }
-
-
-/* ================================================================
-   ERROR
-================================================================ */
-
-.error-panel {
-    margin-bottom: 22px;
-    padding: 15px 17px;
-    display: flex;
-    align-items: flex-start;
-    gap: 11px;
-    border: 1px solid #fecaca;
-    border-left: 3px solid #dc2626;
-    border-radius: 10px;
-    background: var(--red-soft);
-}
-
-.error-icon {
-    color: var(--red);
-    font-size: 16px;
-}
-
-.error-panel strong {
-    display: block;
-    color: var(--red);
-    font-size: 11px;
-}
-
-.error-panel span {
-    display: block;
-    margin-top: 2px;
-    color: #7f1d1d;
-    font-size: 9px;
-}
-
-
-/* ================================================================
-   SUMMARY CARD
-================================================================ */
-
-.summary-card {
-    margin-bottom: 20px;
-    overflow: hidden;
-    border-radius: var(--radius);
-    background: var(--navy);
-    box-shadow: var(--shadow-lg);
-}
-
-.summary-header {
-    padding: 22px 23px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
     gap: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    flex-wrap: wrap;
+    margin-bottom: 4px;
 }
 
-.summary-eyebrow {
-    color: #6ee7b7;
-    font-size: 8px;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-}
-
-.summary-header h2 {
-    margin-top: 6px;
-    color: #ffffff;
-    font-size: 20px;
-    font-weight: 800;
-}
-
-.summary-header p {
-    margin-top: 5px;
-    color: #94a3b8;
-    font-size: 9px;
-}
-
-.summary-status {
-    flex-shrink: 0;
-}
-
-.status-badge {
-    padding: 6px 10px;
-    display: inline-flex;
-    align-items: center;
+.page-header-main {
+    display: flex;
+    flex-direction: column;
     gap: 6px;
-    border-radius: 100px;
-    font-size: 8px;
-    font-weight: 800;
-}
-
-    .status-badge.pending {
-        color: #92400e;
-        background: #fef3c7;
-    }
-
-    .status-badge.active {
-        color: #047857;
-        background: #d1fae5;
-    }
-
-    .status-badge.expired {
-        color: #64748b;
-        background: #e2e8f0;
-    }
-
-    .status-badge.terminated {
-        color: #b91c1c;
-        background: #fee2e2;
-    }
-
-    .status-badge.default {
-        color: #475569;
-        background: #e2e8f0;
-    }
-
-
-/* ================================================================
-   SUMMARY GRID
-================================================================ */
-
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: rgba(255, 255, 255, 0.09);
-}
-
-.summary-item {
     min-width: 0;
-    padding: 14px;
+}
+
+.page-header h1 {
+    margin: 0;
+    color: var(--primary);
+    font-family: var(--font-secondary);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    line-height: 1.2;
+}
+
+.page-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 450;
+    line-height: 1.5;
+    max-width: 640px;
+}
+
+.page-header-actions {
     display: flex;
     align-items: center;
     gap: 10px;
-    background: var(--navy);
-}
-
-.summary-icon {
-    width: 35px;
-    height: 35px;
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9px;
-    font-size: 14px;
-}
-
-    .summary-icon.green {
-        color: #6ee7b7;
-        background: rgba(16, 185, 129, 0.13);
-    }
-
-    .summary-icon.blue {
-        color: #93c5fd;
-        background: rgba(37, 99, 235, 0.14);
-    }
-
-    .summary-icon.purple {
-        color: #c4b5fd;
-        background: rgba(124, 58, 237, 0.14);
-    }
-
-    .summary-icon.orange {
-        color: #fcd34d;
-        background: rgba(217, 119, 6, 0.14);
-    }
-
-    .summary-icon.cyan {
-        color: #67e8f9;
-        background: rgba(8, 145, 178, 0.14);
-    }
-
-    .summary-icon.red {
-        color: #fca5a5;
-        background: rgba(185, 28, 28, 0.14);
-    }
-
-.summary-item > div:last-child {
-    min-width: 0;
-}
-
-.summary-item span {
-    display: block;
-    color: #64748b;
-    font-size: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.summary-item strong {
-    display: block;
-    margin-top: 3px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #f8fafc;
-    font-size: 10px;
-    font-weight: 700;
 }
 
 
 /* ================================================================
-   WORKFLOW
-================================================================ */
+   ALERTS
+   ================================================================ */
 
-.workflow-card {
-    margin-bottom: 20px;
-    overflow: hidden;
+.page-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 1px solid;
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+    .page-alert i {
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+.page-alert-error {
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+    color: var(--danger-dark);
+}
+
+    .page-alert-error i {
+        color: var(--danger);
+    }
+
+
+/* ================================================================
+   BUTTONS
+   ================================================================ */
+
+.primary-button,
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+    min-height: 38px;
+    padding: 0 18px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--transition), border-color var(--transition), transform var(--transition);
+}
+
+.primary-button {
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--text-inverse);
+}
+
+    .primary-button:hover {
+        background: var(--accent-dark);
+        border-color: var(--accent-dark);
+        color: var(--text-inverse);
+    }
+
+    .primary-button:active {
+        transform: scale(0.99);
+    }
+
+.secondary-button {
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: #ffffff;
-    box-shadow: var(--shadow-sm);
+    background: var(--surface);
+    color: var(--text-secondary);
+}
+
+    .secondary-button:hover {
+        background: var(--surface-raised);
+        border-color: var(--border-strong);
+        color: var(--text);
+    }
+
+    .primary-button i,
+    .secondary-button i {
+        font-size: 13px;
+    }
+
+
+/* ================================================================
+   SECTION CARD
+   ================================================================ */
+
+.section-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
 }
 
 .section-header {
-    min-height: 72px;
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    border-bottom: 1px solid var(--border);
-}
-
-.section-header-icon {
-    width: 37px;
-    height: 37px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9px;
-    background: var(--green-soft);
-    color: var(--green);
-    font-size: 15px;
-}
-
-.section-header h2 {
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.section-header p {
-    margin-top: 2px;
-    color: var(--text-muted);
-    font-size: 9px;
-}
-
-.workflow {
-    padding: 17px 20px;
-    display: flex;
-    align-items: center;
-    overflow-x: auto;
-}
-
-.workflow-step {
-    min-width: 145px;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    background: #f8fafc;
-}
-
-    .workflow-step.active {
-        border-color: var(--green-border);
-        background: var(--green-soft);
-    }
-
-.workflow-number {
-    width: 28px;
-    height: 28px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: #e2e8f0;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.workflow-step.active .workflow-number {
-    color: #ffffff;
-    background: var(--green);
-}
-
-.workflow-step strong {
-    display: block;
-    color: var(--text);
-    font-size: 9px;
-    font-weight: 700;
-}
-
-.workflow-step span {
-    display: block;
-    margin-top: 2px;
-    color: var(--text-muted);
-    font-size: 8px;
-}
-
-.workflow-arrow {
-    width: 27px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #94a3b8;
-    font-size: 9px;
-}
-
-
-/* ================================================================
-   DOCUMENT CARD
-================================================================ */
-
-.document-card {
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: #ffffff;
-    box-shadow: var(--shadow-sm);
-}
-
-.document-header {
-    min-height: 70px;
-    padding: 14px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
-    border-bottom: 1px solid var(--border);
+    gap: 16px;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border-light);
 }
 
-.document-heading {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-}
-
-.document-icon {
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9px;
-    background: var(--blue-soft);
-    color: var(--blue);
-    font-size: 15px;
-}
-
-.document-heading h2 {
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.document-heading p {
-    margin-top: 2px;
-    color: var(--text-muted);
-    font-size: 8px;
-}
-
-.document-tools {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.readonly-badge {
-    padding: 6px 9px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    background: #f8fafc;
-    color: var(--text-muted);
-    font-size: 8px;
-    font-weight: 700;
-}
-
-.document-print {
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    background: #ffffff;
-    color: var(--text-secondary);
-    padding: 7px 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 8px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-    .document-print:hover {
-        color: var(--green-dark);
-        border-color: var(--green-border);
-        background: var(--green-soft);
+    .section-header h2 {
+        margin: 0;
+        color: var(--primary);
+        font-family: var(--font-secondary);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+        line-height: 1.3;
     }
+
+.section-meta {
+    color: var(--text-muted);
+    font-size: 11.5px;
+    font-weight: 500;
+}
 
 
 /* ================================================================
-   DOCUMENT STAGE
-================================================================ */
+   STATUS BADGES
+   ================================================================ */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 10px;
+    font-weight: 650;
+    line-height: 1;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}
+
+.status-active {
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+}
+
+.status-pending {
+    color: var(--warning);
+    background: var(--warning-bg);
+}
+
+.status-danger {
+    color: var(--danger);
+    background: var(--danger-bg);
+}
+
+.status-neutral {
+    color: var(--text-secondary);
+    background: #f1f5f9;
+}
+
+
+/* ================================================================
+   DETAIL GRID
+   ================================================================ */
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 6px 22px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+    .detail-item:nth-last-child(-n + 4) {
+        border-bottom: none;
+    }
+
+.detail-label {
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.4;
+}
+
+.detail-value {
+    color: var(--text);
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+
+/* ================================================================
+   DOCUMENT STAGE (paper)
+   ================================================================ */
 
 .document-stage {
-    padding: 35px;
-    background: #eef2f7;
+    padding: 28px;
+    background: var(--surface-raised);
     overflow-x: auto;
 }
 
-
-/* ================================================================
-   OFFICIAL CONTRACT
-================================================================ */
-
 .contract-document {
     width: 100%;
-    max-width: 850px;
-    min-height: 1100px;
+    max-width: 800px;
+    min-height: 1080px;
     margin: 0 auto;
-    padding: 58px 68px;
+    padding: 60px 70px 70px;
+    box-sizing: border-box;
     background: #ffffff;
-    border: 1px solid #d5dbe4;
-    box-shadow: 0 12px 35px rgba(15, 23, 42, 0.10);
-    color: #111111;
-    font-family: "Times New Roman", Times, serif;
-    font-size: 14px;
-    line-height: 1.63;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    color: #000000;
+    font-family: var(--font-document);
+    font-size: 12.5pt;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
 }
 
 
     /* ================================================================
-   GENERATED CONTRACT
+   CONTRACT HEADER (logo + university)
    ================================================================ */
-
-    .contract-document .official-contract {
-        width: 100%;
-    }
-
-
-    /* ================================================================
-   CONTRACT HEADER
-================================================================ */
 
     .contract-document .contract-header {
         text-align: center;
     }
 
     .contract-document .contract-logo {
+        display: block;
         width: 76px;
         height: 76px;
-        display: block;
         margin: 0 auto 8px;
         object-fit: contain;
     }
 
     .contract-document .contract-university-name {
-        color: #111111;
-        font-family: "Times New Roman", Times, serif;
+        color: #000000;
+        font-family: var(--font-document);
         font-size: 20px;
         font-weight: 700;
         line-height: 1.25;
@@ -806,38 +380,29 @@ button {
     .contract-document .contract-contact,
     .contract-document .contract-web {
         margin-top: 3px;
-        color: #222222;
+        color: #111111;
         font-size: 11px;
         line-height: 1.45;
     }
 
-    .contract-document .contract-web {
-        margin-top: 2px;
-    }
-
     .contract-document .contract-header-line {
-        width: 100%;
         height: 2px;
+        width: 100%;
         margin: 10px 0 20px;
         background: #174d3b;
     }
 
 
     /* ================================================================
-   DATE
-================================================================ */
+   CONTRACT BODY
+   ================================================================ */
 
     .contract-document .contract-date {
         margin-bottom: 17px;
-        color: #222222;
+        color: #111111;
         text-align: right;
         font-size: 12px;
     }
-
-
-    /* ================================================================
-   TITLE
-================================================================ */
 
     .contract-document .contract-title-section {
         margin-bottom: 24px;
@@ -846,17 +411,12 @@ button {
 
         .contract-document .contract-title-section h1 {
             margin: 0;
-            color: #111111;
+            color: #000000;
             font-size: 20px;
             font-weight: 700;
-            text-decoration: underline;
             letter-spacing: 0.02em;
+            text-decoration: underline;
         }
-
-
-    /* ================================================================
-   SECTIONS
-================================================================ */
 
     .contract-document .contract-section {
         margin-bottom: 18px;
@@ -864,12 +424,17 @@ button {
 
     .contract-document p {
         margin: 0 0 10px;
-        color: #111111;
+        color: #000000;
+        font-family: var(--font-document);
+        font-size: 12.5pt;
+        line-height: 1.55;
         text-align: justify;
-        font-family: "Times New Roman", Times, serif;
-        font-size: 14px;
-        line-height: 1.63;
+        text-justify: inter-word;
     }
+
+        .contract-document p:last-child {
+            margin-bottom: 0;
+        }
 
     .contract-document strong {
         font-weight: 700;
@@ -878,7 +443,7 @@ button {
 
     /* ================================================================
    ARTICLES
-================================================================ */
+   ================================================================ */
 
     .contract-document .contract-article {
         margin-bottom: 19px;
@@ -887,10 +452,9 @@ button {
 
         .contract-document .contract-article h2 {
             margin: 0 0 5px;
-            color: #111111;
-            font-size: 14px;
+            color: #000000;
+            font-size: 12.5pt;
             font-weight: 700;
-            text-transform: none;
         }
 
         .contract-document .contract-article ul {
@@ -900,16 +464,16 @@ button {
 
         .contract-document .contract-article li {
             margin-bottom: 6px;
-            color: #111111;
+            color: #000000;
+            font-size: 12.5pt;
+            line-height: 1.55;
             text-align: justify;
-            font-size: 14px;
-            line-height: 1.63;
         }
 
 
     /* ================================================================
-   SIGNATURES
-================================================================ */
+   SIGNATURE TABLE
+   ================================================================ */
 
     .contract-document .contract-signatures {
         margin-top: 32px;
@@ -918,366 +482,251 @@ button {
 
         .contract-document .contract-signatures h2 {
             margin: 0 0 14px;
-            color: #111111;
-            font-size: 16px;
+            color: #000000;
+            font-size: 14pt;
             font-weight: 700;
             text-align: center;
             text-decoration: underline;
             text-transform: uppercase;
         }
 
-    .contract-document .signature-table {
+    .contract-document .signature-table,
+    .contract-document .live-signature-table {
         width: 100%;
         border-collapse: collapse;
         table-layout: fixed;
-        font-size: 11px;
+        font-size: 11pt;
     }
 
         .contract-document .signature-table th,
-        .contract-document .signature-table td {
-            padding: 9px 8px;
+        .contract-document .signature-table td,
+        .contract-document .live-signature-table th,
+        .contract-document .live-signature-table td {
+            padding: 8px 9px;
             border: 1px solid #555555;
             vertical-align: middle;
         }
 
-        .contract-document .signature-table th {
+        .contract-document .signature-table th,
+        .contract-document .live-signature-table th {
             background: #f1f1f1;
-            color: #111111;
-            font-size: 9px;
+            color: #000000;
+            font-size: 9.5pt;
             font-weight: 700;
             text-align: left;
             text-transform: uppercase;
         }
 
-        .contract-document .signature-table td {
+        .contract-document .signature-table td,
+        .contract-document .live-signature-table td {
             height: 65px;
-            color: #111111;
+            color: #000000;
         }
 
-            .contract-document .signature-table th:nth-child(1),
-            .contract-document .signature-table td:nth-child(1) {
-                width: 21%;
-            }
+    .contract-document .signature-cell {
+        text-align: center;
+    }
 
-            .contract-document .signature-table th:nth-child(2),
-            .contract-document .signature-table td:nth-child(2) {
-                width: 28%;
-            }
+    .contract-document .signature-image-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 180px;
+        height: 60px;
+        margin: 0 auto;
+    }
 
-            .contract-document .signature-table th:nth-child(3),
-            .contract-document .signature-table td:nth-child(3) {
-                width: 31%;
-            }
+    .contract-document .contract-signature-image {
+        display: block;
+        max-width: 170px;
+        max-height: 55px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+    }
 
-            .contract-document .signature-table th:nth-child(4),
-            .contract-document .signature-table td:nth-child(4) {
-                width: 20%;
-            }
+    .contract-document .signature-date {
+        margin-top: 4px;
+        font-size: 9.5pt;
+        line-height: 1.3;
+    }
 
-    .contract-document .signature-placeholder {
-        color: #6b7280 !important;
-        font-size: 9px;
+    .contract-document .signature-placeholder,
+    .contract-document .signature-missing {
+        color: #6b7280;
+        font-size: 9.5pt;
         font-style: italic;
     }
 
-
-    /* ================================================================
-   WORKFLOW NOTICE
-================================================================ */
-
-    .contract-document .contract-workflow-notice {
-        margin-top: 22px;
-        padding: 11px 13px;
-        border: 1px solid #bfdbfe;
-        background: #eff6ff;
-        page-break-inside: avoid;
+    .contract-document .signature-status {
+        display: inline-block;
+        font-weight: 700;
     }
 
-        .contract-document .contract-workflow-notice strong {
-            display: block;
-            margin-bottom: 3px;
-            color: #1e40af;
-            font-family: Arial, sans-serif;
-            font-size: 9px;
-            letter-spacing: 0.04em;
+        .contract-document .signature-status.signed {
+            color: #15803d;
         }
 
-        .contract-document .contract-workflow-notice span {
-            color: #475569;
-            font-family: Arial, sans-serif;
-            font-size: 9px;
+        .contract-document .signature-status.pending {
+            color: #b45309;
+        }
+
+        .contract-document .signature-status.declined {
+            color: #b91c1c;
         }
 
 
     /* ================================================================
-   DOCUMENT FOOTER
-================================================================ */
+   HIDDEN INNER-CONTRACT META
+   ================================================================
+   The stored contract HTML emits a trailing approval-sequence
+   notice and a university footer line. Neither belongs in the
+   HOD preview.
+   ================================================================ */
 
+    .contract-document .contract-workflow-notice,
     .contract-document .contract-document-footer {
-        margin-top: 28px;
-        padding-top: 9px;
-        display: flex;
-        justify-content: space-between;
-        gap: 15px;
-        border-top: 1px solid #999999;
-        color: #666666;
-        font-family: Arial, sans-serif;
-        font-size: 8px;
+        display: none !important;
     }
 
 
 /* ================================================================
-   EMPTY DOCUMENT
-================================================================ */
+   EMPTY STATE
+   ================================================================ */
 
 .document-empty {
-    min-height: 400px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    min-height: 400px;
     text-align: center;
     color: var(--text-muted);
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: var(--font-primary);
 }
 
     .document-empty i {
         margin-bottom: 12px;
-        color: #cbd5e1;
+        color: var(--border-strong);
         font-size: 34px;
     }
 
     .document-empty strong {
         color: var(--text-secondary);
-        font-size: 12px;
+        font-size: 13px;
+        font-weight: 700;
     }
 
     .document-empty span {
         margin-top: 4px;
-        font-size: 9px;
+        font-size: 11px;
     }
 
 
 /* ================================================================
-   INFORMATION NOTICE
-================================================================ */
+   FOCUS ACCESSIBILITY
+   ================================================================ */
 
-.information-notice {
-    margin-top: 18px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    border: 1px solid var(--blue-border);
-    border-left: 3px solid var(--blue);
-    border-radius: 10px;
-    background: var(--blue-soft);
-}
-
-.information-icon {
-    color: var(--blue);
-    font-size: 16px;
-}
-
-.information-notice strong {
-    display: block;
-    color: #1e40af;
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.information-notice p {
-    margin-top: 3px;
-    color: #475569;
-    font-size: 9px;
-    line-height: 1.6;
+.primary-button:focus-visible,
+.secondary-button:focus-visible {
+    outline: 2px solid rgba(5, 150, 105, 0.4);
+    outline-offset: 2px;
 }
 
 
 /* ================================================================
-   FOOTER
-================================================================ */
-
-.footer {
-    margin-left: 0;
-    background: var(--navy-dark);
-    color: #ffffff;
-}
-
-.footer-container {
-    min-height: 82px;
-    width: 100%;
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 18px 38px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.footer-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.footer-logo {
-    width: 34px;
-    height: 34px;
-    object-fit: contain;
-}
-
-.footer-brand strong {
-    display: block;
-    color: #f8fafc;
-    font-size: 10px;
-    font-weight: 700;
-}
-
-.footer-brand span {
-    display: block;
-    margin-top: 2px;
-    color: #64748b;
-    font-size: 8px;
-}
-
-.footer-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #64748b;
-    font-size: 8px;
-}
-
-.footer-separator {
-    color: #334155;
-}
-
-
-/* ================================================================
-   RESPONSIVE
-================================================================ */
+   RESPONSIVE — TABLET
+   ================================================================ */
 
 @media (max-width: 1050px) {
 
-    .summary-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .detail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .workflow {
-        align-items: stretch;
+    .detail-item:nth-last-child(-n + 4) {
+        border-bottom: 1px solid var(--border-light);
     }
 
-    .workflow-step {
-        min-width: 150px;
-    }
-
-    .document-stage {
-        padding: 25px;
+    .detail-item:nth-last-child(-n + 2) {
+        border-bottom: none;
     }
 }
 
 
-@media (max-width: 850px) {
+/* ================================================================
+   RESPONSIVE — MOBILE
+   ================================================================ */
 
-    .navbar-container {
-        padding: 0 20px;
-    }
+@media (max-width: 800px) {
 
-    .main {
-        padding: 30px 24px 55px;
+    .preview-page {
+        padding: 22px 18px 40px;
     }
 
     .page-header {
         align-items: flex-start;
         flex-direction: column;
+        gap: 14px;
     }
 
-    .page-actions {
+        .page-header h1 {
+            font-size: 22px;
+        }
+
+    .page-header-actions {
         width: 100%;
     }
 
+    .primary-button,
+    .secondary-button {
+        flex: 1;
+    }
+
+    .detail-grid {
+        padding: 4px 18px;
+    }
+
     .document-stage {
-        padding: 18px;
+        padding: 16px;
     }
 
     .contract-document {
-        padding: 48px 45px;
+        padding: 40px 32px 46px;
+        font-size: 11.5pt;
     }
 }
 
 
-@media (max-width: 650px) {
+/* ================================================================
+   RESPONSIVE — SMALL MOBILE
+   ================================================================ */
 
-    .navbar {
-        height: 65px;
+@media (max-width: 520px) {
+
+    .preview-page {
+        padding: 18px 12px 32px;
     }
 
-    .navbar-container {
-        padding: 0 15px;
+    .page-header h1 {
+        font-size: 20px;
     }
 
-    .navbar-logo {
-        width: 40px;
-        height: 40px;
-    }
-
-    .brand-text,
-    .user-context-text {
-        display: none;
-    }
-
-    .logout-btn {
-        padding: 8px 11px;
-    }
-
-        .logout-btn span {
-            display: none;
-        }
-
-    .main {
-        margin-top: 65px;
-        padding: 25px 15px 45px;
-    }
-
-    .page-heading {
-        align-items: flex-start;
-    }
-
-        .page-heading h1 {
-            font-size: 23px;
-        }
-
-        .page-heading p {
-            font-size: 9px;
-        }
-
-    .page-actions {
-        width: 100%;
-    }
-
-    .action-btn {
-        flex: 1;
-    }
-
-    .summary-grid {
+    .detail-grid {
         grid-template-columns: 1fr;
+        padding: 4px 14px;
     }
 
-    .summary-header {
-        align-items: flex-start;
-        flex-direction: column;
+    .detail-item:nth-last-child(-n + 2) {
+        border-bottom: 1px solid var(--border-light);
     }
 
-    .document-header {
-        align-items: flex-start;
-        flex-direction: column;
+    .detail-item:last-child {
+        border-bottom: none;
     }
 
-    .document-tools {
-        width: 100%;
-        justify-content: space-between;
+    .section-header {
+        padding: 14px 16px;
     }
 
     .document-stage {
@@ -1285,50 +734,44 @@ button {
     }
 
     .contract-document {
-        min-height: auto;
-        padding: 32px 22px;
-        font-size: 13px;
+        padding: 28px 20px 34px;
+        font-size: 11pt;
     }
 
         .contract-document .contract-logo {
-            width: 65px;
-            height: 65px;
+            width: 60px;
+            height: 60px;
         }
 
         .contract-document .contract-university-name {
-            font-size: 16px;
+            font-size: 16pt;
         }
 
-        .contract-document .contract-address,
-        .contract-document .contract-contact,
-        .contract-document .contract-web {
-            font-size: 9px;
+        .contract-document .signature-table,
+        .contract-document .live-signature-table {
+            min-width: 640px;
         }
+}
 
-        .contract-document p,
-        .contract-document .contract-article li {
-            font-size: 13px;
-        }
 
-        .contract-document .signature-table {
-            min-width: 650px;
-        }
+/* ================================================================
+   REDUCED MOTION
+   ================================================================ */
 
-        .contract-document .contract-document-footer {
-            flex-direction: column;
-        }
+@media (prefers-reduced-motion: reduce) {
 
-    .footer-container {
-        align-items: flex-start;
-        flex-direction: column;
-        padding: 18px 15px;
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
     }
 }
 
 
 /* ================================================================
    PRINT
-================================================================ */
+   ================================================================ */
 
 @media print {
 
@@ -1342,28 +785,23 @@ button {
         background: #ffffff !important;
     }
 
-    .navbar,
-    .breadcrumb,
     .page-header,
-    .summary-card,
-    .workflow-card,
-    .document-header,
-    .information-notice,
-    .footer {
+    .section-card .section-header,
+    .page-alert,
+    .preview-page .section-card:not(:last-of-type) {
         display: none !important;
     }
 
-    .main {
-        margin-top: 0 !important;
-        padding: 0 !important;
-    }
-
-    .main-container {
+    .preview-page {
         max-width: none !important;
+        padding: 0 !important;
+        gap: 0 !important;
+        display: block !important;
     }
 
-    .document-card {
+    .section-card {
         border: 0 !important;
+        border-radius: 0 !important;
         box-shadow: none !important;
     }
 
@@ -1383,124 +821,24 @@ button {
         box-shadow: none !important;
     }
 
-        .contract-document .contract-article {
+        .contract-document .contract-article,
+        .contract-document .contract-signatures,
+        .contract-document .signature-table,
+        .contract-document .live-signature-table {
             page-break-inside: avoid;
         }
 
-        .contract-document .contract-signatures {
-            page-break-inside: avoid;
+        .contract-document .contract-signature-image {
+            max-width: 170px !important;
+            max-height: 55px !important;
         }
 
-        .contract-document .signature-table {
-            page-break-inside: avoid;
+        .contract-document .signature-image-wrapper {
+            width: 180px !important;
+            height: 60px !important;
         }
 
-        .contract-document .contract-workflow-notice {
-            page-break-inside: avoid;
+        .contract-document .signature-date {
+            font-size: 9pt !important;
         }
-}
-
-/* ============================================================
-   LIVE ELECTRONIC SIGNATURES
-   ============================================================ */
-
-.live-signature-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-    .live-signature-table th,
-    .live-signature-table td {
-        vertical-align: middle;
-    }
-
-.signature-cell {
-    min-width: 180px;
-    text-align: center;
-}
-
-.signature-image-wrapper {
-    width: 180px;
-    height: 70px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.contract-signature-image {
-    display: block;
-    max-width: 170px;
-    max-height: 65px;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-}
-
-.signature-date {
-    margin-top: 5px;
-    font-size: 10px;
-    line-height: 1.3;
-}
-
-.signature-placeholder {
-    text-align: center;
-    font-style: italic;
-}
-
-.signature-missing {
-    font-style: italic;
-}
-
-.signature-status {
-    display: inline-block;
-    font-weight: 700;
-}
-
-    .signature-status.signed {
-        color: #15803d;
-    }
-
-    .signature-status.pending {
-        color: #b45309;
-    }
-
-    .signature-status.declined {
-        color: #b91c1c;
-    }
-
-.signature-row-signed {
-    background: rgba(22, 163, 74, 0.03);
-}
-
-.signature-row-declined {
-    background: rgba(220, 38, 38, 0.03);
-}
-
-
-/* ============================================================
-   PRINT / PDF SIGNATURES
-   ============================================================ */
-
-@media print {
-
-    .contract-signature-image {
-        max-width: 170px !important;
-        max-height: 65px !important;
-    }
-
-    .signature-image-wrapper {
-        width: 180px !important;
-        height: 70px !important;
-    }
-
-    .signature-date {
-        font-size: 9px !important;
-    }
-}
-
-.document-body .contract-option-selected {
-    font-weight: 700;
-    text-decoration: underline;
-    text-underline-offset: 2px;
 }

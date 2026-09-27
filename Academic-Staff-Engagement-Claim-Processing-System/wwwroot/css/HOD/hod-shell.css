@@ -1,71 +1,51 @@
-/* ==============================================================
-   UNILAK HOD PORTAL
-   SHARED APPLICATION SHELL
-================================================================ */
-
-
-/* ==============================================================
-   DESIGN TOKENS
-================================================================ */
+/* ============================================================
+   UNILAK HOD PORTAL — SHELL
+   ============================================================ */
 
 :root {
-    --hod-navy: #0f2742;
-    --hod-navy-dark: #091c30;
-    --hod-navy-light: #183b60;
-    --hod-green: #059669;
-    --hod-green-dark: #047857;
-    --hod-green-soft: #ecfdf5;
-    --hod-blue: #2563eb;
-    --hod-amber: #d97706;
-    --hod-white: #ffffff;
-    --hod-background: #f4f7fa;
-    --hod-text: #172033;
-    --hod-text-secondary: #475569;
-    --hod-text-muted: #94a3b8;
-    --hod-border: #e2e8f0;
-    --hod-border-light: #edf1f5;
-    --hod-sidebar-width: 248px;
-    --hod-topbar-height: 72px;
-    --hod-shadow-sm: 0 2px 8px rgba(15, 39, 66, 0.06);
-    --hod-shadow-md: 0 10px 30px rgba(15, 39, 66, 0.08);
+    --sidebar-bg: #111c34;
+    --sidebar-bg-hover: rgba(255, 255, 255, 0.06);
+    --sidebar-bg-active: rgba(255, 255, 255, 0.10);
+    --sidebar-accent: #4ec4a0;
+    --primary: #0f2b4a;
+    --accent: #2a7f5e;
+    --accent-light: #e4f2eb;
+    --background: #f4f7fb;
+    --surface: #ffffff;
+    --text: #17212f;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --border: #e5eaf0;
+    --danger: #dc3545;
+    --danger-light: #fdf0f1;
+    --sidebar-width: 230px;
+    --navbar-height: 60px;
+    --font-primary: "Plus Jakarta Sans", sans-serif;
+    --font-secondary: "Poppins", sans-serif;
 }
 
 
-/* ==============================================================
+/* ============================================================
    RESET
-================================================================ */
+   ============================================================ */
 
-*,
-*::before,
-*::after {
+* {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
-html,
-body {
-    width: 100%;
-    height: 100%;
-    min-height: 100%;
-    margin: 0;
-    padding: 0;
+html {
+    font-size: 16px;
 }
 
 body {
-    color: var(--hod-text);
-    background: var(--hod-background);
-    font-family: "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--text);
+    font-family: var(--font-primary);
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-}
-
-    body.hod-sidebar-open {
-        overflow: hidden;
-    }
-
-a {
-    color: inherit;
-    text-decoration: none;
 }
 
 button,
@@ -75,133 +55,254 @@ textarea {
     font: inherit;
 }
 
-button,
+button {
+    cursor: pointer;
+}
+
 a {
-    -webkit-tap-highlight-color: transparent;
+    color: inherit;
+    text-decoration: none;
 }
 
 
-/* ==============================================================
-   APPLICATION SHELL
-================================================================ */
+/* ============================================================
+   APP SHELL
+   ============================================================ */
 
 .hod-app {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
-    background: linear-gradient( 135deg, #f7fafc 0%, #f2f6f9 100% );
+    min-height: 100vh;
+    background: var(--background);
 }
 
 
-/* ==============================================================
-   TOPBAR
-   FIXED AT THE TOP
-================================================================ */
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
 
-.hod-topbar {
+.hod-sidebar {
     position: fixed;
     top: 0;
-    right: 0;
     left: 0;
-    z-index: 1000;
-    width: 100%;
-    height: var(--hod-topbar-height);
-    min-height: var(--hod-topbar-height);
+    bottom: 0;
+    width: var(--sidebar-width);
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    background: #0B2559;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 18px rgba(7, 24, 42, 0.16);
+    flex-direction: column;
+    padding: 20px 14px;
+    background: var(--sidebar-bg);
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 900;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
 
-.hod-topbar-left {
+    .hod-sidebar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .hod-sidebar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .hod-sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.18);
+        border-radius: 10px;
+    }
+
+
+/* ============================================================
+   BRAND
+   ============================================================ */
+
+.hod-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 4px 8px 20px;
     min-width: 0;
+}
+
+.hod-brand-logo {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+    .hod-brand-logo img {
+        display: block;
+        width: 34px;
+        height: 34px;
+        object-fit: contain;
+    }
+
+.hod-brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.hod-brand-title {
+    color: #ffffff;
+    font-family: var(--font-secondary);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.1px;
+}
+
+.hod-brand-subtitle {
+    margin-top: 2px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 10.5px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.2px;
+}
+
+
+/* ============================================================
+   SIDEBAR NAV
+   ============================================================ */
+
+.hod-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.hod-nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+    .hod-nav-item:hover {
+        background: var(--sidebar-bg-hover);
+        color: #ffffff;
+    }
+
+    .hod-nav-item.active {
+        background: var(--sidebar-bg-active);
+        color: #ffffff;
+    }
+
+        .hod-nav-item.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 8px;
+            bottom: 8px;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
+            background: var(--sidebar-accent);
+        }
+
+.hod-nav-icon {
+    width: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.hod-nav-text {
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   MAIN COLUMN — starts at sidebar's right edge
+   ============================================================ */
+
+.hod-main {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ============================================================
+   TOPBAR — spans the main column only, transparent,
+   fades out completely once the user scrolls.
+   ============================================================ */
+
+.hod-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    height: var(--navbar-height);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: opacity 0.28s ease, transform 0.28s ease, background-color 0.28s ease, border-color 0.28s ease;
+}
+
+    /* When scrolled — fade out completely */
+    .hod-topbar.is-scrolled {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-4px);
+    }
+
+
+/* ============================================================
+   MOBILE MENU
+   ============================================================ */
+
+.hod-mobile-menu {
+    display: none;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--primary);
+    font-size: 22px;
+    transition: background 0.15s ease;
+}
+
+    .hod-mobile-menu:hover {
+        background: rgba(15, 43, 74, 0.06);
+    }
+
+.hod-topbar-spacer {
+    flex: 1;
+}
+
+
+/* ============================================================
+   TOPBAR ACTIONS
+   ============================================================ */
+
+.hod-topbar-actions {
     display: flex;
     align-items: center;
     gap: 14px;
 }
 
-.hod-topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-
-/* ==============================================================
-   BRAND
-================================================================ */
-
-.hod-brand {
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    color: #ffffff;
-    text-decoration: none;
-}
-
-.hod-brand-logo {
-    width: 43px;
-    height: 43px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.96);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 11px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-}
-
-    .hod-brand-logo img {
-        width: 36px;
-        height: 36px;
-        display: block;
-        object-fit: contain;
-    }
-
-.hod-brand-text {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.hod-brand-title {
-    color: #ffffff;
-    font-family: "Poppins", "Segoe UI", sans-serif;
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: 0.2px;
-}
-
-.hod-brand-subtitle {
-    margin-top: 3px;
-    color: rgba(255, 255, 255, 0.62);
-    font-size: 8.5px;
-    font-weight: 600;
-    letter-spacing: 0.25px;
-}
-
-
-/* ==============================================================
-   ROLE INDICATOR
-================================================================ */
-
 .hod-role-indicator {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 7px 10px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.055);
-    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hod-role-icon {
@@ -210,476 +311,91 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #6ee7b7;
-    background: rgba(16, 185, 129, 0.12);
-    border: 1px solid rgba(110, 231, 183, 0.16);
-    border-radius: 9px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    color: var(--accent);
     font-size: 15px;
 }
 
 .hod-role-text {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .hod-role-label {
-    color: rgba(255, 255, 255, 0.46);
-    font-size: 7.5px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
+    line-height: 1.3;
 }
 
 .hod-role-text strong {
-    margin-top: 2px;
-    color: #ffffff;
-    font-size: 10px;
+    margin-top: 1px;
+    color: var(--primary);
+    font-size: 12.5px;
     font-weight: 700;
+    line-height: 1.3;
 }
 
 .hod-topbar-divider {
     width: 1px;
-    height: 30px;
-    background: rgba(255, 255, 255, 0.1);
+    height: 26px;
+    background: var(--border);
 }
 
-
-/* ==============================================================
-   LOGOUT
-================================================================ */
+.hod-logout-form {
+    margin: 0;
+}
 
 .hod-logout {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 9px 11px;
-    color: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    justify-content: center;
+    min-height: 34px;
+    padding: 0 14px;
+    border: 1px solid #ead8db;
     border-radius: 8px;
-    text-decoration: none;
-    font-size: 9.5px;
-    font-weight: 700;
-    transition: color 160ms ease, background 160ms ease, border-color 160ms ease, transform 160ms ease;
+    background: #ffffff;
+    color: var(--danger);
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
-
-    .hod-logout i {
-        font-size: 14px;
-    }
 
     .hod-logout:hover {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.2);
-        transform: translateY(-1px);
+        background: var(--danger-light);
+        border-color: #e4c4c8;
+    }
+
+    .hod-logout:active {
+        transform: translateY(1px);
     }
 
 
-/* ==============================================================
-   MOBILE MENU
-================================================================ */
-
-.hod-mobile-menu {
-    display: none;
-    width: 39px;
-    height: 39px;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 9px;
-    cursor: pointer;
-    font-size: 19px;
-}
-
-    .hod-mobile-menu:hover {
-        background: rgba(255, 255, 255, 0.14);
-    }
-
-
-/* ==============================================================
-   WORKSPACE
-================================================================ */
-
-.hod-workspace {
-    position: relative;
-    width: 100%;
-    height: calc(100vh - var(--hod-topbar-height));
-    height: calc(100dvh - var(--hod-topbar-height));
-    margin-top: var(--hod-topbar-height);
-    display: flex;
-    overflow: hidden;
-}
-
-
-/* ==============================================================
-   SIDEBAR
-   FIXED ON DESKTOP
-================================================================ */
-
-.hod-sidebar {
-    position: fixed;
-    top: var(--hod-topbar-height);
-    bottom: 0;
-    left: 0;
-    z-index: 900;
-    width: var(--hod-sidebar-width);
-    height: calc(100vh - var(--hod-topbar-height));
-    height: calc(100dvh - var(--hod-topbar-height));
-    flex: 0 0 var(--hod-sidebar-width);
-    background: #ffffff;
-    border-right: 1px solid var(--hod-border);
-    box-shadow: 2px 0 12px rgba(15, 39, 66, 0.035);
-}
-
-
-/* ==============================================================
-   SIDEBAR INNER
-   INDEPENDENT SIDEBAR SCROLL
-================================================================ */
-
-.hod-sidebar-inner {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 22px 14px 16px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5df #f5f7fa;
-}
-
-    .hod-sidebar-inner::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .hod-sidebar-inner::-webkit-scrollbar-track {
-        background: #f5f7fa;
-    }
-
-    .hod-sidebar-inner::-webkit-scrollbar-thumb {
-        background: #cbd5df;
-        border-radius: 999px;
-    }
-
-
-/* ==============================================================
-   SIDEBAR HEADING
-================================================================ */
-
-.hod-sidebar-heading {
-    padding: 4px 11px 17px;
-    border-bottom: 1px solid var(--hod-border-light);
-}
-
-.hod-sidebar-eyebrow {
-    display: block;
-    margin-bottom: 4px;
-    color: var(--hod-green-dark);
-    font-size: 7px;
-    font-weight: 800;
-    letter-spacing: 1.1px;
-}
-
-.hod-sidebar-heading strong {
-    color: var(--hod-navy);
-    font-family: "Poppins", "Segoe UI", sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-
-/* ==============================================================
-   SIDEBAR NAVIGATION
-================================================================ */
-
-.hod-sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-top: 18px;
-}
-
-.hod-nav-item {
-    position: relative;
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 7px 11px;
-    color: #64748b;
-    border: 1px solid transparent;
-    border-radius: 10px;
-    text-decoration: none;
-    font-size: 10px;
-    font-weight: 600;
-    transition: color 160ms ease, background 160ms ease, border-color 160ms ease, transform 160ms ease;
-}
-
-.hod-nav-icon {
-    width: 31px;
-    height: 31px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: #64748b;
-    background: #f5f7fa;
-    border: 1px solid #edf1f5;
-    border-radius: 8px;
-    font-size: 13px;
-    transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
-}
-
-.hod-nav-text {
-    min-width: 0;
-    flex: 1;
-}
-
-.hod-nav-item:hover {
-    color: var(--hod-navy);
-    background: #f8fafc;
-    border-color: #e8edf2;
-    transform: translateX(2px);
-}
-
-    .hod-nav-item:hover .hod-nav-icon {
-        color: var(--hod-green-dark);
-        background: var(--hod-green-soft);
-        border-color: #d1fae5;
-    }
-
-
-/* ==============================================================
-   ACTIVE NAVIGATION
-================================================================ */
-
-.hod-nav-item.active {
-    color: var(--hod-green-dark);
-    background: linear-gradient( 90deg, #ecfdf5, #f5fcf9 );
-    border-color: #d1fae5;
-    box-shadow: 0 3px 10px rgba(5, 150, 105, 0.055);
-}
-
-    .hod-nav-item.active .hod-nav-icon {
-        color: #ffffff;
-        background: linear-gradient( 135deg, #059669, #047857 );
-        border-color: transparent;
-        box-shadow: 0 4px 10px rgba(5, 150, 105, 0.18);
-    }
-
-.hod-nav-active-indicator {
-    position: absolute;
-    top: 50%;
-    right: 7px;
-    width: 3px;
-    height: 18px;
-    transform: translateY(-50%);
-    background: var(--hod-green);
-    border-radius: 999px;
-}
-
-
-/* ==============================================================
-   SIDEBAR BOTTOM
-================================================================ */
-
-.hod-sidebar-bottom {
-    margin-top: auto;
-    padding: 16px 4px 0;
-}
-
-.hod-security-card {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 11px;
-    background: linear-gradient( 135deg, #f0fdf7, #f8fffb );
-    border: 1px solid #d9f3e6;
-    border-radius: 11px;
-}
-
-.hod-security-icon {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: var(--hod-green-dark);
-    background: #ffffff;
-    border: 1px solid #d1fae5;
-    border-radius: 8px;
-    font-size: 13px;
-}
-
-.hod-security-content {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-    .hod-security-content strong {
-        color: #14532d;
-        font-size: 9px;
-        font-weight: 800;
-    }
-
-    .hod-security-content span {
-        margin-top: 2px;
-        color: #6b8a79;
-        font-size: 7px;
-        line-height: 1.4;
-    }
-
-.hod-security-status {
-    width: 7px;
-    height: 7px;
-    margin-left: auto;
-    flex-shrink: 0;
-    background: #10b981;
-    border-radius: 50%;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-}
-
-
-/* ==============================================================
-   CONTENT AREA
-   ONLY THIS AREA SCROLLS
-================================================================ */
-
-.hod-content-area {
-    position: relative;
-    width: calc(100% - var(--hod-sidebar-width));
-    height: 100%;
-    min-width: 0;
-    margin-left: var(--hod-sidebar-width);
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background: linear-gradient( 180deg, #f7f9fb 0%, #f3f6f9 100% );
-    scroll-behavior: smooth;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5df #eef2f5;
-}
-
-    .hod-content-area::-webkit-scrollbar {
-        width: 9px;
-    }
-
-    .hod-content-area::-webkit-scrollbar-track {
-        background: #eef2f5;
-    }
-
-    .hod-content-area::-webkit-scrollbar-thumb {
-        background: #cbd5df;
-        border: 2px solid #eef2f5;
-        border-radius: 999px;
-    }
-
-        .hod-content-area::-webkit-scrollbar-thumb:hover {
-            background: #aebdca;
-        }
-
-
-/* ==============================================================
-   PAGE CONTENT
-================================================================ */
+/* ============================================================
+   CONTENT — sits directly under the topbar when transparent;
+   adds top padding so the topbar has room before fading.
+   ============================================================ */
 
 .hod-content {
-    position: relative;
-    width: 100%;
-    min-width: 0;
-    flex: 0 0 auto;
-    display: block;
-    padding: 32px 34px 42px;
-}
-
-    .hod-content > * {
-        width: 100%;
-        max-width: 1240px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-
-/* ==============================================================
-   FOOTER
-================================================================ */
-
-.hod-footer {
-    width: 100%;
-    flex: 0 0 auto;
-    margin-top: auto;
-    background: linear-gradient( 105deg, #0b2239, #102f4d );
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.hod-footer-inner {
-    width: 100%;
-    min-height: 74px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 25px;
-    padding: 17px 34px;
-}
-
-.hod-footer-brand {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-    .hod-footer-brand strong {
-        color: #ffffff;
-        font-family: "Poppins", "Segoe UI", sans-serif;
-        font-size: 10px;
-        font-weight: 700;
-    }
-
-    .hod-footer-brand span {
-        margin-top: 4px;
-        color: rgba(255, 255, 255, 0.48);
-        font-size: 7.5px;
-    }
-
-.hod-footer-meta {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    color: rgba(255, 255, 255, 0.52);
-    font-size: 7.5px;
-    text-align: right;
-}
-
-    .hod-footer-meta i {
-        margin-right: 3px;
-        color: #6ee7b7;
-    }
-
-.hod-footer-separator {
-    color: rgba(255, 255, 255, 0.2);
+    flex: 1;
+    padding: 8px 28px 40px;
 }
 
 
-/* ==============================================================
+/* ============================================================
    MOBILE OVERLAY
-================================================================ */
+   ============================================================ */
 
 .hod-sidebar-overlay {
     display: none;
     position: fixed;
-    top: var(--hod-topbar-height);
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
+    background: rgba(7, 24, 42, 0.45);
     z-index: 850;
-    background: rgba(5, 18, 31, 0.48);
-    backdrop-filter: blur(3px);
 }
 
     .hod-sidebar-overlay.visible {
@@ -687,288 +403,108 @@ a {
     }
 
 
-/* ==============================================================
+/* ============================================================
    FOCUS
-================================================================ */
+   ============================================================ */
 
 .hod-nav-item:focus-visible,
 .hod-logout:focus-visible,
 .hod-mobile-menu:focus-visible,
 .hod-brand:focus-visible {
-    outline: 3px solid rgba(5, 150, 105, 0.25);
+    outline: 2px solid rgba(78, 196, 160, 0.6);
     outline-offset: 2px;
 }
 
 
-/* ==============================================================
-   RESPONSIVE — TABLET
-================================================================ */
+/* ============================================================
+   TABLET
+   ============================================================ */
 
 @media (max-width: 1100px) {
 
     :root {
-        --hod-sidebar-width: 220px;
-    }
-
-    .hod-content-area {
-        width: calc(100% - var(--hod-sidebar-width));
-        margin-left: var(--hod-sidebar-width);
+        --sidebar-width: 210px;
     }
 
     .hod-content {
-        padding: 28px 24px 38px;
-    }
-
-    .hod-footer-inner {
-        padding: 16px 24px;
+        padding: 8px 22px 32px;
     }
 }
 
 
-/* ==============================================================
-   RESPONSIVE — MOBILE NAVIGATION
-================================================================ */
+/* ============================================================
+   MOBILE — sidebar becomes an off-canvas drawer
+   ============================================================ */
 
 @media (max-width: 900px) {
 
-    .hod-mobile-menu {
-        display: flex;
-    }
-
-    .hod-topbar {
-        padding: 0 16px;
-    }
-
-    .hod-role-indicator,
-    .hod-topbar-divider {
-        display: none;
-    }
-
-    .hod-logout {
-        padding: 8px 9px;
-    }
-
-        .hod-logout span {
-            display: none;
-        }
-
-
-    /* ----------------------------------------------------------
-       MOBILE SIDEBAR
-    ---------------------------------------------------------- */
-
     .hod-sidebar {
-        position: fixed;
-        top: var(--hod-topbar-height);
-        bottom: 0;
-        left: 0;
-        z-index: 1100;
-        width: min(280px, 86vw);
-        height: calc(100vh - var(--hod-topbar-height));
-        height: calc(100dvh - var(--hod-topbar-height));
-        margin-left: 0;
-        transform: translateX(-105%);
-        box-shadow: 10px 0 35px rgba(5, 18, 31, 0.16);
-        transition: transform 220ms ease;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: 12px 0 30px rgba(5, 20, 35, 0.2);
     }
 
         .hod-sidebar.open {
             transform: translateX(0);
         }
 
-
-    /* ----------------------------------------------------------
-       MOBILE CONTENT
-    ---------------------------------------------------------- */
-
-    .hod-content-area {
-        width: 100%;
-        height: 100%;
+    .hod-main {
         margin-left: 0;
     }
 
-    .hod-content {
-        padding: 25px 20px 34px;
+    .hod-mobile-menu {
+        display: flex;
     }
 
-
-    /* ----------------------------------------------------------
-       MOBILE FOOTER
-    ---------------------------------------------------------- */
-
-    .hod-footer-inner {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 10px;
-        padding: 20px;
-    }
-
-    .hod-footer-meta {
-        flex-wrap: wrap;
-        text-align: left;
-    }
-}
-
-
-/* ==============================================================
-   RESPONSIVE — SMALL MOBILE
-================================================================ */
-
-@media (max-width: 560px) {
-
-    :root {
-        --hod-topbar-height: 64px;
-    }
-
-    .hod-topbar {
-        height: var(--hod-topbar-height);
-        min-height: var(--hod-topbar-height);
-        flex-basis: var(--hod-topbar-height);
-    }
-
-    .hod-sidebar {
-        top: var(--hod-topbar-height);
-        height: calc(100vh - var(--hod-topbar-height));
-        height: calc(100dvh - var(--hod-topbar-height));
-    }
-
-    .hod-sidebar-overlay {
-        top: var(--hod-topbar-height);
-    }
-
-    .hod-brand-subtitle {
+    .hod-role-text {
         display: none;
     }
 
-    .hod-brand-title {
-        font-size: 15px;
-    }
-
-    .hod-brand-logo {
-        width: 38px;
-        height: 38px;
-    }
-
-        .hod-brand-logo img {
-            width: 32px;
-            height: 32px;
-        }
-
     .hod-content {
-        padding: 20px 15px 28px;
-    }
-
-    .hod-footer-meta {
-        line-height: 1.6;
+        padding: 8px 18px 32px;
     }
 }
 
 
-/* ==============================================================
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 520px) {
+
+    .hod-topbar {
+        padding: 0 14px;
+    }
+
+    .hod-role-indicator {
+        display: none;
+    }
+
+    .hod-topbar-divider {
+        display: none;
+    }
+
+    .hod-logout {
+        padding: 0 12px;
+    }
+
+    .hod-content {
+        padding: 6px 14px 28px;
+    }
+}
+
+
+/* ============================================================
    REDUCED MOTION
-================================================================ */
+   ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
 
-    .hod-content-area {
-        scroll-behavior: auto;
-    }
-
-    .hod-nav-item,
-    .hod-nav-icon,
-    .hod-logout,
-    .hod-sidebar {
-        transition: none;
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
     }
 }
-
-
-/* ==============================================================
-   PRINT
-================================================================ */
-
-@media print {
-
-    body {
-        overflow: visible;
-    }
-
-    .hod-app {
-        height: auto;
-        overflow: visible;
-    }
-
-    .hod-topbar,
-    .hod-sidebar,
-    .hod-sidebar-overlay {
-        display: none !important;
-    }
-
-    .hod-workspace {
-        display: block;
-        width: 100%;
-        height: auto;
-        margin-top: 0;
-        overflow: visible;
-    }
-
-    .hod-content-area {
-        width: 100%;
-        height: auto;
-        margin-left: 0;
-        overflow: visible;
-        background: #ffffff;
-    }
-
-    .hod-content {
-        width: 100%;
-        padding: 0;
-    }
-
-    .hod-footer {
-        display: none;
-    }
-}
-
-
-/* ==============================================================
-   LOGOUT FORM (WRAPS THE LOGOUT BUTTON IN THE TOPBAR)
-   ==============================================================
-   A neutral inline-flex wrapper so the <form> does not disturb
-   the topbar layout and adds no visual chrome of its own.
-   ============================================================== */
-
-.hod-logout-form {
-    display: inline-flex;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-}
-
-
-    /* ==============================================================
-   LOGOUT BUTTON — UA RESET
-   ==============================================================
-   <button> elements ship with user-agent defaults: grey
-   background (buttonface), 3D bevel border, system font, and
-   centred text. The existing .hod-logout rule above provides
-   the real visual style — white text, thin translucent border,
-   rounded corners, padding, and hover behaviour.
-
-   This block strips ONLY the UA defaults that .hod-logout does
-   not explicitly override, so the <button> renders identically
-   to the old <a class="hod-logout"> element.
-   ============================================================== */
-
-    .hod-logout-form .hod-logout {
-        -webkit-appearance: none;
-        appearance: none;
-        font: inherit;
-        cursor: pointer;
-        /* Neutralise the UA's default grey background so the
-       .hod-logout hover background is the only background
-       ever shown. */
-        background: transparent;
-    }

@@ -6,48 +6,117 @@
 
 
 /* ==========================================================================
-   DESIGN TOKENS
+   TABLE OF CONTENTS
+   --------------------------------------------------------------------------
+   01. DESIGN TOKENS
+   02. RESET
+   03. PAGE WRAPPER
+   04. PAGE HEADER
+   05. ALERTS (SUCCESS / DANGER)
+   06. SUMMARY CARDS
+   07. SECTION BLOCKS
+   08. TABLE CARD
+   09. TABLE CELLS
+   10. VERSION BADGE
+   11. STATUS BADGES
+   12. TABLE ACTION
+   13. SELECTED CONTRACT LAYOUT
+   14. CONTRACT INFORMATION CARD
+   15. WORKFLOW CARD
+   16. WORKFLOW ROUTE
+   17. WORKFLOW TIMELINE
+   18. SIGNATURE PREVIEW
+   19. DECLINE REASON
+   20. CURRENT STEP INDICATOR
+   21. CONTRACT DOCUMENT CARD
+   22. SECONDARY ACTION
+   23. CONTRACT DOCUMENT (EMBEDDED)
+   24. APPROVAL CARD
+   25. BUTTONS
+   26. DECLINE PANEL
+   27. BLOCKED / STATUS PANELS
+   28. COMPLETED APPROVAL
+   29. EMPTY STATES
+   30. CONTRACT PLACEHOLDER
+   31. CONTRACT PREVIEW MODAL
+   32. BODY LOCK
+   33. RESPONSIVE — 1200px
+   34. RESPONSIVE — 950px
+   35. RESPONSIVE — 760px
+   36. RESPONSIVE — 560px
+   37. ACCESSIBILITY
+   38. PRINT
+   ========================================================================== */
+
+
+/* ==========================================================================
+   01. DESIGN TOKENS
    ========================================================================== */
 
 :root {
+    /* Brand — Navy */
     --dean-navy: #0f2742;
     --dean-navy-dark: #091c31;
     --dean-navy-light: #183b60;
+    /* Semantic — Green */
     --dean-green: #059669;
     --dean-green-dark: #047857;
     --dean-green-soft: #ecfdf5;
     --dean-green-border: #a7f3d0;
+    /* Semantic — Blue */
     --dean-blue: #2563eb;
+    --dean-blue-dark: #1d4ed8;
     --dean-blue-soft: #eff6ff;
     --dean-blue-border: #bfdbfe;
+    /* Semantic — Amber */
     --dean-amber: #b45309;
     --dean-amber-soft: #fffbeb;
     --dean-amber-border: #fde68a;
+    /* Semantic — Red */
     --dean-red: #dc2626;
     --dean-red-dark: #b91c1c;
     --dean-red-soft: #fef2f2;
     --dean-red-border: #fecaca;
+    /* Semantic — Purple */
     --dean-purple: #7c3aed;
     --dean-purple-soft: #f5f3ff;
     --dean-purple-border: #ddd6fe;
+    /* Neutrals */
     --dean-background: #f5f7fb;
     --dean-surface: #ffffff;
     --dean-border: #dfe5ec;
     --dean-border-light: #edf1f5;
+    /* Text */
     --dean-text: #172033;
     --dean-text-secondary: #475569;
     --dean-text-muted: #64748b;
+    --dean-text-faint: #94a3b8;
+    /* Depth */
+    --dean-shadow-xs: 0 1px 2px rgba(15, 39, 66, 0.04);
     --dean-shadow-sm: 0 2px 8px rgba(15, 39, 66, 0.05);
     --dean-shadow-md: 0 8px 24px rgba(15, 39, 66, 0.08);
     --dean-shadow-lg: 0 18px 45px rgba(15, 39, 66, 0.12);
+    /* Shape */
     --dean-radius: 12px;
     --dean-radius-sm: 8px;
+    /* Motion */
     --dean-transition: 160ms ease;
 }
 
 
 /* ==========================================================================
-   PAGE
+   02. RESET
+   ========================================================================== */
+
+.contracts-page *,
+.contracts-page *::before,
+.contracts-page *::after {
+    box-sizing: border-box;
+}
+
+
+/* ==========================================================================
+   03. PAGE WRAPPER
    ========================================================================== */
 
 .contracts-page {
@@ -63,7 +132,7 @@
 
 
 /* ==========================================================================
-   PAGE HEADER
+   04. PAGE HEADER
    ========================================================================== */
 
 .page-header {
@@ -74,11 +143,9 @@
     margin-bottom: 28px;
 }
 
-
 .page-header-content {
     min-width: 0;
 }
-
 
 .breadcrumb {
     display: flex;
@@ -90,18 +157,15 @@
     font-weight: 600;
 }
 
-
     .breadcrumb i {
         color: #94a3b8;
         font-size: 10px;
     }
 
-
     .breadcrumb .current {
         color: var(--dean-text-secondary);
         font-weight: 700;
     }
-
 
 .page-title {
     margin: 0;
@@ -113,7 +177,6 @@
     line-height: 1.2;
 }
 
-
 .page-subtitle {
     max-width: 760px;
     margin: 8px 0 0;
@@ -124,7 +187,89 @@
 
 
 /* ==========================================================================
-   SUMMARY CARDS
+   05. ALERTS (SUCCESS / DANGER)
+   ========================================================================== */
+
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    border: 1px solid transparent;
+    border-radius: var(--dean-radius);
+    box-shadow: var(--dean-shadow-xs);
+}
+
+.alert-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+.alert-content {
+    flex: 1;
+    min-width: 0;
+    padding-top: 2px;
+}
+
+    .alert-content strong {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .alert-content p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+.alert-success {
+    background: linear-gradient(135deg, #f0fdf7 0%, #ecfdf5 100%);
+    border-color: var(--dean-green-border);
+}
+
+    .alert-success .alert-icon {
+        background: #d1fae5;
+        color: var(--dean-green-dark);
+    }
+
+    .alert-success .alert-content strong {
+        color: #065f46;
+    }
+
+    .alert-success .alert-content p {
+        color: #047857;
+    }
+
+.alert-danger {
+    background: linear-gradient(135deg, #fef5f5 0%, #fef2f2 100%);
+    border-color: var(--dean-red-border);
+}
+
+    .alert-danger .alert-icon {
+        background: #fee2e2;
+        color: var(--dean-red-dark);
+    }
+
+    .alert-danger .alert-content strong {
+        color: #991b1b;
+    }
+
+    .alert-danger .alert-content p {
+        color: var(--dean-red-dark);
+    }
+
+
+/* ==========================================================================
+   06. SUMMARY CARDS
    ========================================================================== */
 
 .contract-summary-grid {
@@ -133,7 +278,6 @@
     gap: 18px;
     margin-bottom: 28px;
 }
-
 
 .summary-card {
     position: relative;
@@ -150,7 +294,6 @@
     transition: transform var(--dean-transition), box-shadow var(--dean-transition), border-color var(--dean-transition);
 }
 
-
     .summary-card::after {
         content: "";
         position: absolute;
@@ -161,23 +304,19 @@
         background: var(--dean-blue);
     }
 
-
     .summary-card:nth-child(2)::after {
         background: var(--dean-amber);
     }
 
-
     .summary-card:nth-child(3)::after {
         background: var(--dean-green);
     }
-
 
     .summary-card:hover {
         transform: translateY(-2px);
         border-color: #cbd5e1;
         box-shadow: var(--dean-shadow-md);
     }
-
 
 .summary-card-icon {
     width: 52px;
@@ -190,29 +329,50 @@
     font-size: 22px;
 }
 
+.summary-icon {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 22px;
+}
 
-    .summary-card-icon.blue {
-        color: var(--dean-blue);
-        background: var(--dean-blue-soft);
-    }
+.summary-icon-blue,
+.summary-card-icon.blue {
+    color: var(--dean-blue);
+    background: var(--dean-blue-soft);
+}
 
+.summary-icon-amber,
+.summary-card-icon.amber {
+    color: var(--dean-amber);
+    background: var(--dean-amber-soft);
+}
 
-    .summary-card-icon.amber {
-        color: var(--dean-amber);
-        background: var(--dean-amber-soft);
-    }
+.summary-icon-green,
+.summary-card-icon.green {
+    color: var(--dean-green);
+    background: var(--dean-green-soft);
+}
 
+.summary-icon-purple,
+.summary-card-icon.purple {
+    color: var(--dean-purple);
+    background: var(--dean-purple-soft);
+}
 
-    .summary-card-icon.green {
-        color: var(--dean-green);
-        background: var(--dean-green-soft);
-    }
-
+.summary-icon-red,
+.summary-card-icon.red {
+    color: var(--dean-red);
+    background: var(--dean-red-soft);
+}
 
 .summary-card-content {
     min-width: 0;
 }
-
 
 .summary-label {
     display: block;
@@ -220,7 +380,6 @@
     font-size: 13px;
     font-weight: 650;
 }
-
 
 .summary-value {
     display: block;
@@ -232,7 +391,6 @@
     line-height: 1.2;
 }
 
-
 .summary-description {
     display: block;
     margin-top: 3px;
@@ -242,7 +400,7 @@
 
 
 /* ==========================================================================
-   GENERAL SECTION HEADER
+   07. SECTION BLOCKS
    ========================================================================== */
 
 .section-header {
@@ -254,11 +412,9 @@
     border-bottom: 1px solid var(--dean-border-light);
 }
 
-
 .section-heading-group {
     min-width: 0;
 }
-
 
 .section-kicker {
     display: block;
@@ -271,7 +427,6 @@
     text-transform: uppercase;
 }
 
-
 .section-title {
     margin: 0;
     color: var(--dean-navy);
@@ -282,14 +437,12 @@
     line-height: 1.3;
 }
 
-
 .section-description {
     margin: 5px 0 0;
     color: var(--dean-text-muted);
     font-size: 13px;
     line-height: 1.5;
 }
-
 
 .section-count {
     display: inline-flex;
@@ -305,14 +458,13 @@
     font-weight: 650;
 }
 
-
     .section-count i {
         color: var(--dean-green);
     }
 
 
 /* ==========================================================================
-   CONTRACT TABLE
+   08. TABLE CARD
    ========================================================================== */
 
 .table-card {
@@ -325,29 +477,24 @@
     overflow: hidden;
 }
 
-
 .table-responsive {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-
     .table-responsive::-webkit-scrollbar {
         height: 8px;
     }
-
 
     .table-responsive::-webkit-scrollbar-track {
         background: #f8fafc;
     }
 
-
     .table-responsive::-webkit-scrollbar-thumb {
         background: #cbd5e1;
         border-radius: 999px;
     }
-
 
 .data-table {
     width: 100%;
@@ -356,7 +503,6 @@
     border-spacing: 0;
     font-size: 13px;
 }
-
 
     .data-table th {
         padding: 14px 18px;
@@ -372,7 +518,6 @@
         white-space: nowrap;
     }
 
-
     .data-table td {
         padding: 17px 18px;
         color: var(--dean-text-secondary);
@@ -380,44 +525,36 @@
         vertical-align: middle;
     }
 
-
     .data-table tbody tr {
         background: #ffffff;
         transition: background var(--dean-transition);
     }
 
-
         .data-table tbody tr:hover {
             background: #f8fbfa;
         }
-
 
         .data-table tbody tr:last-child td {
             border-bottom: none;
         }
 
-
         .data-table tbody tr.selected-row {
             background: #ecfdf5;
         }
 
-
             .data-table tbody tr.selected-row td:first-child {
                 box-shadow: inset 3px 0 0 var(--dean-green);
             }
-
 
     .data-table th:first-child,
     .data-table td:first-child {
         padding-left: 22px;
     }
 
-
     .data-table th:last-child,
     .data-table td:last-child {
         padding-right: 22px;
     }
-
 
 .text-right {
     text-align: right !important;
@@ -425,8 +562,20 @@
 
 
 /* ==========================================================================
-   CONTRACT NUMBER
+   09. TABLE CELLS
    ========================================================================== */
+
+.table-primary {
+    color: var(--dean-navy);
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.table-secondary {
+    color: var(--dean-text-muted);
+    font-size: 13px;
+    font-weight: 500;
+}
 
 .contract-number {
     color: var(--dean-navy);
@@ -434,17 +583,11 @@
     font-weight: 750;
 }
 
-
 .contract-date {
     margin-top: 4px;
     color: var(--dean-text-muted);
     font-size: 11px;
 }
-
-
-/* ==========================================================================
-   PERSON CELL
-   ========================================================================== */
 
 .person-cell {
     display: flex;
@@ -452,7 +595,6 @@
     gap: 11px;
     min-width: 220px;
 }
-
 
 .person-avatar {
     width: 38px;
@@ -468,11 +610,9 @@
     font-size: 17px;
 }
 
-
 .person-details {
     min-width: 0;
 }
-
 
     .person-details strong {
         display: block;
@@ -485,7 +625,6 @@
         white-space: nowrap;
     }
 
-
     .person-details span {
         display: block;
         max-width: 220px;
@@ -497,11 +636,6 @@
         white-space: nowrap;
     }
 
-
-/* ==========================================================================
-   COURSE CELL
-   ========================================================================== */
-
 .course-cell strong {
     display: block;
     max-width: 230px;
@@ -509,7 +643,6 @@
     font-size: 13px;
     font-weight: 700;
 }
-
 
 .course-cell span {
     display: block;
@@ -521,7 +654,26 @@
 
 
 /* ==========================================================================
-   STATUS BADGES
+   10. VERSION BADGE
+   ========================================================================== */
+
+.version-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    color: var(--dean-navy);
+    background: #eef3f8;
+    border: 1px solid #dce5ee;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 750;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+
+/* ==========================================================================
+   11. STATUS BADGES
    ========================================================================== */
 
 .status-badge {
@@ -537,7 +689,7 @@
     white-space: nowrap;
 }
 
-
+    .status-badge .badge-dot,
     .status-badge .status-dot {
         width: 6px;
         height: 6px;
@@ -545,65 +697,65 @@
         border-radius: 50%;
     }
 
-
+    .status-badge.status-active,
     .status-badge.active {
         color: var(--dean-green-dark);
         background: var(--dean-green-soft);
         border: 1px solid var(--dean-green-border);
     }
 
-
+        .status-badge.status-active .badge-dot,
+        .status-badge.status-active .status-dot,
+        .status-badge.active .badge-dot,
         .status-badge.active .status-dot {
             background: var(--dean-green);
         }
 
-
+    .status-badge.status-pending,
     .status-badge.pending {
         color: #92400e;
         background: var(--dean-amber-soft);
         border: 1px solid var(--dean-amber-border);
     }
 
-
+        .status-badge.status-pending .badge-dot,
+        .status-badge.status-pending .status-dot,
+        .status-badge.pending .badge-dot,
         .status-badge.pending .status-dot {
             background: var(--dean-amber);
         }
 
-
+    .status-badge.status-declined,
     .status-badge.declined {
         color: #991b1b;
         background: var(--dean-red-soft);
         border: 1px solid var(--dean-red-border);
     }
 
-
+        .status-badge.status-declined .badge-dot,
+        .status-badge.status-declined .status-dot,
+        .status-badge.declined .badge-dot,
         .status-badge.declined .status-dot {
             background: var(--dean-red);
         }
 
-
-/* ==========================================================================
-   STAGE CELL
-   ========================================================================== */
-
-.stage-cell {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    color: var(--dean-text-secondary);
-    font-size: 12px;
-    font-weight: 650;
-}
-
-
-    .stage-cell i {
-        color: var(--dean-green);
-        font-size: 14px;
+    .status-badge.status-neutral,
+    .status-badge.neutral {
+        color: var(--dean-text-secondary);
+        background: #f1f5f9;
+        border: 1px solid var(--dean-border);
     }
 
+        .status-badge.status-neutral .badge-dot,
+        .status-badge.status-neutral .status-dot,
+        .status-badge.neutral .badge-dot,
+        .status-badge.neutral .status-dot {
+            background: var(--dean-text-muted);
+        }
+
 
 /* ==========================================================================
-   TABLE ACTION
+   12. TABLE ACTION
    ========================================================================== */
 
 .table-action {
@@ -623,7 +775,6 @@
     transition: background var(--dean-transition), border-color var(--dean-transition), transform var(--dean-transition), box-shadow var(--dean-transition);
 }
 
-
     .table-action:hover {
         color: #ffffff;
         background: var(--dean-green-dark);
@@ -632,20 +783,33 @@
         box-shadow: 0 5px 14px rgba(5, 150, 105, 0.18);
     }
 
-
     .table-action i {
         font-size: 13px;
     }
 
 
 /* ==========================================================================
-   SELECTED CONTRACT
+   13. SELECTED CONTRACT LAYOUT
    ========================================================================== */
 
 .selected-contract-section {
     width: 100%;
 }
 
+.selected-contract-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 22px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--dean-border-light);
+}
+
+
+/* ==========================================================================
+   14. CONTRACT INFORMATION CARD
+   ========================================================================== */
 
 .contract-information-card {
     margin-bottom: 22px;
@@ -656,7 +820,6 @@
     overflow: hidden;
 }
 
-
 .contract-information-header {
     display: flex;
     align-items: center;
@@ -666,17 +829,14 @@
     border-bottom: 1px solid var(--dean-border-light);
 }
 
-
 .contract-header-status {
     flex-shrink: 0;
 }
-
 
 .contract-information-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
-
 
 .contract-information-item {
     min-width: 0;
@@ -688,16 +848,13 @@
     border-bottom: 1px solid var(--dean-border-light);
 }
 
-
     .contract-information-item:nth-child(3n) {
         border-right: none;
     }
 
-
     .contract-information-item:nth-last-child(-n+3) {
         border-bottom: none;
     }
-
 
 .information-label {
     color: var(--dean-text-muted);
@@ -706,7 +863,6 @@
     letter-spacing: 0.55px;
     text-transform: uppercase;
 }
-
 
 .contract-information-item strong {
     overflow-wrap: anywhere;
@@ -718,7 +874,7 @@
 
 
 /* ==========================================================================
-   WORKFLOW CARD
+   15. WORKFLOW CARD
    ========================================================================== */
 
 .workflow-card {
@@ -730,7 +886,6 @@
     overflow: hidden;
 }
 
-
 .workflow-card-header {
     display: flex;
     align-items: center;
@@ -740,6 +895,24 @@
     border-bottom: 1px solid var(--dean-border-light);
 }
 
+.workflow-sequential {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+    padding: 8px 13px;
+    color: var(--dean-green-dark);
+    background: var(--dean-green-soft);
+    border: 1px solid var(--dean-green-border);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 0.02em;
+}
+
+    .workflow-sequential i {
+        font-size: 13px;
+    }
 
 .workflow-stage {
     display: flex;
@@ -753,7 +926,6 @@
     border-radius: var(--dean-radius-sm);
 }
 
-
     .workflow-stage span {
         color: var(--dean-text-muted);
         font-size: 10px;
@@ -761,7 +933,6 @@
         text-transform: uppercase;
         letter-spacing: 0.45px;
     }
-
 
     .workflow-stage strong {
         color: var(--dean-green-dark);
@@ -771,7 +942,7 @@
 
 
 /* ==========================================================================
-   WORKFLOW ROUTE
+   16. WORKFLOW ROUTE
    ========================================================================== */
 
 .workflow-route {
@@ -779,7 +950,6 @@
     background: #fafcfe;
     border-bottom: 1px solid var(--dean-border-light);
 }
-
 
 .route-label {
     display: flex;
@@ -793,12 +963,10 @@
     text-transform: uppercase;
 }
 
-
     .route-label i {
         color: var(--dean-green);
         font-size: 13px;
     }
-
 
 .route-line {
     display: flex;
@@ -810,7 +978,6 @@
     font-weight: 700;
 }
 
-
     .route-line i {
         color: #94a3b8;
         font-size: 10px;
@@ -818,13 +985,12 @@
 
 
 /* ==========================================================================
-   WORKFLOW TIMELINE
+   17. WORKFLOW TIMELINE
    ========================================================================== */
 
 .workflow-timeline {
     padding: 26px 28px 10px;
 }
-
 
 .workflow-step {
     position: relative;
@@ -834,11 +1000,9 @@
     padding-bottom: 28px;
 }
 
-
     .workflow-step:last-child {
         padding-bottom: 10px;
     }
-
 
     .workflow-step:not(:last-child)::before {
         content: "";
@@ -850,16 +1014,20 @@
         background: #e2e8f0;
     }
 
-
-    .workflow-step.completed:not(:last-child)::before {
+    .workflow-step.completed:not(:last-child)::before,
+    .workflow-step.step-complete:not(:last-child)::before {
         background: var(--dean-green-border);
     }
 
-
-    .workflow-step.current:not(:last-child)::before {
-        background: linear-gradient( to bottom, var(--dean-green-border), #e2e8f0 );
+    .workflow-step.current:not(:last-child)::before,
+    .workflow-step.step-current:not(:last-child)::before {
+        background: linear-gradient(to bottom, var(--dean-green-border), #e2e8f0);
     }
 
+    .workflow-step.declined:not(:last-child)::before,
+    .workflow-step.step-declined:not(:last-child)::before {
+        background: linear-gradient(to bottom, var(--dean-red-border), #e2e8f0);
+    }
 
 .workflow-step-marker {
     position: relative;
@@ -878,37 +1046,38 @@
     font-weight: 800;
 }
 
-
-.workflow-step.completed
-.workflow-step-marker {
+.workflow-step.completed .workflow-step-marker,
+.workflow-step.step-complete .workflow-step-marker {
     color: #ffffff;
     background: var(--dean-green);
     border-color: var(--dean-green);
 }
 
-
-.workflow-step.current
-.workflow-step-marker {
+.workflow-step.current .workflow-step-marker,
+.workflow-step.step-current .workflow-step-marker {
     color: var(--dean-green);
     background: #ffffff;
     border-color: var(--dean-green);
     box-shadow: 0 0 0 5px rgba(5, 150, 105, 0.10);
 }
 
+.workflow-step.declined .workflow-step-marker,
+.workflow-step.step-declined .workflow-step-marker {
+    color: #ffffff;
+    background: var(--dean-red);
+    border-color: var(--dean-red);
+}
 
-.workflow-step.waiting
-.workflow-step-marker {
+.workflow-step.waiting .workflow-step-marker {
     color: #94a3b8;
     background: #f8fafc;
 }
-
 
 .workflow-step-content {
     flex: 1;
     min-width: 0;
     padding-top: 1px;
 }
-
 
 .workflow-step-top {
     display: flex;
@@ -917,21 +1086,20 @@
     gap: 20px;
 }
 
-
 .workflow-person {
     min-width: 0;
 }
 
-
-.workflow-step-number {
+.workflow-step-number,
+.workflow-step-order {
     display: block;
     margin-bottom: 4px;
     color: var(--dean-text-muted);
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 0.7px;
+    text-transform: uppercase;
 }
-
 
 .workflow-step-content h4 {
     margin: 0;
@@ -942,7 +1110,6 @@
     line-height: 1.3;
 }
 
-
 .workflow-step-content p {
     margin: 4px 0 0;
     color: var(--dean-text-secondary);
@@ -950,11 +1117,24 @@
     line-height: 1.4;
 }
 
+.workflow-step-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 12px 0 0;
+    color: var(--dean-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+    .workflow-step-date i {
+        color: var(--dean-green);
+        font-size: 13px;
+    }
 
 .workflow-status-wrapper {
     flex-shrink: 0;
 }
-
 
 .workflow-status {
     display: inline-flex;
@@ -968,13 +1148,11 @@
     white-space: nowrap;
 }
 
-
     .workflow-status.signed {
         color: var(--dean-green-dark);
         background: var(--dean-green-soft);
         border: 1px solid var(--dean-green-border);
     }
-
 
     .workflow-status.current {
         color: #1d4ed8;
@@ -982,13 +1160,11 @@
         border: 1px solid var(--dean-blue-border);
     }
 
-
     .workflow-status.waiting {
         color: var(--dean-text-muted);
         background: #f8fafc;
         border: 1px solid var(--dean-border);
     }
-
 
 .workflow-signature-details {
     display: flex;
@@ -996,7 +1172,6 @@
     gap: 15px;
     margin-top: 13px;
 }
-
 
 .workflow-signature-image {
     display: flex;
@@ -1010,7 +1185,6 @@
     border-radius: var(--dean-radius-sm);
 }
 
-
     .workflow-signature-image img {
         display: block;
         max-width: 180px;
@@ -1020,13 +1194,11 @@
         object-fit: contain;
     }
 
-
 .signature-meta {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
-
 
 .signature-recorded {
     display: inline-flex;
@@ -1037,17 +1209,81 @@
     font-weight: 750;
 }
 
-
     .signature-recorded i {
         font-size: 13px;
     }
-
 
 .signature-date {
     color: var(--dean-text-muted);
     font-size: 11px;
 }
 
+
+/* ==========================================================================
+   18. SIGNATURE PREVIEW
+   ========================================================================== */
+
+.signature-preview {
+    margin-top: 14px;
+    padding: 14px 16px;
+    max-width: 340px;
+    background: #fafcfe;
+    border: 1px dashed var(--dean-border);
+    border-radius: var(--dean-radius-sm);
+}
+
+.signature-preview-label {
+    margin-bottom: 8px;
+    color: var(--dean-text-faint);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.contract-signature-image {
+    display: block;
+    max-width: 220px;
+    max-height: 70px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+
+/* ==========================================================================
+   19. DECLINE REASON
+   ========================================================================== */
+
+.workflow-decline-reason {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: var(--dean-red-soft);
+    border: 1px solid var(--dean-red-border);
+    border-radius: var(--dean-radius-sm);
+}
+
+    .workflow-decline-reason strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #991b1b;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .workflow-decline-reason p {
+        margin: 0;
+        color: #7f1d1d;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+
+/* ==========================================================================
+   20. CURRENT STEP INDICATOR
+   ========================================================================== */
 
 .current-step-indicator {
     display: inline-flex;
@@ -1063,14 +1299,13 @@
     font-weight: 650;
 }
 
-
     .current-step-indicator i {
         font-size: 14px;
     }
 
 
 /* ==========================================================================
-   CONTRACT DOCUMENT CARD
+   21. CONTRACT DOCUMENT CARD
    ========================================================================== */
 
 .contract-document-card {
@@ -1082,8 +1317,8 @@
     overflow: hidden;
 }
 
-
-.contract-document-card-header {
+.contract-document-card-header,
+.contract-document-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1092,6 +1327,37 @@
     border-bottom: 1px solid var(--dean-border-light);
 }
 
+    .contract-document-header h3 {
+        margin: 0;
+        color: var(--dean-navy);
+        font-family: "Poppins", "Segoe UI", sans-serif;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+.document-security {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+    padding: 7px 13px;
+    color: var(--dean-navy);
+    background: #eef3f8;
+    border: 1px solid #d8e3f0;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 0.02em;
+}
+
+    .document-security i {
+        font-size: 13px;
+    }
+
+
+/* ==========================================================================
+   22. SECONDARY ACTION
+   ========================================================================== */
 
 .secondary-action {
     display: inline-flex;
@@ -1113,7 +1379,6 @@
     transition: color var(--dean-transition), background var(--dean-transition), border-color var(--dean-transition), transform var(--dean-transition), box-shadow var(--dean-transition);
 }
 
-
     .secondary-action:hover {
         color: var(--dean-green-dark);
         background: var(--dean-green-soft);
@@ -1122,7 +1387,6 @@
         box-shadow: 0 6px 15px rgba(15, 39, 66, 0.08);
     }
 
-
     .secondary-action i {
         color: var(--dean-green);
         font-size: 15px;
@@ -1130,7 +1394,7 @@
 
 
 /* ==========================================================================
-   CONTRACT DOCUMENT
+   23. CONTRACT DOCUMENT (EMBEDDED)
    ========================================================================== */
 
 .contract-document-wrapper {
@@ -1138,7 +1402,6 @@
     background: #e9eef4;
     overflow-x: auto;
 }
-
 
 .contract-document {
     width: min(900px, 100%);
@@ -1155,11 +1418,6 @@
     overflow-wrap: break-word;
 }
 
-
-    /* --------------------------------------------------------------------------
-   CONTRACT TYPOGRAPHY
-   -------------------------------------------------------------------------- */
-
     .contract-document h1 {
         margin: 0 0 20px;
         color: var(--dean-navy);
@@ -1170,7 +1428,6 @@
         text-align: center;
     }
 
-
     .contract-document h2 {
         margin: 30px 0 13px;
         color: var(--dean-navy);
@@ -1179,7 +1436,6 @@
         font-weight: 700;
         line-height: 1.4;
     }
-
 
     .contract-document h3 {
         margin: 24px 0 10px;
@@ -1190,14 +1446,12 @@
         line-height: 1.45;
     }
 
-
     .contract-document h4 {
         margin: 20px 0 9px;
         color: var(--dean-navy);
         font-size: 14px;
         font-weight: 700;
     }
-
 
     .contract-document p {
         margin: 0 0 13px;
@@ -1207,13 +1461,11 @@
         text-align: justify;
     }
 
-
     .contract-document strong,
     .contract-document b {
         color: #172033;
         font-weight: 700;
     }
-
 
     .contract-document ul,
     .contract-document ol {
@@ -1221,24 +1473,17 @@
         padding-left: 28px;
     }
 
-
     .contract-document li {
         margin-bottom: 7px;
         color: #273449;
         line-height: 1.7;
     }
 
-
     .contract-document hr {
         margin: 24px 0;
         border: 0;
         border-top: 1px solid #cbd5e1;
     }
-
-
-    /* --------------------------------------------------------------------------
-   CONTRACT TABLES
-   -------------------------------------------------------------------------- */
 
     .contract-document table {
         width: 100%;
@@ -1249,7 +1494,6 @@
         font-family: Arial, Helvetica, sans-serif;
         font-size: 12px;
     }
-
 
     .contract-document th {
         padding: 10px 12px;
@@ -1262,7 +1506,6 @@
         vertical-align: middle;
     }
 
-
     .contract-document td {
         padding: 9px 12px;
         color: #273449;
@@ -1272,22 +1515,15 @@
         vertical-align: top;
     }
 
-
     .contract-document tr:nth-child(even) td {
         background: #f8fafc;
     }
-
-
-    /* --------------------------------------------------------------------------
-   CONTRACT IMAGES
-   -------------------------------------------------------------------------- */
 
     .contract-document img {
         max-width: 100%;
         height: auto;
         object-fit: contain;
     }
-
 
     .contract-document .signature-section img,
     .contract-document .signatures img,
@@ -1296,12 +1532,10 @@
         max-height: 85px;
     }
 
-
     .contract-document a {
         color: #0f5f9a;
         text-decoration: underline;
     }
-
 
     .contract-document blockquote {
         margin: 18px 0;
@@ -1312,11 +1546,6 @@
         font-style: italic;
     }
 
-
-    /* --------------------------------------------------------------------------
-   COMMON GENERATED CONTRACT CLASSES
-   -------------------------------------------------------------------------- */
-
     .contract-document .contract-header,
     .contract-document .document-header,
     .contract-document .university-header {
@@ -1325,7 +1554,6 @@
         border-bottom: 2px solid var(--dean-navy);
         text-align: center;
     }
-
 
     .contract-document .label {
         color: var(--dean-text-muted);
@@ -1336,12 +1564,10 @@
         text-transform: uppercase;
     }
 
-
     .contract-document .value {
         color: var(--dean-text);
         font-weight: 600;
     }
-
 
     .contract-document .signature-section,
     .contract-document .signatures,
@@ -1350,14 +1576,12 @@
         page-break-inside: avoid;
     }
 
-
         .contract-document .signature-section table,
         .contract-document .signatures table,
         .contract-document .signature-block table {
             border: none;
             background: transparent;
         }
-
 
         .contract-document .signature-section td,
         .contract-document .signatures td,
@@ -1370,7 +1594,7 @@
 
 
 /* ==========================================================================
-   APPROVAL CARD
+   24. APPROVAL CARD
    ========================================================================== */
 
 .approval-card {
@@ -1382,7 +1606,6 @@
     overflow: hidden;
 }
 
-
 .approval-card-content {
     display: flex;
     align-items: center;
@@ -1392,7 +1615,7 @@
     border-bottom: 1px solid var(--dean-border-light);
 }
 
-
+.approval-card-icon,
 .approval-icon {
     width: 48px;
     height: 48px;
@@ -1406,29 +1629,23 @@
     font-size: 21px;
 }
 
-
-.approval-message {
-    min-width: 0;
+.approval-card-content h3,
+.approval-message h3 {
+    margin: 0;
+    color: var(--dean-navy);
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    font-size: 17px;
+    font-weight: 700;
 }
 
-
-    .approval-message h3 {
-        margin: 0;
-        color: var(--dean-navy);
-        font-family: "Poppins", "Segoe UI", sans-serif;
-        font-size: 17px;
-        font-weight: 700;
-    }
-
-
-    .approval-message p {
-        max-width: 850px;
-        margin: 5px 0 0;
-        color: var(--dean-text-muted);
-        font-size: 13px;
-        line-height: 1.55;
-    }
-
+.approval-card-content p,
+.approval-message p {
+    max-width: 850px;
+    margin: 5px 0 0;
+    color: var(--dean-text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
 
 .approval-actions {
     display: flex;
@@ -1437,14 +1654,13 @@
     padding: 18px 24px;
 }
 
-
 .inline-form {
     margin: 0;
 }
 
 
 /* ==========================================================================
-   BUTTONS
+   25. BUTTONS
    ========================================================================== */
 
 .btn {
@@ -1464,16 +1680,13 @@
     transition: background var(--dean-transition), border-color var(--dean-transition), transform var(--dean-transition), box-shadow var(--dean-transition);
 }
 
-
     .btn:hover {
         transform: translateY(-1px);
     }
 
-
     .btn:active {
         transform: translateY(0);
     }
-
 
 .btn-success {
     color: #ffffff;
@@ -1482,7 +1695,6 @@
     box-shadow: 0 4px 12px rgba(5, 150, 105, 0.16);
 }
 
-
     .btn-success:hover {
         color: #ffffff;
         background: var(--dean-green-dark);
@@ -1490,13 +1702,11 @@
         box-shadow: 0 7px 16px rgba(5, 150, 105, 0.22);
     }
 
-
 .btn-danger-outline {
     color: var(--dean-red);
     background: var(--dean-red-soft);
     border-color: var(--dean-red-border);
 }
-
 
     .btn-danger-outline:hover {
         color: #991b1b;
@@ -1504,13 +1714,11 @@
         border-color: var(--dean-red);
     }
 
-
 .btn-danger {
     color: #ffffff;
     background: var(--dean-red);
     border-color: var(--dean-red);
 }
-
 
     .btn-danger:hover {
         color: #ffffff;
@@ -1518,13 +1726,11 @@
         border-color: var(--dean-red-dark);
     }
 
-
 .btn-secondary {
     color: var(--dean-text-secondary);
     background: #ffffff;
     border-color: var(--dean-border);
 }
-
 
     .btn-secondary:hover {
         color: var(--dean-navy);
@@ -1534,7 +1740,7 @@
 
 
 /* ==========================================================================
-   DECLINE PANEL
+   26. DECLINE PANEL
    ========================================================================== */
 
 .decline-panel {
@@ -1542,7 +1748,6 @@
     background: var(--dean-red-soft);
     border-top: 1px solid var(--dean-red-border);
 }
-
 
 .decline-panel-header {
     display: flex;
@@ -1552,11 +1757,9 @@
     margin-bottom: 18px;
 }
 
-
 .decline-kicker {
     color: var(--dean-red);
 }
-
 
 .decline-panel-header h4 {
     margin: 0;
@@ -1566,13 +1769,11 @@
     font-weight: 700;
 }
 
-
 .decline-panel-header p {
     margin: 4px 0 0;
     color: var(--dean-text-secondary);
     font-size: 13px;
 }
-
 
 .close-button {
     width: 34px;
@@ -1589,18 +1790,15 @@
     transition: background var(--dean-transition);
 }
 
-
     .close-button:hover {
         background: #fee2e2;
     }
-
 
 .form-group {
     display: flex;
     flex-direction: column;
     margin-bottom: 16px;
 }
-
 
 .form-label {
     margin-bottom: 7px;
@@ -1609,13 +1807,12 @@
     font-weight: 750;
 }
 
-
     .form-label .required {
         color: var(--dean-red);
         margin-left: 2px;
     }
 
-
+.form-control,
 .form-group textarea {
     width: 100%;
     min-height: 125px;
@@ -1632,12 +1829,11 @@
     transition: border-color var(--dean-transition), box-shadow var(--dean-transition);
 }
 
-
+    .form-control:focus,
     .form-group textarea:focus {
         border-color: var(--dean-red);
         box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
     }
-
 
 .decline-actions {
     display: flex;
@@ -1648,7 +1844,7 @@
 
 
 /* ==========================================================================
-   BLOCKED / STATUS PANELS
+   27. BLOCKED / STATUS PANELS
    ========================================================================== */
 
 .blocked-panel {
@@ -1662,12 +1858,10 @@
     border-radius: var(--dean-radius);
 }
 
-
 .declined-panel {
     background: var(--dean-red-soft);
     border-color: var(--dean-red-border);
 }
-
 
 .blocked-icon {
     width: 42px;
@@ -1682,27 +1876,22 @@
     font-size: 19px;
 }
 
-
 .declined-panel .blocked-icon {
     background: #fee2e2;
     color: var(--dean-red);
 }
 
-
 .blocked-content {
     min-width: 0;
 }
-
 
 .blocked-kicker {
     color: var(--dean-amber);
 }
 
-
 .declined-panel .blocked-kicker {
     color: var(--dean-red);
 }
-
 
 .blocked-content strong {
     display: block;
@@ -1711,11 +1900,9 @@
     font-weight: 800;
 }
 
-
 .declined-panel .blocked-content strong {
     color: #991b1b;
 }
-
 
 .blocked-content p {
     margin: 4px 0 0;
@@ -1724,33 +1911,28 @@
     line-height: 1.55;
 }
 
-
 .declined-panel .blocked-content p {
     color: #991b1b;
 }
 
 
 /* ==========================================================================
-   COMPLETED APPROVAL
+   28. COMPLETED APPROVAL
    ========================================================================== */
 
 .approval-card.completed {
     border-color: var(--dean-green-border);
 }
 
-
-    .approval-card.completed
-    .approval-card-content {
+    .approval-card.completed .approval-card-content {
         background: var(--dean-green-soft);
         border-bottom: none;
     }
-
 
 .completed-icon {
     background: #d1fae5;
     color: var(--dean-green-dark);
 }
-
 
 .completed-kicker {
     color: var(--dean-green-dark);
@@ -1758,7 +1940,7 @@
 
 
 /* ==========================================================================
-   EMPTY STATES
+   29. EMPTY STATES
    ========================================================================== */
 
 .empty-state {
@@ -1768,7 +1950,6 @@
     text-align: center;
     padding: 70px 25px;
 }
-
 
 .empty-state-icon {
     width: 68px;
@@ -1784,7 +1965,6 @@
     font-size: 28px;
 }
 
-
 .empty-state h3 {
     margin: 0;
     color: var(--dean-navy);
@@ -1792,7 +1972,6 @@
     font-size: 18px;
     font-weight: 700;
 }
-
 
 .empty-state p {
     max-width: 500px;
@@ -1804,7 +1983,7 @@
 
 
 /* ==========================================================================
-   CONTRACT PLACEHOLDER
+   30. CONTRACT PLACEHOLDER
    ========================================================================== */
 
 .contract-placeholder {
@@ -1818,7 +1997,6 @@
     border-radius: var(--dean-radius);
     box-shadow: var(--dean-shadow-sm);
 }
-
 
 .placeholder-icon {
     width: 74px;
@@ -1834,7 +2012,6 @@
     font-size: 31px;
 }
 
-
 .contract-placeholder h2 {
     margin: 0;
     color: var(--dean-navy);
@@ -1842,7 +2019,6 @@
     font-size: 21px;
     font-weight: 700;
 }
-
 
 .contract-placeholder p {
     max-width: 560px;
@@ -1854,7 +2030,7 @@
 
 
 /* ==========================================================================
-   FULL CONTRACT PREVIEW MODAL
+   31. CONTRACT PREVIEW MODAL
    ========================================================================== */
 
 .contract-preview-modal {
@@ -1871,17 +2047,11 @@
     transition: opacity 220ms ease, visibility 220ms ease;
 }
 
-
     .contract-preview-modal.is-open {
         visibility: visible;
         opacity: 1;
         pointer-events: auto;
     }
-
-
-/* ==========================================================================
-   BLURRED BACKGROUND
-   ========================================================================== */
 
 .contract-preview-backdrop {
     position: absolute;
@@ -1890,11 +2060,6 @@
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
 }
-
-
-/* ==========================================================================
-   PREVIEW DIALOG
-   ========================================================================== */
 
 .contract-preview-dialog {
     position: relative;
@@ -1912,16 +2077,9 @@
     transition: transform 220ms ease;
 }
 
-
-.contract-preview-modal.is-open
-.contract-preview-dialog {
+.contract-preview-modal.is-open .contract-preview-dialog {
     transform: translateY(0) scale(1);
 }
-
-
-/* ==========================================================================
-   PREVIEW HEADER
-   ========================================================================== */
 
 .contract-preview-header {
     min-height: 76px;
@@ -1930,11 +2088,10 @@
     justify-content: space-between;
     gap: 18px;
     padding: 13px 20px;
-    background: linear-gradient( 135deg, var(--dean-navy-dark), var(--dean-navy-light) );
+    background: linear-gradient(135deg, var(--dean-navy-dark), var(--dean-navy-light));
     color: #ffffff;
     border-bottom: 1px solid rgba(255, 255, 255, 0.10);
 }
-
 
 .contract-preview-title-wrapper {
     display: flex;
@@ -1942,7 +2099,6 @@
     gap: 13px;
     min-width: 0;
 }
-
 
 .contract-preview-icon {
     width: 44px;
@@ -1957,11 +2113,9 @@
     font-size: 19px;
 }
 
-
 .contract-preview-heading {
     min-width: 0;
 }
-
 
 .contract-preview-kicker {
     display: block;
@@ -1973,7 +2127,6 @@
     text-transform: uppercase;
 }
 
-
 .contract-preview-header h2 {
     margin: 0;
     color: #ffffff;
@@ -1981,7 +2134,6 @@
     font-size: 18px;
     font-weight: 700;
 }
-
 
 .contract-preview-close {
     width: 40px;
@@ -1999,16 +2151,10 @@
     transition: background 160ms ease, transform 160ms ease;
 }
 
-
     .contract-preview-close:hover {
         background: rgba(255, 255, 255, 0.18);
         transform: scale(1.04);
     }
-
-
-/* ==========================================================================
-   PREVIEW BODY
-   ========================================================================== */
 
 .contract-preview-body {
     position: relative;
@@ -2019,37 +2165,27 @@
     padding: 10px 0 40px;
 }
 
-
     .contract-preview-body::-webkit-scrollbar {
         width: 11px;
     }
 
-
     .contract-preview-body::-webkit-scrollbar-track {
         background: #d4dce5;
     }
-
 
     .contract-preview-body::-webkit-scrollbar-thumb {
         background: #9eabb9;
         border-radius: 999px;
     }
 
-
         .contract-preview-body::-webkit-scrollbar-thumb:hover {
             background: #8291a1;
         }
-
-
-/* ==========================================================================
-   PREVIEW PAPER
-   ========================================================================== */
 
 .contract-preview-paper {
     width: min(950px, calc(100% - 48px));
     margin: 28px auto 0;
 }
-
 
 .contract-preview-document {
     width: 100%;
@@ -2065,11 +2201,6 @@
     overflow-wrap: break-word;
 }
 
-
-    /* --------------------------------------------------------------------------
-   PREVIEW TYPOGRAPHY
-   -------------------------------------------------------------------------- */
-
     .contract-preview-document h1 {
         margin: 0 0 22px;
         color: var(--dean-navy);
@@ -2080,7 +2211,6 @@
         text-align: center;
     }
 
-
     .contract-preview-document h2 {
         margin: 32px 0 14px;
         color: var(--dean-navy);
@@ -2090,7 +2220,6 @@
         line-height: 1.4;
     }
 
-
     .contract-preview-document h3 {
         margin: 25px 0 11px;
         color: var(--dean-navy-light);
@@ -2099,14 +2228,12 @@
         font-weight: 700;
     }
 
-
     .contract-preview-document h4 {
         margin: 20px 0 9px;
         color: var(--dean-navy);
         font-size: 14px;
         font-weight: 700;
     }
-
 
     .contract-preview-document p {
         margin: 0 0 14px;
@@ -2116,13 +2243,11 @@
         text-align: justify;
     }
 
-
     .contract-preview-document strong,
     .contract-preview-document b {
         color: #172033;
         font-weight: 700;
     }
-
 
     .contract-preview-document ul,
     .contract-preview-document ol {
@@ -2130,24 +2255,17 @@
         padding-left: 30px;
     }
 
-
     .contract-preview-document li {
         margin-bottom: 7px;
         color: #273449;
         line-height: 1.75;
     }
 
-
     .contract-preview-document hr {
         margin: 25px 0;
         border: 0;
         border-top: 1px solid #cbd5e1;
     }
-
-
-    /* --------------------------------------------------------------------------
-   PREVIEW TABLES
-   -------------------------------------------------------------------------- */
 
     .contract-preview-document table {
         width: 100%;
@@ -2159,7 +2277,6 @@
         font-size: 12px;
     }
 
-
     .contract-preview-document th {
         padding: 11px 13px;
         color: #ffffff;
@@ -2170,7 +2287,6 @@
         text-align: left;
     }
 
-
     .contract-preview-document td {
         padding: 10px 13px;
         color: #273449;
@@ -2180,50 +2296,32 @@
         vertical-align: top;
     }
 
-
     .contract-preview-document tr:nth-child(even) td {
         background: #f8fafc;
     }
 
-
-    /* --------------------------------------------------------------------------
-   PREVIEW SIGNATURES
-   -------------------------------------------------------------------------- */
-
-    .contract-preview-document
-    .signature-section,
-    .contract-preview-document
-    .signatures,
-    .contract-preview-document
-    .signature-block {
+    .contract-preview-document .signature-section,
+    .contract-preview-document .signatures,
+    .contract-preview-document .signature-block {
         margin-top: 45px;
         page-break-inside: avoid;
     }
 
-
-        .contract-preview-document
-        .signature-section table,
-        .contract-preview-document
-        .signatures table,
-        .contract-preview-document
-        .signature-block table {
+        .contract-preview-document .signature-section table,
+        .contract-preview-document .signatures table,
+        .contract-preview-document .signature-block table {
             border: none;
             background: transparent;
         }
 
-
-        .contract-preview-document
-        .signature-section td,
-        .contract-preview-document
-        .signatures td,
-        .contract-preview-document
-        .signature-block td {
+        .contract-preview-document .signature-section td,
+        .contract-preview-document .signatures td,
+        .contract-preview-document .signature-block td {
             padding: 18px 20px;
             border: none;
             background: transparent;
             vertical-align: top;
         }
-
 
     .contract-preview-document img {
         max-width: 100%;
@@ -2231,21 +2329,12 @@
         object-fit: contain;
     }
 
-
-    .contract-preview-document
-    .signature-section img,
-    .contract-preview-document
-    .signatures img,
-    .contract-preview-document
-    .signature-block img {
+    .contract-preview-document .signature-section img,
+    .contract-preview-document .signatures img,
+    .contract-preview-document .signature-block img {
         max-width: 220px;
         max-height: 85px;
     }
-
-
-/* ==========================================================================
-   PREVIEW FOOTER
-   ========================================================================== */
 
 .contract-preview-footer {
     min-height: 62px;
@@ -2258,7 +2347,6 @@
     border-top: 1px solid var(--dean-border);
 }
 
-
 .preview-security-note {
     display: inline-flex;
     align-items: center;
@@ -2268,7 +2356,6 @@
     font-weight: 650;
 }
 
-
     .preview-security-note i {
         color: var(--dean-green);
         font-size: 15px;
@@ -2276,7 +2363,7 @@
 
 
 /* ==========================================================================
-   BODY LOCK
+   32. BODY LOCK
    ========================================================================== */
 
 body.contract-preview-open {
@@ -2285,7 +2372,7 @@ body.contract-preview-open {
 
 
 /* ==========================================================================
-   RESPONSIVE — 1200PX
+   33. RESPONSIVE — 1200PX
    ========================================================================== */
 
 @media (max-width: 1200px) {
@@ -2294,26 +2381,21 @@ body.contract-preview-open {
         padding: 24px 28px 45px;
     }
 
-
     .contract-information-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
 
     .contract-information-item:nth-child(3n) {
         border-right: 1px solid var(--dean-border-light);
     }
 
-
     .contract-information-item:nth-child(2n) {
         border-right: none;
     }
 
-
     .contract-information-item:nth-last-child(-n+3) {
         border-bottom: 1px solid var(--dean-border-light);
     }
-
 
     .contract-information-item:nth-last-child(-n+2) {
         border-bottom: none;
@@ -2322,7 +2404,7 @@ body.contract-preview-open {
 
 
 /* ==========================================================================
-   RESPONSIVE — 950PX
+   34. RESPONSIVE — 950PX
    ========================================================================== */
 
 @media (max-width: 950px) {
@@ -2331,32 +2413,26 @@ body.contract-preview-open {
         grid-template-columns: 1fr;
     }
 
-
     .page-title {
         font-size: 27px;
     }
-
 
     .workflow-step-top {
         flex-direction: column;
         gap: 9px;
     }
 
-
     .workflow-status-wrapper {
         align-self: flex-start;
     }
-
 
     .contract-document {
         padding: 48px;
     }
 
-
     .contract-preview-paper {
         width: min(900px, calc(100% - 30px));
     }
-
 
     .contract-preview-document {
         padding: 55px;
@@ -2365,7 +2441,7 @@ body.contract-preview-open {
 
 
 /* ==========================================================================
-   RESPONSIVE — 760PX
+   35. RESPONSIVE — 760PX
    ========================================================================== */
 
 @media (max-width: 760px) {
@@ -2374,40 +2450,37 @@ body.contract-preview-open {
         padding: 20px 18px 35px;
     }
 
-
-    .page-header {
+    .page-header,
+    .selected-contract-heading {
         margin-bottom: 22px;
     }
-
 
     .page-title {
         font-size: 24px;
     }
 
-
     .page-subtitle {
         font-size: 13px;
     }
 
-
     .section-header,
     .contract-information-header,
     .workflow-card-header,
-    .contract-document-card-header {
+    .contract-document-card-header,
+    .contract-document-header {
         align-items: flex-start;
         flex-direction: column;
     }
 
-
-    .section-count {
+    .section-count,
+    .workflow-sequential,
+    .document-security {
         align-self: flex-start;
     }
-
 
     .contract-information-grid {
         grid-template-columns: 1fr;
     }
-
 
     .contract-information-item,
     .contract-information-item:nth-child(2n),
@@ -2416,65 +2489,53 @@ body.contract-preview-open {
         border-bottom: 1px solid var(--dean-border-light);
     }
 
-
         .contract-information-item:last-child {
             border-bottom: none;
         }
-
 
     .workflow-stage {
         align-items: flex-start;
     }
 
-
     .workflow-route {
         padding: 15px 18px;
     }
 
-
     .workflow-timeline {
         padding: 22px 18px 8px;
     }
-
 
     .workflow-signature-details {
         align-items: flex-start;
         flex-direction: column;
     }
 
-
     .approval-actions {
         align-items: stretch;
         flex-direction: column;
     }
-
 
         .approval-actions .btn,
         .approval-actions .inline-form {
             width: 100%;
         }
 
-
             .approval-actions .inline-form .btn {
                 width: 100%;
             }
 
-
     .contract-document-wrapper {
         padding: 18px;
     }
-
 
     .contract-document {
         min-height: 500px;
         padding: 38px 30px;
     }
 
-
     .contract-preview-modal {
         padding: 10px;
     }
-
 
     .contract-preview-dialog {
         width: 99vw;
@@ -2482,12 +2543,10 @@ body.contract-preview-open {
         border-radius: 13px;
     }
 
-
     .contract-preview-paper {
         width: calc(100% - 20px);
         margin-top: 15px;
     }
-
 
     .contract-preview-document {
         min-height: 900px;
@@ -2497,7 +2556,7 @@ body.contract-preview-open {
 
 
 /* ==========================================================================
-   RESPONSIVE — 560PX
+   36. RESPONSIVE — 560PX
    ========================================================================== */
 
 @media (max-width: 560px) {
@@ -2506,50 +2565,42 @@ body.contract-preview-open {
         padding: 16px 12px 28px;
     }
 
-
     .page-title {
         font-size: 22px;
     }
 
-
     .breadcrumb {
         font-size: 11px;
     }
-
 
     .summary-card {
         min-height: 100px;
         padding: 17px;
     }
 
-
-    .summary-card-icon {
+    .summary-card-icon,
+    .summary-icon {
         width: 45px;
         height: 45px;
         flex-basis: 45px;
         font-size: 19px;
     }
 
-
     .summary-value {
         font-size: 24px;
     }
-
 
     .section-title {
         font-size: 18px;
     }
 
-
     .section-description {
         font-size: 12px;
     }
 
-
     .workflow-step {
         gap: 12px;
     }
-
 
     .workflow-step-marker {
         width: 34px;
@@ -2558,49 +2609,40 @@ body.contract-preview-open {
         font-size: 11px;
     }
 
-
     .workflow-step:not(:last-child)::before {
         left: 16px;
         top: 36px;
     }
 
-
     .workflow-step-content h4 {
         font-size: 14px;
     }
 
-
     .workflow-step-content p {
         font-size: 12px;
     }
-
 
     .contract-document {
         padding: 28px 22px;
         font-size: 13px;
     }
 
-
         .contract-document h1 {
             font-size: 22px;
         }
-
 
         .contract-document h2 {
             font-size: 18px;
         }
 
-
         .contract-document p {
             font-size: 13px;
         }
-
 
     .contract-preview-header {
         min-height: 65px;
         padding: 10px 12px;
     }
-
 
     .contract-preview-icon {
         width: 36px;
@@ -2608,11 +2650,9 @@ body.contract-preview-open {
         flex-basis: 36px;
     }
 
-
     .contract-preview-header h2 {
         font-size: 15px;
     }
-
 
     .contract-preview-close {
         width: 36px;
@@ -2620,12 +2660,10 @@ body.contract-preview-open {
         flex-basis: 36px;
     }
 
-
     .contract-preview-paper {
         width: calc(100% - 12px);
         margin-top: 8px;
     }
-
 
     .contract-preview-document {
         min-height: auto;
@@ -2633,44 +2671,36 @@ body.contract-preview-open {
         font-size: 12px;
     }
 
-
         .contract-preview-document h1 {
             font-size: 20px;
         }
 
-
         .contract-preview-document h2 {
             font-size: 17px;
         }
-
 
         .contract-preview-document p {
             font-size: 12px;
             line-height: 1.7;
         }
 
-
         .contract-preview-document table {
             font-size: 10px;
         }
-
 
         .contract-preview-document th,
         .contract-preview-document td {
             padding: 7px 8px;
         }
 
-
     .contract-preview-footer {
         min-height: 58px;
         padding: 8px 10px;
     }
 
-
     .preview-security-note {
         font-size: 9px;
     }
-
 
     .contract-preview-footer .btn {
         min-height: 34px;
@@ -2681,22 +2711,20 @@ body.contract-preview-open {
 
 
 /* ==========================================================================
-   ACCESSIBILITY
+   37. ACCESSIBILITY
    ========================================================================== */
 
 button:focus-visible,
 a:focus-visible,
-textarea:focus-visible {
+textarea:focus-visible,
+input:focus-visible {
     outline: 3px solid rgba(37, 99, 235, 0.30);
     outline-offset: 2px;
 }
 
-
 @media (prefers-reduced-motion: reduce) {
 
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
         scroll-behavior: auto !important;
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
@@ -2705,7 +2733,7 @@ textarea:focus-visible {
 
 
 /* ==========================================================================
-   PRINT
+   38. PRINT
    ========================================================================== */
 
 @media print {
@@ -2714,7 +2742,6 @@ textarea:focus-visible {
         max-width: none;
         padding: 0;
     }
-
 
     .page-header,
     .contract-summary-grid,
@@ -2726,7 +2753,6 @@ textarea:focus-visible {
         display: none !important;
     }
 
-
     .contract-information-card,
     .workflow-card,
     .contract-document-card,
@@ -2735,12 +2761,10 @@ textarea:focus-visible {
         border: 1px solid #cccccc;
     }
 
-
     .contract-document-wrapper {
         padding: 0;
         background: #ffffff;
     }
-
 
     .contract-document {
         width: 100%;
@@ -2750,4 +2774,3 @@ textarea:focus-visible {
         box-shadow: none;
     }
 }
-s

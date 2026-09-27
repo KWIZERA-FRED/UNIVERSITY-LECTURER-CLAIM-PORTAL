@@ -16,812 +16,300 @@
         });
 }
 
-<link rel="stylesheet"
-      href="~/css/HOD/assign-course.css"
-      asp-append-version="true" />
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/HOD/assign-course.css"
+          asp-append-version="true" />
+}
 
+<section class="assign-page">
 
-<div class="assign-course-page">
-
-    <!-- =========================================================
-         PAGE HEADER
-    ========================================================== -->
-
-    <div class="page-header">
-
-        <div class="page-heading">
-
-            <div class="page-icon">
-                <i class="bi bi-journal-plus"></i>
-            </div>
-
-            <div>
-
-                <h1>
-                    Assign Course
-                </h1>
-
-                <p>
-                    Assign a course to a lecturer and generate their academic engagement contract.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =========================================================
-         ERROR MESSAGE
-    ========================================================== -->
+    <header class="page-header">
+        <h1>Assign Course</h1>
+        <p>Assign a course to a lecturer and generate their academic engagement contract.</p>
+    </header>
 
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
-        <div class="error-message">
-
+        <div class="page-alert page-alert-error">
             <i class="bi bi-exclamation-circle-fill"></i>
-
-            <span>
-                @Model.ErrorMessage
-            </span>
-
+            <span>@Model.ErrorMessage</span>
         </div>
     }
 
+    <section class="section-card">
 
-    <!-- =========================================================
-         ASSIGNMENT CARD
-    ========================================================== -->
-
-    <section class="assignment-card">
-
-        <!-- CARD HEADER -->
-
-        <div class="card-header">
-
-            <div>
-
-                <h2>
-                    Course Assignment Details
-                </h2>
-
-                <p>
-                    Select the lecturer, course, academic period and workload details.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <!-- FORM -->
+        <header class="section-header">
+            <h2>Assignment Details</h2>
+        </header>
 
         <form method="post">
 
             @Html.AntiForgeryToken()
 
+            <div class="form-body">
 
-            <div class="form-grid">
+                <div class="form-grid">
 
-
-                <!-- =================================================
-                     COURSE
-                ================================================== -->
-
-                <div class="form-group">
-
-                    <label for="courseSelect">
-                        Course
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-journal-bookmark"></i>
-
+                    <div class="form-group">
+                        <label for="courseSelect">Course <span>*</span></label>
                         <select asp-for="SelectedCourse"
                                 id="courseSelect"
-                                class="form-select"
+                                class="form-control"
                                 required>
-
-                            <option value="">
-                                Select course
-                            </option>
-
+                            <option value="">Select course</option>
                             @foreach (var course in Model.Courses)
                             {
                                 <option value="@course.Id">
-                                    @course.Code - @course.Title
+                                    @course.Code — @course.Title
                                 </option>
                             }
-
                         </select>
-
                     </div>
 
-                </div>
-
-
-                <!-- =================================================
-                     LECTURER
-                ================================================== -->
-
-                <div class="form-group">
-
-                    <label for="lecturerSelect">
-                        Lecturer
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-person"></i>
-
+                    <div class="form-group">
+                        <label for="lecturerSelect">Lecturer <span>*</span></label>
                         <select asp-for="SelectedLecturer"
                                 id="lecturerSelect"
-                                class="form-select"
+                                class="form-control"
                                 required>
-
-                            <option value="">
-                                Select lecturer
-                            </option>
-
+                            <option value="">Select lecturer</option>
                             @foreach (var lecturer in Model.Lecturers)
                             {
                                 <option value="@lecturer.Id">
                                     @lecturer.UserName
                                 </option>
                             }
-
                         </select>
-
                     </div>
 
-                </div>
-
-
-                <!-- =================================================
-                     LECTURER RANK
-                ================================================== -->
-
-                <div class="form-group">
-
-                    <label for="rank">
-                        Lecturer Rank
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-mortarboard"></i>
-
+                    <div class="form-group">
+                        <label for="rank">Lecturer Rank</label>
                         <input id="rank"
-                               class="form-control readonly"
+                               class="form-control"
                                readonly
                                placeholder="Automatically displayed" />
-
                     </div>
 
-                </div>
-
-
-                <!-- =================================================
-                     GOVERNMENT ID
-                ================================================== -->
-
-                <div class="form-group">
-
-                    <label for="governmentId">
-                        Government ID
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-card-text"></i>
-
+                    <div class="form-group">
+                        <label for="governmentId">Government ID</label>
                         <input id="governmentId"
-                               class="form-control readonly"
+                               class="form-control"
                                readonly
-                               value="Protected"
-                               placeholder="Protected" />
-
+                               value="Protected" />
                     </div>
 
-                    <span class="field-help">
-                        Government ID is protected and encrypted in the database.
-                    </span>
-
-                </div>
-
-
-                <!-- =================================================
-                     SEMESTER
-                ================================================== -->
-
-                <div class="form-group">
-
-                    <label for="semester">
-                        Semester
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-calendar3"></i>
-
+                    <div class="form-group">
+                        <label for="semester">Semester <span>*</span></label>
                         <select asp-for="Semester"
                                 id="semester"
-                                class="form-select"
+                                class="form-control"
                                 required>
-
-                            <option value="">
-                                Select semester
-                            </option>
-
-                            <option value="1">
-                                Semester One
-                            </option>
-
-                            <option value="2">
-                                Semester Two
-                            </option>
-
-                            <option value="3">
-                                Summer Semester
-                            </option>
-
+                            <option value="">Select semester</option>
+                            <option value="1">Semester One</option>
+                            <option value="2">Semester Two</option>
+                            <option value="3">Summer Semester</option>
                         </select>
-
                     </div>
 
-                </div>
-
-
-                <!-- =================================================
-                     SESSION
-                ================================================== -->
-
-                <div class="form-group">
-
-                    <label for="session">
-                        Session
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-clock"></i>
-
+                    <div class="form-group">
+                        <label for="session">Session <span>*</span></label>
                         <select asp-for="Session"
                                 id="session"
-                                class="form-select"
+                                class="form-control"
                                 required>
-
-                            <option value="">
-                                Select session
-                            </option>
-
-                            <option value="1">
-                                Day
-                            </option>
-
-                            <option value="2">
-                                Evening
-                            </option>
-
+                            <option value="">Select session</option>
+                            <option value="1">Day</option>
+                            <option value="2">Evening</option>
                         </select>
-
                     </div>
 
-                </div>
-
-
-                <!-- =================================================
-                     ACADEMIC YEAR
-                ================================================== -->
-
-                <div class="form-group">
-
-                    <label for="academicYear">
-                        Academic Year
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-calendar-range"></i>
-
+                    <div class="form-group">
+                        <label for="academicYear">Academic Year <span>*</span></label>
                         <select asp-for="AcademicYear"
                                 id="academicYear"
-                                class="form-select"
+                                class="form-control"
                                 required>
-
-                            <option value="">
-                                Select academic year
-                            </option>
-
-                            <option value="2025/2026">
-                                2025/2026
-                            </option>
-
-                            <option value="2026/2027">
-                                2026/2027
-                            </option>
-
-                            <option value="2027/2028">
-                                2027/2028
-                            </option>
-
-                            <option value="2028/2029">
-                                2028/2029
-                            </option>
-
+                            <option value="">Select academic year</option>
+                            <option value="2025/2026">2025/2026</option>
+                            <option value="2026/2027">2026/2027</option>
+                            <option value="2027/2028">2027/2028</option>
+                            <option value="2028/2029">2028/2029</option>
                         </select>
-
                     </div>
 
-                </div>
-
-
-                <!-- =================================================
-                     CAMPUS
-                ================================================== -->
-
-                <div class="form-group">
-
-                    <label for="campus">
-                        Campus
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-geo-alt"></i>
-
+                    <div class="form-group">
+                        <label for="campus">Campus <span>*</span></label>
                         <select asp-for="Campus"
                                 id="campus"
-                                class="form-select"
+                                class="form-control"
                                 required>
-
-                            <option value="">
-                                Select campus
-                            </option>
-
-                            <option value="1">
-                                Kigali
-                            </option>
-
-                            <option value="2">
-                                Rwamagana
-                            </option>
-
-                            <option value="3">
-                                Nyanza
-                            </option>
-
+                            <option value="">Select campus</option>
+                            <option value="1">Kigali</option>
+                            <option value="2">Rwamagana</option>
+                            <option value="3">Nyanza</option>
                         </select>
-
                     </div>
 
-                </div>
-
-
-                <!-- =================================================
-                     HOURS
-                ================================================== -->
-
-                <div class="form-group">
-
-                    <label for="allocatedHours">
-                        Number of Hours
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i class="bi bi-hourglass-split"></i>
-
+                    <div class="form-group form-group-full">
+                        <label for="allocatedHours">Number of Hours <span>*</span></label>
                         <select asp-for="AllocatedHoursOption"
                                 id="allocatedHours"
-                                class="form-select"
+                                class="form-control"
                                 required>
-
-                            <option value="">
-                                Select hours
-                            </option>
-
-                            <option value="Thirty">
-                                30 hours
-                            </option>
-
-                            <option value="FortyFive">
-                                45 hours
-                            </option>
-
-                            <option value="Sixty">
-                                60 hours
-                            </option>
-
+                            <option value="">Select hours</option>
+                            <option value="Thirty">30 hours</option>
+                            <option value="FortyFive">45 hours</option>
+                            <option value="Sixty">60 hours</option>
                         </select>
-
-                    </div>
-
-                    <span class="field-help">
-                        Teaching hours are fixed at 30, 45, or 60 hours per assignment.
-                    </span>
-
-                </div>
-
-
-                <!-- =================================================
-                     RATE
-                ================================================== -->
-
-                <div class="form-group">
-
-                    <label>
-                        Rate Per Hour
-                    </label>
-
-                    <div class="rate-box">
-
-                        <div class="rate-content">
-
-                            <div class="rate-icon">
-                                <i class="bi bi-cash-stack"></i>
-                            </div>
-
-                            <div>
-
-                                <div class="rate-label">
-                                    Rate determined by lecturer rank
-                                </div>
-
-                                <div class="rate-value"
-                                     id="rateDisplay">
-
-                                    RWF 0
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
                     </div>
 
                 </div>
 
+                <section class="summary">
 
-                <!-- =================================================
-                     TOTAL AMOUNT
-                ================================================== -->
-
-                <div class="form-group">
-
-                    <label>
-                        Total Amount
-                    </label>
-
-                    <div class="rate-box">
-
-                        <div class="rate-content">
-
-                            <div class="rate-icon">
-                                <i class="bi bi-calculator"></i>
-                            </div>
-
-                            <div>
-
-                                <div class="rate-label">
-                                    Rate &times; hours
-                                </div>
-
-                                <div class="rate-value"
-                                     id="totalDisplay">
-
-                                    RWF 0
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
+                    <div class="summary-item">
+                        <span class="summary-label">Rate Per Hour</span>
+                        <strong class="summary-value" id="rateDisplay">RWF 0</strong>
                     </div>
 
-                </div>
+                    <div class="summary-divider"></div>
 
+                    <div class="summary-item">
+                        <span class="summary-label">Total Amount</span>
+                        <strong class="summary-value summary-value-accent" id="totalDisplay">RWF 0</strong>
+                    </div>
+
+                </section>
 
             </div>
 
+            <footer class="form-actions">
 
-            <!-- =====================================================
-                 INFORMATION
-            ====================================================== -->
-
-            <div class="info-box">
-
-                <div class="info-icon">
-
-                    <i class="bi bi-info-circle-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <strong>
-                        Assignment and contract generation
-                    </strong>
-
-                    <p>
-                        The selected lecturer's academic rank determines the applicable
-                        hourly rate. Once the assignment is submitted, the system will
-                        generate the lecturer's academic engagement contract.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <!-- =====================================================
-                 ACTIONS
-            ====================================================== -->
-
-            <div class="actions">
-
-                <a href="/HOD/Index"
-                   class="cancel-button">
-
+                <a href="/HOD/Index" class="secondary-button">
                     Cancel
-
                 </a>
 
-                <button type="submit"
-                        class="generate-button">
-
+                <button type="submit" class="primary-button">
                     <i class="bi bi-file-earmark-plus"></i>
-
                     Generate Contract
-
                 </button>
 
-            </div>
-
+            </footer>
 
         </form>
 
     </section>
 
-</div>
+</section>
 
-
-<!-- =============================================================
-     LECTURER DATA
-============================================================== -->
+@section Scripts {
 
 <script>
 
     const lecturerData =
         @Html.Raw(JsonSerializer.Serialize(lecturerInformation));
 
-
-    const lecturerSelect =
-        document.getElementById("lecturerSelect");
-
-
-    const rankInput =
-        document.getElementById("rank");
-
-
-    const governmentIdInput =
-        document.getElementById("governmentId");
-
-
-    const rateDisplay =
-        document.getElementById("rateDisplay");
-
-
-    const totalDisplay =
-        document.getElementById("totalDisplay");
-
-
-    const allocatedHoursSelect =
-        document.getElementById("allocatedHours");
-
-
-    /* ============================================================
-       RATE BY ACADEMIC RANK
-    ============================================================ */
+    const lecturerSelect = document.getElementById("lecturerSelect");
+    const rankInput = document.getElementById("rank");
+    const governmentIdInput = document.getElementById("governmentId");
+    const rateDisplay = document.getElementById("rateDisplay");
+    const totalDisplay = document.getElementById("totalDisplay");
+    const allocatedHoursSelect = document.getElementById("allocatedHours");
 
     function getRateForRank(rank) {
 
         switch (rank) {
-
-            case "TutorialAssistant":
-                return 7000;
-
-            case "AssistantLecturer":
-                return 10000;
-
-            case "LecturerWithMasters":
-                return 14000;
-
-            case "LecturerWithPhD":
-                return 16000;
-
-            case "SeniorLecturer":
-                return 18000;
-
-            case "AssistantProfessor":
-                return 20000;
-
-            case "Professor":
-                return 25000;
-
-            default:
-                return 7000;
+            case "TutorialAssistant":     return 7000;
+            case "AssistantLecturer":     return 10000;
+            case "LecturerWithMasters":   return 14000;
+            case "LecturerWithPhD":       return 16000;
+            case "SeniorLecturer":        return 18000;
+            case "AssistantProfessor":    return 20000;
+            case "Professor":             return 25000;
+            default:                      return 7000;
         }
+
     }
-
-
-    /* ============================================================
-       HOURS FROM SELECTED OPTION
-    ============================================================ */
 
     function getSelectedHours() {
 
         switch (allocatedHoursSelect.value) {
-
-            case "Thirty":
-                return 30;
-
-            case "FortyFive":
-                return 45;
-
-            case "Sixty":
-                return 60;
-
-            default:
-                return 0;
+            case "Thirty":      return 30;
+            case "FortyFive":   return 45;
+            case "Sixty":       return 60;
+            default:            return 0;
         }
+
     }
-
-
-    /* ============================================================
-       FORMAT RANK
-    ============================================================ */
 
     function formatRank(rank) {
 
-        if (!rank) {
-            return "Not specified";
-        }
+        if (!rank) return "Not specified";
 
-        return rank.replace(
-            /([a-z])([A-Z])/g,
-            "$1 $2"
-        );
+        return rank.replace(/([a-z])([A-Z])/g, "$1 $2");
 
     }
 
-
-    /* ============================================================
-       UPDATE LECTURER INFORMATION
-    ============================================================ */
-
     function updateLecturer() {
 
-        const id =
-            lecturerSelect.value;
-
-
-        const lecturer =
-            lecturerData[id];
-
+        const id = lecturerSelect.value;
+        const lecturer = lecturerData[id];
 
         if (!lecturer) {
 
             rankInput.value = "";
-
-            governmentIdInput.value =
-                "Protected";
-
-            rateDisplay.textContent =
-                "RWF 0";
-
+            governmentIdInput.value = "Protected";
+            rateDisplay.textContent = "RWF 0";
             updateTotal(0);
 
             return;
+
         }
 
+        rankInput.value = formatRank(lecturer.Rank);
+        governmentIdInput.value = lecturer.GovernmentId;
 
-        rankInput.value =
-            formatRank(lecturer.Rank);
+        const rate = getRateForRank(lecturer.Rank);
 
-
-        governmentIdInput.value =
-            lecturer.GovernmentId;
-
-
-        const rate =
-            getRateForRank(lecturer.Rank);
-
-
-        rateDisplay.textContent =
-            "RWF " + rate.toLocaleString();
-
+        rateDisplay.textContent = "RWF " + rate.toLocaleString();
 
         updateTotal(rate);
 
     }
 
-
-    /* ============================================================
-       UPDATE TOTAL AMOUNT
-    ============================================================ */
-
     function updateTotal(rate) {
 
-        const hours =
-            getSelectedHours();
+        const hours = getSelectedHours();
+        const total = rate * hours;
 
-
-        const total =
-            rate * hours;
-
-
-        totalDisplay.textContent =
-            "RWF " + total.toLocaleString();
+        totalDisplay.textContent = "RWF " + total.toLocaleString();
 
     }
-
-
-    /* ============================================================
-       LECTURER CHANGE EVENT
-    ============================================================ */
 
     if (lecturerSelect) {
 
-        lecturerSelect.addEventListener(
-            "change",
-            updateLecturer
-        );
+        lecturerSelect.addEventListener("change", updateLecturer);
 
         updateLecturer();
+
     }
-
-
-    /* ============================================================
-       HOURS CHANGE EVENT
-    ============================================================ */
 
     if (allocatedHoursSelect) {
 
-        allocatedHoursSelect.addEventListener(
-            "change",
-            function () {
+        allocatedHoursSelect.addEventListener("change", function () {
 
-                const id =
-                    lecturerSelect.value;
+            const id = lecturerSelect.value;
+            const lecturer = lecturerData[id];
 
+            const rate = lecturer ? getRateForRank(lecturer.Rank) : 0;
 
-                const lecturer =
-                    lecturerData[id];
+            updateTotal(rate);
 
-
-                const rate =
-                    lecturer
-                        ? getRateForRank(lecturer.Rank)
-                        : 0;
-
-
-                updateTotal(rate);
-
-            }
-        );
+        });
 
     }
 
 </script>
+
+}

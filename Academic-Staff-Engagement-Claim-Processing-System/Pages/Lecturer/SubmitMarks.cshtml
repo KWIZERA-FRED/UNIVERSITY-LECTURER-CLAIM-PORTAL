@@ -14,89 +14,40 @@
 
 <section class="submit-marks-page">
 
-    <header class="marks-page-header">
-
-        <div class="marks-heading">
-
-            <span class="page-eyebrow">
-                Lecturer Portal
-            </span>
-
-            <h1>
-                Submit Marks
-            </h1>
-
-            <p>
-                Upload the completed marks sheet for one of your assigned courses.
-            </p>
-
-        </div>
-
+    <header class="page-header">
+        <h1>Submit Marks</h1>
+        <p>Upload the completed marks sheet for one of your assigned courses.</p>
     </header>
-
 
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {
         <div class="marks-alert marks-alert-error">
-
             <span class="marks-alert-icon">
                 <i class="bi bi-exclamation-circle"></i>
             </span>
 
-            <span>
-                @Model.ErrorMessage
-            </span>
-
+            <span>@Model.ErrorMessage</span>
         </div>
     }
-
 
     @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
     {
         <div class="marks-alert marks-alert-success">
-
             <span class="marks-alert-icon">
                 <i class="bi bi-check-circle"></i>
             </span>
 
-            <span>
-                @Model.SuccessMessage
-            </span>
-
+            <span>@Model.SuccessMessage</span>
         </div>
     }
 
-
     <section class="marks-form-card">
 
-        <div class="marks-section-header">
+        <header class="marks-section-header">
+            <h2>Marks Submission</h2>
+        </header>
 
-            <div class="marks-section-icon">
-                <i class="bi bi-file-earmark-spreadsheet-fill"></i>
-            </div>
-
-            <div>
-
-                <span class="section-eyebrow">
-                    Academic Records
-                </span>
-
-                <h2>
-                    Academic Marks Submission
-                </h2>
-
-                <p>
-                    Select your assigned course. The academic period is automatically taken
-                    from the course assignment.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <form method="post"
-              enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data">
 
             @Html.AntiForgeryToken()
 
@@ -104,22 +55,14 @@
 
                 <div class="form-grid">
 
-                    <!-- =================================================
-                         COURSE
-                         ================================================= -->
-
                     <div class="form-group form-group-full">
 
-                        <label asp-for="CourseAssignmentId">
-                            Course
-                        </label>
+                        <label asp-for="CourseAssignmentId">Course</label>
 
                         <select asp-for="CourseAssignmentId"
                                 id="courseAssignment">
 
-                            <option value="0">
-                                Select course
-                            </option>
+                            <option value="0">Select course</option>
 
                             @foreach (var assignment in Model.Assignments)
                             {
@@ -138,78 +81,61 @@
 
                     </div>
 
-
                     <div class="form-group">
 
-                        <label>
-                            Academic Year
-                        </label>
+                        <label>Academic Year</label>
 
                         <input type="text"
                                id="academicYear"
-                               class="form-control"
                                readonly
-                               placeholder="Select a course" />
+                               placeholder="—" />
 
                     </div>
 
-
                     <div class="form-group">
 
-                        <label>
-                            Semester
-                        </label>
+                        <label>Semester</label>
 
                         <input type="text"
                                id="semester"
-                               class="form-control"
                                readonly
-                               placeholder="Select a course" />
+                               placeholder="—" />
 
                     </div>
 
                     <div class="form-group">
 
-                        <label>
-                            Session
-                        </label>
+                        <label>Session</label>
 
                         <input type="text"
                                id="session"
-                               class="form-control"
                                readonly
-                               placeholder="Select a course" />
+                               placeholder="—" />
 
                     </div>
 
                     <div class="form-group">
 
-                        <label>
-                            Campus
-                        </label>
+                        <label>Campus</label>
 
                         <input type="text"
                                id="campus"
-                               class="form-control"
                                readonly
-                               placeholder="Select a course" />
+                               placeholder="—" />
 
                     </div>
 
                 </div>
+
                 <div class="form-group upload-form-group">
 
-                    <label asp-for="MarksFile">
-                        Marks Excel Sheet
-                    </label>
+                    <label asp-for="MarksFile">Marks Excel Sheet</label>
 
                     <div class="upload-area"
                          onclick="document.getElementById('marksFile').click();">
 
                         <div class="upload-icon">
-
                             <i class="bi bi-file-earmark-excel"></i>
-
                         </div>
 
                         <div class="upload-title">
@@ -217,7 +143,7 @@
                         </div>
 
                         <div class="upload-description">
-                            Select the completed .xlsx marks file from your computer.
+                            Select the completed .xlsx file from your computer.
                         </div>
 
                         <div class="file-input">
@@ -236,81 +162,14 @@
                     </div>
 
                 </div>
-                <div class="format-box">
-
-                    <div class="format-title">
-
-                        <i class="bi bi-info-circle-fill"></i>
-
-                        <span>
-                            Required Excel Format
-                        </span>
-
-                    </div>
-
-                    <p>
-                        Your Excel file should contain the student information and
-                        marks required by the university. The system will validate
-                        the uploaded sheet before accepting the submission.
-                    </p>
-
-                    <div class="columns">
-
-                        <span class="column-tag">
-                            Student ID
-                        </span>
-
-                        <span class="column-tag">
-                            Student Name
-                        </span>
-
-                        <span class="column-tag">
-                            CAT
-                        </span>
-
-                        <span class="column-tag">
-                            Assignment
-                        </span>
-
-                        <span class="column-tag">
-                            Exam
-                        </span>
-
-                        <span class="column-tag">
-                            Total
-                        </span>
-
-                        <span class="column-tag">
-                            Grade
-                        </span>
-
-                    </div>
-
-                </div>
-                <div class="security-note">
-
-                    <span class="security-icon">
-                        <i class="bi bi-shield-check"></i>
-                    </span>
-
-                    <span>
-                        Your submission is linked to your authenticated lecturer account.
-                        The uploaded file is stored using a server-generated private storage
-                        key and is protected by a SHA-256 integrity hash.
-                    </span>
-
-                </div>
 
             </div>
+
             <div class="marks-form-actions">
 
-                <button type="submit"
-                        class="submit-marks-button">
-
+                <button type="submit" class="submit-marks-button">
                     <i class="bi bi-cloud-arrow-up"></i>
-
                     Submit Marks
-
                 </button>
 
             </div>
@@ -321,109 +180,54 @@
 
 </section>
 
-
 @section Scripts {
 
     <script>
         function showFileName(input) {
+            const fileName = document.getElementById("fileName");
 
-            const fileName =
-                document.getElementById("fileName");
-
-            if (input.files &&
-                input.files.length > 0) {
-
-                fileName.textContent =
-                    "Selected: " +
-                    input.files[0].name;
-
-            }
-            else {
-
+            if (input.files && input.files.length > 0) {
+                fileName.textContent = "Selected: " + input.files[0].name;
+            } else {
                 fileName.textContent = "";
-
             }
         }
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
+        document.addEventListener("DOMContentLoaded", function () {
 
-                const courseSelect =
-                    document.getElementById(
-                        "courseAssignment"
-                    );
+            const courseSelect = document.getElementById("courseAssignment");
+            const academicYear = document.getElementById("academicYear");
+            const semester = document.getElementById("semester");
+            const session = document.getElementById("session");
+            const campus = document.getElementById("campus");
 
-                const academicYear =
-                    document.getElementById(
-                        "academicYear"
-                    );
+            function updateAssignmentDetails() {
 
-                const semester =
-                    document.getElementById(
-                        "semester"
-                    );
+                const selectedOption =
+                    courseSelect.options[courseSelect.selectedIndex];
 
-                const session =
-                    document.getElementById(
-                        "session"
-                    );
+                if (!selectedOption ||
+                    !selectedOption.value ||
+                    selectedOption.value === "0") {
 
-                const campus =
-                    document.getElementById(
-                        "campus"
-                    );
+                    academicYear.value = "";
+                    semester.value = "";
+                    session.value = "";
+                    campus.value = "";
 
-
-                function updateAssignmentDetails() {
-
-                    const selectedOption =
-                        courseSelect.options[
-                            courseSelect.selectedIndex
-                        ];
-
-
-                    if (!selectedOption ||
-                        !selectedOption.value ||
-                        selectedOption.value === "0") {
-
-                        academicYear.value = "";
-                        semester.value = "";
-                        session.value = "";
-                        campus.value = "";
-
-                        return;
-                    }
-
-
-                    academicYear.value =
-                        selectedOption.dataset.academicYear || "";
-
-
-                    semester.value =
-                        selectedOption.dataset.semester || "";
-
-
-                    session.value =
-                        selectedOption.dataset.session || "";
-
-
-                    campus.value =
-                        selectedOption.dataset.campus || "";
+                    return;
                 }
 
-
-                courseSelect.addEventListener(
-                    "change",
-                    updateAssignmentDetails
-                );
-
-
-                updateAssignmentDetails();
-
+                academicYear.value = selectedOption.dataset.academicYear || "";
+                semester.value = selectedOption.dataset.semester || "";
+                session.value = selectedOption.dataset.session || "";
+                campus.value = selectedOption.dataset.campus || "";
             }
-        );
 
+            courseSelect.addEventListener("change", updateAssignmentDetails);
+
+            updateAssignmentDetails();
+        });
     </script>
 
 }

@@ -1,236 +1,215 @@
+/* ================================================================
+   UNILAK ASECPS
+   LECTURER SUBMIT MARKS
+   ================================================================
+   Minimal & professional. Matches the Dashboard & Contracts style.
+   ================================================================ */
+
+
+/* ================================================================
+   DESIGN TOKENS
+   ================================================================ */
+
 :root {
-    --primary: #0b2b3c;
-    --primary-light: #1a3f52;
-    --primary-dark: #071e2a;
-    --accent: #2a7f5e;
-    --accent-dark: #1d6248;
-    --accent-light: #e2f0ea;
-    --accent-soft: #f0f7f4;
+    --primary: #0f2742;
+    --primary-light: #183b60;
+    --primary-dark: #091c31;
+    --accent: #059669;
+    --accent-dark: #047857;
+    --accent-light: #a7f3d0;
+    --accent-soft: #ecfdf5;
     --surface: #ffffff;
-    --surface-raised: #fafdff;
-    --background: #f4f8fb;
+    --surface-raised: #fafbfc;
+    --background: #f5f7fb;
     --border: #e2e8f0;
-    --border-light: #edf2f7;
-    --border-strong: #cbd8e3;
-    --text: #1a2a3a;
-    --text-secondary: #486070;
-    --text-muted: #6c8293;
+    --border-light: #edf1f5;
+    --border-strong: #cbd5e1;
+    --text: #172033;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
     --text-inverse: #ffffff;
-    --success: #2a7f5e;
-    --success-bg: #e2f0ea;
-    --success-border: #c5e1d4;
-    --danger: #c23b3b;
-    --danger-bg: #fdf0f0;
-    --danger-border: #f2cccc;
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 20px;
+    --success: #059669;
+    --success-bg: #ecfdf5;
+    --success-border: #a7f3d0;
+    --danger: #dc2626;
+    --danger-dark: #b91c1c;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --shadow-xs: 0 1px 2px rgba(15, 39, 66, 0.04);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
     --radius-full: 9999px;
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
-    --shadow-sm: 0 2px 6px rgba(0, 20, 20, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
-    --shadow-md: 0 8px 18px -6px rgba(20, 50, 60, 0.12), 0 4px 8px -3px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 16px 32px -12px rgba(20, 50, 60, 0.18), 0 6px 12px -4px rgba(0, 0, 0, 0.06);
-    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-secondary: 'Plus Jakarta Sans', 'Inter', sans-serif;
-    --transition-fast: 0.15s ease;
-    --transition-base: 0.2s ease;
-    --transition-slow: 0.3s ease;
+    --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --transition: 160ms ease;
 }
 
 
-/* =========================================================
-   PAGE
-   ========================================================= */
+/* ================================================================
+   PAGE SHELL
+   ================================================================ */
 
 .submit-marks-page {
     width: 100%;
-    max-width: 1150px;
+    max-width: 900px;
     margin: 0 auto;
+    padding: 28px clamp(24px, 3vw, 48px) 50px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
+    color: var(--text);
+    font-family: var(--font-primary);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+    .submit-marks-page *,
+    .submit-marks-page *::before,
+    .submit-marks-page *::after {
+        box-sizing: border-box;
+    }
 
-/* =========================================================
+    .submit-marks-page button,
+    .submit-marks-page input,
+    .submit-marks-page select {
+        font: inherit;
+    }
+
+
+/* ================================================================
    PAGE HEADER
-   ========================================================= */
+   ================================================================ */
 
-.marks-page-header {
+.page-header {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 4px;
 }
 
-.marks-heading {
-    max-width: 760px;
-}
+    .page-header h1 {
+        margin: 0;
+        color: var(--primary);
+        font-family: var(--font-secondary);
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.6px;
+        line-height: 1.2;
+    }
 
-.page-eyebrow {
-    display: block;
-    margin-bottom: 7px;
-    color: var(--accent);
-    font-family: var(--font-secondary);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1.6px;
-    line-height: 1.4;
-    text-transform: uppercase;
-}
-
-.marks-page-header h1 {
-    margin: 0;
-    color: var(--primary);
-    font-family: var(--font-secondary);
-    font-size: 34px;
-    font-weight: 800;
-    line-height: 1.15;
-    letter-spacing: -0.7px;
-}
-
-.marks-page-header p {
-    max-width: 650px;
-    margin: 9px 0 0;
-    color: var(--text-secondary);
-    font-size: 13px;
-    line-height: 1.7;
-}
+    .page-header p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 450;
+        line-height: 1.5;
+        max-width: 640px;
+    }
 
 
-/* =========================================================
+/* ================================================================
    ALERTS
-   ========================================================= */
+   ================================================================ */
 
 .marks-alert {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 16px;
+    padding: 12px 16px;
     border: 1px solid;
-    border-radius: var(--radius-md);
-    font-size: 12px;
-    font-weight: 600;
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
     line-height: 1.5;
 }
 
 .marks-alert-icon {
-    width: 30px;
-    height: 30px;
-    flex: 0 0 30px;
-    display: flex;
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    border-radius: var(--radius-sm);
     font-size: 14px;
 }
 
 .marks-alert-error {
     background: var(--danger-bg);
     border-color: var(--danger-border);
-    color: var(--danger);
+    color: var(--danger-dark);
 }
 
     .marks-alert-error .marks-alert-icon {
-        background: #f8dddd;
+        background: var(--surface);
         color: var(--danger);
     }
 
 .marks-alert-success {
     background: var(--success-bg);
     border-color: var(--success-border);
-    color: var(--success);
+    color: var(--accent-dark);
 }
 
     .marks-alert-success .marks-alert-icon {
-        background: #cfe7da;
-        color: var(--success);
+        background: var(--surface);
+        color: var(--accent);
     }
 
 
-/* =========================================================
+/* ================================================================
    FORM CARD
-   ========================================================= */
+   ================================================================ */
 
 .marks-form-card {
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-md);
+    overflow: hidden;
 }
 
-
-/* =========================================================
-   SECTION HEADER
-   ========================================================= */
-
 .marks-section-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 24px 28px;
-    background: var(--surface-raised);
+    padding: 16px 22px;
     border-bottom: 1px solid var(--border-light);
 }
 
-.marks-section-icon {
-    width: 42px;
-    height: 42px;
-    flex: 0 0 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-md);
-    background: var(--accent-light);
-    color: var(--accent);
-    font-size: 19px;
-}
-
-.section-eyebrow {
-    display: block;
-    margin-bottom: 3px;
-    color: var(--accent);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 1.2px;
-    line-height: 1.4;
-    text-transform: uppercase;
-}
-
-.marks-section-header h2 {
-    margin: 0;
-    color: var(--primary);
-    font-family: var(--font-secondary);
-    font-size: 17px;
-    font-weight: 800;
-    line-height: 1.35;
-}
-
-.marks-section-header p {
-    margin: 5px 0 0;
-    color: var(--text-muted);
-    font-size: 11px;
-    line-height: 1.6;
-}
+    .marks-section-header h2 {
+        margin: 0;
+        color: var(--primary);
+        font-family: var(--font-secondary);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+        line-height: 1.3;
+    }
 
 
-/* =========================================================
+/* ================================================================
    FORM BODY
-   ========================================================= */
+   ================================================================ */
 
 .marks-form-body {
-    padding: 28px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
+    gap: 16px;
 }
 
 .form-group {
     min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .form-group-full {
@@ -239,27 +218,27 @@
 
 .form-group > label {
     display: block;
-    margin-bottom: 8px;
-    color: var(--text);
-    font-size: 11px;
-    font-weight: 800;
+    margin-bottom: 6px;
+    color: var(--text-secondary);
+    font-size: 11.5px;
+    font-weight: 600;
     line-height: 1.4;
 }
 
 .form-group select,
-.form-group input[type="file"] {
+.form-group input {
     width: 100%;
-    min-height: 44px;
-    padding: 11px 13px;
+    min-height: 40px;
+    padding: 9px 12px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     outline: none;
     background: var(--surface);
     color: var(--text);
     font-family: var(--font-primary);
-    font-size: 12px;
+    font-size: 12.5px;
     line-height: 1.4;
-    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+    transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .form-group select {
@@ -268,68 +247,73 @@
 }
 
     .form-group select:hover,
-    .form-group input[type="file"]:hover {
+    .form-group input:hover:not([readonly]) {
         border-color: var(--border-strong);
     }
 
     .form-group select:focus,
-    .form-group input[type="file"]:focus {
+    .form-group input:focus {
         border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(42, 127, 94, 0.1);
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
     }
 
-.upload-form-group {
-    margin-top: 24px;
+.form-group input[readonly] {
+    background: var(--surface-raised);
+    color: var(--text-secondary);
+    cursor: default;
 }
 
 
-/* =========================================================
+/* ================================================================
    UPLOAD AREA
-   ========================================================= */
+   ================================================================ */
+
+.upload-form-group {
+    margin-top: 4px;
+}
 
 .upload-area {
-    padding: 32px 26px;
+    padding: 28px 22px;
     border: 1.5px dashed var(--border-strong);
-    border-radius: var(--radius-lg);
-    background: var(--surface-raised);
+    border-radius: var(--radius-md);
+    background: var(--surface);
     text-align: center;
     cursor: pointer;
-    transition: border-color var(--transition-base), background var(--transition-base), transform var(--transition-base);
+    transition: border-color var(--transition), background var(--transition);
 }
 
     .upload-area:hover {
         border-color: var(--accent);
         background: var(--accent-soft);
-        transform: translateY(-1px);
     }
 
 .upload-icon {
-    width: 58px;
-    height: 58px;
-    margin: 0 auto 14px;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: var(--accent-light);
+    background: var(--accent-soft);
     color: var(--accent);
-    font-size: 25px;
+    font-size: 22px;
 }
 
 .upload-title {
     color: var(--primary);
     font-family: var(--font-secondary);
-    font-size: 14px;
-    font-weight: 800;
+    font-size: 13px;
+    font-weight: 700;
     line-height: 1.4;
 }
 
 .upload-description {
-    max-width: 440px;
-    margin: 6px auto 18px;
+    max-width: 420px;
+    margin: 4px auto 14px;
     color: var(--text-muted);
-    font-size: 10px;
-    line-height: 1.6;
+    font-size: 11.5px;
+    line-height: 1.55;
 }
 
 .file-input {
@@ -339,115 +323,36 @@
 
     .file-input input {
         max-width: 340px;
-        padding: 8px;
+        padding: 7px;
         border: 1px solid var(--border);
         border-radius: var(--radius-sm);
         background: var(--surface);
         color: var(--text-secondary);
         font-family: var(--font-primary);
-        font-size: 10px;
+        font-size: 11px;
         cursor: pointer;
     }
 
 #fileName {
-    min-height: 17px;
-    margin-top: 10px;
-    color: var(--accent);
-    font-size: 10px;
-    font-weight: 700;
-}
-
-
-/* =========================================================
-   FORMAT INFORMATION
-   ========================================================= */
-
-.format-box {
-    margin-top: 22px;
-    padding: 18px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--surface-raised);
-}
-
-.format-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-    color: var(--primary);
-    font-family: var(--font-secondary);
+    min-height: 16px;
+    margin-top: 8px;
+    color: var(--accent-dark);
     font-size: 11px;
-    font-weight: 800;
-}
-
-    .format-title i {
-        color: var(--accent);
-        font-size: 14px;
-    }
-
-.format-box p {
-    max-width: 780px;
-    margin: 0;
-    color: var(--text-muted);
-    font-size: 10px;
-    line-height: 1.7;
-}
-
-.columns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    margin-top: 13px;
-}
-
-.column-tag {
-    display: inline-flex;
-    align-items: center;
-    min-height: 27px;
-    padding: 5px 9px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--surface);
-    color: var(--text-secondary);
-    font-size: 9px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 
-/* =========================================================
-   SECURITY NOTE
-   ========================================================= */
-
-.security-note {
-    display: flex;
-    align-items: flex-start;
-    gap: 9px;
-    margin-top: 18px;
-    color: var(--text-muted);
-    font-size: 10px;
-    line-height: 1.7;
-}
-
-.security-icon {
-    flex: 0 0 auto;
-    color: var(--accent);
-    font-size: 14px;
-    line-height: 1.4;
-}
-
-
-/* =========================================================
+/* ================================================================
    FORM ACTIONS
-   ========================================================= */
+   ================================================================ */
 
 .marks-form-actions {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    padding: 18px 28px;
+    padding: 16px 22px;
     border-top: 1px solid var(--border-light);
-    background: var(--surface-raised);
+    background: var(--surface);
 }
 
 .submit-marks-button {
@@ -455,28 +360,26 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-height: 42px;
-    padding: 0 20px;
-    border: 0;
-    border-radius: var(--radius-full);
+    min-height: 38px;
+    padding: 0 18px;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
     background: var(--accent);
     color: var(--text-inverse);
-    font-family: var(--font-primary);
-    font-size: 11px;
-    font-weight: 800;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: var(--shadow-xs);
-    transition: background var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
+    transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
 
     .submit-marks-button:hover {
         background: var(--accent-dark);
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-sm);
+        border-color: var(--accent-dark);
     }
 
     .submit-marks-button:active {
-        transform: translateY(0);
+        transform: scale(0.99);
     }
 
     .submit-marks-button i {
@@ -484,110 +387,78 @@
     }
 
 
-/* =========================================================
+/* ================================================================
    FOCUS ACCESSIBILITY
-   ========================================================= */
+   ================================================================ */
 
 .submit-marks-page button:focus-visible,
 .submit-marks-page select:focus-visible,
 .submit-marks-page input:focus-visible {
-    outline: 3px solid rgba(42, 127, 94, 0.2);
+    outline: 2px solid rgba(5, 150, 105, 0.35);
     outline-offset: 2px;
 }
 
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 900px) {
-
-    .submit-marks-page {
-        max-width: none;
-    }
-
-    .marks-page-header h1 {
-        font-size: 30px;
-    }
-
-    .marks-form-body {
-        padding: 24px;
-    }
-
-    .marks-section-header {
-        padding: 22px 24px;
-    }
-
-    .marks-form-actions {
-        padding: 16px 24px;
-    }
-}
-
+/* ================================================================
+   RESPONSIVE — TABLET
+   ================================================================ */
 
 @media (max-width: 700px) {
 
-    .marks-page-header h1 {
-        font-size: 27px;
+    .submit-marks-page {
+        padding: 22px 18px 40px;
+        gap: 16px;
     }
 
-    .marks-page-header p {
-        font-size: 12px;
+    .page-header h1 {
+        font-size: 22px;
     }
 
     .form-grid {
         grid-template-columns: 1fr;
-        gap: 18px;
+        gap: 14px;
     }
 
     .form-group-full {
         grid-column: auto;
     }
 
-    .marks-section-header {
-        gap: 11px;
-    }
-
-    .marks-section-icon {
-        width: 38px;
-        height: 38px;
-        flex-basis: 38px;
-        font-size: 17px;
-    }
-
-    .marks-section-header h2 {
-        font-size: 15px;
-    }
-
-    .upload-area {
-        padding: 27px 18px;
+    .marks-form-body {
+        padding: 18px;
     }
 }
 
 
-@media (max-width: 500px) {
+/* ================================================================
+   RESPONSIVE — SMALL MOBILE
+   ================================================================ */
+
+@media (max-width: 420px) {
 
     .submit-marks-page {
-        gap: 18px;
+        padding: 18px 12px 32px;
     }
 
-    .marks-page-header h1 {
-        font-size: 24px;
+    .page-header h1 {
+        font-size: 20px;
     }
 
-    .marks-form-card {
-        border-radius: var(--radius-md);
-    }
-
-    .marks-section-header {
-        padding: 19px;
+    .marks-section-header,
+    .marks-form-actions {
+        padding-left: 14px;
+        padding-right: 14px;
     }
 
     .marks-form-body {
-        padding: 19px;
+        padding: 14px;
     }
 
-    .marks-form-actions {
-        padding: 15px 19px;
+    .upload-area {
+        padding: 22px 14px;
+    }
+
+    .file-input input {
+        width: 100%;
     }
 
     .marks-form-actions {
@@ -597,45 +468,29 @@
     .submit-marks-button {
         width: 100%;
     }
-
-    .upload-area {
-        padding: 24px 14px;
-    }
-
-    .file-input input {
-        width: 100%;
-    }
-
-    .security-note {
-        font-size: 9px;
-    }
 }
 
 
-/* =========================================================
+/* ================================================================
    REDUCED MOTION
-   ========================================================= */
+   ================================================================ */
 
 @media (prefers-reduced-motion: reduce) {
 
-    .upload-area,
-    .submit-marks-button,
-    .form-group select,
-    .form-group input[type="file"] {
-        transition: none;
+    .submit-marks-page *,
+    .submit-marks-page *::before,
+    .submit-marks-page *::after {
+        transition: none !important;
+        animation: none !important;
     }
 }
 
 
-/* =========================================================
+/* ================================================================
    PRINT
-   ========================================================= */
+   ================================================================ */
 
 @media print {
-
-    .marks-page-header {
-        margin-bottom: 16px;
-    }
 
     .marks-form-card {
         box-shadow: none;

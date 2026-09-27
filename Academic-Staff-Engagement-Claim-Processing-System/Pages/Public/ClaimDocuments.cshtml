@@ -1,31 +1,149 @@
 @page
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.Public.ClaimDocumentsModel
+
 @{
-    ViewData["Title"] = "UNILAK Claim Documents";
+    ViewData["Title"] = "Claim Documents";
+    Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
 }
 
-<main class="container py-5" style="max-width:760px">
-    <section class="card shadow-sm border-success">
-        <div class="card-body p-4 p-md-5">
-            <div class="d-flex justify-content-between gap-3 align-items-start">
-                <div>
-                    <p class="text-success fw-bold mb-2">UNILAK</p>
-                    <h1 class="h3">Claim documents</h1>
-                    <p class="text-muted mb-0">@Model.Documents!.ClaimReference · @Model.Documents.ContractReference</p>
-                </div>
-                <img src="@Model.QrCodeDataUrl" width="92" height="92" alt="QR code for these claim documents" />
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/Public/claim-documents.css"
+          asp-append-version="true" />
+}
+
+<section class="claim-documents-page">
+
+    <header class="cd-page-header">
+
+        <a class="cd-back-button" href="/Lecturer/Claims">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to Claims</span>
+        </a>
+
+    </header>
+
+    @if (Model.Documents is null)
+    {
+        <div class="cd-empty">
+
+            <div class="cd-empty-icon">
+                <i class="bi bi-file-earmark-x"></i>
             </div>
-            <hr class="my-4" />
-            <dl class="row mb-4">
-                <dt class="col-sm-4">Lecturer</dt><dd class="col-sm-8">@Model.Documents.LecturerName</dd>
-                <dt class="col-sm-4">Course</dt><dd class="col-sm-8">@Model.Documents.CourseCode - @Model.Documents.CourseTitle</dd>
-                <dt class="col-sm-4">Claimed hours</dt><dd class="col-sm-8">@Model.Documents.Hours.ToString("N1")</dd>
-                <dt class="col-sm-4">Status</dt><dd class="col-sm-8">@Model.Documents.Status</dd>
-            </dl>
-            <div class="d-grid gap-2">
-                <a class="btn btn-success" href="?handler=Pdf&token=@Model.Documents.Token&document=contract">Download signed contract PDF</a>
-                <a class="btn btn-outline-success" href="?handler=Pdf&token=@Model.Documents.Token&document=claim-letter">Download claim letter PDF</a>
-            </div>
+
+            <h1>Documents not found</h1>
+
+            <p>
+                The claim documents you are trying to access do not exist
+                or the access link has expired.
+            </p>
+
         </div>
-    </section>
-</main>
+    }
+    else
+    {
+        var documents = Model.Documents;
+
+        <article class="cd-card">
+
+            <header class="cd-header">
+
+                <div class="cd-header-main">
+
+                    <span class="cd-brand">UNILAK</span>
+
+                    <h1>Claim Documents</h1>
+
+                    <p>
+                        @documents.ClaimReference
+                        <span class="cd-separator">·</span>
+                        @documents.ContractReference
+                    </p>
+
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.QrCodeDataUrl))
+                {
+                    <div class="cd-qr">
+                        <img src="@Model.QrCodeDataUrl"
+                             alt="QR code for these claim documents"
+                             width="96"
+                             height="96" />
+                    </div>
+                }
+
+            </header>
+
+            <section class="cd-details">
+
+                <div class="cd-detail">
+                    <span class="cd-detail-label">Lecturer</span>
+                    <span class="cd-detail-value">@documents.LecturerName</span>
+                </div>
+
+                <div class="cd-detail">
+                    <span class="cd-detail-label">Course</span>
+                    <span class="cd-detail-value">
+                        @documents.CourseCode — @documents.CourseTitle
+                    </span>
+                </div>
+
+                <div class="cd-detail">
+                    <span class="cd-detail-label">Claimed Hours</span>
+                    <span class="cd-detail-value">@documents.Hours.ToString("N1")</span>
+                </div>
+
+                <div class="cd-detail">
+                    <span class="cd-detail-label">Status</span>
+                    <span class="cd-detail-value">@documents.Status</span>
+                </div>
+
+            </section>
+
+            <footer class="cd-actions">
+
+                <a class="cd-download cd-download-primary"
+                   href="?handler=Pdf&token=@documents.Token&document=contract">
+
+                    <i class="bi bi-file-earmark-pdf"></i>
+
+                    <div class="cd-download-text">
+                        <strong>Signed Contract</strong>
+                        <span>Download PDF</span>
+                    </div>
+
+                    <i class="bi bi-download cd-download-icon"></i>
+
+                </a>
+
+                <a class="cd-download cd-download-secondary"
+                   href="?handler=Pdf&token=@documents.Token&document=claim-letter">
+
+                    <i class="bi bi-file-earmark-text"></i>
+
+                    <div class="cd-download-text">
+                        <strong>Claim Letter</strong>
+                        <span>Download PDF</span>
+                    </div>
+
+                    <i class="bi bi-download cd-download-icon"></i>
+
+                </a>
+
+            </footer>
+
+            <p class="cd-footer">
+
+                <i class="bi bi-shield-check"></i>
+
+                <span>
+                    These documents are served through a secure verification link.
+                    Scan the QR code or share this URL to verify the claim.
+                </span>
+
+            </p>
+
+        </article>
+    }
+
+</section>

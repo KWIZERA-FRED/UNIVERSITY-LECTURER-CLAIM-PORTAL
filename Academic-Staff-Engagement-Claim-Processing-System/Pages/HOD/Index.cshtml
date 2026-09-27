@@ -14,514 +14,104 @@
 
 <div class="dashboard-page">
 
-    <!-- PAGE HEADER -->
+    <header class="page-header">
+        <h1>Welcome, @Model.HodName</h1>
+        <p>@Model.HodDepartment Department overview and pending academic activities.</p>
+    </header>
 
-    <div class="page-header">
+    <section class="stats-grid">
 
-        <div class="page-header-content">
-
-            <div class="page-title-group">
-
-                <div class="page-eyebrow">
-                    <i class="bi bi-grid-1x2-fill"></i>
-                    HOD Dashboard
-                </div>
-
-                <h1>Welcome, @Model.HodName</h1>
-
-                <p>
-                    Department overview and pending academic activities.
-                </p>
-
+        <a href="/HOD/Contracts" class="stat-card stat-card-blue">
+            <div class="stat-icon">
+                <i class="bi bi-file-earmark-text-fill"></i>
             </div>
+            <div class="stat-value">@Model.ContractsToSign</div>
+            <span class="stat-label">Contracts to Sign</span>
+        </a>
 
-            <div class="department-card">
-
-                <div class="department-icon">
-                    <i class="bi bi-building"></i>
-                </div>
-
-                <div>
-                    <span>Department</span>
-                    <strong>@Model.HodDepartment</strong>
-                </div>
-
+        <a href="/HOD/Contracts" class="stat-card stat-card-green">
+            <div class="stat-icon">
+                <i class="bi bi-file-earmark-check-fill"></i>
             </div>
+            <div class="stat-value">@Model.ContractsToReview</div>
+            <span class="stat-label">Active Contracts</span>
+        </a>
 
-        </div>
-
-    </div>
-
-
-    <!-- STATISTICS -->
-
-    <div class="stats-grid">
-
-        <div class="stat-card">
-
-            <div class="stat-card-top">
-
-                <div class="stat-icon contracts">
-                    <i class="bi bi-file-earmark-text"></i>
-                </div>
-
-                <span class="stat-label">
-                    Contracts to Sign
-                </span>
-
+        <a href="/HOD/Claims" class="stat-card stat-card-purple">
+            <div class="stat-icon">
+                <i class="bi bi-receipt"></i>
             </div>
+            <div class="stat-value">@Model.ClaimsReceived</div>
+            <span class="stat-label">Claims Received</span>
+        </a>
 
-            <div class="stat-value">
-                @Model.ContractsToSign
+        <a href="/HOD/Staff" class="stat-card stat-card-orange">
+            <div class="stat-icon">
+                <i class="bi bi-people-fill"></i>
             </div>
-
-            <div class="stat-footer">
-
-                <span>
-                    <i class="bi bi-clock"></i>
-                    Pending
-                </span>
-
-                <a asp-page="/HOD/Contracts">
-                    View
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <div class="stat-card-top">
-
-                <div class="stat-icon active">
-                    <i class="bi bi-file-earmark-check"></i>
-                </div>
-
-                <span class="stat-label">
-                    Active Contracts
-                </span>
-
-            </div>
-
-            <div class="stat-value">
-                @Model.ContractsToReview
-            </div>
-
-            <div class="stat-footer">
-
-                <span>
-                    <i class="bi bi-check-circle"></i>
-                    Active
-                </span>
-
-                <a asp-page="/HOD/Contracts">
-                    View
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <div class="stat-card-top">
-
-                <div class="stat-icon claims">
-                    <i class="bi bi-receipt"></i>
-                </div>
-
-                <span class="stat-label">
-                    Claims Received
-                </span>
-
-            </div>
-
-            <div class="stat-value">
-                @Model.ClaimsReceived
-            </div>
-
-            <div class="stat-footer">
-
-                <span>
-                    <i class="bi bi-hourglass-split"></i>
-                    Pending
-                </span>
-
-                <a asp-page="/HOD/Claims">
-                    Review
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <div class="stat-card-top">
-
-                <div class="stat-icon staff">
-                    <i class="bi bi-people"></i>
-                </div>
-
-                <span class="stat-label">
-                    Academic Staff
-                </span>
-
-            </div>
-
-            <div class="stat-value">
-                @Model.AcademicStaff
-            </div>
-
-            <div class="stat-footer">
-
-                <span>
-                    <i class="bi bi-person-check"></i>
-                    Staff
-                </span>
-
-                <a asp-page="/HOD/Staff">
-                    View
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- CONTRACT WORKFLOW + RECENT ACTIVITY -->
-
-    <div class="dashboard-grid">
-
-        <!-- CONTRACT WORKFLOW -->
-
-        <section class="dashboard-card workflow-card">
-
-            <div class="card-header">
-
-                <div>
-
-                    <span class="card-eyebrow">
-                        Contract workflow
-                    </span>
-
-                    <h2>Signing Progress</h2>
-
-                </div>
-
-                <div class="card-header-icon">
-                    <i class="bi bi-diagram-3"></i>
-                </div>
-
-            </div>
-
-
-            <div class="workflow-list">
-
-                <div class="workflow-item">
-
-                    <div class="workflow-number">
-                        01
-                    </div>
-
-                    <div class="workflow-icon">
-                        <i class="bi bi-person-check"></i>
-                    </div>
-
-                    <div class="workflow-content">
-
-                        <strong>Lecturer</strong>
-
-                        <span>
-                            Contract acknowledgement
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="workflow-line"></div>
-
-
-                <div class="workflow-item">
-
-                    <div class="workflow-number">
-                        02
-                    </div>
-
-                    <div class="workflow-icon">
-                        <i class="bi bi-pen"></i>
-                    </div>
-
-                    <div class="workflow-content">
-
-                        <strong>Dean</strong>
-
-                        <span>
-                            Review and signature
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="workflow-line"></div>
-
-
-                <div class="workflow-item">
-
-                    <div class="workflow-number">
-                        03
-                    </div>
-
-                    <div class="workflow-icon">
-                        <i class="bi bi-shield-check"></i>
-                    </div>
-
-                    <div class="workflow-content">
-
-                        <strong>HR</strong>
-
-                        <span>
-                            Review and signature
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="workflow-line"></div>
-
-
-                <div class="workflow-item">
-
-                    <div class="workflow-number">
-                        04
-                    </div>
-
-                    <div class="workflow-icon">
-                        <i class="bi bi-check2-square"></i>
-                    </div>
-
-                    <div class="workflow-content">
-
-                        <strong>DVCAR</strong>
-
-                        <span>
-                            Review and approval
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="workflow-line"></div>
-
-
-                <div class="workflow-item">
-
-                    <div class="workflow-number final">
-                        05
-                    </div>
-
-                    <div class="workflow-icon final">
-                        <i class="bi bi-award"></i>
-                    </div>
-
-                    <div class="workflow-content">
-
-                        <strong>Vice Chancellor</strong>
-
-                        <span>
-                            Final approval
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- RECENT CLAIMS -->
-
-        <section class="dashboard-card claims-card">
-
-            <div class="card-header">
-
-                <div>
-
-                    <span class="card-eyebrow">
-                        Claims
-                    </span>
-
-                    <h2>Recent Claims</h2>
-
-                </div>
-
-                <a asp-page="/HOD/Claims"
-                   class="view-all-link">
-
-                    View all
-
-                    <i class="bi bi-arrow-right"></i>
-
-                </a>
-
-            </div>
-
-
-            @if (Model.RecentClaims.Any())
-            {
-
-                <div class="claim-list">
-
-                    @foreach (var claim in Model.RecentClaims)
-                    {
-
-                        var initials = "?";
-
-                        if (!string.IsNullOrWhiteSpace(claim.LecturerName))
-                        {
-                            var names = claim.LecturerName
-                                .Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                            initials = names.Length switch
-                            {
-                                1 => names[0][0].ToString().ToUpper(),
-                                _ => $"{names[0][0]}{names[^1][0]}".ToUpper()
-                            };
-                        }
-
-                        var claimStatusClass =
-                            claim.Status == ClaimStatus.Approved ||
-                            claim.Status == ClaimStatus.Paid
-                                ? "approved"
-                                : claim.Status == ClaimStatus.Rejected
-                                    ? "rejected"
-                                    : "pending";
-
-                        <div class="claim-item">
-
-                            <div class="claim-avatar">
-                                @initials
-                            </div>
-
-                            <div class="claim-info">
-
-                                <strong>
-                                    @claim.LecturerName
-                                </strong>
-
-                                <span>
-                                    CON-@claim.ContractId.ToString("D6")
-                                </span>
-
-                            </div>
-
-                            <span class="status-badge @claimStatusClass">
-
-                                @if (claim.Status == ClaimStatus.Approved ||
-                                     claim.Status == ClaimStatus.Paid)
-                                {
-                                    <i class="bi bi-check-circle"></i>
-                                }
-                                else if (claim.Status == ClaimStatus.Rejected)
-                                {
-                                    <i class="bi bi-x-circle"></i>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-clock"></i>
-                                }
-
-                                @claim.Status
-
-                            </span>
-
+            <div class="stat-value">@Model.AcademicStaff</div>
+            <span class="stat-label">Academic Staff</span>
+        </a>
+
+    </section>
+
+    <section class="section-card">
+
+        <header class="section-header">
+            <h2>Recent Claims</h2>
+            <a href="/HOD/Claims" class="section-link">View all</a>
+        </header>
+
+        @if (Model.RecentClaims.Any())
+        {
+            <div class="list-table">
+
+                @foreach (var claim in Model.RecentClaims)
+                {
+                    var claimStatusClass =
+                        claim.Status == ClaimStatus.Approved || claim.Status == ClaimStatus.Paid
+                            ? "status-active"
+                            : claim.Status == ClaimStatus.Rejected
+                                ? "status-danger"
+                                : "status-pending";
+
+                    <div class="list-row">
+
+                        <div class="list-main">
+                            <span class="list-reference">CON-@claim.ContractId.ToString("D6")</span>
+                            <strong>@claim.LecturerName</strong>
                         </div>
-                    }
 
-                </div>
+                        <span class="status-badge @claimStatusClass">
+                            @claim.Status
+                        </span>
 
-            }
-            else
-            {
-
-                <div class="empty-state compact">
-
-                    <div class="empty-state-icon">
-                        <i class="bi bi-receipt"></i>
                     </div>
-
-                    <h3>No recent claims</h3>
-
-                    <p>
-                        No claims have been submitted yet.
-                    </p>
-
-                </div>
-
-            }
-
-        </section>
-
-    </div>
-
-
-    <!-- CONTRACTS -->
-
-    <section class="dashboard-card table-card">
-
-        <div class="card-header">
-
-            <div>
-
-                <span class="card-eyebrow">
-                    Contracts
-                </span>
-
-                <h2>Awaiting Signature</h2>
+                }
 
             </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <p>No recent claims.</p>
+            </div>
+        }
 
-            <a asp-page="/HOD/Contracts"
-               class="view-all-link">
+    </section>
 
-                View all
+    <section class="section-card">
 
-                <i class="bi bi-arrow-right"></i>
-
-            </a>
-
-        </div>
-
+        <header class="section-header">
+            <h2>Contracts Awaiting Signature</h2>
+            <a href="/HOD/Contracts" class="section-link">View all</a>
+        </header>
 
         @if (Model.ContractsAwaitingSignature.Any())
         {
-
             <div class="table-wrapper">
-
-                <table>
-
+                <table class="data-table">
                     <thead>
-
                         <tr>
                             <th>Lecturer</th>
                             <th>Course</th>
@@ -529,102 +119,36 @@
                             <th>Status</th>
                             <th></th>
                         </tr>
-
                     </thead>
-
                     <tbody>
-
                         @foreach (var contract in Model.ContractsAwaitingSignature)
                         {
-
-                            var names = contract.LecturerName
-                                .Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                            var initials = names.Length switch
-                            {
-                                0 => "?",
-                                1 => names[0][0].ToString().ToUpper(),
-                                _ => $"{names[0][0]}{names[^1][0]}".ToUpper()
-                            };
-
                             <tr>
-
+                                <td>@contract.LecturerName</td>
+                                <td>@contract.CourseTitle</td>
+                                <td>@contract.Hours</td>
                                 <td>
-
-                                    <div class="person-cell">
-
-                                        <div class="person-avatar">
-                                            @initials
-                                        </div>
-
-                                        <span>
-                                            @contract.LecturerName
-                                        </span>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-                                    @contract.CourseTitle
-                                </td>
-
-                                <td>
-                                    @contract.Hours
-                                </td>
-
-                                <td>
-
-                                    <span class="status-badge pending">
-
-                                        <i class="bi bi-clock"></i>
-
+                                    <span class="status-badge status-pending">
                                         @contract.Status
-
                                     </span>
-
                                 </td>
-
                                 <td>
-
-                                    <a asp-page="/HOD/Contracts"
-                                       asp-route-ContractId="@contract.Id"
-                                       class="table-action"
-                                       title="View contract">
-
-                                        <i class="bi bi-arrow-up-right"></i>
-
+                                    <a href="/HOD/Contracts?ContractId=@contract.Id" class="row-action">
+                                        View
+                                        <i class="bi bi-arrow-right"></i>
                                     </a>
-
                                 </td>
-
                             </tr>
                         }
-
                     </tbody>
-
                 </table>
-
             </div>
-
         }
         else
         {
-
             <div class="empty-state">
-
-                <div class="empty-state-icon">
-                    <i class="bi bi-file-earmark-check"></i>
-                </div>
-
-                <h3>No contracts awaiting signature</h3>
-
-                <p>
-                    All department contracts are up to date.
-                </p>
-
+                <p>No contracts awaiting signature.</p>
             </div>
-
         }
 
     </section>

@@ -85,25 +85,10 @@
 
 <section class="contracts-page">
 
-    <div class="contracts-page-header">
-        <div class="contracts-heading">
-            <div class="contracts-heading-icon">
-                <i class="bi bi-file-earmark-text"></i>
-            </div>
-
-            <div>
-                <div class="page-eyebrow">
-                    ACADEMIC STAFF ENGAGEMENT
-                </div>
-
-                <h1>My Contracts</h1>
-
-                <p>
-                    Review your academic contracts and complete your required signatures.
-                </p>
-            </div>
-        </div>
-    </div>
+    <header class="page-header">
+        <h1>My Contracts</h1>
+        <p>Review your academic contracts and complete your required signatures.</p>
+    </header>
 
     @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
     {
@@ -230,9 +215,7 @@
 
                     <div class="contract-detail-item">
                         <span class="detail-label">Allocated Hours</span>
-                        <span class="detail-value">
-                            @selectedRow.AllocatedHours.ToString("N1")
-                        </span>
+                        <span class="detail-value">@selectedRow.AllocatedHours.ToString("N1")</span>
                     </div>
 
                 </div>
@@ -265,9 +248,9 @@
                     </div>
                 </div>
 
-                <div class="contract-document">
+                <article class="contract-document">
                     @Html.Raw(contract.Content)
-                </div>
+                </article>
 
             </div>
 
@@ -399,18 +382,14 @@
                     {
                         <div class="you-signed-badge">
                             <i class="bi bi-lock-fill"></i>
-                            <span>
-                                This contract is closed and can no longer be signed.
-                            </span>
+                            <span>This contract is closed and can no longer be signed.</span>
                         </div>
                     }
                     else
                     {
                         <div>
                             <strong>Action required</strong>
-                            <span>
-                                Please review the contract before confirming your signature.
-                            </span>
+                            <span>Please review the contract before confirming your signature.</span>
                         </div>
                     }
 
@@ -422,19 +401,13 @@
                 {
                     <div class="contract-action-buttons">
 
-                        <form method="post"
-                              asp-page-handler="Sign">
+                        <form method="post" asp-page-handler="Sign">
+                            <input type="hidden" name="contractId" value="@contract.Id" />
 
-                            <input type="hidden"
-                                   name="contractId"
-                                   value="@contract.Id" />
-
-                            <button type="submit"
-                                    class="sign-contract-button">
+                            <button type="submit" class="sign-contract-button">
                                 <i class="bi bi-pen"></i>
                                 <span>Sign Contract</span>
                             </button>
-
                         </form>
 
                     </div>
@@ -447,22 +420,16 @@
 
     <section class="contracts-section">
 
-        <div class="contracts-section-header">
+        <header class="contracts-section-header">
 
-            <div>
-                <div class="section-eyebrow">
-                    CONTRACT MANAGEMENT
-                </div>
-
-                <h2>Your Contracts</h2>
-            </div>
+            <h2>Contracts</h2>
 
             <span class="contract-count">
                 @Model.Contracts.Count
                 @(Model.Contracts.Count == 1 ? "contract" : "contracts")
             </span>
 
-        </div>
+        </header>
 
         @if (Model.Contracts.Count > 0)
         {
@@ -482,9 +449,7 @@
 
                                 <div class="contract-card-reference">
 
-                                    <span>
-                                        @contract.Reference
-                                    </span>
+                                    <span>@contract.Reference</span>
 
                                     <span class="contract-status @GetStatusClass(contract.Status)">
                                         <span class="status-dot"></span>
@@ -493,9 +458,7 @@
 
                                 </div>
 
-                                <h3>
-                                    @contract.CourseTitle
-                                </h3>
+                                <h3>@contract.CourseTitle</h3>
 
                                 <div class="contract-card-meta">
 

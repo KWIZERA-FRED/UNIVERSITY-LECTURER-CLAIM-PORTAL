@@ -4,805 +4,270 @@
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
-    ViewData["Title"] = "Lecturer Dashboard";
+    ViewData["Title"] = "Dashboard";
     Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
 }
 
 @section Styles {
-    <link
-        rel="stylesheet"
-        href="~/css/Lecturer/dashboard.css"
-        asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Lecturer/dashboard.css" asp-append-version="true" />
 }
 
 @{
     var lecturer = Model.CurrentLecturer;
 
-    string ContractStatusLabel(ContractStatus status)
+    string ContractStatusLabel(ContractStatus status) => status switch
     {
-        return status switch
-        {
-            ContractStatus.PendingSignature => "Pending Signature",
-            ContractStatus.Active => "Active",
-            ContractStatus.Expired => "Expired",
-            ContractStatus.Terminated => "Terminated",
-            ContractStatus.Renewed => "Renewed",
-            _ => status.ToString()
-        };
-    }
+        ContractStatus.PendingSignature => "Pending Signature",
+        ContractStatus.Active => "Active",
+        ContractStatus.Expired => "Expired",
+        ContractStatus.Terminated => "Terminated",
+        ContractStatus.Renewed => "Renewed",
+        _ => status.ToString()
+    };
 
-    string ContractStatusClass(ContractStatus status)
+    string ContractStatusClass(ContractStatus status) => status switch
     {
-        return status switch
-        {
-            ContractStatus.PendingSignature => "status-pending",
-            ContractStatus.Active => "status-active",
-            ContractStatus.Expired => "status-expired",
-            ContractStatus.Terminated => "status-danger",
-            ContractStatus.Renewed => "status-active",
-            _ => "status-neutral"
-        };
-    }
+        ContractStatus.PendingSignature => "status-pending",
+        ContractStatus.Active => "status-active",
+        ContractStatus.Expired => "status-expired",
+        ContractStatus.Terminated => "status-danger",
+        ContractStatus.Renewed => "status-active",
+        _ => "status-neutral"
+    };
 
-    string ClaimStatusLabel(ClaimStatus status)
+    string ClaimStatusLabel(ClaimStatus status) => status switch
     {
-        return status switch
-        {
-            ClaimStatus.Draft => "Draft",
-            ClaimStatus.Submitted => "Submitted",
-            ClaimStatus.PendingHODApproval => "HOD Review",
-            ClaimStatus.PendingDeanApproval => "Dean Review",
-            ClaimStatus.Approved => "Approved",
-            ClaimStatus.Rejected => "Rejected",
-            ClaimStatus.Paid => "Paid",
-            _ => status.ToString()
-        };
-    }
+        ClaimStatus.Draft => "Draft",
+        ClaimStatus.Submitted => "Submitted",
+        ClaimStatus.PendingHODApproval => "HOD Review",
+        ClaimStatus.PendingDeanApproval => "Dean Review",
+        ClaimStatus.Approved => "Approved",
+        ClaimStatus.Rejected => "Rejected",
+        ClaimStatus.Paid => "Paid",
+        _ => status.ToString()
+    };
 
-    string ClaimStatusClass(ClaimStatus status)
+    string ClaimStatusClass(ClaimStatus status) => status switch
     {
-        return status switch
-        {
-            ClaimStatus.Draft => "status-neutral",
-            ClaimStatus.Submitted => "status-pending",
-            ClaimStatus.PendingHODApproval => "status-pending",
-            ClaimStatus.PendingDeanApproval => "status-pending",
-            ClaimStatus.Approved => "status-active",
-            ClaimStatus.Paid => "status-paid",
-            ClaimStatus.Rejected => "status-danger",
-            _ => "status-neutral"
-        };
-    }
+        ClaimStatus.Draft => "status-neutral",
+        ClaimStatus.Submitted => "status-pending",
+        ClaimStatus.PendingHODApproval => "status-pending",
+        ClaimStatus.PendingDeanApproval => "status-pending",
+        ClaimStatus.Approved => "status-active",
+        ClaimStatus.Paid => "status-paid",
+        ClaimStatus.Rejected => "status-danger",
+        _ => "status-neutral"
+    };
 }
 
 <section class="dashboard-page">
 
-    <div class="page-header">
-
-        <div class="page-header-content">
-
-            <div>
-                <span class="page-eyebrow">
-                    Lecturer Portal
-                </span>
-
-                <h1>
-                    Dashboard
-                </h1>
-
-                <p>
-                    Monitor your teaching assignments, contracts,
-                    marks submissions, and payment claims.
-                </p>
-            </div>
-
-        </div>
-
-    </div>
-
-    @if (lecturer != null)
-    {
-        <section class="welcome-card">
-
-            <div class="welcome-content">
-
-                <div class="welcome-avatar">
-                    <i class="bi bi-person-badge-fill"></i>
-                </div>
-
-                <div class="welcome-text">
-
-                    <span class="welcome-label">
-                        Welcome back
-                    </span>
-
-                    <h2>
-                        @lecturer.UserName
-                    </h2>
-
-                    <p>
-                        Your lecturer account is active and ready
-                        for academic engagement activities.
-                    </p>
-
-                </div>
-
-            </div>
-
-            <div class="lecturer-details">
-
-                <div class="lecturer-detail">
-
-                    <span class="detail-label">
-                        Username
-                    </span>
-
-                    <strong>
-                        @lecturer.UserName
-                    </strong>
-
-                </div>
-
-                <div class="lecturer-detail">
-
-                    <span class="detail-label">
-                        Email
-                    </span>
-
-                    <strong>
-                        @lecturer.Email
-                    </strong>
-
-                </div>
-
-                <div class="lecturer-detail">
-
-                    <span class="detail-label">
-                        Lecturer Type
-                    </span>
-
-                    <strong>
-                        @Model.LecturerTypeName
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </section>
-    }
-
-    @if (Model.IsFullTime)
-    {
-        <div class="information-banner">
-
-            <div class="information-icon">
-                <i class="bi bi-info-circle-fill"></i>
-            </div>
-
-            <div>
-
-                <strong>
-                    Full-Time Lecturer
-                </strong>
-
-                <p>
-                    Teaching hours for full-time lecturers are
-                    expected to be integrated with the university
-                    MIS. Until that integration is available,
-                    the system will display information based on
-                    available assignments.
-                </p>
-
-            </div>
-
-        </div>
-    }
-    else if (Model.IsPartTime)
-    {
-        <div class="information-banner">
-
-            <div class="information-icon">
-                <i class="bi bi-info-circle-fill"></i>
-            </div>
-
-            <div>
-
-                <strong>
-                    Part-Time Lecturer
-                </strong>
-
-                <p>
-                    Your assigned courses, contracts, marks
-                    submissions, and payment claims are managed
-                    through this portal.
-                </p>
-
-            </div>
-
-        </div>
-    }
+    <header class="page-header">
+        <h1>Dashboard</h1>
+        @if (lecturer != null)
+        {
+            <p>Welcome back, <strong>@lecturer.UserName</strong> :@Model.LecturerTypeName</p>
+        }
+    </header>
 
     <section class="stats-grid">
 
-        <div class="stat-card">
-
-            <div class="stat-card-top">
-
-                <div class="stat-icon stat-icon-blue">
-                    <i class="bi bi-book-fill"></i>
-                </div>
-
-                <span class="stat-label">
-                    Active Courses
-                </span>
-
+        <div class="stat-card stat-card-blue">
+            <div class="stat-icon">
+                <i class="bi bi-book-fill"></i>
             </div>
-
-            <div class="stat-value">
-                @Model.ActiveCourseCount
-            </div>
-
-            <span class="stat-description">
-                Current teaching assignments
-            </span>
-
+            <div class="stat-value">@Model.ActiveCourseCount</div>
+            <span class="stat-label">Active Courses</span>
         </div>
 
-        <div class="stat-card">
-
-            <div class="stat-card-top">
-
-                <div class="stat-icon stat-icon-green">
-                    <i class="bi bi-clock-fill"></i>
-                </div>
-
-                <span class="stat-label">
-                    Allocated Hours
-                </span>
-
+        <div class="stat-card stat-card-orange">
+            <div class="stat-icon">
+                <i class="bi bi-clock-fill"></i>
             </div>
-
-            <div class="stat-value">
-                @Model.TotalAllocatedHours.ToString("0.##")
-            </div>
-
-            <span class="stat-description">
-                Approved teaching hours
-            </span>
-
+            <div class="stat-value">@Model.TotalAllocatedHours.ToString("0.##")</div>
+            <span class="stat-label">Allocated Hours</span>
         </div>
 
-        <div class="stat-card">
-
-            <div class="stat-card-top">
-
-                <div class="stat-icon stat-icon-purple">
-                    <i class="bi bi-file-earmark-text-fill"></i>
-                </div>
-
-                <span class="stat-label">
-                    Contracts
-                </span>
-
+        <div class="stat-card stat-card-green">
+            <div class="stat-icon">
+                <i class="bi bi-file-earmark-text-fill"></i>
             </div>
-
-            <div class="stat-value">
-                @Model.ContractCount
-            </div>
-
-            <span class="stat-description">
-                @Model.PendingSignatureCount awaiting signature
-            </span>
-
+            <div class="stat-value">@Model.ContractCount</div>
+            <span class="stat-label">Contracts</span>
+            @if (Model.PendingSignatureCount > 0)
+            {
+                <span class="stat-meta">@Model.PendingSignatureCount pending</span>
+            }
         </div>
 
-        <div class="stat-card">
-
-            <div class="stat-card-top">
-
-                <div class="stat-icon stat-icon-orange">
-                    <i class="bi bi-wallet2"></i>
-                </div>
-
-                <span class="stat-label">
-                    Pending Claims
-                </span>
-
+        <div class="stat-card stat-card-purple">
+            <div class="stat-icon">
+                <i class="bi bi-wallet2"></i>
             </div>
-
-            <div class="stat-value">
-                @Model.PendingClaimCount
-            </div>
-
-            <span class="stat-description">
-                Claims currently under review
-            </span>
-
+            <div class="stat-value">@Model.PendingClaimCount</div>
+            <span class="stat-label">Pending Claims</span>
         </div>
 
     </section>
 
     @if (Model.IsFullTime)
     {
-        <section class="section-card mis-card">
-
-            <div class="section-header">
-
-                <div>
-
-                    <span class="section-eyebrow">
-                        MIS Integration
-                    </span>
-
-                    <h2>
-                        Teaching Hours
-                    </h2>
-
-                </div>
-
-                <div class="section-icon">
-                    <i class="bi bi-bar-chart-fill"></i>
-                </div>
-
-            </div>
-
-            <div class="mis-content">
-
-                <div class="mis-status">
-
-                    <i class="bi bi-hourglass-split"></i>
-
-                    <div>
-
-                        <strong>
-                            MIS integration pending
-                        </strong>
-
-                        <p>
-                            Teaching-hour data will be displayed
-                            automatically once the university MIS
-                            integration is connected.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
+        <div class="notice">
+            <i class="bi bi-info-circle"></i>
+            <span>Teaching-hour data will sync automatically once MIS integration is available.</span>
+        </div>
     }
 
     <section class="section-card">
-
-        <div class="section-header">
-
-            <div>
-
-                <span class="section-eyebrow">
-                    Academic Workload
-                </span>
-
-                <h2>
-                    My Course Assignments
-                </h2>
-
-                <p>
-                    Courses currently assigned to your lecturer account.
-                </p>
-
-            </div>
-
-            <div class="section-icon">
-                <i class="bi bi-journal-bookmark-fill"></i>
-            </div>
-
-        </div>
+        <header class="section-header">
+            <h2>Course Assignments</h2>
+        </header>
 
         @if (Model.CourseAssignments.Any())
         {
             <div class="table-wrapper">
-
                 <table class="data-table">
-
                     <thead>
-
                         <tr>
-
-                            <th>
-                                Course
-                            </th>
-
-                            <th>
-                                Academic Year
-                            </th>
-
-                            <th>
-                                Semester
-                            </th>
-
-                            <th>
-                                Session
-                            </th>
-
-                            <th>
-                                Campus
-                            </th>
-
-                            <th>
-                                Hours
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
+                            <th>Course</th>
+                            <th>Year</th>
+                            <th>Semester</th>
+                            <th>Session</th>
+                            <th>Campus</th>
+                            <th>Hours</th>
+                            <th>Status</th>
                         </tr>
-
                     </thead>
-
                     <tbody>
-
                         @foreach (var assignment in Model.CourseAssignments)
                         {
                             <tr>
-
                                 <td>
-
                                     <div class="course-cell">
-
-                                        <span class="course-code">
-                                            @assignment.Course.Code
-                                        </span>
-
-                                        <span class="course-title">
-                                            @assignment.Course.Title
-                                        </span>
-
+                                        <span class="course-code">@assignment.Course.Code</span>
+                                        <span class="course-title">@assignment.Course.Title</span>
                                     </div>
-
                                 </td>
-
+                                <td>@assignment.AcademicYear</td>
+                                <td>@assignment.Semester</td>
+                                <td>@assignment.Session</td>
+                                <td>@assignment.Campus</td>
+                                <td>@assignment.AllocatedHours.ToString("0.##")</td>
                                 <td>
-                                    @assignment.AcademicYear
-                                </td>
-
-                                <td>
-                                    @assignment.Semester
-                                </td>
-
-                                <td>
-                                    @assignment.Session
-                                </td>
-
-                                <td>
-                                    @assignment.Campus
-                                </td>
-
-                                <td>
-
-                                    <span class="hours-value">
-                                        @assignment.AllocatedHours.ToString("0.##")
-                                    </span>
-
-                                </td>
-
-                                <td>
-
                                     @if (assignment.IsApproved)
                                     {
-                                        <span class="status-badge status-active">
-                                            <i class="bi bi-check-circle-fill"></i>
-                                            Approved
-                                        </span>
+                                        <span class="status-badge status-active">Approved</span>
                                     }
                                     else
                                     {
-                                        <span class="status-badge status-pending">
-                                            <i class="bi bi-clock-fill"></i>
-                                            Pending
-                                        </span>
+                                        <span class="status-badge status-pending">Pending</span>
                                     }
-
                                 </td>
-
                             </tr>
                         }
-
                     </tbody>
-
                 </table>
-
             </div>
         }
         else
         {
             <div class="empty-state">
-
-                <div class="empty-icon">
-                    <i class="bi bi-journal-x"></i>
-                </div>
-
-                <h3>
-                    No course assignments
-                </h3>
-
-                <p>
-                    You currently have no active course assignments.
-                </p>
-
+                <p>No course assignments.</p>
             </div>
         }
-
     </section>
 
     <div class="dashboard-columns">
 
-        <section class="section-card compact-card">
-
-            <div class="section-header">
-
-                <div>
-
-                    <span class="section-eyebrow">
-                        Agreements
-                    </span>
-
-                    <h2>
-                        My Contracts
-                    </h2>
-
-                </div>
-
-                <a
-                    href="/Lecturer/Contracts"
-                    class="section-link">
-
-                    View all
-                    <i class="bi bi-arrow-right"></i>
-
-                </a>
-
-            </div>
+        <section class="section-card">
+            <header class="section-header">
+                <h2>Contracts</h2>
+                <a href="/Lecturer/Contracts" class="section-link">View all</a>
+            </header>
 
             @if (Model.Contracts.Any())
             {
                 <div class="list-table">
-
                     @foreach (var contract in Model.Contracts.Take(5))
                     {
                         <div class="list-row">
-
                             <div class="list-main">
-
-                                <span class="list-reference">
-                                    CON-@contract.Id.ToString("D6")
-                                </span>
-
-                                <strong>
-                                    @(contract.CourseAssignment?.Course?.Title ?? "Course")
-                                </strong>
-
+                                <span class="list-reference">CON-@contract.Id.ToString("D6")</span>
+                                <strong>@(contract.CourseAssignment?.Course?.Title ?? "Course")</strong>
                                 <span class="list-meta">
-                                    Version @contract.Version
-                                    ·
+                                    v@contract.Version ·
                                     @(contract.StartDateUtc?.ToLocalTime().ToString("dd MMM yyyy") ?? "—")
                                 </span>
-
                             </div>
-
                             <span class="status-badge @ContractStatusClass(contract.Status)">
                                 @ContractStatusLabel(contract.Status)
                             </span>
-
                         </div>
                     }
-
                 </div>
             }
             else
             {
-                <div class="empty-state compact-empty">
-
-                    <div class="empty-icon">
-                        <i class="bi bi-file-earmark-x"></i>
-                    </div>
-
-                    <h3>
-                        No contracts
-                    </h3>
-
-                    <p>
-                        No contracts are currently available.
-                    </p>
-
-                </div>
+                <div class="empty-state"><p>No contracts.</p></div>
             }
-
         </section>
 
-        <section class="section-card compact-card">
-
-            <div class="section-header">
-
-                <div>
-
-                    <span class="section-eyebrow">
-                        Payments
-                    </span>
-
-                    <h2>
-                        Payment Claims
-                    </h2>
-
-                </div>
-
-                <a
-                    href="/Claims"
-                    class="section-link">
-
-                    View all
-                    <i class="bi bi-arrow-right"></i>
-
-                </a>
-
-            </div>
+        <section class="section-card">
+            <header class="section-header">
+                <h2>Payment Claims</h2>
+                <a href="/Claims" class="section-link">View all</a>
+            </header>
 
             @if (Model.Claims.Any())
             {
                 <div class="list-table">
-
                     @foreach (var claim in Model.Claims.Take(5))
                     {
-                        <a
-                            href="/Lecturer/ClaimDetail?ClaimId=@claim.Id"
-                            class="list-row list-row-link">
-
+                        <a href="/Lecturer/ClaimDetail?ClaimId=@claim.Id" class="list-row list-row-link">
                             <div class="list-main">
-
-                                <span class="list-reference">
-                                    CLM-@claim.Id.ToString("D6")
-                                </span>
-
-                                <strong>
-                                    @(claim.CourseAssignment?.Course?.Title ?? "Course")
-                                </strong>
-
+                                <span class="list-reference">CLM-@claim.Id.ToString("D6")</span>
+                                <strong>@(claim.CourseAssignment?.Course?.Title ?? "Course")</strong>
                                 <span class="list-meta">
-                                    @claim.HoursClaimed.ToString("0.##") hours
-                                    ·
+                                    @claim.HoursClaimed.ToString("0.##") hrs ·
                                     @(claim.SubmittedAtUtc?.ToLocalTime().ToString("dd MMM yyyy") ?? "—")
                                 </span>
-
                             </div>
-
                             <span class="status-badge @ClaimStatusClass(claim.Status)">
                                 @ClaimStatusLabel(claim.Status)
                             </span>
-
                         </a>
                     }
-
                 </div>
             }
             else
             {
-                <div class="empty-state compact-empty">
-
-                    <div class="empty-icon">
-                        <i class="bi bi-wallet2"></i>
-                    </div>
-
-                    <h3>
-                        No claims
-                    </h3>
-
-                    <p>
-                        You have not submitted any payment claims.
-                    </p>
-
-                </div>
+                <div class="empty-state"><p>No claims.</p></div>
             }
-
         </section>
 
     </div>
 
-    <section class="quick-actions-section">
-
-        <div class="section-header">
-
-            <div>
-
-                <span class="section-eyebrow">
-                    Shortcuts
-                </span>
-
-                <h2>
-                    Quick Actions
-                </h2>
-
-            </div>
-
-        </div>
+    <section class="section-card">
+        <header class="section-header">
+            <h2>Quick Actions</h2>
+        </header>
 
         <div class="quick-actions-grid">
-
-            <a
-                href="/Lecturer/Contracts"
-                class="quick-action">
-
-                <div class="quick-action-icon">
-                    <i class="bi bi-file-earmark-text-fill"></i>
-                </div>
-
-                <div class="quick-action-content">
-
-                    <strong>
-                        My Contracts
-                    </strong>
-
-                    <span>
-                        Review and sign contracts
-                    </span>
-
-                </div>
-
-                <i class="bi bi-arrow-right quick-action-arrow"></i>
-
+            <a href="/Lecturer/Contracts" class="quick-action">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>My Contracts</span>
             </a>
 
-            <a
-                href="/Lecturer/SubmitMarks"
-                class="quick-action">
-
-                <div class="quick-action-icon">
-                    <i class="bi bi-file-earmark-spreadsheet-fill"></i>
-                </div>
-
-                <div class="quick-action-content">
-
-                    <strong>
-                        Submit Marks
-                    </strong>
-
-                    <span>
-                        Upload your marks submission
-                    </span>
-
-                </div>
-
-                <i class="bi bi-arrow-right quick-action-arrow"></i>
-
+            <a href="/Lecturer/SubmitMarks" class="quick-action">
+                <i class="bi bi-file-earmark-spreadsheet"></i>
+                <span>Submit Marks</span>
             </a>
 
-            <a
-                href="/Lecturer/SubmitClaim"
-                class="quick-action">
-
-                <div class="quick-action-icon">
-                    <i class="bi bi-send-fill"></i>
-                </div>
-
-                <div class="quick-action-content">
-
-                    <strong>
-                        Submit Claim
-                    </strong>
-
-                    <span>
-                        Submit a payment claim
-                    </span>
-
-                </div>
-
-                <i class="bi bi-arrow-right quick-action-arrow"></i>
-
+            <a href="/Lecturer/SubmitClaim" class="quick-action">
+                <i class="bi bi-send"></i>
+                <span>Submit Claim</span>
             </a>
-
         </div>
-
     </section>
 
 </section>
