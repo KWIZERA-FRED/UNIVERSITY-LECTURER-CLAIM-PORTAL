@@ -35,26 +35,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         // DASHBOARD STATISTICS
         // ============================================================
 
-        /// <summary>
-        /// Contracts in the department that are currently pending
-        /// and require HOD action.
-        /// </summary>
         public int ContractsToSign { get; private set; }
 
-        /// <summary>
-        /// Contracts that have completed the entire signing workflow
-        /// and are currently active.
-        /// </summary>
         public int ContractsToReview { get; private set; }
 
-        /// <summary>
-        /// Claims currently waiting for HOD approval.
-        /// </summary>
         public int ClaimsReceived { get; private set; }
 
-        /// <summary>
-        /// Number of distinct active lecturers in the department.
-        /// </summary>
         public int AcademicStaff { get; private set; }
 
 
@@ -192,11 +178,17 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             // --------------------------------------------------------
             // RECENT CLAIMS
             // --------------------------------------------------------
+            //
+            // Show claims from every meaningful stage of the workflow.
+            // ClaimsReceived above remains specifically limited to
+            // claims waiting for HOD approval.
 
             RecentClaims = await departmentClaims
                 .Where(c =>
                     c.Status == ClaimStatus.PendingHODApproval ||
-                    c.Status == ClaimStatus.Submitted ||
+                    c.Status == ClaimStatus.PendingDeanApproval ||
+                    c.Status == ClaimStatus.PendingDirectorOfQualityApproval ||
+                    c.Status == ClaimStatus.PendingDVCARApproval ||
                     c.Status == ClaimStatus.Rejected ||
                     c.Status == ClaimStatus.Approved ||
                     c.Status == ClaimStatus.Paid)

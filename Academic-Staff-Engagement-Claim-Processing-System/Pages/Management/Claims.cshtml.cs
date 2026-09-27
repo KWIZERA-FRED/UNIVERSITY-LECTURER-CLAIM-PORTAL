@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
 {
-    [Authorize(Roles = "Management")]
+    [Authorize]
     public class ClaimsModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -23,10 +24,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
             _signingService = signingService;
         }
 
-        // ============================================================
-        // PAGE DATA
-        // ============================================================
-
         public List<PendingClaimRow> PendingClaims { get; set; } = new();
 
         public ClaimReviewDto? SelectedClaim { get; set; }
@@ -37,23 +34,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
 
         public string? SuccessMessage { get; set; }
 
-        // ============================================================
-        // SELECTED CLAIM
-        // ============================================================
-
         [BindProperty(SupportsGet = true)]
         public int? ClaimId { get; set; }
 
-        // ============================================================
-        // REJECTION
-        // ============================================================
-
         [BindProperty]
         public string? RejectReason { get; set; }
-
-        // ============================================================
-        // PENDING CLAIM ROW
-        // ============================================================
 
         public class PendingClaimRow
         {
@@ -65,10 +50,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
 
             public decimal HoursClaimed { get; set; }
         }
-
-        // ============================================================
-        // GET
-        // ============================================================
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -96,10 +77,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
             return Page();
         }
 
-        // ============================================================
-        // APPROVE CLAIM
-        // ============================================================
-
         public async Task<IActionResult> OnPostApproveAsync()
         {
             var role = await ResolveApprovalRoleAsync();
@@ -114,6 +91,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
                 ipAddress
             ) = GetActorContext();
 
+            if (actorId <= 0)
+            {
+                ErrorMessage = "Your account could not be identified.";
+
+                await LoadPendingListAsync(role.Value);
+
+                return Page();
+            }
+
             var result = await _signingService.ApproveAsync(
                 ClaimId.Value,
                 role.Value,
@@ -125,6 +111,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
             if (!result.Succeeded)
             {
                 ErrorMessage = result.ErrorMessage;
+
+                SelectedClaim =
+                    await _signingService.GetClaimForReviewAsync(
+                        ClaimId.Value,
+                        role.Value);
             }
             else
             {
@@ -136,20 +127,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
             return Page();
         }
 
-        // ============================================================
-        // REJECT CLAIM
-        // ============================================================
-
         public async Task<IActionResult> OnPostRejectAsync()
         {
             var role = await ResolveApprovalRoleAsync();
 
             if (role is null || !ClaimId.HasValue)
                 return RedirectToPage("/ManagementDashboard");
-
-            // --------------------------------------------------------
-            // Validate rejection reason
-            // --------------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(RejectReason))
             {
@@ -166,10 +149,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
                 return Page();
             }
 
-            // --------------------------------------------------------
-            // Get current actor
-            // --------------------------------------------------------
-
             var (
                 actorId,
                 actorUsername,
@@ -177,15 +156,25 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
                 ipAddress
             ) = GetActorContext();
 
-            // --------------------------------------------------------
-            // Reject claim through service
-            // --------------------------------------------------------
+            if (actorId <= 0)
+            {
+                ErrorMessage = "Your account could not be identified.";
+
+                await LoadPendingListAsync(role.Value);
+
+                SelectedClaim =
+                    await _signingService.GetClaimForReviewAsync(
+                        ClaimId.Value,
+                        role.Value);
+
+                return Page();
+            }
 
             var result = await _signingService.RejectAsync(
                 ClaimId.Value,
                 role.Value,
                 actorId,
-                RejectReason,
+                RejectReason.Trim(),
                 actorUsername,
                 actorRole,
                 ipAddress);
@@ -193,6 +182,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
             if (!result.Succeeded)
             {
                 ErrorMessage = result.ErrorMessage;
+
+                SelectedClaim =
+                    await _signingService.GetClaimForReviewAsync(
+                        ClaimId.Value,
+                        role.Value);
             }
             else
             {
@@ -204,52 +198,79 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
             return Page();
         }
 
-        // ============================================================
-        // RESOLVE MANAGEMENT APPROVAL ROLE
-        // ============================================================
-
         private async Task<ApprovalRole?> ResolveApprovalRoleAsync()
         {
-            var username = User.Identity?.Name;
+            int.TryParse(
+                User.FindFirst("UserId")?.Value,
+                out int accountId);
 
-            if (string.IsNullOrWhiteSpace(username))
+            if (accountId <= 0)
                 return null;
 
-            var management = await _context.ManagementAccounts
+            var account = await _context.AdminAccounts
                 .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    m => m.UserName == username && m.IsActive);
+                .FirstOrDefaultAsync(a =>
+                    a.Id == accountId &&
+                    a.IsActive);
 
-            if (management is null)
+            if (account is null)
                 return null;
 
-            // Exam Office does not participate in claim approval.
-            if (management.Title == ManagementTitle.ExamOffice)
-                return null;
+            switch (account)
+            {
+                case Hod:
+                    RoleLabel = "HOD";
+                    return ApprovalRole.HOD;
 
-            RoleLabel = management.Title.ToString();
+                case Dean:
+                    RoleLabel = "Dean";
+                    return ApprovalRole.Dean;
 
-            return ManagementDashboardModel.MapTitleToApprovalRole(
-                management.Title);
+                case Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Management management:
+                    return ResolveManagementApprovalRole(management);
+
+                default:
+                    return null;
+            }
         }
 
-        // ============================================================
-        // LOAD PENDING CLAIMS
-        // ============================================================
+        private ApprovalRole? ResolveManagementApprovalRole(
+            Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Management management)
+        {
+            return management.Title switch
+            {
+                ManagementTitle.DirectorOfQuality =>
+                    SetRoleLabelAndReturn(
+                        "Director of Quality",
+                        ApprovalRole.DirectorOfQuality),
+
+                ManagementTitle.DVCAR =>
+                    SetRoleLabelAndReturn(
+                        "DVCAR",
+                        ApprovalRole.DVCAR),
+
+                ManagementTitle.ExamOffice =>
+                    null,
+
+                _ => null
+            };
+        }
+
+        private ApprovalRole SetRoleLabelAndReturn(
+            string label,
+            ApprovalRole role)
+        {
+            RoleLabel = label;
+            return role;
+        }
 
         private async Task LoadPendingListAsync(ApprovalRole role)
         {
             PendingClaims = await _context.ClaimApprovals
+                .AsNoTracking()
                 .Where(ca =>
                     ca.ApprovalRole == role &&
                     ca.Decision == ApprovalDecision.Pending)
-
-                .Include(ca => ca.Claim)
-                    .ThenInclude(c => c.CourseAssignment)
-                        .ThenInclude(
-                            courseAssignment =>
-                                courseAssignment.Lecturer)
-
                 .Select(ca => new PendingClaimRow
                 {
                     ClaimId = ca.Claim.Id,
@@ -263,13 +284,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
                     HoursClaimed =
                         ca.Claim.HoursClaimed
                 })
-
+                .OrderByDescending(c => c.ClaimId)
                 .ToListAsync();
         }
-
-        // ============================================================
-        // CURRENT ACTOR CONTEXT
-        // ============================================================
 
         private (
             int actorId,

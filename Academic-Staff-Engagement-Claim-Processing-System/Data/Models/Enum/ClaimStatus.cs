@@ -8,6 +8,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
         PendingDeanApproval = 4,
         Approved = 5,
         Rejected = 6,
-        Paid = 7
+        Paid = 7,
+        PendingDirectorOfQualityApproval = 8,
+        PendingDVCARApproval = 9
     }
 }

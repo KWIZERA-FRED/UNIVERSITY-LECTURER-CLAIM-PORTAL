@@ -1,9 +1,5 @@
-using System.Security.Claims;
-
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
-using Academic_Staff_Engagement_Claim_Processing_System.Services;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -30,8 +26,11 @@ public class ClaimsModel : PageModel
     public class PendingClaimRow
     {
         public int ClaimId { get; set; }
+
         public string LecturerName { get; set; } = string.Empty;
+
         public int ContractId { get; set; }
+
         public decimal HoursClaimed { get; set; }
     }
 
@@ -42,12 +41,11 @@ public class ClaimsModel : PageModel
         ErrorMessage = TempData["ErrorMessage"] as string;
 
         PendingClaims = await _context.ClaimApprovals
+            .AsNoTracking()
             .Where(ca =>
                 ca.ApprovalRole == ApprovalRole.Dean &&
-                ca.Decision == ApprovalDecision.Pending)
-            .Include(ca => ca.Claim)
-                .ThenInclude(c => c.CourseAssignment)
-                    .ThenInclude(ca2 => ca2.Lecturer)
+                ca.Decision == ApprovalDecision.Pending &&
+                ca.Claim.Status == ClaimStatus.PendingDeanApproval)
             .Select(ca => new PendingClaimRow
             {
                 ClaimId = ca.Claim.Id,
@@ -55,10 +53,13 @@ public class ClaimsModel : PageModel
                 LecturerName =
                     ca.Claim.CourseAssignment.Lecturer.UserName,
 
-                ContractId = ca.Claim.ContractId,
+                ContractId =
+                    ca.Claim.ContractId,
 
-                HoursClaimed = ca.Claim.HoursClaimed
+                HoursClaimed =
+                    ca.Claim.HoursClaimed
             })
+            .OrderByDescending(c => c.ClaimId)
             .ToListAsync();
     }
 }

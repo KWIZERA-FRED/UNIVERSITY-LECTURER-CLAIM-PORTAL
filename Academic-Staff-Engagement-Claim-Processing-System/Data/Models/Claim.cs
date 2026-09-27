@@ -11,8 +11,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         [Key]
         public int Id { get; private set; }
 
-
-    [Required]
+        [Required]
         [MaxLength(30)]
         public string ClaimReference { get; private set; } = string.Empty;
 
@@ -103,7 +102,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
                 throw new InvalidOperationException(
                     "Only draft claims can be submitted.");
 
-            Status = ClaimStatus.Submitted;
+            Status = ClaimStatus.PendingHODApproval;
             SubmittedAtUtc = DateTime.UtcNow;
             UpdatedAtUtc = DateTime.UtcNow;
         }
@@ -137,6 +136,4 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
             UpdatedAtUtc = DateTime.UtcNow;
         }
     }
-
-
 }

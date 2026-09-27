@@ -1,6 +1,5 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -26,8 +25,11 @@ public class ClaimsModel : PageModel
     public class PendingClaimRow
     {
         public int ClaimId { get; set; }
+
         public string LecturerName { get; set; } = string.Empty;
+
         public int ContractId { get; set; }
+
         public decimal HoursClaimed { get; set; }
     }
 
@@ -36,18 +38,39 @@ public class ClaimsModel : PageModel
         SuccessMessage = TempData["SuccessMessage"] as string;
         ErrorMessage = TempData["ErrorMessage"] as string;
 
-        await LoadPendingListAsync();
+        int.TryParse(
+            User.FindFirst("UserId")?.Value,
+            out int hodId);
+
+        if (hodId <= 0)
+        {
+            ErrorMessage = "Your HOD account could not be identified.";
+            return;
+        }
+
+        var isHod = await _context.Hods
+            .AsNoTracking()
+            .AnyAsync(h =>
+                h.Id == hodId &&
+                h.IsActive);
+
+        if (!isHod)
+        {
+            ErrorMessage = "Your HOD account could not be found or is inactive.";
+            return;
+        }
+
+        await LoadPendingListAsync(hodId);
     }
 
-    private async Task LoadPendingListAsync()
+    private async Task LoadPendingListAsync(int hodId)
     {
         PendingClaims = await _context.ClaimApprovals
+            .AsNoTracking()
             .Where(ca =>
                 ca.ApprovalRole == ApprovalRole.HOD &&
-                ca.Decision == ApprovalDecision.Pending)
-            .Include(ca => ca.Claim)
-                .ThenInclude(c => c.CourseAssignment)
-                    .ThenInclude(courseAssignment => courseAssignment.Lecturer)
+                ca.Decision == ApprovalDecision.Pending &&
+                ca.Claim.CourseAssignment.ApprovedByHodId == hodId)
             .Select(ca => new PendingClaimRow
             {
                 ClaimId = ca.Claim.Id,
@@ -55,10 +78,13 @@ public class ClaimsModel : PageModel
                 LecturerName =
                     ca.Claim.CourseAssignment.Lecturer.UserName,
 
-                ContractId = ca.Claim.ContractId,
+                ContractId =
+                    ca.Claim.ContractId,
 
-                HoursClaimed = ca.Claim.HoursClaimed
+                HoursClaimed =
+                    ca.Claim.HoursClaimed
             })
+            .OrderByDescending(c => c.ClaimId)
             .ToListAsync();
     }
 }
