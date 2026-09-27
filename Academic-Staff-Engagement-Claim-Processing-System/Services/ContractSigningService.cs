@@ -13,10 +13,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         private readonly AuditLogger _auditLogger;
         private readonly EmailService _emailService;
 
-        public ContractSigningService(
-            ApplicationDbContext context,
-            AuditLogger auditLogger,
-            EmailService emailService)
+
+    public ContractSigningService(
+        ApplicationDbContext context,
+        AuditLogger auditLogger,
+        EmailService emailService)
         {
             _context = context;
             _auditLogger = auditLogger;
@@ -134,6 +135,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 ContractContent =
                     contract.Content ??
                     string.Empty,
+
+                Status =
+                    contract.Status,
 
                 SignatureStepId =
                     roleStep?.Id,
@@ -891,6 +895,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         public string ContractContent { get; set; } =
             string.Empty;
 
+        public ContractStatus Status { get; set; }
+
         public int? SignatureStepId { get; set; }
 
         public bool IsThisRolesTurn { get; set; }
@@ -930,4 +936,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             };
         }
     }
+
+
 }

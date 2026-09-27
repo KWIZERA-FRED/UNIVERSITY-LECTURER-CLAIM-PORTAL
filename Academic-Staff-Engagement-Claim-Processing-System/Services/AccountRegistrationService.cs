@@ -14,9 +14,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
     {
         public string Name { get; set; } = string.Empty;
 
-        public string Email { get; set; } = string.Empty;
+
+    public string Email { get; set; } = string.Empty;
 
         public string Department { get; set; } = string.Empty;
+
+        public string Faculty { get; set; } = string.Empty;
 
         public string Rank { get; set; } = string.Empty;
 
@@ -124,6 +127,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
             request.Department =
                 request.Department?.Trim()
+                ?? string.Empty;
+
+            request.Faculty =
+                request.Faculty?.Trim()
                 ?? string.Empty;
 
             request.Rank =
@@ -253,6 +260,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
 
             // HOD-specific validation.
+            Faculty? parsedFaculty = null;
+
             if (isHod)
             {
                 if (string.IsNullOrWhiteSpace(
@@ -261,6 +270,19 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     return AccountRegistrationResult.Fail(
                         "Department is required for an HOD account.");
                 }
+
+
+                if (!Enum.TryParse<Faculty>(
+                    request.Faculty,
+                    true,
+                    out var hodFaculty))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Please select a valid faculty for the HOD account.");
+                }
+
+
+                parsedFaculty = hodFaculty;
             }
 
 
@@ -437,9 +459,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                         {
                             int createdUserId;
 
-
                             string auditEntityType;
-
 
                             string auditDescription;
 
@@ -532,7 +552,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                                         0,
                                         username,
                                         request.Email,
-                                        request.Department);
+                                        request.Department,
+                                        parsedFaculty!.Value);
 
 
                                 hod.SetPasswordHash(
@@ -562,7 +583,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
 
                                 auditDescription =
-                                    $"HOD account created. Username: {username}. Email: {request.Email}. Department: {request.Department}.";
+                                    $"HOD account created. Username: {username}. Email: {request.Email}. Department: {request.Department}. Faculty: {parsedFaculty.Value}.";
                             }
 
 
@@ -1272,4 +1293,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             }
         }
     }
+
+
 }

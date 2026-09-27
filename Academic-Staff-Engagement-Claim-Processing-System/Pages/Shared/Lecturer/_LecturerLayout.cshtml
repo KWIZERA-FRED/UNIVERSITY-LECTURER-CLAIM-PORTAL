@@ -29,38 +29,30 @@
 
     <meta charset="utf-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
-    <title>
-        @ViewData["Title"] - UNILAK Portal
-    </title>
+    <meta name="theme-color"
+          content="#0f2742" />
 
-    <link
-        rel="icon"
-        type="image/png"
-        href="~/images/PNG_LOGO-_UNILAK-removebg-preview.png" />
+    <title>@ViewData["Title"] | UNILAK</title>
 
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com" />
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
 
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin />
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap"
+          rel="stylesheet" />
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-    <link
-        rel="stylesheet"
-        href="~/css/Lecturer/layout.css"
-        asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/Lecturer/layout.css"
+          asp-append-version="true" />
 
     @RenderSection("Styles", required: false)
 
@@ -70,222 +62,177 @@
 
     <div class="lecturer-app">
 
-        <header class="top-navbar">
+        <aside class="lecturer-sidebar"
+               id="lecturerSidebar"
+               aria-label="Lecturer Portal Navigation">
 
-            <div class="navbar-left">
+            <a href="/Lecturer"
+               class="lecturer-brand"
+               aria-label="UNILAK Lecturer Portal">
 
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Toggle navigation"
-                    aria-expanded="false">
+                <span class="lecturer-brand-logo">
 
-                    <i class="bi bi-list"></i>
+                    <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                         alt="UNILAK Logo" />
 
-                </button>
+                </span>
 
-                <a
-                    href="/Lecturer"
-                    class="brand">
+                <span class="lecturer-brand-text">
 
-                    <div class="brand-logo">
+                    <span class="lecturer-brand-title">
+                        UNILAK
+                    </span>
 
-                        <img
-                            src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-                            alt="UNILAK Logo" />
+                    <span class="lecturer-brand-subtitle">
+                        Lecturer Portal
+                    </span>
 
-                    </div>
+                </span>
 
-                    <div class="brand-text">
+            </a>
 
-                        <span class="brand-title">
-                            UNILAK Portal
-                        </span>
+            <nav class="lecturer-sidebar-nav"
+                 aria-label="Lecturer navigation">
 
-                        <span class="brand-subtitle">
-                            Academic Staff Engagement System
-                        </span>
+                <a href="/Lecturer"
+                   class="lecturer-nav-item @(IsDashboard ? "active" : "")">
 
-                    </div>
+                    <span class="lecturer-nav-icon">
+                        <i class="bi bi-grid-1x2-fill"
+                           aria-hidden="true"></i>
+                    </span>
+
+                    <span class="lecturer-nav-text">
+                        Dashboard
+                    </span>
 
                 </a>
 
-            </div>
+                <a href="/Lecturer/Contracts"
+                   class="lecturer-nav-item @(IsActive("/Lecturer/Contracts") ? "active" : "")">
 
+                    <span class="lecturer-nav-icon">
+                        <i class="bi bi-file-earmark-text-fill"
+                           aria-hidden="true"></i>
+                    </span>
 
-            <div class="navbar-right">
+                    <span class="lecturer-nav-text">
+                        My Contracts
+                    </span>
 
-                <div class="navbar-user">
+                </a>
 
-                    <div class="user-avatar">
-                        <i class="bi bi-person"></i>
-                    </div>
+                <a href="/Lecturer/SubmitMarks"
+                   class="lecturer-nav-item @(IsActive("/Lecturer/SubmitMarks") ? "active" : "")">
 
-                    <div class="user-details">
+                    <span class="lecturer-nav-icon">
+                        <i class="bi bi-file-earmark-spreadsheet-fill"
+                           aria-hidden="true"></i>
+                    </span>
 
-                        <span class="user-name">
-                            @lecturerName
+                    <span class="lecturer-nav-text">
+                        Submit Marks
+                    </span>
+
+                </a>
+
+                <a href="/Lecturer/SubmitClaim"
+                   class="lecturer-nav-item @(IsActive("/Lecturer/SubmitClaim") ? "active" : "")">
+
+                    <span class="lecturer-nav-icon">
+                        <i class="bi bi-send-fill"
+                           aria-hidden="true"></i>
+                    </span>
+
+                    <span class="lecturer-nav-text">
+                        Submit Claim
+                    </span>
+
+                </a>
+
+                <a href="/Lecturer/Claims"
+                   class="lecturer-nav-item @(IsActive("/Lecturer/Claims") ? "active" : "")">
+
+                    <span class="lecturer-nav-icon">
+                        <i class="bi bi-wallet2"
+                           aria-hidden="true"></i>
+                    </span>
+
+                    <span class="lecturer-nav-text">
+                        My Claims
+                    </span>
+
+                </a>
+
+            </nav>
+
+        </aside>
+
+        <div class="lecturer-main">
+
+            <header class="lecturer-topbar" id="lecturerTopbar">
+
+                <button type="button"
+                        class="lecturer-mobile-menu"
+                        id="lecturerMobileMenuButton"
+                        aria-label="Toggle navigation"
+                        aria-controls="lecturerSidebar"
+                        aria-expanded="false">
+
+                    <i class="bi bi-list" aria-hidden="true"></i>
+
+                </button>
+
+                <div class="lecturer-topbar-spacer"></div>
+
+                <div class="lecturer-topbar-actions">
+
+                    <div class="lecturer-user-indicator">
+
+                        <span class="lecturer-user-icon">
+                            <i class="bi bi-person-badge-fill"
+                               aria-hidden="true"></i>
                         </span>
 
-                        <span class="user-role">
-                            Lecturer
-                        </span>
+                        <div class="lecturer-user-text">
+
+                            <span class="lecturer-user-label">
+                                Signed in as
+                            </span>
+
+                            <strong>
+                                @lecturerName
+                            </strong>
+
+                        </div>
 
                     </div>
+
+                    <div class="lecturer-topbar-divider"></div>
+
+                    <form method="post"
+                          asp-page="/Logout"
+                          class="lecturer-logout-form">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="lecturer-logout"
+                                aria-label="Sign out">
+
+                            <span>
+                                Sign Out
+                            </span>
+
+                        </button>
+
+                    </form>
 
                 </div>
 
+            </header>
 
-                <form
-                    method="post"
-                    asp-page="/Logout"
-                    class="logout-form">
-
-                    @Html.AntiForgeryToken()
-
-                    <button
-                        type="submit"
-                        class="logout-button"
-                        title="Sign out">
-
-                        <i class="bi bi-box-arrow-right"></i>
-
-                        <span>
-                            Sign Out
-                        </span>
-
-                    </button>
-
-                </form>
-
-            </div>
-
-        </header>
-
-
-        <div class="app-body">
-
-            <aside
-                class="sidebar"
-                id="lecturerSidebar">
-
-                <div class="sidebar-content">
-
-                    <nav
-                        class="sidebar-navigation"
-                        aria-label="Lecturer navigation">
-
-                        <div class="navigation-heading">
-                            LECTURER MENU
-                        </div>
-
-
-                        <a
-                            href="/Lecturer"
-                            class="sidebar-link @(IsDashboard ? "active" : "")">
-
-                            <span class="sidebar-icon">
-                                <i class="bi bi-grid-1x2-fill"></i>
-                            </span>
-
-                            <span class="sidebar-label">
-                                Dashboard
-                            </span>
-
-                        </a>
-
-
-                        <a
-                            href="/Lecturer/Contracts"
-                            class="sidebar-link @(IsActive("/Lecturer/Contracts") ? "active" : "")">
-
-                            <span class="sidebar-icon">
-                                <i class="bi bi-file-earmark-text-fill"></i>
-                            </span>
-
-                            <span class="sidebar-label">
-                                My Contracts
-                            </span>
-
-                        </a>
-
-
-                        <a
-                            href="/Lecturer/SubmitMarks"
-                            class="sidebar-link @(IsActive("/Lecturer/SubmitMarks") ? "active" : "")">
-
-                            <span class="sidebar-icon">
-                                <i class="bi bi-file-earmark-spreadsheet-fill"></i>
-                            </span>
-
-                            <span class="sidebar-label">
-                                Submit Marks
-                            </span>
-
-                        </a>
-
-
-                        <a
-                            href="/Lecturer/SubmitClaim"
-                            class="sidebar-link @(IsActive("/Lecturer/SubmitClaim") ? "active" : "")">
-
-                            <span class="sidebar-icon">
-                                <i class="bi bi-send-fill"></i>
-                            </span>
-
-                            <span class="sidebar-label">
-                                Submit Claim
-                            </span>
-
-                        </a>
-
-
-                        <a
-                            href="/Lecturer/Claims"
-                            class="sidebar-link @(IsActive("/Lecturer/Claims") ? "active" : "")">
-
-                            <span class="sidebar-icon">
-                                <i class="bi bi-wallet2"></i>
-                            </span>
-
-                            <span class="sidebar-label">
-                                My Claims
-                            </span>
-
-                        </a>
-
-                    </nav>
-
-
-                    <div class="sidebar-profile">
-
-                        <div class="profile-icon">
-
-                            <i class="bi bi-person-badge-fill"></i>
-
-                        </div>
-
-                        <div class="profile-content">
-
-                            <span class="profile-title">
-                                Lecturer Account
-                            </span>
-
-                            <span class="profile-text">
-                                Manage your academic activities
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </aside>
-
-
-            <main class="main-content">
+            <main class="lecturer-content">
 
                 @RenderBody()
 
@@ -293,135 +240,125 @@
 
         </div>
 
+        <div class="lecturer-sidebar-overlay"
+             id="lecturerSidebarOverlay">
+        </div>
+
     </div>
-
-
-    <div
-        class="sidebar-overlay"
-        id="sidebarOverlay">
-    </div>
-
 
     <script>
 
         document.addEventListener("DOMContentLoaded", function () {
 
+            const menuButton =
+                document.getElementById("lecturerMobileMenuButton");
+
             const sidebar =
                 document.getElementById("lecturerSidebar");
 
-            const toggle =
-                document.getElementById("sidebarToggle");
-
             const overlay =
-                document.getElementById("sidebarOverlay");
-
-
-            if (!sidebar || !toggle || !overlay) {
-                return;
-            }
-
+                document.getElementById("lecturerSidebarOverlay");
 
             function openSidebar() {
 
-                sidebar.classList.add("open");
+                if (!sidebar || !overlay) return;
 
+                sidebar.classList.add("open");
                 overlay.classList.add("visible");
 
-                toggle.setAttribute(
-                    "aria-expanded",
-                    "true"
-                );
+                if (menuButton) {
+                    menuButton.setAttribute("aria-expanded", "true");
+                }
 
-                document.body.classList.add(
-                    "sidebar-open"
-                );
             }
-
 
             function closeSidebar() {
 
-                sidebar.classList.remove("open");
+                if (!sidebar || !overlay) return;
 
+                sidebar.classList.remove("open");
                 overlay.classList.remove("visible");
 
-                toggle.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
+                if (menuButton) {
+                    menuButton.setAttribute("aria-expanded", "false");
+                }
 
-                document.body.classList.remove(
-                    "sidebar-open"
-                );
             }
 
+            if (menuButton) {
 
-            toggle.addEventListener(
-                "click",
-                function () {
+                menuButton.addEventListener("click", function () {
 
-                    if (
-                        sidebar.classList.contains("open")
-                    ) {
-
+                    if (sidebar && sidebar.classList.contains("open")) {
                         closeSidebar();
-
                     } else {
-
                         openSidebar();
-
                     }
 
-                }
-            );
+                });
 
+            }
 
-            overlay.addEventListener(
-                "click",
-                closeSidebar
-            );
+            if (overlay) {
+                overlay.addEventListener("click", closeSidebar);
+            }
 
+            document
+                .querySelectorAll(".lecturer-nav-item")
+                .forEach(function (link) {
 
-            document.querySelectorAll(
-                ".sidebar-link"
-            ).forEach(function (link) {
+                    link.addEventListener("click", function () {
 
-                link.addEventListener(
-                    "click",
-                    function () {
-
-                        if (
-                            window.innerWidth <= 900
-                        ) {
-
+                        if (window.innerWidth <= 900) {
                             closeSidebar();
-
                         }
 
-                    }
-                );
+                    });
+
+                });
+
+            document.addEventListener("keydown", function (event) {
+
+                if (event.key === "Escape") {
+                    closeSidebar();
+                }
+
+            });
+
+            window.addEventListener("resize", function () {
+
+                if (window.innerWidth > 900) {
+                    closeSidebar();
+                }
 
             });
 
 
-            window.addEventListener(
-                "resize",
-                function () {
+            /* ============================================
+               Topbar fade-out on scroll
+               ============================================ */
 
-                    if (
-                        window.innerWidth > 900
-                    ) {
+            const topbar = document.getElementById("lecturerTopbar");
 
-                        closeSidebar();
+            function updateTopbarState() {
 
-                    }
+                if (!topbar) return;
 
+                if (window.scrollY > 8) {
+                    topbar.classList.add("is-scrolled");
+                } else {
+                    topbar.classList.remove("is-scrolled");
                 }
-            );
+
+            }
+
+            updateTopbarState();
+
+            window.addEventListener("scroll", updateTopbarState, { passive: true });
 
         });
 
     </script>
-
 
     @RenderSection("Scripts", required: false)
 

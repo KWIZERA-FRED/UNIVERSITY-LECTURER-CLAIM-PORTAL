@@ -11,10 +11,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         private readonly AuditLogger _auditLogger;
         private readonly IMisAttendanceService _misAttendanceService;
 
-    public ClaimSubmissionService(
-        ApplicationDbContext context,
-        AuditLogger auditLogger,
-        IMisAttendanceService misAttendanceService)
+        public ClaimSubmissionService(
+            ApplicationDbContext context,
+            AuditLogger auditLogger,
+            IMisAttendanceService misAttendanceService)
         {
             _context = context;
             _auditLogger = auditLogger;
@@ -30,8 +30,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             string? ipAddress)
         {
             if (hoursClaimed <= 0)
+            {
                 return ClaimSubmissionResult.Fail(
                     "Claimed hours must be greater than zero.");
+            }
 
             var strategy = _context.Database.CreateExecutionStrategy();
 
@@ -83,12 +85,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
                     var requiredContractSignatures = new[]
                     {
-                    SignerRole.Lecturer,
-                    SignerRole.Dean,
-                    SignerRole.HROfficer,
-                    SignerRole.DVCAR,
-                    SignerRole.ViceChancellor
-                };
+                        SignerRole.Lecturer,
+                        SignerRole.Dean,
+                        SignerRole.HROfficer,
+                        SignerRole.DVCAR,
+                        SignerRole.ViceChancellor
+                    };
 
                     var completedSignatures =
                         await _context.ContractSignatures
@@ -98,9 +100,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                             .Select(s => s.SignerRole)
                             .ToListAsync();
 
-                    if (requiredContractSignatures
-                        .Except(completedSignatures)
-                        .Any())
+                    if (requiredContractSignatures.Except(completedSignatures).Any())
                     {
                         await transaction.RollbackAsync();
 
@@ -161,18 +161,27 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                             "MIS returned no attendance records. The claim cannot be created.");
                     }
 
+                    var claimReference =
+                        $"CLM-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}"[..30];
+
+                    var claimAmount =
+                        hoursClaimed * contract.RatePerHour;
+
                     var claim = new Claim(
                         0,
+                        claimReference,
+                        lecturerId,
                         courseAssignmentId,
-                        contract.Id)
+                        contract.Id,
+                        claimAmount)
                     {
                         MarksSubmissionId = signedMarks.Id,
                         HoursClaimed = hoursClaimed,
                         Description = (description ?? string.Empty).Trim(),
-                        Status = ClaimStatus.Submitted,
-                        SubmittedAtUtc = DateTime.UtcNow,
                         UpdatedAtUtc = DateTime.UtcNow
                     };
+
+                    claim.Submit();
 
                     _context.Claims.Add(claim);
 
@@ -239,29 +248,52 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                         lecturerId,
                         "Claim",
                         claim.Id,
-                        $"Submitted claim for assignment {courseAssignmentId}. Marks submission {signedMarks.SubmissionReference}. MIS attendance {attendance.MisReference}.",
+                        $"Submitted claim {claim.ClaimReference} for assignment {courseAssignmentId}. Marks submission {signedMarks.SubmissionReference}. MIS attendance {attendance.MisReference}.",
                         ipAddress);
 
                     await transaction.CommitAsync();
 
                     return ClaimSubmissionResult.Success(claim.Id);
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
                     await transaction.RollbackAsync();
 
+                    Console.WriteLine("=================================================");
+                    Console.WriteLine("CLAIM SUBMISSION CONCURRENCY ERROR");
+                    Console.WriteLine(ex.ToString());
+                    Console.WriteLine("=================================================");
+
                     return ClaimSubmissionResult.Fail(
-                        "The assignment changed while your claim was being submitted. Please refresh and try again.");
+                        $"The assignment changed while your claim was being submitted. Technical details: {ex.Message}");
+                }
+                catch (DbUpdateException ex)
+                {
+                    await transaction.RollbackAsync();
+
+                    Console.WriteLine("=================================================");
+                    Console.WriteLine("CLAIM SUBMISSION DATABASE ERROR");
+                    Console.WriteLine(ex.ToString());
+                    Console.WriteLine("=================================================");
+
+                    var databaseMessage =
+                        ex.InnerException?.Message ??
+                        ex.Message;
+
+                    return ClaimSubmissionResult.Fail(
+                        $"The claim could not be saved to the database. Technical details: {databaseMessage}");
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
 
-                    Console.WriteLine(
-                        $"CLAIM SUBMISSION ERROR: {ex}");
+                    Console.WriteLine("=================================================");
+                    Console.WriteLine("CLAIM SUBMISSION ERROR");
+                    Console.WriteLine(ex.ToString());
+                    Console.WriteLine("=================================================");
 
                     return ClaimSubmissionResult.Fail(
-                        "The claim could not be submitted. No approval was created.");
+                        $"The claim could not be submitted. Technical details: {ex.Message}");
                 }
             });
         }
@@ -272,13 +304,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         int? ClaimId,
         string? ErrorMessage)
     {
-        public static ClaimSubmissionResult Success(
-            int claimId) =>
+        public static ClaimSubmissionResult Success(int claimId) =>
             new(true, claimId, null);
 
-        public static ClaimSubmissionResult Fail(
-            string message) =>
+        public static ClaimSubmissionResult Fail(string message) =>
             new(false, null, message);
     }
-
 }

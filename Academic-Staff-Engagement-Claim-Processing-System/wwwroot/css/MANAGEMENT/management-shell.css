@@ -1,9 +1,11 @@
 /* ================================================================
    UNILAK ASECPS
-   DEAN PORTAL — SHELL
+   MANAGEMENT PORTAL — SHELL
    ================================================================
-   Dark navy sidebar, transparent topbar that fades on scroll,
-   content scrolls with the page. Matches the HOD shell.
+   Matches the Dean / HOD / Lecturer shells:
+   - Dark navy sidebar with brand at the top
+   - Transparent topbar that floats over content and fades on scroll
+   - Content scrolls with the page
    ================================================================ */
 
 
@@ -92,7 +94,7 @@ a {
    APP SHELL
    ================================================================ */
 
-.dean-app {
+.management-app {
     min-height: 100vh;
     background: var(--background);
 }
@@ -102,7 +104,7 @@ a {
    SIDEBAR
    ================================================================ */
 
-.dean-sidebar {
+.management-sidebar {
     position: fixed;
     top: 0;
     left: 0;
@@ -119,15 +121,15 @@ a {
     scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
 
-    .dean-sidebar::-webkit-scrollbar {
+    .management-sidebar::-webkit-scrollbar {
         width: 5px;
     }
 
-    .dean-sidebar::-webkit-scrollbar-track {
+    .management-sidebar::-webkit-scrollbar-track {
         background: transparent;
     }
 
-    .dean-sidebar::-webkit-scrollbar-thumb {
+    .management-sidebar::-webkit-scrollbar-thumb {
         background: rgba(255, 255, 255, 0.18);
         border-radius: 10px;
     }
@@ -137,7 +139,7 @@ a {
    BRAND
    ================================================================ */
 
-.dean-brand {
+.management-brand {
     display: flex;
     align-items: center;
     gap: 11px;
@@ -145,7 +147,7 @@ a {
     min-width: 0;
 }
 
-.dean-brand-logo {
+.management-brand-logo {
     width: 34px;
     height: 34px;
     display: flex;
@@ -154,20 +156,20 @@ a {
     flex-shrink: 0;
 }
 
-    .dean-brand-logo img {
+    .management-brand-logo img {
         display: block;
         width: 34px;
         height: 34px;
         object-fit: contain;
     }
 
-.dean-brand-text {
+.management-brand-text {
     display: flex;
     flex-direction: column;
     min-width: 0;
 }
 
-.dean-brand-title {
+.management-brand-title {
     color: #ffffff;
     font-family: var(--font-secondary);
     font-size: 15px;
@@ -176,7 +178,7 @@ a {
     letter-spacing: -0.1px;
 }
 
-.dean-brand-subtitle {
+.management-brand-subtitle {
     margin-top: 2px;
     color: rgba(255, 255, 255, 0.5);
     font-size: 10.5px;
@@ -190,14 +192,14 @@ a {
    SIDEBAR NAV
    ================================================================ */
 
-.dean-sidebar-nav {
+.management-sidebar-nav {
     display: flex;
     flex-direction: column;
     gap: 2px;
     margin-top: 4px;
 }
 
-.dean-nav-item {
+.management-nav-item {
     position: relative;
     display: flex;
     align-items: center;
@@ -211,17 +213,17 @@ a {
     transition: background var(--transition), color var(--transition);
 }
 
-    .dean-nav-item:hover {
+    .management-nav-item:hover {
         background: var(--sidebar-bg-hover);
         color: #ffffff;
     }
 
-    .dean-nav-item.active {
+    .management-nav-item.active {
         background: var(--sidebar-bg-active);
         color: #ffffff;
     }
 
-        .dean-nav-item.active::before {
+        .management-nav-item.active::before {
             content: "";
             position: absolute;
             left: 0;
@@ -232,7 +234,7 @@ a {
             background: var(--sidebar-accent);
         }
 
-.dean-nav-icon {
+.management-nav-icon {
     width: 18px;
     display: flex;
     align-items: center;
@@ -241,7 +243,7 @@ a {
     font-size: 16px;
 }
 
-.dean-nav-text {
+.management-nav-text {
     white-space: nowrap;
 }
 
@@ -250,7 +252,7 @@ a {
    MAIN COLUMN
    ================================================================ */
 
-.dean-main {
+.management-main {
     margin-left: var(--sidebar-width);
     min-height: 100vh;
     display: flex;
@@ -262,7 +264,7 @@ a {
    TOPBAR — transparent, floats over content, fades on scroll
    ================================================================ */
 
-.dean-topbar {
+.management-topbar {
     position: sticky;
     top: 0;
     z-index: 500;
@@ -275,7 +277,7 @@ a {
     transition: opacity 0.28s ease, transform 0.28s ease;
 }
 
-    .dean-topbar.is-scrolled {
+    .management-topbar.is-scrolled {
         opacity: 0;
         pointer-events: none;
         transform: translateY(-4px);
@@ -286,7 +288,7 @@ a {
    MOBILE MENU
    ================================================================ */
 
-.dean-mobile-menu {
+.management-mobile-menu {
     display: none;
     width: 36px;
     height: 36px;
@@ -301,11 +303,11 @@ a {
     transition: background var(--transition);
 }
 
-    .dean-mobile-menu:hover {
+    .management-mobile-menu:hover {
         background: rgba(15, 39, 66, 0.06);
     }
 
-.dean-topbar-spacer {
+.management-topbar-spacer {
     flex: 1;
 }
 
@@ -314,20 +316,19 @@ a {
    TOPBAR ACTIONS
    ================================================================ */
 
-.dean-topbar-actions {
+.management-topbar-actions {
     display: flex;
     align-items: center;
     gap: 14px;
 }
 
-.dean-role-indicator {
+.management-user-indicator {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* Role icon — white circle with a deep navy blue glyph */
-.dean-role-icon {
+.management-user-icon {
     width: 34px;
     height: 34px;
     display: flex;
@@ -340,13 +341,13 @@ a {
     font-size: 15px;
 }
 
-.dean-role-text {
+.management-user-text {
     display: flex;
     flex-direction: column;
     min-width: 0;
 }
 
-.dean-role-label {
+.management-user-label {
     color: var(--text-muted);
     font-size: 9.5px;
     font-weight: 600;
@@ -355,7 +356,7 @@ a {
     line-height: 1.3;
 }
 
-.dean-role-text strong {
+.management-user-text strong {
     margin-top: 1px;
     color: var(--primary);
     font-size: 12.5px;
@@ -363,17 +364,17 @@ a {
     line-height: 1.3;
 }
 
-.dean-topbar-divider {
+.management-topbar-divider {
     width: 1px;
     height: 26px;
     background: var(--border);
 }
 
-.dean-logout-form {
+.management-logout-form {
     margin: 0;
 }
 
-.dean-logout {
+.management-logout {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -388,12 +389,12 @@ a {
     transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
 
-    .dean-logout:hover {
+    .management-logout:hover {
         background: var(--danger-bg);
         border-color: #e4c4c8;
     }
 
-    .dean-logout:active {
+    .management-logout:active {
         transform: translateY(1px);
     }
 
@@ -402,7 +403,7 @@ a {
    CONTENT — minimal top padding since topbar floats over it
    ================================================================ */
 
-.dean-content {
+.management-content {
     flex: 1;
     padding: 8px 28px 40px;
 }
@@ -412,7 +413,7 @@ a {
    MOBILE OVERLAY
    ================================================================ */
 
-.dean-sidebar-overlay {
+.management-sidebar-overlay {
     display: none;
     position: fixed;
     inset: 0;
@@ -420,7 +421,7 @@ a {
     z-index: 850;
 }
 
-    .dean-sidebar-overlay.visible {
+    .management-sidebar-overlay.visible {
         display: block;
     }
 
@@ -429,10 +430,10 @@ a {
    FOCUS ACCESSIBILITY
    ================================================================ */
 
-.dean-nav-item:focus-visible,
-.dean-logout:focus-visible,
-.dean-mobile-menu:focus-visible,
-.dean-brand:focus-visible {
+.management-nav-item:focus-visible,
+.management-logout:focus-visible,
+.management-mobile-menu:focus-visible,
+.management-brand:focus-visible {
     outline: 2px solid rgba(78, 196, 160, 0.6);
     outline-offset: 2px;
 }
@@ -448,7 +449,7 @@ a {
         --sidebar-width: 210px;
     }
 
-    .dean-content {
+    .management-content {
         padding: 8px 22px 32px;
     }
 }
@@ -460,29 +461,29 @@ a {
 
 @media (max-width: 900px) {
 
-    .dean-sidebar {
+    .management-sidebar {
         transform: translateX(-100%);
         transition: transform 0.25s ease;
         box-shadow: 12px 0 30px rgba(5, 20, 35, 0.2);
     }
 
-        .dean-sidebar.open {
+        .management-sidebar.open {
             transform: translateX(0);
         }
 
-    .dean-main {
+    .management-main {
         margin-left: 0;
     }
 
-    .dean-mobile-menu {
+    .management-mobile-menu {
         display: flex;
     }
 
-    .dean-role-text {
+    .management-user-text {
         display: none;
     }
 
-    .dean-content {
+    .management-content {
         padding: 8px 18px 32px;
     }
 }
@@ -494,23 +495,23 @@ a {
 
 @media (max-width: 520px) {
 
-    .dean-topbar {
+    .management-topbar {
         padding: 0 14px;
     }
 
-    .dean-role-indicator {
+    .management-user-indicator {
         display: none;
     }
 
-    .dean-topbar-divider {
+    .management-topbar-divider {
         display: none;
     }
 
-    .dean-logout {
+    .management-logout {
         padding: 0 12px;
     }
 
-    .dean-content {
+    .management-content {
         padding: 6px 14px 28px;
     }
 }
@@ -529,7 +530,7 @@ a {
         animation-duration: 0.01ms !important;
     }
 
-    .dean-topbar {
+    .management-topbar {
         transform: none !important;
     }
 }

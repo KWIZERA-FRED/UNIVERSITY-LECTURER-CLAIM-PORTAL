@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
+namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
 {
     [Authorize(Roles = "Management")]
     public class ManagementDashboardModel : PageModel
@@ -260,13 +260,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             };
         }
 
-        // ============================================================
-        // LEGACY CLAIMS ROLE MAPPING
-        // ============================================================
-        //
-        // Kept temporarily so the existing Claims page continues
-        // to compile while the current development focus is contracts.
-        //
+        
 
         public static ApprovalRole MapTitleToApprovalRole(ManagementTitle title) => title switch
         {

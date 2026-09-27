@@ -1,0 +1,97 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.Management.ExamOffice.IndexModel
+
+@{
+    ViewData["Title"] = "Exam Office Dashboard";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/Management/examoffice-index.css"
+          asp-append-version="true" />
+}
+
+<div class="dashboard-page">
+
+    <header class="page-header">
+        <h1>Exam Office Dashboard</h1>
+        <p>Overview of pending marks submissions and recent review activity.</p>
+    </header>
+
+    <section class="stats-grid">
+
+        <a href="/Management/ExamOffice/Marks" class="stat-card stat-card-orange">
+            <div class="stat-icon">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="stat-value">@Model.PendingCount</div>
+            <span class="stat-label">Pending Review</span>
+        </a>
+
+        <a href="/Management/ExamOffice/Marks" class="stat-card stat-card-green">
+            <div class="stat-icon">
+                <i class="bi bi-file-earmark-check-fill"></i>
+            </div>
+            <div class="stat-value">@Model.SignedThisWeekCount</div>
+            <span class="stat-label">Signed This Week</span>
+        </a>
+
+        <a href="/Management/ExamOffice/Marks" class="stat-card stat-card-purple">
+            <div class="stat-icon">
+                <i class="bi bi-x-octagon-fill"></i>
+            </div>
+            <div class="stat-value">@Model.DeclinedThisWeekCount</div>
+            <span class="stat-label">Declined This Week</span>
+        </a>
+
+        <a href="/Management/ExamOffice/Marks" class="stat-card stat-card-blue">
+            <div class="stat-icon">
+                <i class="bi bi-calendar-check-fill"></i>
+            </div>
+            <div class="stat-value">@Model.SignedThisMonthCount</div>
+            <span class="stat-label">Signed This Month</span>
+        </a>
+
+    </section>
+
+    <section class="section-card">
+
+        <header class="section-header">
+            <h2>Recent Activity</h2>
+            <a href="/Management/ExamOffice/Marks" class="section-link">
+                View all
+            </a>
+        </header>
+
+        @if (Model.RecentActivity.Any())
+        {
+            <div class="list-table">
+
+                @foreach (var item in Model.RecentActivity)
+                {
+                    <div class="list-row">
+
+                        <div class="list-main">
+                            <span class="list-reference">@item.Reference</span>
+                            <strong>@item.LecturerName</strong>
+                        </div>
+
+                        <span class="status-badge @item.StatusCssClass">
+                            @item.StatusLabel
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <p>No marks submissions have been reviewed yet.</p>
+            </div>
+        }
+
+    </section>
+
+</div>

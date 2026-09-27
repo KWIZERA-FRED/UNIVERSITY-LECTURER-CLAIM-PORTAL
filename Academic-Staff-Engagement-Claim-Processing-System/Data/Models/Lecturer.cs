@@ -12,7 +12,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         [Key]
         public int Id { get; private set; }
 
-        [Required]
+
+    [Required]
         public UserRole Type { get; set; } = UserRole.PartTimeLecturer;
 
         [Required]
@@ -26,6 +27,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 
         [MaxLength(20)]
         public string PhoneNumber { get; set; } = string.Empty;
+
+        [MaxLength(30)]
+        public string RssbNumber { get; set; } = string.Empty;
 
         [Required]
         public string PasswordHash { get; private set; } = string.Empty;
@@ -129,4 +133,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
             UpdatedAtUtc = DateTime.UtcNow;
         }
     }
+
+
 }

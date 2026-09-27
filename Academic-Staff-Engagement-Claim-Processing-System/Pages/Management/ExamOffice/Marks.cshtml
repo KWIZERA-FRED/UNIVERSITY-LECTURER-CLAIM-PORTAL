@@ -1,23 +1,22 @@
 @page
-@model Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.ClaimsModel
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.Management.ExamOffice.MarksModel
 
 @{
-    Layout = "~/Pages/Shared/DEAN/_DeanLayout.cshtml";
-    ViewData["Title"] = "Claims";
+    ViewData["Title"] = "Marks Review";
 }
 
 @section Styles {
     <link rel="stylesheet"
-          href="~/css/DEAN/claims.css"
+          href="~/css/Management/dashboard.css"
           asp-append-version="true" />
 }
 
-<section class="claims-page">
+<section class="management-dashboard">
 
     <header class="page-header">
         <div class="page-header-main">
-            <h1>Claims</h1>
-            <p>Review lecturer payment claims awaiting your signature.</p>
+            <h1>Marks Review</h1>
+            <p>Review submitted marks sheets before signing them for claim processing.</p>
         </div>
     </header>
 
@@ -40,16 +39,20 @@
     <section class="section-card">
 
         <header class="section-header">
-            <h2>Claims Awaiting Your Signature</h2>
+            <h2>Marks Awaiting Review</h2>
+
             <span class="section-meta">
-                @Model.PendingClaims.Count @(Model.PendingClaims.Count == 1 ? "claim" : "claims")
+                @Model.PendingSubmissions.Count
+                @(Model.PendingSubmissions.Count == 1
+                    ? "submission"
+                    : "submissions")
             </span>
         </header>
 
-        @if (Model.PendingClaims.Count == 0)
+        @if (Model.PendingSubmissions.Count == 0)
         {
             <div class="empty-state">
-                <p>No claims awaiting your signature.</p>
+                <p>No marks sheets awaiting review.</p>
             </div>
         }
         else
@@ -59,48 +62,58 @@
 
                     <thead>
                         <tr>
-                            <th>Claim</th>
+                            <th>Reference</th>
                             <th>Lecturer</th>
-                            <th>Contract</th>
-                            <th class="col-right">Hours</th>
+                            <th>Course</th>
+                            <th>Academic Year</th>
+                            <th>Submitted</th>
                             <th class="col-action"></th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @foreach (var row in Model.PendingClaims)
+                        @foreach (var row in Model.PendingSubmissions)
                         {
-                            <tr class="claim-row"
-                                data-search="CL@(row.ClaimId.ToString("D3")) @row.LecturerName C@(row.ContractId.ToString("D3"))">
-
+                            <tr>
                                 <td>
                                     <span class="reference-pill">
-                                        CL@(row.ClaimId.ToString("D3"))
+                                        @row.Reference
                                     </span>
                                 </td>
 
                                 <td>
-                                    <span class="lecturer-name">@row.LecturerName</span>
-                                </td>
-
-                                <td>
-                                    <span class="contract-reference">
-                                        C@(row.ContractId.ToString("D3"))
+                                    <span class="lecturer-name">
+                                        @row.LecturerName
                                     </span>
                                 </td>
 
-                                <td class="col-right">
-                                    <span class="hours-value">@row.HoursClaimed.ToString("N2")</span>
+                                <td>
+                                    <span class="course-title">
+                                        @row.CourseTitle
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @row.AcademicYear
+                                </td>
+
+                                <td>
+                                    @row.SubmittedAtUtc.ToString("dd MMM yyyy")
                                 </td>
 
                                 <td class="col-action">
-                                    <a asp-page="/DEAN/ClaimDetails"
-                                       asp-route-claimId="@row.ClaimId"
-                                       class="gray-button">
-                                        Review
-                                    </a>
-                                </td>
 
+                                    <a href="@Url.Page(
+                                        "/Management/ExamOffice/MarksDetails",
+                                        new { submissionId = row.Id })"
+                                       class="gray-button">
+
+                                        <i class="bi bi-eye-fill"></i>
+                                        Review
+
+                                    </a>
+
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -112,11 +125,3 @@
     </section>
 
 </section>
-
-@section Scripts {
-<script>
-
-    const noResults = document.getElementById("noResults");
-
-</script>
-}

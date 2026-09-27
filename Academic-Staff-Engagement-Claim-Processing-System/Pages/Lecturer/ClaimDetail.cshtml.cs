@@ -13,7 +13,7 @@ public class ClaimDetailModel : PageModel
 {
     private readonly ApplicationDbContext _context;
 
-public ClaimDetailModel(ApplicationDbContext context)
+    public ClaimDetailModel(ApplicationDbContext context)
     {
         _context = context;
     }
@@ -138,8 +138,8 @@ public ClaimDetailModel(ApplicationDbContext context)
                                 .ReviewedByManagement
                                 ?.UserName,
 
-                        FilePath =
-                            claim.MarksSubmission.FilePath
+                        StorageFileId =
+                            claim.MarksSubmission.StorageFileId
                     },
 
             Attendance =
@@ -299,8 +299,7 @@ public ClaimDetailModel(ApplicationDbContext context)
 
         public string? SignedBy { get; init; }
 
-        public string FilePath { get; init; } =
-            string.Empty;
+        public Guid StorageFileId { get; init; }
     }
 
     public sealed class AttendanceEvidenceView
@@ -376,6 +375,4 @@ public ClaimDetailModel(ApplicationDbContext context)
                 _ => "badge-pending"
             };
     }
-
-
 }

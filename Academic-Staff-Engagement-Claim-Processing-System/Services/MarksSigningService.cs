@@ -18,17 +18,20 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         private readonly ApplicationDbContext _context;
         private readonly AuditLogger _auditLogger;
         private readonly EmailService _emailService;
+        private readonly IFileStorageService _fileStorage;
         private readonly ILogger<MarksSigningService> _logger;
 
         public MarksSigningService(
             ApplicationDbContext context,
             AuditLogger auditLogger,
             EmailService emailService,
+            IFileStorageService fileStorage,
             ILogger<MarksSigningService> logger)
         {
             _context = context;
             _auditLogger = auditLogger;
             _emailService = emailService;
+            _fileStorage = fileStorage;
             _logger = logger;
         }
 
@@ -60,8 +63,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
             if (marksFile.Length > maximumFileSize)
             {
-                return Failure(
-                    "The marks file must not exceed 10 MB.");
+                return Failure("The marks file must not exceed 10 MB.");
             }
 
             if (!string.Equals(
@@ -69,31 +71,27 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     ".xlsx",
                     StringComparison.OrdinalIgnoreCase))
             {
-                return Failure(
-                    "Only XLSX Excel files are allowed.");
+                return Failure("Only XLSX Excel files are allowed.");
             }
 
-            var lecturer =
-                await _context.Lecturers
-                    .FirstOrDefaultAsync(l =>
-                        l.Id == lecturerId &&
-                        l.IsActive);
+            var lecturer = await _context.Lecturers
+                .FirstOrDefaultAsync(l =>
+                    l.Id == lecturerId &&
+                    l.IsActive);
 
             if (lecturer == null)
             {
-                return Failure(
-                    "The lecturer account is invalid or inactive.");
+                return Failure("The lecturer account is invalid or inactive.");
             }
 
-            var assignment =
-                await _context.CourseAssignments
-                    .Include(ca => ca.Course)
-                    .FirstOrDefaultAsync(ca =>
-                        ca.Id == courseAssignmentId &&
-                        ca.LecturerId == lecturerId &&
-                        ca.IsActive &&
-                        ca.Course != null &&
-                        ca.Course.IsActive);
+            var assignment = await _context.CourseAssignments
+                .Include(ca => ca.Course)
+                .FirstOrDefaultAsync(ca =>
+                    ca.Id == courseAssignmentId &&
+                    ca.LecturerId == lecturerId &&
+                    ca.IsActive &&
+                    ca.Course != null &&
+                    ca.Course.IsActive);
 
             if (assignment == null)
             {
@@ -119,12 +117,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     "The semester does not match the selected course assignment.");
             }
 
-            var existingSubmission =
-                await _context.MarksSubmissions
-                    .FirstOrDefaultAsync(ms =>
-                        ms.CourseAssignmentId == assignment.Id &&
-                        ms.LecturerId == lecturerId &&
-                        ms.Status != MarksSubmissionStatus.Signed);
+            var existingSubmission = await _context.MarksSubmissions
+                .FirstOrDefaultAsync(ms =>
+                    ms.CourseAssignmentId == assignment.Id &&
+                    ms.LecturerId == lecturerId &&
+                    ms.Status != MarksSubmissionStatus.Signed);
 
             if (existingSubmission != null)
             {
@@ -142,11 +139,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 await using var memoryStream =
                     new MemoryStream();
 
-                await inputStream.CopyToAsync(
-                    memoryStream);
+                await inputStream.CopyToAsync(memoryStream);
 
-                fileBytes =
-                    memoryStream.ToArray();
+                fileBytes = memoryStream.ToArray();
             }
             catch (Exception ex)
             {
@@ -161,14 +156,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
             if (fileBytes.Length == 0)
             {
-                return Failure(
-                    "The uploaded marks file is empty.");
+                return Failure("The uploaded marks file is empty.");
             }
 
             if (fileBytes.Length > maximumFileSize)
             {
-                return Failure(
-                    "The marks file must not exceed 10 MB.");
+                return Failure("The marks file must not exceed 10 MB.");
             }
 
             if (fileBytes.Length < 4 ||
@@ -177,20 +170,17 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 fileBytes[2] != 0x03 ||
                 fileBytes[3] != 0x04)
             {
-                return Failure(
-                    "The uploaded file is not a valid XLSX workbook.");
+                return Failure("The uploaded file is not a valid XLSX workbook.");
             }
 
             try
             {
-                using var validationStream =
-                    new MemoryStream(fileBytes);
+                using var validationStream = new MemoryStream(fileBytes);
 
-                using var archive =
-                    new ZipArchive(
-                        validationStream,
-                        ZipArchiveMode.Read,
-                        false);
+                using var archive = new ZipArchive(
+                    validationStream,
+                    ZipArchiveMode.Read,
+                    false);
 
                 if (archive.Entries.Count > 500)
                 {
@@ -203,50 +193,38 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 foreach (var entry in archive.Entries)
                 {
                     string normalizedPath =
-                        entry.FullName.Replace(
-                            '\\',
-                            '/');
+                        entry.FullName.Replace('\\', '/');
 
-                    if (normalizedPath.Contains(
-                            "../",
-                            StringComparison.Ordinal) ||
-                        normalizedPath.StartsWith(
-                            "/",
-                            StringComparison.Ordinal) ||
-                        Path.IsPathRooted(
-                            entry.FullName))
+                    if (normalizedPath.Contains("../", StringComparison.Ordinal) ||
+                        normalizedPath.StartsWith("/", StringComparison.Ordinal) ||
+                        Path.IsPathRooted(entry.FullName))
                     {
                         return Failure(
                             "The Excel file contains an invalid internal path.");
                     }
 
-                    uncompressedSize +=
-                        entry.Length;
+                    uncompressedSize += entry.Length;
 
-                    if (uncompressedSize >
-                        50 * 1024 * 1024)
+                    if (uncompressedSize > 50 * 1024 * 1024)
                     {
                         return Failure(
                             "The Excel file contains too much uncompressed data.");
                     }
                 }
 
-                bool hasContentTypes =
-                    archive.Entries.Any(e =>
-                        string.Equals(
-                            e.FullName,
-                            "[Content_Types].xml",
-                            StringComparison.OrdinalIgnoreCase));
+                bool hasContentTypes = archive.Entries.Any(e =>
+                    string.Equals(
+                        e.FullName,
+                        "[Content_Types].xml",
+                        StringComparison.OrdinalIgnoreCase));
 
-                bool hasWorkbook =
-                    archive.Entries.Any(e =>
-                        string.Equals(
-                            e.FullName,
-                            "xl/workbook.xml",
-                            StringComparison.OrdinalIgnoreCase));
+                bool hasWorkbook = archive.Entries.Any(e =>
+                    string.Equals(
+                        e.FullName,
+                        "xl/workbook.xml",
+                        StringComparison.OrdinalIgnoreCase));
 
-                if (!hasContentTypes ||
-                    !hasWorkbook)
+                if (!hasContentTypes || !hasWorkbook)
                 {
                     return Failure(
                         "The uploaded file is not a valid Excel XLSX workbook.");
@@ -264,53 +242,35 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     "XLSX validation failed for lecturer {LecturerId}.",
                     lecturerId);
 
-                return Failure(
-                    "The Excel file could not be validated.");
+                return Failure("The Excel file could not be validated.");
             }
 
             string fileHash;
 
             using (var sha256 = SHA256.Create())
             {
-                fileHash =
-                    Convert.ToHexString(
-                        sha256.ComputeHash(
-                            fileBytes))
-                    .ToLowerInvariant();
+                fileHash = Convert.ToHexString(
+                    sha256.ComputeHash(fileBytes)).ToLowerInvariant();
             }
 
             string submissionReference =
                 $"MRK-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid():N}";
 
-            string marksDirectory =
-                Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "wwwroot",
-                    "uploads",
-                    "marks");
-
-            string storedFileName =
-                $"{submissionReference}.xlsx";
-
-            string storedFilePath =
-                Path.Combine(
-                    marksDirectory,
-                    storedFileName);
+            string storageKey;
 
             try
             {
-                Directory.CreateDirectory(
-                    marksDirectory);
-
-                await File.WriteAllBytesAsync(
-                    storedFilePath,
-                    fileBytes);
+                storageKey = await _fileStorage.SaveAsync(
+                    folder: "marks",
+                    preferredFileName: marksFile.FileName,
+                    content: fileBytes,
+                    contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             }
             catch (Exception ex)
             {
                 _logger.LogError(
                     ex,
-                    "Failed to save marks file to application storage.");
+                    "Failed to save marks file to storage.");
 
                 return Failure(
                     "The marks file could not be saved. Please try again.");
@@ -325,48 +285,40 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     async () =>
                     {
                         await using var transaction =
-                            await _context.Database
-                                .BeginTransactionAsync();
+                            await _context.Database.BeginTransactionAsync();
 
                         try
                         {
-                            var submission =
-                                new MarksSubmission
-                                {
-                                    LecturerId =
-                                        lecturerId,
+                            var submission = new MarksSubmission
+                            {
+                                LecturerId = lecturerId,
 
-                                    CourseAssignmentId =
-                                        assignment.Id,
+                                CourseAssignmentId = assignment.Id,
 
-                                    CourseId =
-                                        assignment.CourseId,
+                                CourseId = assignment.CourseId,
 
-                                    AcademicYear =
-                                        assignmentAcademicYear,
+                                AcademicYear = assignmentAcademicYear,
 
-                                    Semester =
-                                        assignment.Semester,
+                                Semester = assignment.Semester,
 
-                                    FileName =
-                                        Path.GetFileName(
-                                            marksFile.FileName),
+                                FileName = Path.GetFileName(marksFile.FileName),
 
-                                    FileHash =
-                                        fileHash,
+                                StorageFileId = Guid.Parse(storageKey),
 
-                                    SubmissionReference =
-                                        submissionReference,
+                                FileHash = fileHash,
 
-                                    Status =
-                                        MarksSubmissionStatus.Pending,
+                                ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 
-                                    SubmittedAtUtc =
-                                        DateTime.UtcNow
-                                };
+                                FileSizeBytes = fileBytes.Length,
 
-                            _context.MarksSubmissions.Add(
-                                submission);
+                                SubmissionReference = submissionReference,
+
+                                Status = MarksSubmissionStatus.Pending,
+
+                                SubmittedAtUtc = DateTime.UtcNow
+                            };
+
+                            _context.MarksSubmissions.Add(submission);
 
                             await _context.SaveChangesAsync();
 
@@ -399,12 +351,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
                 try
                 {
-                    if (File.Exists(
-                        storedFilePath))
-                    {
-                        File.Delete(
-                            storedFilePath);
-                    }
+                    await _fileStorage.DeleteAsync(storageKey);
                 }
                 catch (Exception deleteEx)
                 {
@@ -414,25 +361,20 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 }
 
                 string databaseError =
-                    ex.InnerException?.Message ??
-                    ex.Message;
+                    ex.InnerException?.Message ?? ex.Message;
 
-                return Failure(
-                    $"Database error: {databaseError}");
+                return Failure($"Database error: {databaseError}");
             }
 
             try
             {
-                var examOffices =
-                    await _context.ManagementAccounts
-                        .AsNoTracking()
-                        .Where(m =>
-                            m.IsActive &&
-                            m.Title ==
-                                ManagementTitle.ExamOffice &&
-                            !string.IsNullOrWhiteSpace(
-                                m.Email))
-                        .ToListAsync();
+                var examOffices = await _context.ManagementAccounts
+                    .AsNoTracking()
+                    .Where(m =>
+                        m.IsActive &&
+                        m.Title == ManagementTitle.ExamOffice &&
+                        !string.IsNullOrWhiteSpace(m.Email))
+                    .ToListAsync();
 
                 foreach (var examOffice in examOffices)
                 {
@@ -467,8 +409,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             return new MarksSubmissionResult
             {
                 Succeeded = true,
-                SubmissionReference =
-                    submissionReference
+                SubmissionReference = submissionReference
             };
         }
 
@@ -514,68 +455,82 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             string actorUsername,
             string? ipAddress)
         {
-            var examOffice =
-                await _context.ManagementAccounts
-                    .FirstOrDefaultAsync(m =>
-                        m.Id == actorId &&
-                        m.IsActive &&
-                        m.Title ==
-                            ManagementTitle.ExamOffice);
+            var examOffice = await _context.ManagementAccounts
+                .FirstOrDefaultAsync(m =>
+                    m.Id == actorId &&
+                    m.IsActive &&
+                    m.Title == ManagementTitle.ExamOffice);
 
             if (examOffice == null)
             {
-                return new MarksReviewResult
-                {
-                    Succeeded = false,
-                    ErrorMessage =
-                        "Only the Exam Office is authorized to review marks submissions."
-                };
+                return ReviewFailure(
+                    "Only the Exam Office is authorized to review marks submissions.");
             }
 
-            var submission =
-                await _context.MarksSubmissions
-                    .Include(ms =>
-                        ms.Lecturer)
-                    .Include(ms =>
-                        ms.CourseAssignment)
-                    .ThenInclude(ca =>
-                        ca.Course)
-                    .FirstOrDefaultAsync(ms =>
-                        ms.Id == submissionId);
+            var submission = await _context.MarksSubmissions
+                .Include(ms => ms.Lecturer)
+                .Include(ms => ms.CourseAssignment)
+                    .ThenInclude(ca => ca.Course)
+                .FirstOrDefaultAsync(ms => ms.Id == submissionId);
 
             if (submission == null)
             {
-                return new MarksReviewResult
-                {
-                    Succeeded = false,
-                    ErrorMessage =
-                        "The marks submission could not be found."
-                };
+                return ReviewFailure(
+                    "The marks submission could not be found.");
             }
 
-            if (submission.Status !=
-                MarksSubmissionStatus.Pending)
+            if (submission.Status != MarksSubmissionStatus.Pending)
             {
-                return new MarksReviewResult
-                {
-                    Succeeded = false,
-                    ErrorMessage =
-                        "This marks submission is no longer awaiting review."
-                };
+                return ReviewFailure(
+                    "This marks submission is no longer awaiting review.");
             }
 
             if (!approve)
             {
-                return new MarksReviewResult
+                if (string.IsNullOrWhiteSpace(remarks))
                 {
-                    Succeeded = false,
-                    ErrorMessage =
-                        "The marks submission was not signed."
-                };
+                    return ReviewFailure(
+                        "A reason is required when declining a marks submission.");
+                }
+
+                submission.Status = MarksSubmissionStatus.Declined;
+
+                submission.ReviewComment = remarks.Trim();
+
+                submission.ReviewedAtUtc = DateTime.UtcNow;
+
+                submission.ReviewedByManagementId = examOffice.Id;
+
+                await _context.SaveChangesAsync();
+
+                await _auditLogger.LogAsync(
+                    action: AuditAction.MarksDeclined,
+                    actorUsername: actorUsername,
+                    actorRole: "Exam Office",
+                    actorId: examOffice.Id,
+                    entityType: "MarksSubmission",
+                    entityId: submission.Id,
+                    details:
+                        $"Marks submission {submission.SubmissionReference} declined. Reason: {remarks.Trim()}",
+                    ipAddress: ipAddress);
+
+                await NotifyLecturerAsync(
+                    submission,
+                    approved: false,
+                    reason: remarks.Trim());
+
+                return new MarksReviewResult { Succeeded = true };
             }
 
-            submission.Status =
-                MarksSubmissionStatus.Signed;
+            submission.Status = MarksSubmissionStatus.Signed;
+
+            submission.SignedAtUtc = DateTime.UtcNow;
+
+            submission.ReviewedAtUtc = DateTime.UtcNow;
+
+            submission.ReviewedByManagementId = examOffice.Id;
+
+            submission.ReviewComment = null;
 
             await _context.SaveChangesAsync();
 
@@ -590,83 +545,129 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     $"Marks submission {submission.SubmissionReference} signed by Exam Office.",
                 ipAddress: ipAddress);
 
-            return new MarksReviewResult
+            await NotifyLecturerAsync(
+                submission,
+                approved: true,
+                reason: null);
+
+            return new MarksReviewResult { Succeeded = true };
+        }
+
+        private async Task NotifyLecturerAsync(
+            MarksSubmission submission,
+            bool approved,
+            string? reason)
+        {
+            if (submission.Lecturer == null)
             {
-                Succeeded = true
-            };
+                return;
+            }
+
+            string? lecturerEmail = submission.Lecturer.Email;
+
+            if (string.IsNullOrWhiteSpace(lecturerEmail))
+            {
+                _logger.LogWarning(
+                    "Lecturer {LecturerId} has no email address; skipping notification.",
+                    submission.LecturerId);
+
+                return;
+            }
+
+            string courseLabel =
+                submission.CourseAssignment?.Course != null
+                    ? $"{submission.CourseAssignment.Course.Code} - {submission.CourseAssignment.Course.Title}"
+                    : "your course";
+
+            try
+            {
+                if (approved)
+                {
+                    await _emailService.SendMarksSignedNotificationAsync(
+                        lecturerEmail,
+                        submission.Lecturer.UserName,
+                        courseLabel,
+                        submission.SubmissionReference);
+                }
+                else
+                {
+                    await _emailService.SendMarksDeclinedNotificationAsync(
+                        lecturerEmail,
+                        submission.Lecturer.UserName,
+                        courseLabel,
+                        submission.SubmissionReference,
+                        reason ?? "No reason provided.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to send marks review notification to lecturer {LecturerId}.",
+                    submission.LecturerId);
+            }
         }
 
         public async Task<string?> GetSignedFileDownloadUrlAsync(
             int submissionId)
         {
-            var submission =
-                await _context.MarksSubmissions
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(ms =>
-                        ms.Id == submissionId &&
-                        ms.Status ==
-                            MarksSubmissionStatus.Signed);
+            var submission = await _context.MarksSubmissions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(ms =>
+                    ms.Id == submissionId &&
+                    ms.Status == MarksSubmissionStatus.Signed);
 
             if (submission == null)
             {
                 return null;
             }
 
-            if (string.IsNullOrWhiteSpace(
-                    submission.SubmissionReference))
+            if (!submission.StorageFileId.Equals(Guid.Empty) == false)
             {
                 return null;
             }
 
-            string fileName =
-                $"{submission.SubmissionReference}.xlsx";
+            var storageKey = submission.StorageFileId.ToString("D");
 
-            string filePath =
-                Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "wwwroot",
-                    "uploads",
-                    "marks",
-                    fileName);
+            var exists = await _fileStorage.ExistsAsync(storageKey);
 
-            if (!File.Exists(filePath))
-            {
-                return null;
-            }
-
-            return $"/uploads/marks/{fileName}";
+            return exists ? storageKey : null;
         }
 
         public async Task<string?> GetSignedFileDownloadUrlAsync(
             int actorId,
             int submissionId)
         {
-            var examOffice =
-                await _context.ManagementAccounts
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(m =>
-                        m.Id == actorId &&
-                        m.IsActive &&
-                        m.Title ==
-                            ManagementTitle.ExamOffice);
+            var examOffice = await _context.ManagementAccounts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m =>
+                    m.Id == actorId &&
+                    m.IsActive &&
+                    m.Title == ManagementTitle.ExamOffice);
 
             if (examOffice == null)
             {
                 return null;
             }
 
-            return await GetSignedFileDownloadUrlAsync(
-                submissionId);
+            return await GetSignedFileDownloadUrlAsync(submissionId);
         }
 
-        private static MarksSubmissionResult Failure(
-            string message)
+        private static MarksSubmissionResult Failure(string message)
         {
             return new MarksSubmissionResult
             {
                 Succeeded = false,
-                ErrorMessage =
-                    message
+                ErrorMessage = message
+            };
+        }
+
+        private static MarksReviewResult ReviewFailure(string message)
+        {
+            return new MarksReviewResult
+            {
+                Succeeded = false,
+                ErrorMessage = message
             };
         }
     }
@@ -674,16 +675,13 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
     public class MarksSubmissionResult
     {
         public bool Succeeded { get; set; }
-
         public string? ErrorMessage { get; set; }
-
         public string? SubmissionReference { get; set; }
     }
 
     public class MarksReviewResult
     {
         public bool Succeeded { get; set; }
-
         public string? ErrorMessage { get; set; }
     }
 }

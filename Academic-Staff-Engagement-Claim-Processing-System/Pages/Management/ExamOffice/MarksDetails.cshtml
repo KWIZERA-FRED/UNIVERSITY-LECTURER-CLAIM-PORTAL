@@ -1,0 +1,236 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.Management.ExamOffice.MarkDetailsModel
+
+@{
+    ViewData["Title"] = "Mark Details";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/Management/marks.css"
+          asp-append-version="true" />
+}
+
+<section class="management-dashboard">
+
+    <header class="page-header">
+        <div class="page-header-main">
+            <a asp-page="/Management/ExamOffice/Marks"
+               class="back-link">
+                <i class="bi bi-arrow-left"></i>
+                Back to Marks Review
+            </a>
+
+            <h1>Mark Details</h1>
+
+            <p>
+                Review the submitted marks sheet before signing it for claim processing.
+            </p>
+        </div>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="page-alert page-alert-success">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@Model.SuccessMessage</span>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="page-alert page-alert-error">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
+
+    @if (Model.SelectedSubmission is not null)
+    {
+        <section class="section-card">
+
+            <header class="section-header">
+                <div>
+                    <h2>Submission Information</h2>
+                    <p>Verify the submitted marks before signing.</p>
+                </div>
+
+                <span class="reference-pill">
+                    @Model.SelectedSubmission.Reference
+                </span>
+            </header>
+
+            <div class="details-grid">
+
+                <div class="detail-item">
+                    <span class="detail-label">Lecturer</span>
+                    <strong>@Model.SelectedSubmission.LecturerName</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Course</span>
+                    <strong>@Model.SelectedSubmission.CourseTitle</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">File</span>
+                    <strong>@Model.SelectedSubmission.FileName</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Status</span>
+                    <span class="status-badge status-pending">
+                        Pending Review
+                    </span>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <div>
+                    <h2>Marks Sheet</h2>
+                    <p>Download and verify the submitted marks sheet.</p>
+                </div>
+            </header>
+
+            <div class="file-panel">
+
+                <div class="file-icon">
+                    <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                </div>
+
+                <div class="file-information">
+                    <strong>@Model.SelectedSubmission.FileName</strong>
+                    <span>Submitted marks sheet</span>
+                </div>
+
+                <div class="file-panel-actions">
+                    <a asp-page-handler="Download"
+                       asp-route-submissionId="@Model.SelectedSubmission.Id"
+                       class="gray-button">
+                        <i class="bi bi-download"></i>
+                        Download Marks
+                    </a>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <div>
+                    <h2>Verification</h2>
+                    <p>
+                        Confirm both items before signing the marks submission.
+                    </p>
+                </div>
+            </header>
+
+            <form method="post">
+
+                <input type="hidden"
+                       asp-for="SubmissionId" />
+
+                <div class="verification-list">
+
+                    <label class="verification-item">
+                        <input type="checkbox"
+                               asp-for="ScriptsMatchPhysical" />
+
+                        <span class="verification-content">
+                            <strong>Scripts match physical scripts</strong>
+                            <small>
+                                I confirm that the submitted marks correspond
+                                to the physical examination scripts.
+                            </small>
+                        </span>
+                    </label>
+
+                    <label class="verification-item">
+                        <input type="checkbox"
+                               asp-for="StudentCountMatches" />
+
+                        <span class="verification-content">
+                            <strong>Student count matches</strong>
+                            <small>
+                                I confirm that the number of students on the
+                                marks sheet matches the verified student count.
+                            </small>
+                        </span>
+                    </label>
+
+                </div>
+
+                <div class="action-area">
+
+                    <button type="submit"
+                            asp-page-handler="Approve"
+                            class="primary-button">
+                        <i class="bi bi-pen-fill"></i>
+                        Sign Marks
+                    </button>
+
+                    <button type="button"
+                            class="danger-button"
+                            onclick="document.getElementById('declinePanel').classList.toggle('is-visible')">
+                        <i class="bi bi-x-circle-fill"></i>
+                        Decline
+                    </button>
+
+                </div>
+
+                <div id="declinePanel"
+                     class="decline-panel">
+
+                    <label asp-for="DeclineReason">
+                        Reason for declining
+                    </label>
+
+                    <textarea asp-for="DeclineReason"
+                              rows="4"
+                              placeholder="Enter the reason for declining this marks submission..."></textarea>
+
+                    <div class="decline-actions">
+                        <button type="submit"
+                                asp-page-handler="Decline"
+                                class="danger-button">
+                            <i class="bi bi-x-circle"></i>
+                            Confirm Decline
+                        </button>
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+    }
+    else
+    {
+        <section class="section-card">
+            <div class="empty-state">
+                <i class="bi bi-file-earmark-x"></i>
+
+                <h2>Submission unavailable</h2>
+
+                <p>
+                    The selected marks submission could not be found,
+                    or it has already been reviewed.
+                </p>
+
+                <a asp-page="/Management/ExamOffice/Marks"
+                   class="primary-button">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Marks Review
+                </a>
+            </div>
+        </section>
+    }
+
+</section>

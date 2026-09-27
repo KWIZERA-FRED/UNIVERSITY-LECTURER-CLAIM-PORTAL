@@ -21,6 +21,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             _logger = logger;
         }
 
+
         // ============================================================
         // WELCOME EMAIL
         // ============================================================
@@ -38,41 +39,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     nameof(recipientEmail));
             }
 
-            var emailSettings =
-                _configuration.GetSection("EmailSettings");
-
-            string senderName =
-                emailSettings["SenderName"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SenderName is missing from configuration.");
-
-            string senderEmail =
-                emailSettings["SenderEmail"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SenderEmail is missing from configuration.");
-
-            string smtpServer =
-                emailSettings["SmtpServer"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SmtpServer is missing from configuration.");
-
-            string smtpPortRaw =
-                emailSettings["SmtpPort"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SmtpPort is missing from configuration.");
-
-            if (!int.TryParse(
-                    smtpPortRaw,
-                    out int smtpPort))
-            {
-                throw new InvalidOperationException(
-                    $"Invalid SmtpPort configured: '{smtpPortRaw}'.");
-            }
-
-            string senderPassword =
-                emailSettings["SenderPassword"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SenderPassword is missing from configuration.");
+            var settings = GetSettings();
 
             recipientName =
                 string.IsNullOrWhiteSpace(recipientName)
@@ -88,8 +55,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
             message.From.Add(
                 new MailboxAddress(
-                    senderName,
-                    senderEmail));
+                    settings.SenderName,
+                    settings.SenderEmail));
 
             message.To.Add(
                 new MailboxAddress(
@@ -131,26 +98,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                             "UNILAK Staff Engagement Portal")
                 };
 
-            using var smtp =
-                new MailKit.Net.Smtp.SmtpClient();
-
-            await smtp.ConnectAsync(
-                smtpServer,
-                smtpPort,
-                SecureSocketOptions.StartTls);
-
-            await smtp.AuthenticateAsync(
-                senderEmail,
-                senderPassword);
-
-            await smtp.SendAsync(message);
-
-            await smtp.DisconnectAsync(true);
+            await SendAsync(
+                message,
+                settings);
 
             _logger.LogInformation(
                 "Welcome email sent to {RecipientEmail}.",
                 recipientEmail);
         }
+
 
         // ============================================================
         // CONTRACT SIGNING NOTIFICATION
@@ -168,41 +124,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     nameof(recipientEmail));
             }
 
-            var emailSettings =
-                _configuration.GetSection("EmailSettings");
-
-            string senderName =
-                emailSettings["SenderName"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SenderName is missing from configuration.");
-
-            string senderEmail =
-                emailSettings["SenderEmail"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SenderEmail is missing from configuration.");
-
-            string smtpServer =
-                emailSettings["SmtpServer"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SmtpServer is missing from configuration.");
-
-            string smtpPortRaw =
-                emailSettings["SmtpPort"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SmtpPort is missing from configuration.");
-
-            if (!int.TryParse(
-                    smtpPortRaw,
-                    out int smtpPort))
-            {
-                throw new InvalidOperationException(
-                    $"Invalid SmtpPort configured: '{smtpPortRaw}'.");
-            }
-
-            string senderPassword =
-                emailSettings["SenderPassword"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SenderPassword is missing from configuration.");
+            var settings = GetSettings();
 
             recipientName =
                 string.IsNullOrWhiteSpace(recipientName)
@@ -218,8 +140,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
             message.From.Add(
                 new MailboxAddress(
-                    senderName,
-                    senderEmail));
+                    settings.SenderName,
+                    settings.SenderEmail));
 
             message.To.Add(
                 new MailboxAddress(
@@ -259,21 +181,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                             "UNILAK Staff Engagement Portal")
                 };
 
-            using var smtp =
-                new MailKit.Net.Smtp.SmtpClient();
-
-            await smtp.ConnectAsync(
-                smtpServer,
-                smtpPort,
-                SecureSocketOptions.StartTls);
-
-            await smtp.AuthenticateAsync(
-                senderEmail,
-                senderPassword);
-
-            await smtp.SendAsync(message);
-
-            await smtp.DisconnectAsync(true);
+            await SendAsync(
+                message,
+                settings);
 
             _logger.LogInformation(
                 "Contract signing notification sent to {RecipientEmail} for {ContractReference}.",
@@ -281,8 +191,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 contractReference);
         }
 
+
         // ============================================================
-        // MARKS SUBMISSION NOTIFICATION
+        // MARKS SUBMISSION NOTIFICATION (Exam Office)
         // ============================================================
 
         public async Task SendMarksSubmissionNotificationAsync(
@@ -301,41 +212,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     nameof(recipientEmail));
             }
 
-            var emailSettings =
-                _configuration.GetSection("EmailSettings");
-
-            string senderName =
-                emailSettings["SenderName"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SenderName is missing from configuration.");
-
-            string senderEmail =
-                emailSettings["SenderEmail"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SenderEmail is missing from configuration.");
-
-            string smtpServer =
-                emailSettings["SmtpServer"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SmtpServer is missing from configuration.");
-
-            string smtpPortRaw =
-                emailSettings["SmtpPort"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SmtpPort is missing from configuration.");
-
-            if (!int.TryParse(
-                    smtpPortRaw,
-                    out int smtpPort))
-            {
-                throw new InvalidOperationException(
-                    $"Invalid SmtpPort configured: '{smtpPortRaw}'.");
-            }
-
-            string senderPassword =
-                emailSettings["SenderPassword"]
-                ?? throw new InvalidOperationException(
-                    "EmailSettings:SenderPassword is missing from configuration.");
+            var settings = GetSettings();
 
             recipientName =
                 string.IsNullOrWhiteSpace(recipientName)
@@ -371,8 +248,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
             message.From.Add(
                 new MailboxAddress(
-                    senderName,
-                    senderEmail));
+                    settings.SenderName,
+                    settings.SenderEmail));
 
             message.To.Add(
                 new MailboxAddress(
@@ -424,26 +301,305 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                             "UNILAK Staff Engagement Portal")
                 };
 
-            using var smtp =
-                new MailKit.Net.Smtp.SmtpClient();
-
-            await smtp.ConnectAsync(
-                smtpServer,
-                smtpPort,
-                SecureSocketOptions.StartTls);
-
-            await smtp.AuthenticateAsync(
-                senderEmail,
-                senderPassword);
-
-            await smtp.SendAsync(message);
-
-            await smtp.DisconnectAsync(true);
+            await SendAsync(
+                message,
+                settings);
 
             _logger.LogInformation(
                 "Marks submission notification sent to {RecipientEmail} for submission {SubmissionReference}.",
                 recipientEmail,
                 submissionReference);
+        }
+
+
+        // ============================================================
+        // MARKS SIGNED NOTIFICATION (Lecturer)
+        // ============================================================
+
+        public async Task SendMarksSignedNotificationAsync(
+            string recipientEmail,
+            string recipientName,
+            string courseName,
+            string submissionReference)
+        {
+            if (string.IsNullOrWhiteSpace(recipientEmail))
+            {
+                throw new ArgumentException(
+                    "Recipient email is required.",
+                    nameof(recipientEmail));
+            }
+
+            var settings = GetSettings();
+
+            recipientName =
+                string.IsNullOrWhiteSpace(recipientName)
+                    ? "Lecturer"
+                    : recipientName.Trim();
+
+            courseName =
+                string.IsNullOrWhiteSpace(courseName)
+                    ? "your course"
+                    : courseName.Trim();
+
+            submissionReference =
+                string.IsNullOrWhiteSpace(submissionReference)
+                    ? "N/A"
+                    : submissionReference.Trim();
+
+            var message = new MimeMessage();
+
+            message.From.Add(
+                new MailboxAddress(
+                    settings.SenderName,
+                    settings.SenderEmail));
+
+            message.To.Add(
+                new MailboxAddress(
+                    recipientName,
+                    recipientEmail));
+
+            message.Subject =
+                "Your Marks Submission Has Been Signed";
+
+            message.Body =
+                new TextPart("plain")
+                {
+                    Text =
+                        string.Join(
+                            Environment.NewLine,
+
+                            $"Dear {recipientName},",
+
+                            "",
+
+                            "Your marks submission has been reviewed and signed by the Exam Office.",
+
+                            "",
+
+                            "Submission Details",
+
+                            "---------------------------",
+
+                            $"Course: {courseName}",
+
+                            $"Submission Reference: {submissionReference}",
+
+                            "",
+
+                            "You can now log in to the UNILAK Staff Engagement Portal and submit a payment claim for this course.",
+
+                            "",
+
+                            "Kind regards,",
+
+                            "",
+
+                            "UNILAK Staff Engagement Portal")
+                };
+
+            await SendAsync(
+                message,
+                settings);
+
+            _logger.LogInformation(
+                "Marks signed notification sent to {RecipientEmail} for submission {SubmissionReference}.",
+                recipientEmail,
+                submissionReference);
+        }
+
+
+        // ============================================================
+        // MARKS DECLINED NOTIFICATION (Lecturer)
+        // ============================================================
+
+        public async Task SendMarksDeclinedNotificationAsync(
+            string recipientEmail,
+            string recipientName,
+            string courseName,
+            string submissionReference,
+            string reason)
+        {
+            if (string.IsNullOrWhiteSpace(recipientEmail))
+            {
+                throw new ArgumentException(
+                    "Recipient email is required.",
+                    nameof(recipientEmail));
+            }
+
+            var settings = GetSettings();
+
+            recipientName =
+                string.IsNullOrWhiteSpace(recipientName)
+                    ? "Lecturer"
+                    : recipientName.Trim();
+
+            courseName =
+                string.IsNullOrWhiteSpace(courseName)
+                    ? "your course"
+                    : courseName.Trim();
+
+            submissionReference =
+                string.IsNullOrWhiteSpace(submissionReference)
+                    ? "N/A"
+                    : submissionReference.Trim();
+
+            reason =
+                string.IsNullOrWhiteSpace(reason)
+                    ? "No reason was provided."
+                    : reason.Trim();
+
+            var message = new MimeMessage();
+
+            message.From.Add(
+                new MailboxAddress(
+                    settings.SenderName,
+                    settings.SenderEmail));
+
+            message.To.Add(
+                new MailboxAddress(
+                    recipientName,
+                    recipientEmail));
+
+            message.Subject =
+                "Your Marks Submission Was Declined";
+
+            message.Body =
+                new TextPart("plain")
+                {
+                    Text =
+                        string.Join(
+                            Environment.NewLine,
+
+                            $"Dear {recipientName},",
+
+                            "",
+
+                            "Your marks submission has been reviewed by the Exam Office and was declined.",
+
+                            "",
+
+                            "Submission Details",
+
+                            "---------------------------",
+
+                            $"Course: {courseName}",
+
+                            $"Submission Reference: {submissionReference}",
+
+                            "",
+
+                            "Reason for declining",
+
+                            "---------------------------",
+
+                            reason,
+
+                            "",
+
+                            "Please correct the issue and resubmit the marks sheet through the UNILAK Staff Engagement Portal.",
+
+                            "",
+
+                            "Kind regards,",
+
+                            "",
+
+                            "UNILAK Staff Engagement Portal")
+                };
+
+            await SendAsync(
+                message,
+                settings);
+
+            _logger.LogInformation(
+                "Marks declined notification sent to {RecipientEmail} for submission {SubmissionReference}.",
+                recipientEmail,
+                submissionReference);
+        }
+
+
+        // ============================================================
+        // SHARED HELPERS
+        // ============================================================
+
+        private EmailSettings GetSettings()
+        {
+            var emailSettings =
+                _configuration.GetSection("EmailSettings");
+
+            string senderName =
+                emailSettings["SenderName"]
+                ?? throw new InvalidOperationException(
+                    "EmailSettings:SenderName is missing from configuration.");
+
+            string senderEmail =
+                emailSettings["SenderEmail"]
+                ?? throw new InvalidOperationException(
+                    "EmailSettings:SenderEmail is missing from configuration.");
+
+            string smtpServer =
+                emailSettings["SmtpServer"]
+                ?? throw new InvalidOperationException(
+                    "EmailSettings:SmtpServer is missing from configuration.");
+
+            string smtpPortRaw =
+                emailSettings["SmtpPort"]
+                ?? throw new InvalidOperationException(
+                    "EmailSettings:SmtpPort is missing from configuration.");
+
+            if (!int.TryParse(
+                    smtpPortRaw,
+                    out int smtpPort))
+            {
+                throw new InvalidOperationException(
+                    $"Invalid SmtpPort configured: '{smtpPortRaw}'.");
+            }
+
+            string senderPassword =
+                emailSettings["SenderPassword"]
+                ?? throw new InvalidOperationException(
+                    "EmailSettings:SenderPassword is missing from configuration.");
+
+            return new EmailSettings
+            {
+                SenderName = senderName,
+                SenderEmail = senderEmail,
+                SmtpServer = smtpServer,
+                SmtpPort = smtpPort,
+                SenderPassword = senderPassword
+            };
+        }
+
+
+        private async Task SendAsync(
+            MimeMessage message,
+            EmailSettings settings)
+        {
+            using var smtp =
+                new MailKit.Net.Smtp.SmtpClient();
+
+            await smtp.ConnectAsync(
+                settings.SmtpServer,
+                settings.SmtpPort,
+                SecureSocketOptions.StartTls);
+
+            await smtp.AuthenticateAsync(
+                settings.SenderEmail,
+                settings.SenderPassword);
+
+            await smtp.SendAsync(message);
+
+            await smtp.DisconnectAsync(true);
+        }
+
+
+        private sealed class EmailSettings
+        {
+            public string SenderName { get; init; } = string.Empty;
+            public string SenderEmail { get; init; } = string.Empty;
+            public string SmtpServer { get; init; } = string.Empty;
+            public int SmtpPort { get; init; }
+            public string SenderPassword { get; init; } = string.Empty;
         }
     }
 }

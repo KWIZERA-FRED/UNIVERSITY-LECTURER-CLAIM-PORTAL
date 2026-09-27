@@ -1,0 +1,401 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.ClaimDetailsModel
+
+@{
+    Layout = "~/Pages/Shared/DEAN/_DeanLayout.cshtml";
+    ViewData["Title"] = "Claim Review";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/DEAN/claims.css"
+          asp-append-version="true" />
+}
+
+<section class="claims-page">
+
+    <header class="page-header">
+
+        <div class="page-header-main">
+            <h1>Claim Review</h1>
+            <p>Review and approve the lecturer's payment claim.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <a asp-page="/DEAN/Claims" class="secondary-button">
+                <i class="bi bi-arrow-left"></i>
+                Back to Claims
+            </a>
+        </div>
+
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="page-alert page-alert-success">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@Model.SuccessMessage</span>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="page-alert page-alert-error">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
+
+    @if (Model.SelectedClaim is null)
+    {
+        <section class="section-card">
+            <div class="empty-state">
+                <p>That claim could not be found, or is not awaiting Dean approval.</p>
+            </div>
+        </section>
+    }
+    else
+    {
+        var c = Model.SelectedClaim;
+
+        <!-- ============================================================
+             CLAIM SUMMARY
+             ============================================================ -->
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>CL@(c.ClaimId.ToString("D3"))</h2>
+                <span class="status-badge status-pending">Pending Dean Approval</span>
+            </header>
+
+            <div class="detail-grid">
+
+                <div class="detail-item">
+                    <span class="detail-label">Lecturer</span>
+                    <span class="detail-value">@c.LecturerName</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Contract</span>
+                    <span class="detail-value">C@(c.ContractId.ToString("D3"))</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Hours Claimed</span>
+                    <span class="detail-value">@c.HoursClaimed.ToString("N2") h</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Approval Step</span>
+                    <span class="detail-value">Dean</span>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ============================================================
+             DESCRIPTION
+             ============================================================ -->
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Claim Description</h2>
+            </header>
+
+            <div class="detail-notes">
+
+                @if (!string.IsNullOrWhiteSpace(c.Description))
+                {
+                    <p>@c.Description</p>
+                }
+                else
+                {
+                    <p class="muted-text">No description was provided for this claim.</p>
+                }
+
+            </div>
+
+        </section>
+
+        <!-- ============================================================
+             CONTRACT
+             ============================================================ -->
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Contract</h2>
+            </header>
+
+            @if (c.ContractSigned)
+            {
+                <div class="detail-notes">
+
+                    <div class="status-information">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        <div>
+                            <strong>Contract Signed</strong>
+                            <span>
+                                Signed
+                                @(c.ContractSignedAtUtc?.ToString("dd MMM yyyy") ?? "")
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <div class="detail-notes">
+
+                    <div class="status-warning">
+
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+
+                        <div>
+                            <strong>Contract Not Signed</strong>
+                            <span>
+                                The associated contract has not yet reached
+                                the ACTIVE status.
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(c.QrCodeToken))
+            {
+                <div class="section-actions">
+
+                    <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="primary-button">
+                        <i class="bi bi-folder2-open"></i>
+                        View Contract &amp; Claim Documents
+                    </a>
+
+                </div>
+            }
+
+        </section>
+
+        <!-- ============================================================
+             CLAIM LETTER
+             ============================================================ -->
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Claim Letter</h2>
+            </header>
+
+            @if (!string.IsNullOrWhiteSpace(c.QrCodeToken))
+            {
+                <div class="section-actions">
+
+                    <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="secondary-button">
+                        <i class="bi bi-file-earmark-text"></i>
+                        View Claim Documents
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>No claim document token is available.</p>
+                </div>
+            }
+
+        </section>
+
+        <!-- ============================================================
+             MARKS SUBMISSION
+             ============================================================ -->
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Marks Submission</h2>
+            </header>
+
+            @if (c.MarksSigned && c.MarksSubmissionId.HasValue)
+            {
+                <div class="detail-grid">
+
+                    <div class="detail-item">
+                        <span class="detail-label">File</span>
+                        <span class="detail-value">
+                            @(c.MarksFileName ?? "Signed Marks Submission")
+                        </span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Signed By</span>
+                        <span class="detail-value">
+                            @(c.MarksSignedByName ?? "—")
+                        </span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Signed</span>
+                        <span class="detail-value">
+                            @(c.MarksSignedAtUtc.HasValue
+                                ? c.MarksSignedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                                : "—")
+                        </span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Reference</span>
+                        <span class="detail-value">
+                            @(c.MarksReference ?? "—")
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="section-actions">
+
+                    <a asp-page-handler="DownloadMarks"
+                       asp-route-claimId="@c.ClaimId"
+                       asp-route-marksId="@c.MarksSubmissionId.Value"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="secondary-button">
+                        <i class="bi bi-download"></i>
+                        Download Marks
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>No signed marks submission was found for this claim.</p>
+                </div>
+            }
+
+        </section>
+
+        <!-- ============================================================
+             DEAN DECISION
+             ============================================================ -->
+
+        @if (!c.IsThisRolesTurn)
+        {
+            <section class="section-card">
+
+                <header class="section-header">
+                    <h2>Dean Action Blocked</h2>
+                </header>
+
+                <div class="detail-notes">
+
+                    <div class="status-warning">
+
+                        <i class="bi bi-lock-fill"></i>
+
+                        <div>
+                            <strong>Action Currently Blocked</strong>
+                            <span>
+                                @(c.BlockedReason ??
+                                    "An earlier required approval on this claim is still pending.")
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+        }
+        else
+        {
+            <section class="section-card">
+
+                <header class="section-header">
+                    <h2>Dean Decision</h2>
+                    <span class="section-meta">Action required</span>
+                </header>
+
+                <div class="decision-actions">
+
+                    <form method="post"
+                          asp-page-handler="Approve"
+                          class="inline-form">
+
+                        <input type="hidden" asp-for="ClaimId" value="@c.ClaimId" />
+
+                        <button type="submit"
+                                class="primary-button"
+                                onclick="return confirm('Approve this claim?');">
+
+                            <i class="bi bi-check-circle-fill"></i>
+                            Approve Claim
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+                <div class="reject-panel">
+
+                    <div class="reject-panel-header">
+                        <strong>Reject Claim</strong>
+                        <span>Provide a clear reason for the rejection.</span>
+                    </div>
+
+                    <form method="post"
+                          asp-page-handler="Reject"
+                          class="reject-form">
+
+                        <input type="hidden" asp-for="ClaimId" value="@c.ClaimId" />
+
+                        <div class="form-group">
+                            <label asp-for="RejectReason">
+                                Rejection Reason <span>*</span>
+                            </label>
+
+                            <textarea asp-for="RejectReason"
+                                      rows="4"
+                                      maxlength="1000"
+                                      placeholder="Explain why this claim is being rejected…"
+                                      required></textarea>
+                        </div>
+
+                        <div class="reject-actions">
+
+                            <button type="submit"
+                                    class="danger-button"
+                                    onclick="return confirm('Reject this claim?');">
+
+                                <i class="bi bi-x-circle"></i>
+                                Reject Claim
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </section>
+        }
+    }
+
+</section>

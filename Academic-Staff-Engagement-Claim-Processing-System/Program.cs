@@ -1,12 +1,16 @@
 using System.Threading.RateLimiting;
+
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+
 using Amazon.S3;
+
 using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -104,8 +108,6 @@ var r2Client = new AmazonS3Client(
 builder.Services.AddSingleton<IAmazonS3>(
     r2Client);
 
-// Custom XML repository for Cloudflare R2.
-// This avoids AWS streaming payloads that R2 does not support.
 var r2Repository =
     new CloudflareR2XmlRepository(
         r2Client,
@@ -121,9 +123,8 @@ builder.Services.AddDataProtection()
     });
 
 builder.Services.AddSingleton<GovernmentIdProtector>();
-builder.Services.AddScoped<IMisAttendanceService, MisAttendanceService>();
-builder.Services.AddScoped<ClaimSubmissionService>();
 
+builder.Services.AddScoped<IMisAttendanceService, MisAttendanceService>();
 
 // ============================================================
 // RATE LIMITING
@@ -214,7 +215,6 @@ builder.Services
 
         options.SlidingExpiration = true;
 
-        // Hardened Cookie Security
         options.Cookie.HttpOnly = true;
 
         options.Cookie.SameSite =
@@ -256,7 +256,6 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddRazorPages(options =>
 {
-    // Folder-level role requirements
     options.Conventions.AuthorizeFolder(
         "/HOD",
         "HOD");
@@ -276,18 +275,9 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder(
         "/Shared");
 
-    // RegisterUser allows initial bootstrap check in code —
-    // the Dean is now the bootstrap role.
     options.Conventions.AllowAnonymousToPage(
         "/DEAN/RegisterUser");
 
-    // ========================================================
-    // PUBLIC PAGES
-    // ========================================================
-
-    // Logout is deliberately anonymous so an authenticated POST
-    // is never intercepted by an authorization handler, which
-    // could otherwise create a redirect loop.
     options.Conventions.AllowAnonymousToPage(
         "/Logout");
 
@@ -342,19 +332,17 @@ builder.Services.AddScoped<AuditLogger>();
 
 builder.Services.AddScoped<AccountRegistrationService>();
 
-// Contract signing workflow
 builder.Services.AddScoped<ContractSigningService>();
 
-// Lecturer marks submission +
-// Exam Office signing/declining workflow
 builder.Services.AddScoped<MarksSigningService>();
 
-// Claims workflow
 builder.Services.AddScoped<ClaimSigningService>();
 
 builder.Services.AddScoped<ClaimSubmissionService>();
 
 builder.Services.AddScoped<OfficialDocumentService>();
+
+builder.Services.AddScoped<IFileStorageService, SqlFileStorageService>();
 
 // ============================================================
 // BUILD APPLICATION
@@ -401,42 +389,16 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Rate limiter must run directly after routing
 app.UseRateLimiter();
 
-// Session state
 app.UseSession();
 
-// Authentication
 app.UseAuthentication();
-
-// ============================================================
-// NO-CACHE FOR AUTHENTICATED RESPONSES
-// ============================================================
-//
-// After logout, the browser must never re-serve a page that was
-// rendered while the user was authenticated — not from the disk
-// cache, not from the memory cache, and not from the back/forward
-// cache (bfcache).
-//
-// This middleware stamps every authenticated response with
-// no-store headers. Public pages (Login, Index, Error, static
-// files) are untouched and remain cacheable.
-//
-// Result: after logout, pressing Back, re-pasting the URL, or
-// using a bookmark always triggers a fresh request. The auth
-// cookie is gone, so the authorization pipeline redirects to
-// /Login.
-//
 
 app.Use(async (context, next) =>
 {
     if (context.User?.Identity?.IsAuthenticated == true)
     {
-        // OnStarting guarantees the headers are written even if
-        // a downstream handler sets its own later — but we only
-        // set them if nobody else has, so page-level cache
-        // headers still win.
         context.Response.OnStarting(() =>
         {
             if (!context.Response.Headers.ContainsKey("Cache-Control"))
@@ -456,12 +418,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// Authorization
 app.UseAuthorization();
-
-// ============================================================
-// RAZOR PAGES
-// ============================================================
 
 app.MapRazorPages();
 

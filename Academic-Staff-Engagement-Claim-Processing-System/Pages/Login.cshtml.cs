@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 // Type aliases to avoid namespace/type collisions
 using LecturerModel =
-    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
+Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
 
 using SecurityClaim = System.Security.Claims.Claim;
 
@@ -25,9 +25,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
         private readonly ApplicationDbContext _context;
         private readonly AuditLogger _auditLogger;
 
-        public LoginModel(
-            ApplicationDbContext context,
-            AuditLogger auditLogger)
+
+    public LoginModel(
+        ApplicationDbContext context,
+        AuditLogger auditLogger)
         {
             _context = context;
             _auditLogger = auditLogger;
@@ -162,8 +163,26 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     new PasswordHasher<AdminAccount>(),
 
                     onSuccess: () =>
-                        Task.FromResult<IActionResult>(
-                            RedirectToPage("/Management/ManagementDashboard")));
+                    {
+                        // ------------------------------------------------
+                        // Exam Office
+                        // ------------------------------------------------
+
+                        if (management.Title == ManagementTitle.ExamOffice)
+                        {
+                            return Task.FromResult<IActionResult>(
+                                RedirectToPage(
+                                    "/Management/ExamOffice/Index"));
+                        }
+
+                        // ------------------------------------------------
+                        // Other Management accounts
+                        // ------------------------------------------------
+
+                        return Task.FromResult<IActionResult>(
+                            RedirectToPage(
+                                "/Management/ManagementDashboard"));
+                    });
             }
 
             // ============================================================
@@ -474,19 +493,19 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             int userId)
         {
             var claims = new List<SecurityClaim>
-            {
-                new SecurityClaim(
-                    ClaimTypes.Name,
-                    username),
+        {
+            new SecurityClaim(
+                ClaimTypes.Name,
+                username),
 
-                new SecurityClaim(
-                    ClaimTypes.Role,
-                    role),
+            new SecurityClaim(
+                ClaimTypes.Role,
+                role),
 
-                new SecurityClaim(
-                    "UserId",
-                    userId.ToString())
-            };
+            new SecurityClaim(
+                "UserId",
+                userId.ToString())
+        };
 
             var identity =
                 new ClaimsIdentity(
@@ -511,4 +530,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                 });
         }
     }
+
+
 }

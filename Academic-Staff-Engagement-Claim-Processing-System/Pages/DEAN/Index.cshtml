@@ -2,630 +2,207 @@
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.IndexModel
 
 @{
-ViewData["Title"] = "Dean Dashboard";
+    Layout = "~/Pages/Shared/DEAN/_DeanLayout.cshtml";
+    ViewData["Title"] = "Dean Dashboard";
 }
 
-<div class="dashboard-page">
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/DEAN/dashboard.css"
+          asp-append-version="true" />
+}
 
-<!-- ============================================================
-     PAGE HEADER
-     ============================================================ -->
+<section class="dashboard-page">
 
-<section class="page-header">
+    <header class="page-header">
+        <h1>Dean Dashboard</h1>
+        <p>Monitor contracts, claims and pending academic staff approvals.</p>
+    </header>
 
-    <div class="page-header-main">
+    <section class="stats-grid">
 
-        <div class="breadcrumb">
-            <span>Dean Portal</span>
-
-            <i class="bi bi-chevron-right"></i>
-
-            <span class="current">Dashboard</span>
-        </div>
-
-        <h1 class="page-title">
-            Dean Dashboard
-        </h1>
-
-        <p class="page-subtitle">
-            Monitor contracts, claims, and pending academic staff approvals
-            from one centralized workspace.
-        </p>
-
-    </div>
-
-    <div class="system-status">
-        <span class="status-dot"></span>
-
-        <span>System Operational</span>
-    </div>
-
-</section>
-
-
-<!-- ============================================================
-     STATISTICS
-     ============================================================ -->
-
-<section class="stats-grid" aria-label="Dashboard statistics">
-
-
-    <!-- Contracts To Sign -->
-
-    <div class="stat-card">
-
-        <div class="stat-card-top">
-
-            <div class="stat-icon stat-icon-blue">
-                <i class="bi bi-file-earmark-text"></i>
+        <a asp-page="/DEAN/Contracts" class="stat-card stat-card-orange">
+            <div class="stat-icon">
+                <i class="bi bi-file-earmark-text-fill"></i>
             </div>
-
-            <span class="stat-context">
-                <i class="bi bi-arrow-up-right"></i>
-            </span>
-
-        </div>
-
-        <div class="stat-content">
-
-            <span class="stat-label">
-                Contracts To Sign
-            </span>
-
-            <strong class="stat-value">
-                @Model.ContractsToSignCount
-            </strong>
-
-            <span class="stat-description">
-                Awaiting your approval
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <!-- Active Contracts -->
-
-    <div class="stat-card">
-
-        <div class="stat-card-top">
-
-            <div class="stat-icon stat-icon-green">
-                <i class="bi bi-file-earmark-check"></i>
-            </div>
-
-            <span class="stat-context">
-                <i class="bi bi-check2"></i>
-            </span>
-
-        </div>
-
-        <div class="stat-content">
-
-            <span class="stat-label">
-                Active Contracts
-            </span>
-
-            <strong class="stat-value">
-                @Model.ActiveContractsCount
-            </strong>
-
-            <span class="stat-description">
-                Currently active
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <!-- Claims To Sign -->
-
-    <div class="stat-card">
-
-        <div class="stat-card-top">
-
-            <div class="stat-icon stat-icon-amber">
-                <i class="bi bi-wallet2"></i>
-            </div>
-
-            <span class="stat-context">
-                <i class="bi bi-clock"></i>
-            </span>
-
-        </div>
-
-        <div class="stat-content">
-
-            <span class="stat-label">
-                Claims To Sign
-            </span>
-
-            <strong class="stat-value">
-                @Model.ClaimsToSignCount
-            </strong>
-
-            <span class="stat-description">
-                Awaiting your approval
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <!-- Completed Approvals -->
-
-    <div class="stat-card">
-
-        <div class="stat-card-top">
-
-            <div class="stat-icon stat-icon-purple">
-                <i class="bi bi-check2-circle"></i>
-            </div>
-
-            <span class="stat-context">
-                <i class="bi bi-shield-check"></i>
-            </span>
-
-        </div>
-
-        <div class="stat-content">
-
-            <span class="stat-label">
-                Completed Approvals
-            </span>
-
-            <strong class="stat-value">
-                @Model.CompletedApprovalsCount
-            </strong>
-
-            <span class="stat-description">
-                Successfully completed
-            </span>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- ============================================================
-     CONTRACTS AWAITING SIGNATURE
-     ============================================================ -->
-
-<section class="dashboard-section">
-
-    <div class="section-header">
-
-        <div class="section-heading">
-
-            <div class="section-heading-title">
-
-                <span class="section-icon contracts-icon">
-                    <i class="bi bi-file-earmark-text"></i>
-                </span>
-
-                <div>
-                    <h2 class="section-title">
-                        Contracts Awaiting Signature
-                    </h2>
-
-                    <p class="section-description">
-                        Contracts currently requiring Dean approval.
-                    </p>
-                </div>
-
-            </div>
-
-        </div>
-
-        <a asp-page="/DEAN/Contracts"
-           class="section-action">
-
-            <span>View all contracts</span>
-
-            <i class="bi bi-arrow-right"></i>
-
+            <div class="stat-value">@Model.ContractsToSignCount</div>
+            <span class="stat-label">Contracts to Sign</span>
         </a>
 
-    </div>
+        <a asp-page="/DEAN/Contracts" class="stat-card stat-card-green">
+            <div class="stat-icon">
+                <i class="bi bi-file-earmark-check-fill"></i>
+            </div>
+            <div class="stat-value">@Model.ActiveContractsCount</div>
+            <span class="stat-label">Active Contracts</span>
+        </a>
 
+        <a asp-page="/DEAN/Claims" class="stat-card stat-card-purple">
+            <div class="stat-icon">
+                <i class="bi bi-receipt"></i>
+            </div>
+            <div class="stat-value">@Model.ClaimsToSignCount</div>
+            <span class="stat-label">Claims to Sign</span>
+        </a>
 
-    <div class="table-card">
+        <a asp-page="/DEAN/Contracts" class="stat-card stat-card-blue">
+            <div class="stat-icon">
+                <i class="bi bi-check2-circle"></i>
+            </div>
+            <div class="stat-value">@Model.CompletedApprovalsCount</div>
+            <span class="stat-label">Completed Approvals</span>
+        </a>
+
+    </section>
+
+    <section class="section-card">
+
+        <header class="section-header">
+            <h2>Contracts Awaiting Signature</h2>
+            <a asp-page="/DEAN/Contracts" class="section-link">View all</a>
+        </header>
 
         @if (Model.ContractsAwaitingSignature != null &&
              Model.ContractsAwaitingSignature.Any())
         {
-
-            <div class="table-responsive">
-
+            <div class="table-wrapper">
                 <table class="data-table">
 
                     <thead>
-
                         <tr>
-
                             <th>Contract</th>
-
                             <th>Lecturer</th>
-
                             <th>Department</th>
-
                             <th>Course</th>
-
                             <th>Status</th>
-
-                            <th class="action-column">
-                                Action
-                            </th>
-
+                            <th class="col-action"></th>
                         </tr>
-
                     </thead>
 
-
                     <tbody>
-
                         @foreach (var contract in Model.ContractsAwaitingSignature)
                         {
-
                             <tr>
-
-                                <!-- Contract -->
-
                                 <td>
-
-                                    <div class="table-primary">
-
-                                        <span class="record-icon contract-record-icon">
-                                            <i class="bi bi-file-earmark-text"></i>
-                                        </span>
-
-                                        <span>
-                                            Contract #@contract.ContractId
-                                        </span>
-
-                                    </div>
-
-                                </td>
-
-
-                                <!-- Lecturer -->
-
-                                <td>
-
-                                    <div class="table-primary person-primary">
-
-                                        <span class="person-avatar">
-                                            <i class="bi bi-person"></i>
-                                        </span>
-
-                                        <span>
-                                            @contract.LecturerName
-                                        </span>
-
-                                    </div>
-
-                                </td>
-
-
-                                <!-- Department -->
-
-                                <td>
-                                    <span class="table-secondary">
-                                        @contract.Department
+                                    <span class="reference-pill">
+                                        CON-@contract.ContractId.ToString("D6")
                                     </span>
                                 </td>
 
-
-                                <!-- Course -->
-
                                 <td>
-
-                                    <span class="course-name">
-                                        @contract.CourseTitle
-                                    </span>
-
+                                    <span class="lecturer-name">@contract.LecturerName</span>
                                 </td>
 
-
-                                <!-- Status -->
+                                <td>@contract.Department</td>
 
                                 <td>
+                                    <span class="course-title">@contract.CourseTitle</span>
+                                </td>
 
+                                <td>
                                     <span class="status-badge status-pending">
-
-                                        <span class="badge-dot"></span>
-
                                         Pending Signature
-
                                     </span>
-
                                 </td>
 
-
-                                <!-- Action -->
-
-                                <td class="action-column">
-
+                                <td class="col-action">
                                     <a asp-page="/DEAN/Contracts"
                                        asp-route-ContractId="@contract.ContractId"
-                                       class="table-action">
-
-                                        <i class="bi bi-eye"></i>
-
-                                        <span>Review</span>
-
+                                       class="gray-button">
+                                        Review
                                     </a>
-
                                 </td>
-
                             </tr>
-
                         }
-
                     </tbody>
 
                 </table>
-
             </div>
-
         }
         else
         {
-
             <div class="empty-state">
-
-                <div class="empty-state-icon">
-                    <i class="bi bi-file-earmark-check"></i>
-                </div>
-
-                <h3>
-                    No contracts awaiting signature
-                </h3>
-
-                <p>
-                    There are currently no contracts requiring your approval.
-                </p>
-
+                <p>No contracts awaiting signature.</p>
             </div>
-
         }
 
-    </div>
+    </section>
 
-</section>
+    <section class="section-card">
 
-
-<!-- ============================================================
-     CLAIMS AWAITING SIGNATURE
-     ============================================================ -->
-
-<section class="dashboard-section">
-
-    <div class="section-header">
-
-        <div class="section-heading">
-
-            <div class="section-heading-title">
-
-                <span class="section-icon claims-icon">
-                    <i class="bi bi-wallet2"></i>
-                </span>
-
-                <div>
-                    <h2 class="section-title">
-                        Claims Awaiting Signature
-                    </h2>
-
-                    <p class="section-description">
-                        Lecturer claims currently requiring Dean approval.
-                    </p>
-                </div>
-
-            </div>
-
-        </div>
-
-        <a asp-page="/DEAN/Claims"
-           class="section-action">
-
-            <span>View all claims</span>
-
-            <i class="bi bi-arrow-right"></i>
-
-        </a>
-
-    </div>
-
-
-    <div class="table-card">
+        <header class="section-header">
+            <h2>Claims Awaiting Signature</h2>
+            <a asp-page="/DEAN/Claims" class="section-link">View all</a>
+        </header>
 
         @if (Model.ClaimsAwaitingSignature != null &&
              Model.ClaimsAwaitingSignature.Any())
         {
-
-            <div class="table-responsive">
-
+            <div class="table-wrapper">
                 <table class="data-table">
 
                     <thead>
-
                         <tr>
-
                             <th>Claim</th>
-
                             <th>Lecturer</th>
-
                             <th>Contract</th>
-
-                            <th>Hours</th>
-
+                            <th class="col-right">Hours</th>
                             <th>Status</th>
-
-                            <th class="action-column">
-                                Action
-                            </th>
-
+                            <th class="col-action"></th>
                         </tr>
-
                     </thead>
 
-
                     <tbody>
-
                         @foreach (var claim in Model.ClaimsAwaitingSignature)
                         {
-
                             <tr>
-
-                                <!-- Claim -->
-
                                 <td>
-
-                                    <div class="table-primary">
-
-                                        <span class="record-icon claim-record-icon">
-                                            <i class="bi bi-receipt"></i>
-                                        </span>
-
-                                        <span>
-                                            Claim #@claim.ClaimId
-                                        </span>
-
-                                    </div>
-
+                                    <span class="reference-pill">
+                                        CLM-@claim.ClaimId.ToString("D6")
+                                    </span>
                                 </td>
 
-
-                                <!-- Lecturer -->
-
                                 <td>
-
-                                    <div class="table-primary person-primary">
-
-                                        <span class="person-avatar">
-                                            <i class="bi bi-person"></i>
-                                        </span>
-
-                                        <span>
-                                            @claim.LecturerName
-                                        </span>
-
-                                    </div>
-
+                                    <span class="lecturer-name">@claim.LecturerName</span>
                                 </td>
 
-
-                                <!-- Contract -->
-
                                 <td>
-
                                     <span class="contract-reference">
-
-                                        <i class="bi bi-link-45deg"></i>
-
-                                        C@claim.ContractId.ToString("D3")
-
+                                        CON-@claim.ContractId.ToString("D6")
                                     </span>
-
                                 </td>
 
-
-                                <!-- Hours -->
-
-                                <td>
-
-                                    <strong class="hours-value">
-
-                                        @claim.HoursClaimed.ToString("N2")
-
-                                        <small>hrs</small>
-
-                                    </strong>
-
+                                <td class="col-right">
+                                    <span class="hours-value">@claim.HoursClaimed.ToString("N2")</span>
                                 </td>
 
-
-                                <!-- Status -->
-
                                 <td>
-
                                     <span class="status-badge status-pending">
-
-                                        <span class="badge-dot"></span>
-
                                         Pending Signature
-
                                     </span>
-
                                 </td>
 
-
-                                <!-- Action -->
-
-                                <td class="action-column">
-
+                                <td class="col-action">
                                     <a asp-page="/DEAN/Claims"
                                        asp-route-ClaimId="@claim.ClaimId"
-                                       class="table-action">
-
-                                        <i class="bi bi-eye"></i>
-
-                                        <span>Review</span>
-
+                                       class="gray-button">
+                                        Review
                                     </a>
-
                                 </td>
-
                             </tr>
-
                         }
-
                     </tbody>
 
                 </table>
-
             </div>
-
         }
         else
         {
-
             <div class="empty-state">
-
-                <div class="empty-state-icon claims-empty-icon">
-                    <i class="bi bi-check2-circle"></i>
-                </div>
-
-                <h3>
-                    No claims awaiting signature
-                </h3>
-
-                <p>
-                    There are currently no claims requiring your approval.
-                </p>
-
+                <p>No claims awaiting signature.</p>
             </div>
-
         }
 
-    </div>
+    </section>
 
 </section>
-
-
-</div>
-
-@section Styles {
-
-
-<link rel="stylesheet"
-      href="~/css/DEAN/dashboard.css"
-      asp-append-version="true" />
-
-
-}

@@ -4,6 +4,7 @@ using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Academic_Staff_Engagement_Claim_Processing_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260927093534_AddLecturerRssbNumber")]
+    partial class AddLecturerRssbNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -791,6 +794,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<long>("FileSizeBytes")
                         .HasColumnType("bigint");
 
@@ -815,14 +823,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Migrations
                     b.Property<int>("Semester")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("SignedAtUtc")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("StorageFileId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("SubmissionReference")
                         .IsRequired()
@@ -840,58 +842,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Migrations
 
                     b.HasIndex("ReviewedByManagementId");
 
-                    b.HasIndex("StorageFileId");
-
                     b.HasIndex("SubmissionReference")
                         .IsUnique();
 
                     b.HasIndex("LecturerId", "CourseAssignmentId", "AcademicYear");
 
                     b.ToTable("MarksSubmissions", (string)null);
-                });
-
-            modelBuilder.Entity("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.StoredFile", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<byte[]>("Content")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Folder")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("OriginalFileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Sha256Hash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<long>("SizeBytes")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedAtUtc");
-
-                    b.HasIndex("Folder");
-
-                    b.ToTable("StoredFiles", (string)null);
                 });
 
             modelBuilder.Entity("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Template", b =>
@@ -1147,12 +1103,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Migrations
                         .HasForeignKey("ReviewedByManagementId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.StoredFile", "StorageFile")
-                        .WithMany()
-                        .HasForeignKey("StorageFileId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Course");
 
                     b.Navigation("CourseAssignment");
@@ -1160,8 +1110,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Migrations
                     b.Navigation("Lecturer");
 
                     b.Navigation("ReviewedByManagement");
-
-                    b.Navigation("StorageFile");
                 });
 
             modelBuilder.Entity("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim", b =>

@@ -11,10 +11,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         [MaxLength(100)]
         public string Department { get; set; } = string.Empty;
 
-        public Hod(int id, string userName, string email, string department)
+        [Required]
+        public Faculty Faculty { get; set; }
+
+        public Hod(int id, string userName, string email, string department, Faculty faculty)
             : base(id, userName, email)
         {
             Department = department;
+            Faculty = faculty;
         }
     }
 }

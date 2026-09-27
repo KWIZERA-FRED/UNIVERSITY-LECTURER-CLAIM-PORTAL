@@ -1,0 +1,330 @@
+@using System.Security.Claims
+
+@{
+var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+
+
+bool IsActive(string page)
+{
+    return string.Equals(
+        currentPage,
+        page,
+        StringComparison.OrdinalIgnoreCase
+    );
+}
+
+var managementName =
+    User.Identity?.Name ??
+    User.FindFirstValue(ClaimTypes.Name) ??
+    "Exam Office";
+
+
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+
+<meta charset="utf-8" />
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+
+<meta name="theme-color"
+      content="#0f2742" />
+
+<title>@ViewData["Title"] | UNILAK</title>
+
+<link rel="preconnect"
+      href="https://fonts.googleapis.com" />
+
+<link rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin />
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap"
+      rel="stylesheet" />
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+<link rel="stylesheet"
+      href="~/css/Management/management-shell.css"
+      asp-append-version="true" />
+
+@RenderSection("Styles", required: false)
+
+
+</head>
+
+<body>
+
+
+<div class="management-app">
+
+    <aside class="management-sidebar"
+           id="managementSidebar"
+           aria-label="Exam Office Navigation">
+
+        <a href="/Management/ExamOffice/Index"
+           class="management-brand"
+           aria-label="UNILAK Exam Office Dashboard">
+
+            <span class="management-brand-logo">
+                <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                     alt="UNILAK Logo" />
+            </span>
+
+            <span class="management-brand-text">
+
+                <span class="management-brand-title">
+                    UNILAK
+                </span>
+
+                <span class="management-brand-subtitle">
+                    Exam Office
+                </span>
+
+            </span>
+
+        </a>
+
+        <nav class="management-sidebar-nav"
+             aria-label="Exam Office navigation">
+
+            <!-- Dashboard -->
+
+            <a href="/Management/ExamOffice/Index"
+               class="management-nav-item @(IsActive("/Management/ExamOffice/Index") ? "active" : "")">
+
+                <span class="management-nav-icon">
+                    <i class="bi bi-grid-1x2-fill"
+                       aria-hidden="true"></i>
+                </span>
+
+                <span class="management-nav-text">
+                    Dashboard
+                </span>
+
+            </a>
+
+            <!-- Marks Review -->
+
+            <a href="/Management/ExamOffice/Marks"
+               class="management-nav-item @(IsActive("/Management/ExamOffice/Marks") || IsActive("/Management/ExamOffice/MarkDetails") ? "active" : "")">
+
+                <span class="management-nav-icon">
+                    <i class="bi bi-file-earmark-spreadsheet-fill"
+                       aria-hidden="true"></i>
+                </span>
+
+                <span class="management-nav-text">
+                    Marks Review
+                </span>
+
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <div class="management-main">
+
+        <header class="management-topbar" id="managementTopbar">
+
+            <button type="button"
+                    class="management-mobile-menu"
+                    id="managementMobileMenuButton"
+                    aria-label="Toggle navigation"
+                    aria-controls="managementSidebar"
+                    aria-expanded="false">
+
+                <i class="bi bi-list" aria-hidden="true"></i>
+
+            </button>
+
+            <div class="management-topbar-spacer"></div>
+
+            <div class="management-topbar-actions">
+
+                <div class="management-user-indicator">
+
+                    <span class="management-user-icon">
+                        <i class="bi bi-clipboard-check-fill"
+                           aria-hidden="true"></i>
+                    </span>
+
+                    <div class="management-user-text">
+
+                        <span class="management-user-label">
+                            Signed in as
+                        </span>
+
+                        <strong>
+                            @managementName
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="management-topbar-divider"></div>
+
+                <form method="post"
+                      asp-page="/Logout"
+                      class="management-logout-form">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="management-logout"
+                            aria-label="Sign out">
+
+                        <span>
+                            Sign Out
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </header>
+
+        <main class="management-content">
+
+            @RenderBody()
+
+        </main>
+
+    </div>
+
+    <div class="management-sidebar-overlay"
+         id="managementSidebarOverlay">
+    </div>
+
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const menuButton =
+            document.getElementById("managementMobileMenuButton");
+
+        const sidebar =
+            document.getElementById("managementSidebar");
+
+        const overlay =
+            document.getElementById("managementSidebarOverlay");
+
+        function openSidebar() {
+
+            if (!sidebar || !overlay) return;
+
+            sidebar.classList.add("open");
+            overlay.classList.add("visible");
+
+            if (menuButton) {
+                menuButton.setAttribute("aria-expanded", "true");
+            }
+
+        }
+
+        function closeSidebar() {
+
+            if (!sidebar || !overlay) return;
+
+            sidebar.classList.remove("open");
+            overlay.classList.remove("visible");
+
+            if (menuButton) {
+                menuButton.setAttribute("aria-expanded", "false");
+            }
+
+        }
+
+        if (menuButton) {
+
+            menuButton.addEventListener("click", function () {
+
+                if (sidebar && sidebar.classList.contains("open")) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+
+            });
+
+        }
+
+        if (overlay) {
+            overlay.addEventListener("click", closeSidebar);
+        }
+
+        document
+            .querySelectorAll(".management-nav-item")
+            .forEach(function (link) {
+
+                link.addEventListener("click", function () {
+
+                    if (window.innerWidth <= 900) {
+                        closeSidebar();
+                    }
+
+                });
+
+            });
+
+        document.addEventListener("keydown", function (event) {
+
+            if (event.key === "Escape") {
+                closeSidebar();
+            }
+
+        });
+
+        window.addEventListener("resize", function () {
+
+            if (window.innerWidth > 900) {
+                closeSidebar();
+            }
+
+        });
+
+        const topbar = document.getElementById("managementTopbar");
+
+        function updateTopbarState() {
+
+            if (!topbar) return;
+
+            if (window.scrollY > 8) {
+                topbar.classList.add("is-scrolled");
+            } else {
+                topbar.classList.remove("is-scrolled");
+            }
+
+        }
+
+        updateTopbarState();
+
+        window.addEventListener(
+            "scroll",
+            updateTopbarState,
+            { passive: true }
+        );
+
+    });
+
+</script>
+
+@RenderSection("Scripts", required: false)
+
+
+</body>
+
+</html>

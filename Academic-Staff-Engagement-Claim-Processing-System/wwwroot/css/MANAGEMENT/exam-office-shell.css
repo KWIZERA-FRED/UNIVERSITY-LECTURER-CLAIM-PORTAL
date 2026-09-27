@@ -1,0 +1,104 @@
+/* ================================================================
+   UNILAK ASECPS
+   EXAM OFFICE SHELL OVERRIDES
+   ================================================================
+   Loaded AFTER management-shell.css on Exam Office pages.
+   Inherits all layout, structure, and behaviour from the shared
+   shell. Only the accent colour changes so the Exam Office sees
+   a distinct identity from the shared Management portal.
+
+   Brand accent: sky blue (matches the clipboard-check iconography
+   used in the topbar).
+   ================================================================ */
+
+
+/* ================================================================
+   ACCENT OVERRIDE
+   ================================================================
+   The shared shell uses mint green (#4ec4a0) as the sidebar
+   active-bar and hover accent. The Exam Office gets a sky blue
+   that reads slightly cooler — same visual weight, different hue.
+   ================================================================ */
+
+.management-app {
+    --sidebar-accent: #5cb3e0;
+    --exam-blue: #2563eb;
+    --exam-blue-soft: #eff6ff;
+    --exam-blue-border: #bfdbfe;
+}
+
+
+/* ================================================================
+   NAV ACTIVE STATE
+   ================================================================
+   Overrides the mint-green active bar on the single nav item
+   with the sky-blue accent. Every other nav rule comes from
+   management-shell.css.
+   ================================================================ */
+
+.management-nav-item.active {
+    background: rgba(92, 179, 224, 0.14);
+    color: #ffffff;
+}
+
+    .management-nav-item.active::before {
+        background: var(--sidebar-accent);
+    }
+
+
+/* ================================================================
+   TOPBAR USER ICON
+   ================================================================
+   The shared shell gives the user-icon a white background with
+   the primary navy glyph. The Exam Office gets a soft blue-tinted
+   variant so the topbar subtly reinforces the role.
+   ================================================================ */
+
+.management-user-icon {
+    background: #ffffff;
+    color: var(--exam-blue);
+    border-color: var(--exam-blue-border);
+}
+
+
+/* ================================================================
+   BRAND SUBTITLE
+   ================================================================
+   Slightly brighter than the shared shell's muted subtitle — the
+   Exam Office text reads "Exam Office" and benefits from being
+   a touch more legible against the dark sidebar.
+   ================================================================ */
+
+.management-brand-subtitle {
+    color: rgba(255, 255, 255, 0.62);
+}
+
+
+/* ================================================================
+   FOCUS RING
+   ================================================================
+   Match the focus ring to the accent so keyboard navigation
+   feels consistent with the shell's identity.
+   ================================================================ */
+
+.management-nav-item:focus-visible,
+.management-logout:focus-visible,
+.management-mobile-menu:focus-visible,
+.management-brand:focus-visible {
+    outline-color: rgba(92, 179, 224, 0.7);
+}
+
+
+/* ================================================================
+   MOBILE DRAWER SHADOW
+   ================================================================
+   Subtle blue-tinted shadow on the open drawer, matching the
+   accent instead of the shared shell's neutral shadow.
+   ================================================================ */
+
+@media (max-width: 900px) {
+
+    .management-sidebar {
+        box-shadow: 12px 0 30px rgba(5, 20, 35, 0.24);
+    }
+}

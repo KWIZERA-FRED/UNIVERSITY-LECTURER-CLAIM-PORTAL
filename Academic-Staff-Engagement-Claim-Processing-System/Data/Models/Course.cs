@@ -10,7 +10,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         [Key]
         public int Id { get; private set; }
 
-        [Required]
+
+    [Required]
         [MaxLength(20)]
         public string Code { get; set; } = string.Empty;
 
@@ -28,14 +29,21 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
+
         public DateTime? UpdatedAtUtc { get; set; }
 
         [Timestamp]
         public byte[]? RowVersion { get; set; }
 
-        public ICollection<CourseAssignment> CourseAssignments { get; set; } = new List<CourseAssignment>();
+        public ICollection<CourseAssignment> CourseAssignments { get; set; }
+            = new List<CourseAssignment>();
 
-        public Course(int id, string code, string title, string department, decimal creditHours)
+        public Course(
+            int id,
+            string code,
+            string title,
+            string department,
+            decimal creditHours)
         {
             Id = id;
             Code = code;
@@ -44,4 +52,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
             CreditHours = creditHours;
         }
     }
+
+
 }

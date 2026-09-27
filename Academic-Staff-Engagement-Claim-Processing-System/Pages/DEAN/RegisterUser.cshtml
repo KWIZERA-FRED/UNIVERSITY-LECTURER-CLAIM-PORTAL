@@ -1,10 +1,10 @@
-
 @page
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.RegisterUserModel
 
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
+    Layout = "~/Pages/Shared/DEAN/_DeanLayout.cshtml";
     ViewData["Title"] = "Register User";
 }
 
@@ -14,649 +14,215 @@
           asp-append-version="true" />
 }
 
-<div class="register-user-page">
+<section class="register-page">
 
-    <!-- ============================================================
-         PAGE HEADER
-         ============================================================ -->
-
-    <div class="register-page-header">
-
-        <div class="register-header-content">
-
-            <div>
-
-                <div class="register-breadcrumb">
-
-                    <a asp-page="/DEAN/Index">
-                        <i class="bi bi-grid-1x2-fill"></i>
-                        Dashboard
-                    </a>
-
-                    <i class="bi bi-chevron-right"></i>
-
-                    <span>Register User</span>
-
-                </div>
-
-
-                <h1>
-                    <i class="bi bi-person-plus-fill"></i>
-                    Register User
-                </h1>
-
-
-                <p>
-                    Create an institutional account for an HOD or management
-                    officer and capture their electronic signature.
-                </p>
-
-            </div>
-
-
-            <div class="register-header-icon">
-                <i class="bi bi-person-badge-fill"></i>
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- ============================================================
-         SUCCESS MESSAGE
-         ============================================================ -->
+    <header class="page-header">
+        <h1>Register User</h1>
+        <p>Create an institutional account for an HOD or management officer.</p>
+    </header>
 
     @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
     {
-        <div class="register-alert register-alert-success"
-             role="alert">
-
-            <div class="alert-icon">
-                <i class="bi bi-check-circle-fill"></i>
-            </div>
-
-            <div class="alert-content">
-
-                <strong>Success</strong>
-
-                <span>
-                    @Model.SuccessMessage
-                </span>
-
-            </div>
-
-            <button type="button"
-                    class="alert-close"
-                    aria-label="Close"
-                    onclick="this.closest('.register-alert').remove();">
-
-                <i class="bi bi-x-lg"></i>
-
-            </button>
-
+        <div class="page-alert page-alert-success">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@Model.SuccessMessage</span>
         </div>
     }
-
-
-    <!-- ============================================================
-         ERROR MESSAGE
-         ============================================================ -->
 
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {
-        <div class="register-alert register-alert-danger"
-             role="alert">
-
-            <div class="alert-icon">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-            </div>
-
-            <div class="alert-content">
-
-                <strong>Registration failed</strong>
-
-                <span>
-                    @Model.ErrorMessage
-                </span>
-
-            </div>
-
-            <button type="button"
-                    class="alert-close"
-                    aria-label="Close"
-                    onclick="this.closest('.register-alert').remove();">
-
-                <i class="bi bi-x-lg"></i>
-
-            </button>
-
+        <div class="page-alert page-alert-error">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@Model.ErrorMessage</span>
         </div>
     }
-
-
-    <!-- ============================================================
-         VALIDATION SUMMARY
-         ============================================================ -->
 
     <div asp-validation-summary="ModelOnly"
          class="validation-summary"
          role="alert">
     </div>
 
+    <section class="section-card">
 
-    <!-- ============================================================
-         REGISTRATION CARD
-         ============================================================ -->
-
-    <div class="registration-card">
-
-
-        <!-- CARD HEADER -->
-        <div class="registration-card-header">
-
-            <div class="card-header-icon">
-                <i class="bi bi-person-vcard-fill"></i>
-            </div>
-
-            <div>
-
-                <h2>
-                    User Account Information
-                </h2>
-
-                <p>
-                    Enter the required information to create the account.
-                </p>
-
-            </div>
-
-        </div>
-
+        <header class="section-header">
+            <h2>User Account Information</h2>
+        </header>
 
         <form method="post"
               id="registerUserForm"
               novalidate>
 
+            <div class="form-body">
 
-            <!-- ========================================================
-                 SECTION 01 — PERSONAL INFORMATION
-                 ======================================================== -->
+                <div class="form-section">
 
-            <section class="form-section">
+                    <h3 class="form-section-title">Personal Information</h3>
 
-                <div class="form-section-heading">
+                    <div class="form-grid">
 
-                    <div class="section-number">
-                        01
-                    </div>
-
-                    <div>
-
-                        <h3>
-                            Personal Information
-                        </h3>
-
-                        <p>
-                            Provide the user's basic institutional information.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-grid">
-
-
-                    <!-- NAME -->
-                    <div class="form-field">
-
-                        <label asp-for="Name">
-
-                            Full Name
-
-                            <span class="required">
-                                *
-                            </span>
-
-                        </label>
-
-
-                        <div class="input-wrapper">
-
-                            <i class="bi bi-person"></i>
-
+                        <div class="form-group form-group-full">
+                            <label asp-for="Name">Full Name <span>*</span></label>
                             <input asp-for="Name"
                                    class="form-control"
                                    placeholder="Enter full name"
                                    autocomplete="name" />
-
+                            <span asp-validation-for="Name" class="field-validation"></span>
                         </div>
 
-
-                        <span asp-validation-for="Name"
-                              class="field-validation">
-                        </span>
-
-                    </div>
-
-
-                    <!-- EMAIL -->
-                    <div class="form-field">
-
-                        <label asp-for="Email">
-
-                            Email Address
-
-                            <span class="required">
-                                *
-                            </span>
-
-                        </label>
-
-
-                        <div class="input-wrapper">
-
-                            <i class="bi bi-envelope"></i>
-
+                        <div class="form-group">
+                            <label asp-for="Email">Email Address <span>*</span></label>
                             <input asp-for="Email"
                                    type="email"
                                    class="form-control"
                                    placeholder="Enter institutional email"
                                    autocomplete="email" />
-
+                            <span asp-validation-for="Email" class="field-validation"></span>
                         </div>
 
-
-                        <span asp-validation-for="Email"
-                              class="field-validation">
-                        </span>
-
-                    </div>
-
-
-                    <!-- DEPARTMENT -->
-                    <div class="form-field">
-
-                        <label asp-for="Department">
-
-                            Department
-
-                        </label>
-
-
-                        <div class="input-wrapper">
-
-                            <i class="bi bi-building"></i>
-
+                        <div class="form-group">
+                            <label asp-for="Department">Department</label>
                             <input asp-for="Department"
                                    class="form-control"
                                    placeholder="Enter department" />
-
+                            <span asp-validation-for="Department" class="field-validation"></span>
                         </div>
 
-
-                        <span asp-validation-for="Department"
-                              class="field-validation">
-                        </span>
-
                     </div>
 
                 </div>
 
-            </section>
+                <div class="form-divider"></div>
 
+                <div class="form-section">
 
-            <!-- ========================================================
-                 SECTION 02 — ROLE & ORGANISATION
-                 ======================================================== -->
+                    <h3 class="form-section-title">Role &amp; Organisation</h3>
 
-            <section class="form-section">
+                    <div class="form-grid">
 
-                <div class="form-section-heading">
-
-                    <div class="section-number">
-                        02
-                    </div>
-
-                    <div>
-
-                        <h3>
-                            Role &amp; Organisation
-                        </h3>
-
-                        <p>
-                            Select the institutional role for this account.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-grid">
-
-
-                    <!-- ROLE -->
-                    <div class="form-field">
-
-                        <label asp-for="Role">
-
-                            Role
-
-                            <span class="required">
-                                *
-                            </span>
-
-                        </label>
-
-
-                        <div class="input-wrapper select-wrapper">
-
-                            <i class="bi bi-shield-check"></i>
-
-                            <select asp-for="Role"
-                                    class="form-control"
-                                    id="roleSelect">
-
-                                <option value="">
-                                    Select role
-                                </option>
-
+                        <div class="form-group">
+                            <label asp-for="Role">Role <span>*</span></label>
+                            <select asp-for="Role" class="form-control" id="roleSelect">
+                                <option value="">Select role</option>
 
                                 @if (Model.IsBootstrapMode)
                                 {
-                                    <option value="Dean">
-                                        Dean
-                                    </option>
+                                    <option value="Dean">Dean</option>
                                 }
                                 else
                                 {
-                                    <option value="HOD">
-                                        Head of Department (HOD)
-                                    </option>
-
-                                    <option value="Management">
-                                        Management
-                                    </option>
+                                    <option value="HOD">Head of Department (HOD)</option>
+                                    <option value="Management">Management</option>
                                 }
-
                             </select>
-
+                            <span asp-validation-for="Role" class="field-validation"></span>
                         </div>
 
-
-                        <span asp-validation-for="Role"
-                              class="field-validation">
-                        </span>
-
-
-                        @if (Model.IsBootstrapMode)
-                        {
-                            <small class="field-help">
-                                This is the initial system account.
-                                The first account must be a Dean.
-                            </small>
-                        }
-                        else
-                        {
-                            <small class="field-help">
-                                The Dean can create HOD and Management
-                                accounts. Lecturer accounts are created
-                                by an HOD.
-                            </small>
-                        }
-
-                    </div>
-
-
-                    <!-- MANAGEMENT TITLE -->
-                    <div class="form-field"
-                         id="managementTitleContainer">
-
-                        <label asp-for="ManagementTitle">
-
-                            Management Office
-
-                        </label>
-
-
-                        <div class="input-wrapper select-wrapper">
-
-                            <i class="bi bi-award"></i>
-
+                        <div class="form-group"
+                             id="managementTitleContainer"
+                             style="display:none;">
+                            <label asp-for="ManagementTitle">Management Office</label>
                             <select asp-for="ManagementTitle"
                                     class="form-control"
                                     id="managementTitleSelect">
-
-                                <option value="">
-                                    Select management office
-                                </option>
-
+                                <option value="">Select management office</option>
 
                                 @foreach (var title in Enum.GetValues<ManagementTitle>())
                                 {
-                                    <option value="@title">
-                                        @title
-                                    </option>
+                                    <option value="@title">@title</option>
                                 }
-
                             </select>
-
+                            <span asp-validation-for="ManagementTitle" class="field-validation"></span>
                         </div>
 
-
-                        <span asp-validation-for="ManagementTitle"
-                              class="field-validation">
-                        </span>
-
-
-                        <small class="field-help">
-                            Required only when the selected role is Management.
-                        </small>
-
                     </div>
 
                 </div>
 
-            </section>
+                <div class="form-divider"></div>
 
+                <div class="form-section">
 
-            <!-- ========================================================
-                 SECTION 03 — ELECTRONIC SIGNATURE
-                 ======================================================== -->
+                    <h3 class="form-section-title">Electronic Signature</h3>
 
-            <section class="form-section signature-section">
+                    <div class="signature-area">
 
-                <div class="form-section-heading">
+                        <div class="signature-wrapper">
 
-                    <div class="section-number">
-                        03
-                    </div>
+                            <canvas id="signatureCanvas"
+                                    class="signature-canvas"
+                                    tabindex="0"
+                                    aria-label="Electronic signature area">
+                            </canvas>
 
-                    <div>
+                            <div class="signature-canvas-placeholder"
+                                 id="signaturePlaceholder">
 
-                        <h3>
-                            Electronic Signature
-                        </h3>
-
-                        <p>
-                            Capture the user's electronic signature for
-                            official institutional documents.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="signature-panel">
-
-
-                    <!-- SIGNATURE HEADER -->
-                    <div class="signature-panel-header">
-
-                        <div class="signature-title">
-
-                            <div class="signature-icon">
-                                <i class="bi bi-pen"></i>
-                            </div>
-
-                            <div>
-
-                                <h4>
-                                    Signature Capture
-                                </h4>
-
-                                <p>
-                                    Ask the user to sign inside the box below.
-                                </p>
+                                <i class="bi bi-pencil"></i>
+                                <span>Sign here</span>
 
                             </div>
 
-                        </div>
-
-
-                        <span class="signature-required-badge">
-                            Required
-                        </span>
-
-                    </div>
-
-
-                    <!-- SIGNATURE CANVAS -->
-                    <div class="signature-canvas-container">
-
-                        <canvas id="signatureCanvas"
-                                class="signature-canvas"
-                                tabindex="0"
-                                aria-label="Electronic signature area">
-                        </canvas>
-
-
-                        <div class="signature-canvas-placeholder"
-                             id="signaturePlaceholder">
-
-                            <i class="bi bi-pencil"></i>
-
-                            <span>
-                                Sign here
-                            </span>
+                            <div class="signature-line"></div>
+                            <div class="signature-label">Electronic Signature</div>
 
                         </div>
 
-                    </div>
+                        <input asp-for="SignatureData"
+                               type="hidden"
+                               id="signatureData" />
 
+                        <div class="signature-actions">
 
-                    <!-- SIGNATURE DATA -->
-                    <input asp-for="SignatureData"
-                           type="hidden"
-                           id="signatureData" />
+                            <button type="button"
+                                    class="secondary-button clear-signature"
+                                    id="clearSignature">
 
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                                Clear Signature
 
-                    <span asp-validation-for="SignatureData"
-                          class="field-validation signature-validation">
-                    </span>
+                            </button>
 
+                        </div>
 
-                    <!-- SIGNATURE ACTIONS -->
-                    <div class="signature-actions">
-
-                        <button type="button"
-                                class="btn btn-secondary"
-                                id="clearSignature">
-
-                            <i class="bi bi-eraser"></i>
-
-                            Clear Signature
-
-                        </button>
-
-
-                        <span class="signature-status-text"
-                              id="signatureStatus">
-
-                            <i class="bi bi-info-circle"></i>
-
-                            Signature has not been captured.
-
+                        <span asp-validation-for="SignatureData"
+                              class="field-validation signature-validation">
                         </span>
 
                     </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- ========================================================
-                 INFORMATION
-                 ======================================================== -->
-
-            <div class="registration-info-box">
-
-                <div class="info-icon">
-
-                    <i class="bi bi-shield-lock-fill"></i>
-
-                </div>
-
-
-                <div class="info-content">
-
-                    <h4>
-                        Important
-                    </h4>
-
-                    <p>
-                        The account will be created according to the selected
-                        institutional role. The electronic signature will be
-                        associated with the account and can be used for
-                        official contracts, approvals and other institutional
-                        documents.
-                    </p>
 
                 </div>
 
             </div>
 
+            <footer class="form-actions">
 
-            <!-- ========================================================
-                 FORM ACTIONS
-                 ======================================================== -->
-
-            <div class="form-actions">
-
-                <a asp-page="/DEAN/Index"
-                   class="btn btn-secondary">
-
-                    <i class="bi bi-arrow-left"></i>
-
+                <a asp-page="/DEAN/Index" class="secondary-button">
                     Cancel
-
                 </a>
 
-
                 <button type="submit"
-                        class="btn btn-primary"
+                        class="primary-button"
                         id="registerButton">
 
-                    <i class="bi bi-person-plus-fill"></i>
+                    <span class="button-text">
+                        <i class="bi bi-person-plus-fill"></i>
+                        Register User
+                    </span>
 
-                    Register User
+                    <span class="button-loading">
+                        <span class="loading-spinner"></span>
+                        Registering...
+                    </span>
 
                 </button>
 
-            </div>
-
+            </footer>
 
         </form>
 
-    </div>
+    </section>
 
-</div>
-
+</section>
 
 @section Scripts {
 
@@ -666,93 +232,53 @@
 
         document.addEventListener("DOMContentLoaded", function () {
 
-            // ============================================================
-            // ELEMENTS
-            // ============================================================
-
             const roleSelect =
                 document.getElementById("roleSelect");
 
             const managementTitleContainer =
-                document.getElementById(
-                    "managementTitleContainer"
-                );
+                document.getElementById("managementTitleContainer");
 
             const managementTitleSelect =
-                document.getElementById(
-                    "managementTitleSelect"
-                );
+                document.getElementById("managementTitleSelect");
 
             const form =
-                document.getElementById(
-                    "registerUserForm"
-                );
+                document.getElementById("registerUserForm");
 
             const canvas =
-                document.getElementById(
-                    "signatureCanvas"
-                );
+                document.getElementById("signatureCanvas");
 
             const signatureData =
-                document.getElementById(
-                    "signatureData"
-                );
+                document.getElementById("signatureData");
 
             const clearButton =
-                document.getElementById(
-                    "clearSignature"
-                );
+                document.getElementById("clearSignature");
 
             const signaturePlaceholder =
-                document.getElementById(
-                    "signaturePlaceholder"
-                );
-
-            const signatureStatus =
-                document.getElementById(
-                    "signatureStatus"
-                );
+                document.getElementById("signaturePlaceholder");
 
             const registerButton =
-                document.getElementById(
-                    "registerButton"
-                );
+                document.getElementById("registerButton");
 
 
-            // ============================================================
-            // MANAGEMENT TITLE VISIBILITY
-            // ============================================================
+            /* ============================================================
+               MANAGEMENT TITLE VISIBILITY
+               ============================================================ */
 
             function updateManagementTitleVisibility() {
 
-                if (!roleSelect ||
-                    !managementTitleContainer) {
-
-                    return;
-                }
-
-
-                const selectedRole =
-                    roleSelect.value.toLowerCase();
-
+                if (!roleSelect || !managementTitleContainer) return;
 
                 const isManagement =
-                    selectedRole === "management";
-
+                    roleSelect.value.toLowerCase() === "management";
 
                 managementTitleContainer.style.display =
                     isManagement ? "" : "none";
 
-
-                if (!isManagement &&
-                    managementTitleSelect) {
-
+                if (!isManagement && managementTitleSelect) {
                     managementTitleSelect.value = "";
-
                 }
 
             }
-
 
             if (roleSelect) {
 
@@ -761,385 +287,245 @@
                     updateManagementTitleVisibility
                 );
 
-
                 updateManagementTitleVisibility();
 
             }
 
 
-            // ============================================================
-            // SIGNATURE CANVAS
-            // ============================================================
+            /* ============================================================
+               SIGNATURE PAD
+               ============================================================ */
 
-            if (!canvas) {
-                return;
-            }
+            if (!canvas) return;
 
+            const context = canvas.getContext("2d");
 
-            const context =
-                canvas.getContext("2d");
-
-
-            if (!context) {
-                return;
-            }
-
+            if (!context) return;
 
             let drawing = false;
             let hasSignature = false;
+            let lastX = 0;
+            let lastY = 0;
 
-
-            // ============================================================
-            // RESIZE CANVAS
-            // ============================================================
 
             function resizeCanvas() {
 
-                const rect =
-                    canvas.getBoundingClientRect();
+                const rect = canvas.getBoundingClientRect();
 
+                if (rect.width === 0 || rect.height === 0) return;
 
-                const ratio =
-                    Math.max(
-                        window.devicePixelRatio || 1,
-                        1
-                    );
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
 
+                /* Snapshot existing pixels before resizing */
+                let snapshot = null;
 
-                canvas.width =
-                    rect.width * ratio;
+                if (canvas.width > 0 && canvas.height > 0) {
+                    try {
+                        snapshot = context.getImageData(0, 0, canvas.width, canvas.height);
+                    } catch { snapshot = null; }
+                }
 
+                canvas.width  = Math.round(rect.width  * ratio);
+                canvas.height = Math.round(rect.height * ratio);
 
-                canvas.height =
-                    rect.height * ratio;
+                context.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-
-                context.setTransform(
-                    ratio,
-                    0,
-                    0,
-                    ratio,
-                    0,
-                    0
-                );
-
-
-                context.lineWidth = 2;
+                context.lineWidth = 2.2;
                 context.lineCap = "round";
                 context.lineJoin = "round";
-                context.strokeStyle = "#0b1f33";
+                context.strokeStyle = "#0f2742";
+
+                if (snapshot) {
+                    try {
+                        context.putImageData(snapshot, 0, 0);
+                    } catch { /* ignore */ }
+                }
 
             }
 
+            resizeCanvas();
 
-            // ============================================================
-            // POINTER POSITION
-            // ============================================================
+            if (typeof ResizeObserver !== "undefined") {
+                const observer = new ResizeObserver(resizeCanvas);
+                observer.observe(canvas);
+            }
 
-            function getPointerPosition(event) {
+            window.addEventListener("resize", resizeCanvas);
 
-                const rect =
-                    canvas.getBoundingClientRect();
 
+            /* Scroll-safe cursor → canvas coordinates */
+            function getCanvasOffset() {
+
+                let offsetX = 0;
+                let offsetY = 0;
+                let el = canvas;
+
+                while (el) {
+                    offsetX += el.offsetLeft || 0;
+                    offsetY += el.offsetTop || 0;
+                    el = el.offsetParent;
+                }
+
+                return { x: offsetX, y: offsetY };
+
+            }
+
+            function getPosition(event) {
+
+                let pageX;
+                let pageY;
+
+                if (event.touches && event.touches.length > 0) {
+                    pageX = event.touches[0].pageX;
+                    pageY = event.touches[0].pageY;
+                } else if (event.changedTouches && event.changedTouches.length > 0) {
+                    pageX = event.changedTouches[0].pageX;
+                    pageY = event.changedTouches[0].pageY;
+                } else {
+                    pageX = event.clientX + (window.pageXOffset || document.documentElement.scrollLeft || 0);
+                    pageY = event.clientY + (window.pageYOffset || document.documentElement.scrollTop || 0);
+                }
+
+                const offset = getCanvasOffset();
 
                 return {
-                    x: event.clientX - rect.left,
-                    y: event.clientY - rect.top
+                    x: pageX - offset.x,
+                    y: pageY - offset.y
                 };
 
             }
 
 
-            // ============================================================
-            // START DRAWING
-            // ============================================================
-
             function startDrawing(event) {
 
                 event.preventDefault();
 
+                const pos = getPosition(event);
 
                 drawing = true;
                 hasSignature = true;
-
-
-                const position =
-                    getPointerPosition(event);
-
+                lastX = pos.x;
+                lastY = pos.y;
 
                 context.beginPath();
+                context.arc(pos.x, pos.y, 1.1, 0, Math.PI * 2);
+                context.fillStyle = context.strokeStyle;
+                context.fill();
 
-
-                context.moveTo(
-                    position.x,
-                    position.y
-                );
-
+                context.beginPath();
+                context.moveTo(pos.x, pos.y);
 
                 if (signaturePlaceholder) {
-
-                    signaturePlaceholder.classList.add(
-                        "signature-placeholder-hidden"
-                    );
-
+                    signaturePlaceholder.classList.add("signature-placeholder-hidden");
                 }
 
-
-                updateSignatureStatus();
-
             }
-
-
-            // ============================================================
-            // DRAW
-            // ============================================================
 
             function draw(event) {
 
-                if (!drawing) {
-                    return;
-                }
-
+                if (!drawing) return;
 
                 event.preventDefault();
 
+                const pos = getPosition(event);
 
-                const position =
-                    getPointerPosition(event);
+                const midX = (lastX + pos.x) / 2;
+                const midY = (lastY + pos.y) / 2;
 
-
-                context.lineTo(
-                    position.x,
-                    position.y
-                );
-
-
+                context.quadraticCurveTo(lastX, lastY, midX, midY);
                 context.stroke();
 
+                context.beginPath();
+                context.moveTo(midX, midY);
+
+                lastX = pos.x;
+                lastY = pos.y;
+
             }
-
-
-            // ============================================================
-            // STOP DRAWING
-            // ============================================================
 
             function stopDrawing(event) {
 
-                if (!drawing) {
-                    return;
-                }
+                if (!drawing) return;
 
-
-                event.preventDefault();
-
+                if (event) event.preventDefault();
 
                 drawing = false;
 
-
                 context.closePath();
 
-
-                updateSignatureStatus();
-
             }
 
+            canvas.addEventListener("mousedown", startDrawing);
+            canvas.addEventListener("mousemove", draw);
+            canvas.addEventListener("mouseup", stopDrawing);
+            canvas.addEventListener("mouseleave", stopDrawing);
 
-            // ============================================================
-            // SIGNATURE STATUS
-            // ============================================================
-
-            function updateSignatureStatus() {
-
-                if (!signatureStatus) {
-                    return;
-                }
-
-
-                if (hasSignature) {
-
-                    signatureStatus.innerHTML =
-                        '<i class="bi bi-check-circle-fill"></i> ' +
-                        'Signature captured successfully.';
+            canvas.addEventListener("touchstart", startDrawing, { passive: false });
+            canvas.addEventListener("touchmove", draw, { passive: false });
+            canvas.addEventListener("touchend", stopDrawing, { passive: false });
+            canvas.addEventListener("touchcancel", stopDrawing, { passive: false });
 
 
-                    signatureStatus.classList.add(
-                        "signature-status-success"
-                    );
-
-                }
-                else {
-
-                    signatureStatus.innerHTML =
-                        '<i class="bi bi-info-circle"></i> ' +
-                        'Signature has not been captured.';
-
-
-                    signatureStatus.classList.remove(
-                        "signature-status-success"
-                    );
-
-                }
-
-            }
-
-
-            // ============================================================
-            // CLEAR SIGNATURE
-            // ============================================================
+            /* ============================================================
+               CLEAR SIGNATURE
+               ============================================================ */
 
             function clearSignaturePad() {
 
-                context.clearRect(
-                    0,
-                    0,
-                    canvas.width,
-                    canvas.height
-                );
-
+                context.clearRect(0, 0, canvas.width, canvas.height);
 
                 hasSignature = false;
 
-
-                if (signatureData) {
-                    signatureData.value = "";
-                }
-
+                if (signatureData) signatureData.value = "";
 
                 if (signaturePlaceholder) {
-
-                    signaturePlaceholder.classList.remove(
-                        "signature-placeholder-hidden"
-                    );
-
+                    signaturePlaceholder.classList.remove("signature-placeholder-hidden");
                 }
 
-
-                updateSignatureStatus();
-
             }
-
-
-            // ============================================================
-            // POINTER EVENTS
-            // ============================================================
-
-            canvas.addEventListener(
-                "pointerdown",
-                startDrawing
-            );
-
-
-            canvas.addEventListener(
-                "pointermove",
-                draw
-            );
-
-
-            canvas.addEventListener(
-                "pointerup",
-                stopDrawing
-            );
-
-
-            canvas.addEventListener(
-                "pointerleave",
-                stopDrawing
-            );
-
-
-            canvas.addEventListener(
-                "pointercancel",
-                stopDrawing
-            );
-
-
-            // ============================================================
-            // CLEAR BUTTON
-            // ============================================================
 
             if (clearButton) {
-
-                clearButton.addEventListener(
-                    "click",
-                    clearSignaturePad
-                );
-
+                clearButton.addEventListener("click", clearSignaturePad);
             }
 
 
-            // ============================================================
-            // INITIALIZE
-            // ============================================================
-
-            resizeCanvas();
-
-            updateSignatureStatus();
-
-
-            // ============================================================
-            // FORM SUBMISSION
-            // ============================================================
+            /* ============================================================
+               FORM SUBMISSION
+               ============================================================ */
 
             if (form) {
 
-                form.addEventListener(
-                    "submit",
-                    function (event) {
+                form.addEventListener("submit", function (event) {
 
-                        // ------------------------------------------------
-                        // Signature is mandatory.
-                        // ------------------------------------------------
+                    if (!hasSignature) {
 
-                        if (!hasSignature) {
+                        event.preventDefault();
 
-                            event.preventDefault();
+                        alert("Please capture the user's electronic signature before registering the account.");
 
+                        canvas.focus();
 
-                            alert(
-                                "Please capture the user's electronic signature before registering the account."
-                            );
-
-
-                            canvas.focus();
-
-
-                            return;
-
-                        }
-
-
-                        // ------------------------------------------------
-                        // Convert signature to PNG data URL.
-                        // ------------------------------------------------
-
-                        if (signatureData) {
-
-                            signatureData.value =
-                                canvas.toDataURL(
-                                    "image/png"
-                                );
-
-                        }
-
-
-                        // ------------------------------------------------
-                        // Prevent double submission.
-                        // ------------------------------------------------
-
-                        if (registerButton) {
-
-                            registerButton.disabled =
-                                true;
-
-
-                            registerButton.innerHTML =
-                                '<span class="button-spinner"></span>' +
-                                ' Registering...';
-
-                        }
+                        return;
 
                     }
-                );
+
+                    if (signatureData) {
+                        signatureData.value = canvas.toDataURL("image/png");
+                    }
+
+                    if (registerButton) {
+
+                        registerButton.disabled = true;
+
+                        const text = registerButton.querySelector(".button-text");
+                        const loading = registerButton.querySelector(".button-loading");
+
+                        if (text) text.style.display = "none";
+                        if (loading) loading.style.display = "inline-flex";
+
+                    }
+
+                });
 
             }
 
@@ -1147,4 +533,3 @@
 
     </script>
 }
-

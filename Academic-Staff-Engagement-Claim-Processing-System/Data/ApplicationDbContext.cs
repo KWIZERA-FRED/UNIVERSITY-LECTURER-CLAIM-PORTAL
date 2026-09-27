@@ -4,10 +4,10 @@ using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.EntityFrameworkCore;
 
 using ClaimModel =
-Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim;
+    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Claim;
 
 using ContractModel =
-Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract;
+    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 {
@@ -15,10 +15,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
     {
         private readonly GovernmentIdProtector _governmentIdProtector;
 
-    public ApplicationDbContext(
-        DbContextOptions<ApplicationDbContext> options,
-        GovernmentIdProtector governmentIdProtector)
-        : base(options)
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options,
+            GovernmentIdProtector governmentIdProtector)
+            : base(options)
         {
             _governmentIdProtector = governmentIdProtector;
         }
@@ -46,9 +46,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 
         public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
+        public DbSet<StoredFile> StoredFiles => Set<StoredFile>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // ================================================================
+            // ADMIN ACCOUNTS
+            // ================================================================
 
             modelBuilder.Entity<AdminAccount>()
                 .ToTable("AdminAccounts");
@@ -120,6 +126,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasConversion<int>()
                 .IsRequired();
 
+            // ================================================================
+            // LECTURERS
+            // ================================================================
+
             modelBuilder.Entity<Lecturer>()
                 .ToTable("Lecturers");
 
@@ -136,6 +146,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
             modelBuilder.Entity<Lecturer>()
                 .Property(l => l.PhoneNumber)
                 .HasMaxLength(20);
+
+            modelBuilder.Entity<Lecturer>()
+                .Property(l => l.RssbNumber)
+                .HasMaxLength(30);
 
             modelBuilder.Entity<Lecturer>()
                 .Property(l => l.PasswordHash)
@@ -191,6 +205,13 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasForeignKey(l => l.SignatureCapturedByHodId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Lecturer>()
+                .HasIndex(l => l.RssbNumber);
+
+            // ================================================================
+            // COURSES
+            // ================================================================
+
             modelBuilder.Entity<Course>()
                 .ToTable("Courses");
 
@@ -220,6 +241,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
             modelBuilder.Entity<Course>()
                 .HasIndex(c => c.Code)
                 .IsUnique();
+
+            // ================================================================
+            // COURSE ASSIGNMENTS
+            // ================================================================
 
             modelBuilder.Entity<CourseAssignment>()
                 .ToTable("CourseAssignments");
@@ -270,6 +295,19 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasForeignKey(ca => ca.ApprovedByHodId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<CourseAssignment>()
+                .HasIndex(ca => new
+                {
+                    ca.LecturerId,
+                    ca.CourseId,
+                    ca.AcademicYear,
+                    ca.Semester
+                });
+
+            // ================================================================
+            // CONTRACTS
+            // ================================================================
+
             modelBuilder.Entity<ContractModel>()
                 .ToTable("Contracts");
 
@@ -311,6 +349,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .WithMany()
                 .HasForeignKey(c => c.CourseAssignmentId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // ================================================================
+            // CONTRACT SIGNATURES
+            // ================================================================
 
             modelBuilder.Entity<ContractSignature>()
                 .ToTable("ContractSignatures");
@@ -363,9 +405,145 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 })
                 .IsUnique();
 
+            // ================================================================
+            // CLAIMS
+            // ================================================================
+
+            modelBuilder.Entity<ClaimModel>()
+                .ToTable("Claims");
+
+            modelBuilder.Entity<ClaimModel>()
+                .Property(c => c.ClaimReference)
+                .HasMaxLength(30)
+                .IsRequired();
+
             modelBuilder.Entity<ClaimModel>()
                 .Property(c => c.HoursClaimed)
-                .HasPrecision(6, 2);
+                .HasPrecision(6, 2)
+                .IsRequired();
+
+            modelBuilder.Entity<ClaimModel>()
+                .Property(c => c.Amount)
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            modelBuilder.Entity<ClaimModel>()
+                .Property(c => c.Status)
+                .HasConversion<int>()
+                .IsRequired();
+
+            modelBuilder.Entity<ClaimModel>()
+                .Property(c => c.LecturerRemarks)
+                .HasMaxLength(2000);
+
+            modelBuilder.Entity<ClaimModel>()
+                .Property(c => c.ReviewerRemarks)
+                .HasMaxLength(2000);
+
+            modelBuilder.Entity<ClaimModel>()
+                .HasOne(c => c.Lecturer)
+                .WithMany()
+                .HasForeignKey(c => c.LecturerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ClaimModel>()
+                .HasOne(c => c.CourseAssignment)
+                .WithMany(ca => ca.Claims)
+                .HasForeignKey(c => c.CourseAssignmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ClaimModel>()
+                .HasIndex(c => c.ClaimReference)
+                .IsUnique();
+
+            modelBuilder.Entity<ClaimModel>()
+                .HasIndex(c => new
+                {
+                    c.LecturerId,
+                    c.Status
+                });
+
+            modelBuilder.Entity<ClaimModel>()
+                .HasIndex(c => c.CourseAssignmentId);
+
+            // ================================================================
+            // CLAIM CHECKLIST
+            // ================================================================
+
+            modelBuilder.Entity<ClaimChecklist>()
+                .ToTable("ClaimChecklists");
+
+            modelBuilder.Entity<ClaimChecklist>()
+                .HasOne(cc => cc.Claim)
+                .WithOne(c => c.Checklist)
+                .HasForeignKey<ClaimChecklist>(cc => cc.ClaimId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ClaimChecklist>()
+                .HasOne(cc => cc.ConfirmedByHod)
+                .WithMany()
+                .HasForeignKey(cc => cc.ConfirmedByHodId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ClaimChecklist>()
+                .HasIndex(cc => cc.ClaimId)
+                .IsUnique();
+
+            // ================================================================
+            // CLAIM APPROVALS
+            // ================================================================
+
+            modelBuilder.Entity<ClaimApproval>()
+                .ToTable("ClaimApprovals");
+
+            modelBuilder.Entity<ClaimApproval>()
+                .Property(ca => ca.ApprovalRole)
+                .HasConversion<int>()
+                .IsRequired();
+
+            modelBuilder.Entity<ClaimApproval>()
+                .Property(ca => ca.Decision)
+                .HasConversion<int>()
+                .IsRequired();
+
+            modelBuilder.Entity<ClaimApproval>()
+                .Property(ca => ca.SignatureHashAtApproval)
+                .HasMaxLength(256);
+
+            modelBuilder.Entity<ClaimApproval>()
+                .Property(ca => ca.Comments)
+                .HasMaxLength(2000);
+
+            modelBuilder.Entity<ClaimApproval>()
+                .HasOne(ca => ca.Claim)
+                .WithMany(c => c.Approvals)
+                .HasForeignKey(ca => ca.ClaimId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ClaimApproval>()
+                .HasOne(ca => ca.ApprovedByAdminAccount)
+                .WithMany()
+                .HasForeignKey(ca => ca.ApprovedByAdminAccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ClaimApproval>()
+                .HasIndex(ca => new
+                {
+                    ca.ClaimId,
+                    ca.SequenceOrder
+                })
+                .IsUnique();
+
+            modelBuilder.Entity<ClaimApproval>()
+                .HasIndex(ca => new
+                {
+                    ca.ClaimId,
+                    ca.Decision
+                });
+
+            // ================================================================
+            // MARKS SUBMISSIONS
+            // ================================================================
 
             modelBuilder.Entity<MarksSubmission>()
                 .ToTable("MarksSubmissions");
@@ -386,9 +564,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .IsRequired();
 
             modelBuilder.Entity<MarksSubmission>()
-                .Property(ms => ms.FilePath)
-                .HasMaxLength(500)
-                .IsRequired();
+                .HasOne(ms => ms.StorageFile)
+                .WithMany()
+                .HasForeignKey(ms => ms.StorageFileId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MarksSubmission>()
                 .Property(ms => ms.FileHash)
@@ -449,6 +628,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                     ms.AcademicYear
                 });
 
+            // ================================================================
+            // AUDIT LOGS
+            // ================================================================
+
             modelBuilder.Entity<AuditLog>()
                 .ToTable("AuditLogs");
 
@@ -488,24 +671,89 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                     a.EntityType,
                     a.EntityId
                 });
-            modelBuilder.Entity<ClaimAttendance>()
-            .ToTable("ClaimAttendances");
+
+            // ================================================================
+            // CLAIM ATTENDANCE
+            // ================================================================
 
             modelBuilder.Entity<ClaimAttendance>()
-            .HasIndex(ca => ca.ClaimId)
-            .IsUnique();
+                .ToTable("ClaimAttendances");
+
+            modelBuilder.Entity<ClaimAttendance>()
+                .HasIndex(ca => ca.ClaimId)
+                .IsUnique();
+
+            modelBuilder.Entity<ClaimAttendance>()
+                .HasOne(ca => ca.Claim)
+                .WithOne(c => c.Attendance)
+                .HasForeignKey<ClaimAttendance>(ca => ca.ClaimId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ================================================================
+            // CLAIM ATTENDANCE RECORDS
+            // ================================================================
 
             modelBuilder.Entity<ClaimAttendanceRecord>()
-            .ToTable("ClaimAttendanceRecord");
+                .ToTable("ClaimAttendanceRecords");
 
             modelBuilder.Entity<ClaimAttendanceRecord>()
-            .HasOne(car => car.ClaimAttendance)
-            .WithMany(ca => ca.Records)
-            .HasForeignKey(car => car.ClaimAttendanceId)
-            .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(car => car.ClaimAttendance)
+                .WithMany(ca => ca.Records)
+                .HasForeignKey(car => car.ClaimAttendanceId)
+                .OnDelete(DeleteBehavior.Cascade);
 
+            // ================================================================
+            // FILE STORAGE
+            // ================================================================
+
+            modelBuilder.Entity<StoredFile>()
+                .ToTable("StoredFiles");
+
+            modelBuilder.Entity<StoredFile>()
+                .HasKey(sf => sf.Id);
+
+            modelBuilder.Entity<StoredFile>()
+                .Property(sf => sf.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<StoredFile>()
+                .Property(sf => sf.OriginalFileName)
+                .HasMaxLength(255)
+                .IsRequired();
+
+            modelBuilder.Entity<StoredFile>()
+                .Property(sf => sf.ContentType)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            modelBuilder.Entity<StoredFile>()
+                .Property(sf => sf.Sha256Hash)
+                .HasMaxLength(64)
+                .IsRequired();
+
+            modelBuilder.Entity<StoredFile>()
+                .Property(sf => sf.Folder)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            modelBuilder.Entity<StoredFile>()
+                .Property(sf => sf.SizeBytes)
+                .IsRequired();
+
+            modelBuilder.Entity<StoredFile>()
+                .Property(sf => sf.Content)
+                .HasColumnType("varbinary(max)")
+                .IsRequired();
+
+            modelBuilder.Entity<StoredFile>()
+                .Property(sf => sf.CreatedAtUtc)
+                .IsRequired();
+
+            modelBuilder.Entity<StoredFile>()
+                .HasIndex(sf => sf.CreatedAtUtc);
+
+            modelBuilder.Entity<StoredFile>()
+                .HasIndex(sf => sf.Folder);
         }
     }
-
-
 }
