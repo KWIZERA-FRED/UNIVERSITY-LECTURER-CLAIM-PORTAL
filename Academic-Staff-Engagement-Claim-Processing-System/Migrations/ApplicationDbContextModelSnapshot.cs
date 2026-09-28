@@ -916,7 +916,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Templates");
+                    b.ToTable("Templates", (string)null);
                 });
 
             modelBuilder.Entity("Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Dean", b =>

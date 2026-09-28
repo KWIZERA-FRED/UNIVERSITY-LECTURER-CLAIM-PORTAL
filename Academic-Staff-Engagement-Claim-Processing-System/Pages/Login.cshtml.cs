@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 // Type aliases to avoid namespace/type collisions
 using LecturerModel =
-Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
+    Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer;
 
 using SecurityClaim = System.Security.Claims.Claim;
 
@@ -25,10 +25,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
         private readonly ApplicationDbContext _context;
         private readonly AuditLogger _auditLogger;
 
-
-    public LoginModel(
-        ApplicationDbContext context,
-        AuditLogger auditLogger)
+        public LoginModel(
+            ApplicationDbContext context,
+            AuditLogger auditLogger)
         {
             _context = context;
             _auditLogger = auditLogger;
@@ -78,7 +77,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     "Lecturer",
                     lecturer.Id,
                     new PasswordHasher<LecturerModel>(),
-
                     onSuccess: async () =>
                     {
                         // ------------------------------------------------
@@ -119,7 +117,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     "HOD",
                     hod.Id,
                     new PasswordHasher<AdminAccount>(),
-
                     onSuccess: () =>
                         Task.FromResult<IActionResult>(
                             RedirectToPage("/HOD/Index")));
@@ -140,7 +137,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     "Dean",
                     dean.Id,
                     new PasswordHasher<AdminAccount>(),
-
                     onSuccess: () =>
                         Task.FromResult<IActionResult>(
                             RedirectToPage("/DEAN/Index")));
@@ -161,14 +157,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     "Management",
                     management.Id,
                     new PasswordHasher<AdminAccount>(),
-
                     onSuccess: () =>
                     {
                         // ------------------------------------------------
                         // Exam Office
                         // ------------------------------------------------
 
-                        if (management.Title == ManagementTitle.ExamOffice)
+                        if (management.Title ==
+                            ManagementTitle.ExamOffice)
                         {
                             return Task.FromResult<IActionResult>(
                                 RedirectToPage(
@@ -182,7 +178,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                         return Task.FromResult<IActionResult>(
                             RedirectToPage(
                                 "/Management/ManagementDashboard"));
-                    });
+                    },
+                    managementTitle: management.Title);
             }
 
             // ============================================================
@@ -215,7 +212,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
             string role,
             int userId,
             IPasswordHasher<TUser> hasher,
-            Func<Task<IActionResult>> onSuccess)
+            Func<Task<IActionResult>> onSuccess,
+            ManagementTitle? managementTitle = null)
             where TUser : class
         {
             dynamic entity = user;
@@ -350,7 +348,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                 await SignInAsync(
                     entity.UserName,
                     role,
-                    userId);
+                    userId,
+                    managementTitle);
 
                 // ----------------------------------------------------
                 // REDIRECT
@@ -403,17 +402,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                 justLockedOut
                     ? AuditAction.AccountLockedOut
                     : AuditAction.LoginFailed,
-
                 entity.UserName,
                 role,
                 userId,
                 role,
                 userId,
-
                 justLockedOut
                     ? "Account locked after 5 failed attempts"
                     : "Invalid password",
-
                 ipAddress);
 
             ErrorMessage =
@@ -490,22 +486,35 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
         private async Task SignInAsync(
             string username,
             string role,
-            int userId)
+            int userId,
+            ManagementTitle? managementTitle = null)
         {
             var claims = new List<SecurityClaim>
-        {
-            new SecurityClaim(
-                ClaimTypes.Name,
-                username),
+            {
+                new SecurityClaim(
+                    ClaimTypes.Name,
+                    username),
 
-            new SecurityClaim(
-                ClaimTypes.Role,
-                role),
+                new SecurityClaim(
+                    ClaimTypes.Role,
+                    role),
 
-            new SecurityClaim(
-                "UserId",
-                userId.ToString())
-        };
+                new SecurityClaim(
+                    "UserId",
+                    userId.ToString())
+            };
+
+            // --------------------------------------------------------
+            // Add Management title to authentication cookie
+            // --------------------------------------------------------
+
+            if (managementTitle.HasValue)
+            {
+                claims.Add(
+                    new SecurityClaim(
+                        "ManagementTitle",
+                        managementTitle.Value.ToString()));
+            }
 
             var identity =
                 new ClaimsIdentity(
@@ -530,6 +539,4 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                 });
         }
     }
-
-
 }
