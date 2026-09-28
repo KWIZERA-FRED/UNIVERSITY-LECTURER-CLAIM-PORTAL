@@ -1,877 +1,412 @@
-/* ============================================================
-MANAGEMENT DASHBOARD
-============================================================ */
-
 .management-dashboard {
     width: 100%;
-    max-width: 1480px;
+    max-width: 1500px;
     margin: 0 auto;
-    padding: 30px 32px 40px;
+    padding: 10px 4px 40px;
+    color: #1a2634;
 }
 
-/* ============================================================
-DASHBOARD HEADER
+    /* ============================================================
+PAGE HEADER
 ============================================================ */
 
-.dashboard-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 24px;
-}
-
-.dashboard-heading {
-    min-width: 0;
-}
-
-.page-eyebrow,
-.section-eyebrow {
-    display: block;
-    margin-bottom: 6px;
-    color: var(--accent);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.dashboard-heading h1 {
-    margin: 0;
-    color: var(--primary);
-    font-family: var(--font-primary);
-    font-size: 27px;
-    font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: -0.7px;
-}
-
-.dashboard-heading p {
-    max-width: 680px;
-    margin: 7px 0 0;
-    color: var(--text-secondary);
-    font-size: 12px;
-    line-height: 1.6;
-}
-
-/* ============================================================
-PRIMARY ACTION
-============================================================ */
-
-.primary-action {
-    min-height: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    flex-shrink: 0;
-    padding: 0 16px;
-    color: #ffffff;
-    background: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 7px;
-    font-size: 11px;
-    font-weight: 700;
-    text-decoration: none;
-    box-shadow: 0 4px 10px rgba(0, 155, 99, 0.14);
-    transition: background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
-}
-
-    .primary-action:hover {
-        color: #ffffff;
-        background: var(--accent-dark);
-        border-color: var(--accent-dark);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 14px rgba(0, 155, 99, 0.18);
+    .management-dashboard .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        margin-bottom: 28px;
     }
 
-    .primary-action i {
-        font-size: 12px;
+    .management-dashboard .page-header-main {
+        min-width: 0;
     }
 
-/* ============================================================
-SUMMARY CARDS
-============================================================ */
-
-.dashboard-summary {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-.summary-card {
-    min-width: 0;
-    padding: 17px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    box-shadow: var(--shadow-sm);
-    transition: transform var(--transition), box-shadow var(--transition);
-}
-
-    .summary-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-.summary-card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 14px;
-}
-
-.summary-icon {
-    width: 37px;
-    height: 37px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent);
-    background: var(--accent-light);
-    border: 1px solid var(--accent-border);
-    border-radius: 8px;
-}
-
-    .summary-icon i {
-        font-size: 16px;
-    }
-
-.summary-status {
-    padding: 4px 7px;
-    color: var(--text-muted);
-    background: var(--surface-soft);
-    border: 1px solid var(--border-light);
-    border-radius: 5px;
-    font-size: 8px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.summary-value {
-    display: block;
-    color: var(--primary);
-    font-size: 27px;
-    font-weight: 800;
-    line-height: 1;
-}
-
-.summary-label {
-    display: block;
-    margin-top: 7px;
-    color: var(--text-secondary);
-    font-size: 10px;
-    font-weight: 600;
-    line-height: 1.5;
-}
-
-.summary-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: 13px;
-    padding-top: 9px;
-    border-top: 1px solid var(--border-light);
-    color: var(--text-muted);
-    font-size: 9px;
-}
-
-    .summary-footer a {
-        color: var(--accent);
+    .management-dashboard .page-header h1 {
+        margin: 0 0 7px;
+        color: #0f2b4a;
+        font-family: "Poppins", sans-serif;
+        font-size: 30px;
         font-weight: 700;
-        text-decoration: none;
+        line-height: 1.25;
     }
 
-        .summary-footer a:hover {
-            color: var(--accent-dark);
+    .management-dashboard .page-header p {
+        margin: 0;
+        color: #4d6278;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    /* ============================================================
+PRIMARY BUTTON
+============================================================ */
+
+    .management-dashboard .primary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 44px;
+        padding: 0 18px;
+        border: 1px solid #0f2b4a;
+        border-radius: 8px;
+        background: #0f2b4a;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+        .management-dashboard .primary-button:hover {
+            background: #1a3f64;
+            border-color: #1a3f64;
+            color: #ffffff;
+            transform: translateY(-1px);
         }
 
-/* ============================================================
-DASHBOARD CARD
+        .management-dashboard .primary-button i {
+            font-size: 16px;
+        }
+
+    /* ============================================================
+STATISTICS
 ============================================================ */
 
-.dashboard-card {
-    margin-bottom: 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    box-shadow: var(--shadow-sm);
-}
-
-.card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 20px 21px 17px;
-    border-bottom: 1px solid var(--border-light);
-}
-
-    .card-header h2 {
-        margin: 0;
-        color: var(--primary);
-        font-size: 16px;
-        font-weight: 800;
-        line-height: 1.35;
+    .management-dashboard .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 28px;
     }
 
-    .card-header p {
-        max-width: 680px;
-        margin: 5px 0 0;
-        color: var(--text-secondary);
-        font-size: 10px;
-        line-height: 1.55;
+    .management-dashboard .stat-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        min-height: 120px;
+        padding: 20px;
+        border: 1px solid #dce4ed;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 3px 12px rgba(15, 43, 74, 0.05);
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
 
-.section-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--accent);
-    font-size: 10px;
-    font-weight: 700;
-    text-decoration: none;
-}
+        .management-dashboard .stat-card:hover {
+            border-color: #b9c8d8;
+            box-shadow: 0 7px 20px rgba(15, 43, 74, 0.09);
+            transform: translateY(-2px);
+        }
 
-    .section-link:hover {
-        color: var(--accent-dark);
-    }
-
-/* ============================================================
-WORKFLOW
-============================================================ */
-
-.workflow-card {
-    overflow: hidden;
-}
-
-.workflow {
-    display: flex;
-    align-items: center;
-    padding: 22px 24px 25px;
-    overflow-x: auto;
-}
-
-.workflow-step {
-    min-width: 105px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.workflow-number {
-    width: 25px;
-    height: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 8px;
-    color: #ffffff;
-    background: var(--primary);
-    border-radius: 50%;
-    font-size: 9px;
-    font-weight: 800;
-}
-
-.workflow-icon {
-    width: 39px;
-    height: 39px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 7px;
-    color: var(--primary);
-    background: #f2f6f9;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-}
-
-    .workflow-icon i {
-        font-size: 17px;
-    }
-
-.workflow-step strong {
-    color: var(--text);
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.workflow-step span {
-    margin-top: 2px;
-    color: var(--text-muted);
-    font-size: 8px;
-}
-
-.workflow-line {
-    width: 45px;
-    height: 1px;
-    flex-shrink: 0;
-    margin: 0 4px 31px;
-    background: var(--border);
-}
-
-/* ============================================================
-CONTRACTS / MARKS TABLE
-============================================================ */
-
-.contracts-card {
-    overflow: hidden;
-}
-
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.contracts-table {
-    width: 100%;
-    min-width: 850px;
-    border-collapse: collapse;
-}
-
-    .contracts-table th {
-        padding: 11px 14px;
-        color: var(--text-muted);
-        background: var(--surface-soft);
-        border-bottom: 1px solid var(--border);
-        font-size: 8px;
-        font-weight: 800;
-        letter-spacing: 0.6px;
-        text-align: left;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
-
-    .contracts-table td {
-        padding: 13px 14px;
-        color: var(--text-secondary);
-        border-bottom: 1px solid var(--border-light);
-        font-size: 10px;
-        vertical-align: middle;
-    }
-
-    .contracts-table tbody tr:hover {
-        background: #fbfcfd;
-    }
-
-    .contracts-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
-
-/* ============================================================
-CONTRACT REFERENCE
-============================================================ */
-
-.contract-reference {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-}
-
-.contract-icon {
-    width: 31px;
-    height: 31px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: var(--primary);
-    background: #f0f4f7;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-}
-
-    .contract-icon i {
-        font-size: 14px;
-    }
-
-.contract-reference div {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.contract-reference strong {
-    color: var(--primary);
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.contract-reference div span {
-    margin-top: 1px;
-    color: var(--text-muted);
-    font-size: 8px;
-}
-
-.lecturer-name {
-    color: var(--text);
-    font-weight: 700;
-}
-
-.course-name {
-    display: inline-block;
-    max-width: 200px;
-    overflow: hidden;
-    color: var(--text);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* ============================================================
-STATUS BADGE
-============================================================ */
-
-.stage-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 8px;
-    color: #8a6200;
-    background: #fff8e8;
-    border: 1px solid #f5e2b4;
-    border-radius: 5px;
-    font-size: 8px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-    .stage-badge i {
-        font-size: 9px;
-    }
-
-/* ============================================================
-REVIEW BUTTON
-============================================================ */
-
-.review-button {
-    min-height: 30px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 0 10px;
-    color: var(--primary);
-    background: #f2f6f9;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 9px;
-    font-weight: 700;
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: color var(--transition), background var(--transition), border-color var(--transition);
-}
-
-    .review-button:hover {
-        color: #ffffff;
-        background: var(--accent);
-        border-color: var(--accent);
-    }
-
-    .review-button i {
-        font-size: 10px;
-    }
-
-/* ============================================================
-EMPTY STATE
-============================================================ */
-
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 42px 24px 46px;
-    text-align: center;
-}
-
-.empty-icon {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 12px;
-    color: var(--accent);
-    background: var(--accent-light);
-    border: 1px solid var(--accent-border);
-    border-radius: 50%;
-}
-
-    .empty-icon i {
+    .management-dashboard .stat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
         font-size: 21px;
     }
 
-.empty-state h3 {
-    margin: 0;
-    color: var(--primary);
-    font-size: 13px;
-    font-weight: 800;
-}
+    .management-dashboard .stat-icon-orange {
+        background: #fff1df;
+        color: #c97916;
+    }
 
-.empty-state p {
-    max-width: 440px;
-    margin: 5px 0 0;
-    color: var(--text-secondary);
-    font-size: 10px;
-    line-height: 1.6;
-}
+    .management-dashboard .stat-icon-green {
+        background: #e1f0e8;
+        color: #2a7f5e;
+    }
 
-/* ============================================================
-MARKS MESSAGES
+    .management-dashboard .stat-icon-blue {
+        background: #e7eef7;
+        color: #285d8f;
+    }
+
+    .management-dashboard .stat-icon-purple {
+        background: #eee8f7;
+        color: #6b4d91;
+    }
+
+    .management-dashboard .stat-value {
+        margin-bottom: 4px;
+        color: #0f2b4a;
+        font-family: "Poppins", sans-serif;
+        font-size: 27px;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .management-dashboard .stat-label {
+        display: block;
+        color: #4d6278;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    /* ============================================================
+SECTION CARD
 ============================================================ */
 
-.marks-message {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin-bottom: 20px;
-    padding: 11px 14px;
-    border: 1px solid;
-    border-radius: 8px;
-    font-size: 10px;
-    font-weight: 600;
-}
+    .management-dashboard .section-card {
+        overflow: hidden;
+        border: 1px solid #dce4ed;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 3px 12px rgba(15, 43, 74, 0.05);
+    }
 
-    .marks-message i {
-        flex-shrink: 0;
+    .management-dashboard .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        min-height: 70px;
+        padding: 0 22px;
+        border-bottom: 1px solid #dce4ed;
+    }
+
+        .management-dashboard .section-header h2 {
+            margin: 0;
+            color: #0f2b4a;
+            font-family: "Poppins", sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+    .management-dashboard .section-link {
+        color: #1a3f64;
         font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
     }
 
-.marks-message-success {
-    color: var(--accent-dark);
-    background: var(--accent-light);
-    border-color: var(--accent-border);
-}
+        .management-dashboard .section-link:hover {
+            color: #2a7f5e;
+            text-decoration: underline;
+        }
 
-.marks-message-error {
-    color: var(--danger);
-    background: var(--danger-light);
-    border-color: #f3cdd2;
-}
-
-/* ============================================================
-MARKS REVIEW CARD
+    /* ============================================================
+EMPTY STATE
 ============================================================ */
 
-.marks-review-card {
-    overflow: hidden;
-}
-
-/* ============================================================
-MARKS INFORMATION
-============================================================ */
-
-.marks-information {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px;
-    padding: 21px;
-    border-bottom: 1px solid var(--border-light);
-}
-
-.marks-information-item {
-    min-width: 0;
-}
-
-    .marks-information-item > span {
-        display: block;
-        margin-bottom: 6px;
-        color: var(--text-muted);
-        font-size: 8px;
-        font-weight: 800;
-        letter-spacing: 0.6px;
-        text-transform: uppercase;
+    .management-dashboard .empty-state {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 170px;
+        padding: 30px;
+        background: #ffffff;
     }
 
-    .marks-information-item > strong {
-        display: block;
-        color: var(--text);
+        .management-dashboard .empty-state p {
+            margin: 0;
+            color: #4d6278;
+            font-size: 14px;
+        }
+
+    /* ============================================================
+TABLE
+============================================================ */
+
+    .management-dashboard .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .management-dashboard .data-table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+    }
+
+        .management-dashboard .data-table thead {
+            background: #f0f4fa;
+        }
+
+        .management-dashboard .data-table th {
+            padding: 13px 18px;
+            border-bottom: 1px solid #dce4ed;
+            color: #4d6278;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-align: left;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .management-dashboard .data-table td {
+            padding: 16px 18px;
+            border-bottom: 1px solid #e8edf2;
+            color: #34495e;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .management-dashboard .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .management-dashboard .data-table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+            .management-dashboard .data-table tbody tr:hover {
+                background: #f8fafc;
+            }
+
+    /* ============================================================
+TABLE CONTENT
+============================================================ */
+
+    .management-dashboard .reference-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 9px;
+        border: 1px solid #dce4ed;
+        border-radius: 6px;
+        background: #f0f4fa;
+        color: #1a3f64;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .management-dashboard .lecturer-name {
+        color: #1a2634;
+        font-weight: 600;
+    }
+
+    .management-dashboard .course-title {
+        color: #34495e;
+    }
+
+    .management-dashboard .hours-value {
+        color: #1a2634;
+        font-weight: 600;
+    }
+
+    .management-dashboard .col-right {
+        text-align: right;
+    }
+
+    .management-dashboard .col-action {
+        width: 90px;
+        text-align: right;
+    }
+
+    /* ============================================================
+STATUS
+============================================================ */
+
+    .management-dashboard .status-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: 20px;
         font-size: 11px;
         font-weight: 700;
-        line-height: 1.45;
+        white-space: nowrap;
     }
 
-.marks-file-name {
-    display: flex !important;
-    align-items: center;
-    gap: 7px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-    .marks-file-name i {
-        flex-shrink: 0;
-        color: var(--accent);
-        font-size: 13px;
+    .management-dashboard .status-pending {
+        background: #fff1df;
+        color: #a96310;
     }
 
-/* ============================================================
-MARKS ACTION ROW
+    /* ============================================================
+REVIEW BUTTON
 ============================================================ */
 
-.marks-action-row {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 17px 21px;
-    border-bottom: 1px solid var(--border-light);
-}
-
-    .marks-action-row form {
-        margin: 0;
+    .management-dashboard .gray-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 12px;
+        border: 1px solid #cfd9e4;
+        border-radius: 7px;
+        background: #ffffff;
+        color: #34495e;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
 
-    .marks-action-row .review-button {
-        min-height: 35px;
-        padding: 0 13px;
-    }
+        .management-dashboard .gray-button:hover {
+            border-color: #1a3f64;
+            background: #f0f4fa;
+            color: #0f2b4a;
+        }
 
 /* ============================================================
-MARKS DECLINE SECTION
+RESPONSIVE
 ============================================================ */
 
-.marks-decline {
-    margin: 0 21px;
-    padding: 21px 0;
-    border-bottom: 1px solid var(--border-light);
-}
+@media (max-width: 1100px) {
 
-.marks-decline-heading {
-    margin-bottom: 14px;
-}
-
-    .marks-decline-heading .section-eyebrow {
-        margin-bottom: 5px;
-    }
-
-    .marks-decline-heading h3 {
-        margin: 0;
-        color: var(--primary);
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .marks-decline-heading p {
-        max-width: 650px;
-        margin: 5px 0 0;
-        color: var(--text-secondary);
-        font-size: 10px;
-        line-height: 1.55;
-    }
-
-.marks-form-group {
-    margin-bottom: 11px;
-}
-
-    .marks-form-group label {
-        display: block;
-        margin-bottom: 6px;
-        color: var(--text);
-        font-size: 9px;
-        font-weight: 700;
-    }
-
-.marks-textarea {
-    width: 100%;
-    min-height: 84px;
-    display: block;
-    padding: 10px 11px;
-    color: var(--text);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    outline: none;
-    resize: vertical;
-    font-family: var(--font-primary);
-    font-size: 10px;
-    line-height: 1.5;
-    box-sizing: border-box;
-    transition: border-color var(--transition), box-shadow var(--transition);
-}
-
-    .marks-textarea::placeholder {
-        color: var(--text-muted);
-    }
-
-    .marks-textarea:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(0, 155, 99, 0.09);
-    }
-
-.marks-form-group small {
-    display: block;
-    margin-top: 5px;
-    color: var(--text-muted);
-    font-size: 8px;
-    line-height: 1.45;
-}
-
-.marks-decline-button {
-    min-height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 0 12px;
-    color: var(--danger);
-    background: var(--danger-light);
-    border: 1px solid #f3cdd2;
-    border-radius: 6px;
-    font-size: 9px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: color var(--transition), background var(--transition), border-color var(--transition);
-}
-
-    .marks-decline-button:hover {
-        color: #ffffff;
-        background: var(--danger);
-        border-color: var(--danger);
-    }
-
-/* ============================================================
-MARKS CARD FOOTER
-============================================================ */
-
-.marks-card-footer {
-    display: flex;
-    align-items: center;
-    padding: 14px 21px;
-}
-
-/* ============================================================
-FOCUS STATES
-============================================================ */
-
-.primary-action:focus-visible,
-.section-link:focus-visible,
-.review-button:focus-visible,
-.marks-decline-button:focus-visible,
-.marks-textarea:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-}
-
-@media (max-width: 1200px) {
-
-    .management-dashboard {
-        padding: 27px 25px 36px;
-    }
-
-    .dashboard-summary {
+    .management-dashboard .stats-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
 }
 
-@media (max-width: 900px) {
+@media (max-width: 800px) {
 
-    .management-dashboard {
-        padding: 25px 20px 32px;
-    }
-
-    .dashboard-header {
+    .management-dashboard .page-header {
         align-items: flex-start;
         flex-direction: column;
     }
 
-    .primary-action {
-        align-self: flex-start;
-    }
-
-    .dashboard-heading h1 {
-        font-size: 24px;
-    }
-
-    .marks-information {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-   
-}
-@media (max-width: 600px) {
-
- 
-    .management-dashboard {
-        padding: 20px 14px 28px;
-    }
-
-    .dashboard-header {
-        gap: 16px;
-        margin-bottom: 18px;
-    }
-
-    .dashboard-heading h1 {
-        font-size: 21px;
-    }
-
-    .dashboard-heading p {
-        font-size: 10px;
-    }
-
-    .primary-action {
+    .management-dashboard .primary-button {
         width: 100%;
     }
 
-    .dashboard-summary {
-        grid-template-columns: 1fr;
-        gap: 11px;
-    }
-
-    .card-header {
-        padding: 17px 16px 14px;
-    }
-
-        .card-header h2 {
-            font-size: 14px;
-        }
-
-    .marks-information {
-        padding: 17px 16px;
-    }
-
-    .marks-action-row {
-        align-items: stretch;
-        flex-direction: column;
-        padding: 15px 16px;
-    }
-
-        .marks-action-row .review-button,
-        .marks-action-row form,
-        .marks-action-row form .review-button {
-            width: 100%;
-        }
-
-    .marks-decline {
-        margin: 0 16px;
-        padding: 17px 0;
-    }
-
-    .marks-card-footer {
-        padding: 13px 16px;
-    }
-
-        .marks-card-footer .section-link {
-            font-size: 9px;
-        }
-
+   
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (max-width: 600px) {
 
-   
-    .summary-card,
-    .primary-action,
-    .review-button,
-    .marks-decline-button,
-    .marks-textarea {
-        transition: none;
+    
+    .management-dashboard {
+        padding: 5px 0 30px;
+    }
+
+    .management-dashboard .page-header h1 {
+        font-size: 24px;
+    }
+
+    .management-dashboard .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .management-dashboard .stat-card {
+        min-height: 100px;
+    }
+
+    .management-dashboard .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 85px;
+        padding: 15px 18px;
+    }
+
+    .management-dashboard .data-table th,
+    .management-dashboard .data-table td {
+        padding-left: 14px;
+        padding-right: 14px;
     }
 
    
