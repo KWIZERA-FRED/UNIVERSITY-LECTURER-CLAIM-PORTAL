@@ -27,16 +27,6 @@
         _ => status.ToString()
     };
 
-    string GetRoleLabel(SignerRole role) => role switch
-    {
-        SignerRole.Lecturer => "Lecturer",
-        SignerRole.Dean => "Dean of Faculty",
-        SignerRole.HROfficer => "Human Resource Officer",
-        SignerRole.DVCAR => "DVCAR",
-        SignerRole.ViceChancellor => "Vice Chancellor",
-        _ => role.ToString()
-    };
-
     var contract = Model.Contract;
 
     var signedSteps = contract?.Steps.Count(s =>
@@ -57,7 +47,7 @@
 
         <div class="page-header-main">
             <h1>Contract Details</h1>
-            <p>Review the contract and monitor the electronic signature workflow.</p>
+            <p>Review the contract and monitor its signature workflow.</p>
         </div>
 
         <div class="page-header-actions">
@@ -94,6 +84,7 @@
 
             <header class="section-header">
                 <h2>@contract.Reference</h2>
+
                 <span class="status-badge @GetStatusClass(contract.Status)">
                     @GetStatusLabel(contract.Status)
                 </span>
@@ -103,22 +94,30 @@
 
                 <div class="detail-item">
                     <span class="detail-label">Lecturer</span>
-                    <span class="detail-value">@contract.LecturerName</span>
+                    <span class="detail-value">
+                        @contract.LecturerName
+                    </span>
                 </div>
 
                 <div class="detail-item">
                     <span class="detail-label">Course</span>
-                    <span class="detail-value">@contract.CourseTitle</span>
+                    <span class="detail-value">
+                        @contract.CourseTitle
+                    </span>
                 </div>
 
                 <div class="detail-item">
                     <span class="detail-label">Academic Year</span>
-                    <span class="detail-value">@contract.AcademicYear</span>
+                    <span class="detail-value">
+                        @contract.AcademicYear
+                    </span>
                 </div>
 
                 <div class="detail-item">
                     <span class="detail-label">Signature Progress</span>
-                    <span class="detail-value">@signedSteps / @totalSteps</span>
+                    <span class="detail-value">
+                        @signedSteps / @totalSteps
+                    </span>
                 </div>
 
             </div>
@@ -128,28 +127,51 @@
         <section class="section-card">
 
             <header class="section-header">
-                <h2>Signature Workflow</h2>
+                <div>
+                    <h2>Signature Workflow</h2>
+                    <p class="section-description">
+                        Electronic signing progress for internal workflow tracking.
+                    </p>
+                </div>
             </header>
 
             @if (contract.Steps.Count > 0)
             {
                 <div class="timeline">
 
-                    @for (var index = 0; index < contract.Steps.Count; index++)
+                    @for (var index = 0;
+                          index < contract.Steps.Count;
+                          index++)
                     {
                         var step = contract.Steps[index];
 
-                        var isSigned = step.Decision == SignatureDecision.Signed;
-                        var isDeclined = step.Decision == SignatureDecision.Declined;
+                        var isSigned =
+                            step.Decision == SignatureDecision.Signed;
 
-                        var isCurrent = !isSigned && !isDeclined
-                            && !contract.Steps.Take(index).Any(s => s.Decision == SignatureDecision.Declined)
-                            && contract.Steps.Take(index).All(s => s.Decision == SignatureDecision.Signed);
+                        var isDeclined =
+                            step.Decision == SignatureDecision.Declined;
+
+                        var previousSteps =
+                            contract.Steps.Take(index).ToList();
+
+                        var isCurrent =
+                            !isSigned &&
+                            !isDeclined &&
+                            previousSteps.All(
+                                s => s.Decision == SignatureDecision.Signed);
 
                         <div class="timeline-step">
 
                             <div class="timeline-role">
-                                @GetRoleLabel(step.Role)
+                                @(step.Role switch
+                                {
+                                    SignerRole.Lecturer => "Lecturer",
+                                    SignerRole.Dean => "Dean of Faculty",
+                                    SignerRole.HROfficer => "Human Resource Officer",
+                                    SignerRole.DVCAR => "DVCAR",
+                                    SignerRole.ViceChancellor => "Vice Chancellor",
+                                    _ => step.Role.ToString()
+                                })
                             </div>
 
                             <div class="timeline-content">
@@ -158,25 +180,35 @@
 
                                     @if (isSigned)
                                     {
-                                        <span class="status-badge status-active">Signed</span>
+                                        <span class="status-badge status-active">
+                                            Signed
+                                        </span>
                                     }
                                     else if (isDeclined)
                                     {
-                                        <span class="status-badge status-danger">Declined</span>
+                                        <span class="status-badge status-danger">
+                                            Declined
+                                        </span>
                                     }
                                     else if (isCurrent)
                                     {
-                                        <span class="status-badge status-pending">Current Step</span>
+                                        <span class="status-badge status-pending">
+                                            Current Step
+                                        </span>
                                     }
                                     else
                                     {
-                                        <span class="status-badge status-neutral">Pending</span>
+                                        <span class="status-badge status-neutral">
+                                            Pending
+                                        </span>
                                     }
 
                                     @if (step.SignedAtUtc.HasValue)
                                     {
                                         <span class="timeline-date">
-                                            @step.SignedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                                            @step.SignedAtUtc.Value
+                                                .ToLocalTime()
+                                                .ToString("dd MMM yyyy, HH:mm")
                                         </span>
                                     }
 
@@ -184,15 +216,9 @@
 
                                 @if (!string.IsNullOrWhiteSpace(step.Comments))
                                 {
-                                    <p class="timeline-comments">@step.Comments</p>
-                                }
-
-                                @if (isSigned && !string.IsNullOrWhiteSpace(step.SignatureFilePath))
-                                {
-                                    <div class="signature-preview">
-                                        <span>Signature</span>
-                                        <img src="@step.SignatureFilePath" alt="Electronic signature" />
-                                    </div>
+                                    <p class="timeline-comments">
+                                        @step.Comments
+                                    </p>
                                 }
 
                             </div>
@@ -205,23 +231,32 @@
             else
             {
                 <div class="empty-state">
-                    <p>No signature records for this contract.</p>
+                    <i class="bi bi-file-earmark-x"></i>
+                    <p>No signature records are available for this contract.</p>
                 </div>
             }
 
         </section>
 
-        <section class="section-card">
+        <section class="section-card contract-document-section">
 
             <header class="section-header">
-                <h2>Contract Document</h2>
-                <span class="section-meta">Live preview with current signatures</span>
+
+                <div>
+                    <h2>Contract Document</h2>
+                    <p class="section-description">
+                        Official contract document with the current signature records.
+                    </p>
+                </div>
+
             </header>
 
             <div class="document-stage">
+
                 <article class="contract-document">
                     @Html.Raw(contract.Content)
                 </article>
+
             </div>
 
         </section>
@@ -246,21 +281,27 @@
 
             <header class="preview-header">
 
-                <h2 id="contractPreviewTitle">@contract.Reference</h2>
+                <h2 id="contractPreviewTitle">
+                    @contract.Reference
+                </h2>
 
                 <button type="button"
                         class="preview-close"
                         aria-label="Close preview"
                         onclick="closeContractPreview()">
+
                     <i class="bi bi-x-lg"></i>
+
                 </button>
 
             </header>
 
             <div class="preview-body">
+
                 <article class="contract-preview-paper">
                     @Html.Raw(contract.Content)
                 </article>
+
             </div>
 
         </div>
@@ -273,35 +314,58 @@
 
     function openContractPreview() {
 
-        const modal = document.getElementById("contractPreview");
+        const modal =
+            document.getElementById("contractPreview");
 
-        if (!modal) return;
+        if (!modal) {
+            return;
+        }
 
         modal.classList.add("is-open");
-        modal.setAttribute("aria-hidden", "false");
-        document.body.classList.add("preview-open");
 
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        document.body.classList.add(
+            "preview-open"
+        );
     }
 
     function closeContractPreview() {
 
-        const modal = document.getElementById("contractPreview");
+        const modal =
+            document.getElementById("contractPreview");
 
-        if (!modal) return;
-
-        modal.classList.remove("is-open");
-        modal.setAttribute("aria-hidden", "true");
-        document.body.classList.remove("preview-open");
-
-    }
-
-    document.addEventListener("keydown", function (event) {
-
-        if (event.key === "Escape") {
-            closeContractPreview();
+        if (!modal) {
+            return;
         }
 
-    });
+        modal.classList.remove(
+            "is-open"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        document.body.classList.remove(
+            "preview-open"
+        );
+    }
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Escape") {
+                closeContractPreview();
+            }
+
+        }
+    );
 
 </script>
 }
