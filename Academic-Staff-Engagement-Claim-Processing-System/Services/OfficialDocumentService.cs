@@ -16,7 +16,7 @@ public sealed class OfficialDocumentService
 
     private const string DeanName = "Prof. NYESHEJA M. Enan";
     private const string HrOfficerName = "Mr. NTAKIRUTIMANA Elison";
-    private const string DvcarName = "Prof. HAKIZAMANA Emmanuel";
+    private const string DvcarName = "Prof. HAKIZIMANA Emmanuel";
     private const string ViceChancellorName = "Prof. NGAMIJE Jean";
 
     public OfficialDocumentService(
@@ -395,7 +395,7 @@ public sealed class OfficialDocumentService
 
                             AddPaperSignatureLine(
                                 signatureColumn,
-                                "DVCAR Prof. HAKIZAMANA Emmanuel",
+                                "DVCAR Prof. HAKIZIMANA Emmanuel",
                                 null,
                                 dvcarSignature);
 
@@ -511,7 +511,7 @@ public sealed class OfficialDocumentService
 
             "Human Resource Officer Mr. NTAKIRUTIMANA Elison" => 0,
 
-            "DVCAR Prof. HAKIZAMANA Emmanuel" => 0,
+            "DVCAR Prof. HAKIZIMANA Emmanuel" => 0,
 
             "Vice Chancellor Prof. NGAMIJE Jean" => 0,
 

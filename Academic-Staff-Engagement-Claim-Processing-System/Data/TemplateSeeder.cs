@@ -7,10 +7,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
     {
         public static async Task SeedAsync(ApplicationDbContext db)
         {
-            // Do not create another template if one already exists.
-            if (await db.Templates.AnyAsync())
-                return;
-
             var contractTemplate = """
 <div class="official-contract">
 
@@ -340,7 +336,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
         <div class="paper-signature-line dvcar-signature-line">
 
             <span class="paper-signature-name">
-                DVCAR Prof. HAKIZAMANA Emmanuel
+                DVCAR Prof. HAKIZIMANA Emmanuel
             </span>
 
             <span class="paper-signature-field paper-signature-area">
@@ -383,14 +379,28 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 </div>
 """;
 
-            var template = new Template
-            {
-                Contract = contractTemplate,
-                Claim = string.Empty,
-                Letter = string.Empty
-            };
+            var existingTemplates = await db.Templates.ToListAsync();
 
-            db.Templates.Add(template);
+            if (existingTemplates.Count == 0)
+            {
+                db.Templates.Add(new Template
+                {
+                    Contract = contractTemplate,
+                    Claim = string.Empty,
+                    Letter = string.Empty
+                });
+            }
+            else
+            {
+                // Keep the stored contract template in sync with the code.
+                // Only the Contract column is overwritten; Claim and Letter
+                // are left untouched.
+                foreach (var existing in existingTemplates)
+                {
+                    if (existing.Contract != contractTemplate)
+                        existing.Contract = contractTemplate;
+                }
+            }
 
             await db.SaveChangesAsync();
         }

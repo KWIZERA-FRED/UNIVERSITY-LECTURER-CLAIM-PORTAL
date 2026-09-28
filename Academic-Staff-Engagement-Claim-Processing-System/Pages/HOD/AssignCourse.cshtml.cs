@@ -706,12 +706,17 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         private static string RemoveExistingSignatureSection(
             string html)
         {
-            return Regex.Replace(
+            html = Regex.Replace(
                 html,
                 @"<div\s+class\s*=\s*[""']contract-signatures[""'][^>]*>.*?</div>",
                 string.Empty,
                 RegexOptions.IgnoreCase |
                 RegexOptions.Singleline);
+
+            // The template already contains a paper-signatures block;
+            // strip it (and any legacy table) so only the generated
+            // block below is stored.
+            return ContractSignatureMarkup.RemoveSignatureBlocks(html);
         }
 
         private static string RemoveWorkflowNotice(
