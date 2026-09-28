@@ -93,12 +93,16 @@
 
                         <div class="form-section">
 
-                            <h3 class="form-section-title">Personal Information</h3>
+                            <h3 class="form-section-title">
+                                Personal Information
+                            </h3>
 
                             <div class="form-grid">
 
                                 <div class="form-group form-group-full">
-                                    <label for="name_@i">Full Name <span>*</span></label>
+                                    <label for="name_@i">
+                                        Full Name <span>*</span>
+                                    </label>
 
                                     <input type="text"
                                            id="name_@i"
@@ -114,7 +118,9 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="email_@i">Email Address <span>*</span></label>
+                                    <label for="email_@i">
+                                        Email Address <span>*</span>
+                                    </label>
 
                                     <input type="email"
                                            id="email_@i"
@@ -130,7 +136,9 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="governmentId_@i">Government ID <span>*</span></label>
+                                    <label for="governmentId_@i">
+                                        Government ID <span>*</span>
+                                    </label>
 
                                     <input type="text"
                                            id="governmentId_@i"
@@ -153,34 +161,34 @@
 
                         <div class="form-section">
 
-                            <h3 class="form-section-title">Academic Information</h3>
+                            <h3 class="form-section-title">
+                                Academic Information
+                            </h3>
 
                             <div class="form-grid">
 
                                 <div class="form-group">
-                                    <label for="lecturerType_@i">Employment Type <span>*</span></label>
+                                    <label for="lecturerType_@i">
+                                        Employment Type <span>*</span>
+                                    </label>
 
                                     <select id="lecturerType_@i"
                                             name="Users[@i].LecturerType"
                                             class="form-control">
 
-                                        @if (Model.Users[i].LecturerType == "PartTimeLecturer")
-                                        {
-                                            <option value="PartTimeLecturer" selected>Part-Time Lecturer</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="PartTimeLecturer">Part-Time Lecturer</option>
-                                        }
+                                        <option value="">
+                                            Select employment type
+                                        </option>
 
-                                        @if (Model.Users[i].LecturerType == "FullTimeLecturer")
-                                        {
-                                            <option value="FullTimeLecturer" selected>Full-Time Lecturer</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="FullTimeLecturer">Full-Time Lecturer</option>
-                                        }
+                                        <option value="PartTimeLecturer"
+                                                selected="@(Model.Users[i].LecturerType == "PartTimeLecturer")">
+                                            Part-Time Lecturer
+                                        </option>
+
+                                        <option value="FullTimeLecturer"
+                                                selected="@(Model.Users[i].LecturerType == "FullTimeLecturer")">
+                                            Full-Time Lecturer
+                                        </option>
 
                                     </select>
 
@@ -189,13 +197,17 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="rank_@i">Academic Rank <span>*</span></label>
+                                    <label for="rank_@i">
+                                        Academic Rank <span>*</span>
+                                    </label>
 
                                     <select id="rank_@i"
                                             name="Users[@i].Rank"
                                             class="form-control">
 
-                                        <option value="">Select academic rank</option>
+                                        <option value="">
+                                            Select academic rank
+                                        </option>
 
                                         <option value="TutorialAssistant"
                                                 selected="@(Model.Users[i].Rank == "TutorialAssistant")">
@@ -238,6 +250,53 @@
                                           asp-validation-for="Users[i].Rank"></span>
                                 </div>
 
+                                <div class="form-group">
+                                    <label for="faculty_@i">
+                                        Faculty
+                                    </label>
+
+                                    <input type="text"
+                                           id="faculty_@i"
+                                           class="form-control faculty-readonly"
+                                           value="@Model.HodFacultyDisplayName"
+                                           readonly />
+
+                                    <small class="field-help">
+                                        Faculty is automatically assigned from your HOD account.
+                                    </small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="department_@i">
+                                        Department <span>*</span>
+                                    </label>
+
+                                    <select id="department_@i"
+                                            name="Users[@i].Department"
+                                            class="form-control department-select">
+
+                                        <option value="">
+                                            Select department
+                                        </option>
+
+                                        @foreach (var department in Model.AvailableDepartments)
+                                        {
+                                            <option value="@department.Value"
+                                                    selected="@(Model.Users[i].Department == department.Value.ToString())">
+                                                @department.Name
+                                            </option>
+                                        }
+
+                                    </select>
+
+                                    <span class="field-error"
+                                          asp-validation-for="Users[i].Department"></span>
+
+                                    <small class="field-help">
+                                        Only departments under your faculty are available.
+                                    </small>
+                                </div>
+
                             </div>
 
                         </div>
@@ -246,7 +305,9 @@
 
                         <div class="form-section">
 
-                            <h3 class="form-section-title">Digital Signature</h3>
+                            <h3 class="form-section-title">
+                                Digital Signature
+                            </h3>
 
                             <div class="signature-area">
 
@@ -258,7 +319,9 @@
 
                                     <div class="signature-line"></div>
 
-                                    <div class="signature-label">Digital Signature</div>
+                                    <div class="signature-label">
+                                        Digital Signature
+                                    </div>
 
                                 </div>
 
@@ -333,6 +396,16 @@
 
     <script>
 
+        const departmentOptions = @Html.Raw(
+            System.Text.Json.JsonSerializer.Serialize(
+                Model.AvailableDepartments.Select(d => new
+                {
+                    value = d.Value.ToString(),
+                    text = d.Name
+                })
+            )
+        );
+
         document.addEventListener("DOMContentLoaded", function () {
 
             document
@@ -357,16 +430,37 @@
                         .querySelectorAll(".lecturer-card")
                         .forEach(function (card) {
 
-                            const signatureInput = card.querySelector(".signatureData");
+                            const department =
+                                card.querySelector(".department-select");
 
-                            if (!signatureInput.value) {
+                            if (department && !department.value) {
 
                                 valid = false;
 
-                                const error = card.querySelector(".signature-error");
+                                const error =
+                                    department
+                                        .closest(".form-group")
+                                        ?.querySelector(".field-error");
 
                                 if (error) {
-                                    error.textContent = "Digital signature is required.";
+                                    error.textContent =
+                                        "Department is required.";
+                                }
+                            }
+
+                            const signatureInput =
+                                card.querySelector(".signatureData");
+
+                            if (!signatureInput || !signatureInput.value) {
+
+                                valid = false;
+
+                                const error =
+                                    card.querySelector(".signature-error");
+
+                                if (error) {
+                                    error.textContent =
+                                        "Digital signature is required.";
                                 }
                             }
                         });
@@ -375,131 +469,315 @@
 
                         event.preventDefault();
 
-                        const firstError = document.querySelector(".signature-error");
+                        const firstError =
+                            document.querySelector(
+                                ".field-error:not(:empty)"
+                            );
 
                         if (firstError) {
-                            firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+                            firstError.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center"
+                            });
                         }
 
                         return;
                     }
 
-                    const button = document.getElementById("registerButton");
+                    const button =
+                        document.getElementById("registerButton");
 
                     button.disabled = true;
 
-                    button.querySelector(".button-text").style.display = "none";
-                    button.querySelector(".button-loading").style.display = "inline-flex";
+                    button.querySelector(".button-text").style.display =
+                        "none";
+
+                    button.querySelector(".button-loading").style.display =
+                        "inline-flex";
 
                 });
 
         });
 
+        function buildDepartmentOptions(selectedValue = "") {
+
+            let html =
+                `<option value="">Select department</option>`;
+
+            departmentOptions.forEach(function (department) {
+
+                const selected =
+                    department.value === selectedValue
+                        ? " selected"
+                        : "";
+
+                html += `
+                    <option value="${escapeHtml(department.value)}"${selected}>
+                        ${escapeHtml(department.text)}
+                    </option>
+                `;
+
+            });
+
+            return html;
+        }
+
+        function escapeHtml(value) {
+
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+        }
+
         function addLecturer() {
 
-            const container = document.getElementById("lecturerContainer");
-            const index = container.querySelectorAll(".lecturer-card").length;
+            const container =
+                document.getElementById("lecturerContainer");
 
-            const card = document.createElement("div");
+            const index =
+                container.querySelectorAll(".lecturer-card").length;
+
+            const card =
+                document.createElement("section");
+
             card.className = "lecturer-card";
             card.dataset.index = index;
 
             card.innerHTML = `
                 <header class="lecturer-card-header">
+
                     <div class="lecturer-title">
                         <strong>Lecturer ${index + 1}</strong>
                     </div>
+
                     <button type="button"
                             class="remove-lecturer"
                             onclick="removeLecturer(this)">
+
                         <i class="bi bi-trash3"></i>
                         Remove
+
                     </button>
+
                 </header>
 
                 <div class="lecturer-card-body">
 
                     <div class="form-section">
-                        <h3 class="form-section-title">Personal Information</h3>
+
+                        <h3 class="form-section-title">
+                            Personal Information
+                        </h3>
 
                         <div class="form-grid">
+
                             <div class="form-group form-group-full">
-                                <label>Full Name <span>*</span></label>
+
+                                <label>
+                                    Full Name <span>*</span>
+                                </label>
+
                                 <input type="text"
                                        name="Users[${index}].Name"
                                        class="form-control"
                                        placeholder="Enter lecturer's full name"
                                        maxlength="150"
                                        autocomplete="off" />
+
                                 <span class="field-error"></span>
+
                             </div>
 
                             <div class="form-group">
-                                <label>Email Address <span>*</span></label>
+
+                                <label>
+                                    Email Address <span>*</span>
+                                </label>
+
                                 <input type="email"
                                        name="Users[${index}].Email"
                                        class="form-control"
                                        placeholder="lecturer@example.com"
                                        maxlength="150"
                                        autocomplete="off" />
+
                                 <span class="field-error"></span>
+
                             </div>
 
                             <div class="form-group">
-                                <label>Government ID <span>*</span></label>
+
+                                <label>
+                                    Government ID <span>*</span>
+                                </label>
+
                                 <input type="text"
                                        name="Users[${index}].GovernmentId"
                                        class="form-control"
                                        placeholder="Enter government ID"
                                        maxlength="100"
                                        autocomplete="off" />
+
                                 <span class="field-error"></span>
+
                             </div>
+
                         </div>
+
                     </div>
 
                     <div class="form-divider"></div>
 
                     <div class="form-section">
-                        <h3 class="form-section-title">Academic Information</h3>
+
+                        <h3 class="form-section-title">
+                            Academic Information
+                        </h3>
 
                         <div class="form-grid">
+
                             <div class="form-group">
-                                <label>Employment Type <span>*</span></label>
-                                <select name="Users[${index}].LecturerType" class="form-control">
-                                    <option value="PartTimeLecturer">Part-Time Lecturer</option>
-                                    <option value="FullTimeLecturer">Full-Time Lecturer</option>
+
+                                <label>
+                                    Employment Type <span>*</span>
+                                </label>
+
+                                <select name="Users[${index}].LecturerType"
+                                        class="form-control">
+
+                                    <option value="">
+                                        Select employment type
+                                    </option>
+
+                                    <option value="PartTimeLecturer">
+                                        Part-Time Lecturer
+                                    </option>
+
+                                    <option value="FullTimeLecturer">
+                                        Full-Time Lecturer
+                                    </option>
+
                                 </select>
+
                                 <span class="field-error"></span>
+
                             </div>
 
                             <div class="form-group">
-                                <label>Academic Rank <span>*</span></label>
-                                <select name="Users[${index}].Rank" class="form-control">
-                                    <option value="">Select academic rank</option>
-                                    <option value="TutorialAssistant">Tutorial Assistant</option>
-                                    <option value="AssistantLecturer">Assistant Lecturer</option>
-                                    <option value="LecturerWithMasters">Lecturer With Masters</option>
-                                    <option value="LecturerWithPhD">Lecturer With PhD</option>
-                                    <option value="SeniorLecturer">Senior Lecturer</option>
-                                    <option value="AssistantProfessor">Assistant Professor</option>
-                                    <option value="Professor">Professor</option>
+
+                                <label>
+                                    Academic Rank <span>*</span>
+                                </label>
+
+                                <select name="Users[${index}].Rank"
+                                        class="form-control">
+
+                                    <option value="">
+                                        Select academic rank
+                                    </option>
+
+                                    <option value="TutorialAssistant">
+                                        Tutorial Assistant
+                                    </option>
+
+                                    <option value="AssistantLecturer">
+                                        Assistant Lecturer
+                                    </option>
+
+                                    <option value="LecturerWithMasters">
+                                        Lecturer With Masters
+                                    </option>
+
+                                    <option value="LecturerWithPhD">
+                                        Lecturer With PhD
+                                    </option>
+
+                                    <option value="SeniorLecturer">
+                                        Senior Lecturer
+                                    </option>
+
+                                    <option value="AssistantProfessor">
+                                        Assistant Professor
+                                    </option>
+
+                                    <option value="Professor">
+                                        Professor
+                                    </option>
+
                                 </select>
+
                                 <span class="field-error"></span>
+
                             </div>
+
+                            <div class="form-group">
+
+                                <label>
+                                    Faculty
+                                </label>
+
+                                <input type="text"
+                                       class="form-control faculty-readonly"
+                                       value="@Model.HodFacultyDisplayName"
+                                       readonly />
+
+                                <small class="field-help">
+                                    Faculty is automatically assigned from your HOD account.
+                                </small>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label>
+                                    Department <span>*</span>
+                                </label>
+
+                                <select name="Users[${index}].Department"
+                                        class="form-control department-select">
+
+                                    ${buildDepartmentOptions()}
+
+                                </select>
+
+                                <span class="field-error"></span>
+
+                                <small class="field-help">
+                                    Only departments under your faculty are available.
+                                </small>
+
+                            </div>
+
                         </div>
+
                     </div>
 
                     <div class="form-divider"></div>
 
                     <div class="form-section">
-                        <h3 class="form-section-title">Digital Signature</h3>
+
+                        <h3 class="form-section-title">
+                            Digital Signature
+                        </h3>
 
                         <div class="signature-area">
+
                             <div class="signature-wrapper">
-                                <canvas class="signature-pad" width="900" height="220"></canvas>
+
+                                <canvas class="signature-pad"
+                                        width="900"
+                                        height="220"></canvas>
+
                                 <div class="signature-line"></div>
-                                <div class="signature-label">Digital Signature</div>
+
+                                <div class="signature-label">
+                                    Digital Signature
+                                </div>
+
                             </div>
 
                             <input type="hidden"
@@ -507,16 +785,22 @@
                                    class="signatureData" />
 
                             <div class="signature-actions">
+
                                 <button type="button"
                                         class="secondary-button clear-signature"
                                         onclick="clearSignature(this)">
+
                                     <i class="bi bi-arrow-counterclockwise"></i>
                                     Clear Signature
+
                                 </button>
+
                             </div>
 
                             <span class="field-error signature-error"></span>
+
                         </div>
+
                     </div>
 
                 </div>
@@ -525,21 +809,31 @@
             container.appendChild(card);
 
             initializeSignatureCard(card);
+
             rebuildLecturerIndexes();
 
-            card.scrollIntoView({ behavior: "smooth", block: "start" });
+            card.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
 
         }
 
         function removeLecturer(button) {
 
-            const cards = document.querySelectorAll(".lecturer-card");
+            const cards =
+                document.querySelectorAll(".lecturer-card");
 
-            if (cards.length <= 1) return;
+            if (cards.length <= 1) {
+                return;
+            }
 
-            const card = button.closest(".lecturer-card");
+            const card =
+                button.closest(".lecturer-card");
 
-            if (!card) return;
+            if (!card) {
+                return;
+            }
 
             card.remove();
 
@@ -549,76 +843,186 @@
 
         function rebuildLecturerIndexes() {
 
-            const cards = document.querySelectorAll(".lecturer-card");
+            const cards =
+                document.querySelectorAll(".lecturer-card");
 
             cards.forEach(function (card, index) {
 
                 card.dataset.index = index;
 
-                const heading = card.querySelector(".lecturer-title strong");
-
-                if (heading) {
-                    heading.textContent = `Lecturer ${index + 1}`;
-                }
-
-                card.querySelectorAll("[name]").forEach(function (element) {
-
-                    const name = element.getAttribute("name");
-
-                    if (!name) return;
-
-                    element.setAttribute(
-                        "name",
-                        name.replace(/Users\[\d+\]/, `Users[${index}]`)
+                const heading =
+                    card.querySelector(
+                        ".lecturer-title strong"
                     );
 
-                });
+                if (heading) {
+                    heading.textContent =
+                        `Lecturer ${index + 1}`;
+                }
+
+                card.querySelectorAll("[name]")
+                    .forEach(function (element) {
+
+                        const name =
+                            element.getAttribute("name");
+
+                        if (!name) {
+                            return;
+                        }
+
+                        element.setAttribute(
+                            "name",
+                            name.replace(
+                                /Users\[\d+\]/,
+                                `Users[${index}]`
+                            )
+                        );
+
+                    });
+
+                const nameInput =
+                    card.querySelector(
+                        `[name="Users[${index}].Name"]`
+                    );
+
+                if (nameInput) {
+                    nameInput.id = `name_${index}`;
+                }
+
+                const emailInput =
+                    card.querySelector(
+                        `[name="Users[${index}].Email"]`
+                    );
+
+                if (emailInput) {
+                    emailInput.id = `email_${index}`;
+                }
+
+                const governmentIdInput =
+                    card.querySelector(
+                        `[name="Users[${index}].GovernmentId"]`
+                    );
+
+                if (governmentIdInput) {
+                    governmentIdInput.id =
+                        `governmentId_${index}`;
+                }
+
+                const lecturerType =
+                    card.querySelector(
+                        `[name="Users[${index}].LecturerType"]`
+                    );
+
+                if (lecturerType) {
+                    lecturerType.id =
+                        `lecturerType_${index}`;
+                }
+
+                const rank =
+                    card.querySelector(
+                        `[name="Users[${index}].Rank"]`
+                    );
+
+                if (rank) {
+                    rank.id = `rank_${index}`;
+                }
+
+                const department =
+                    card.querySelector(
+                        `[name="Users[${index}].Department"]`
+                    );
+
+                if (department) {
+                    department.id =
+                        `department_${index}`;
+                }
 
             });
 
             document
                 .querySelectorAll(".remove-lecturer")
                 .forEach(function (button) {
-                    button.disabled = cards.length <= 1;
+
+                    button.disabled =
+                        cards.length <= 1;
+
                 });
 
         }
 
         function initializeSignatureCard(card) {
 
-            const canvas = card.querySelector(".signature-pad");
-            const signatureInput = card.querySelector(".signatureData");
+            const canvas =
+                card.querySelector(".signature-pad");
 
-            if (!canvas || !signatureInput) return;
+            const signatureInput =
+                card.querySelector(".signatureData");
 
-            const context = canvas.getContext("2d");
+            if (!canvas || !signatureInput) {
+                return;
+            }
+
+            const context =
+                canvas.getContext("2d");
 
             let drawing = false;
 
             function resizeCanvas() {
 
-                const rect = canvas.getBoundingClientRect();
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                const existingSignature = signatureInput.value;
+                const rect =
+                    canvas.getBoundingClientRect();
 
-                canvas.width = rect.width * ratio;
-                canvas.height = 220 * ratio;
-                canvas.style.height = "220px";
+                const ratio =
+                    Math.max(
+                        window.devicePixelRatio || 1,
+                        1
+                    );
 
-                context.setTransform(ratio, 0, 0, ratio, 0, 0);
+                const existingSignature =
+                    signatureInput.value;
+
+                canvas.width =
+                    rect.width * ratio;
+
+                canvas.height =
+                    220 * ratio;
+
+                canvas.style.height =
+                    "220px";
+
+                context.setTransform(
+                    ratio,
+                    0,
+                    0,
+                    ratio,
+                    0,
+                    0
+                );
+
                 context.lineWidth = 2.2;
                 context.lineCap = "round";
                 context.lineJoin = "round";
 
                 if (existingSignature) {
 
-                    const image = new Image();
+                    const image =
+                        new Image();
 
-                    image.onload = function () {
-                        context.drawImage(image, 0, 0, rect.width, 220);
-                    };
+                    image.onload =
+                        function () {
 
-                    image.src = existingSignature;
+                            context.drawImage(
+                                image,
+                                0,
+                                0,
+                                rect.width,
+                                220
+                            );
+
+                        };
+
+                    image.src =
+                        existingSignature;
 
                 }
 
@@ -628,18 +1032,32 @@
 
             function getPosition(event) {
 
-                const rect = canvas.getBoundingClientRect();
+                const rect =
+                    canvas.getBoundingClientRect();
 
-                if (event.touches && event.touches.length > 0) {
+                if (
+                    event.touches &&
+                    event.touches.length > 0
+                ) {
                     return {
-                        x: event.touches[0].clientX - rect.left,
-                        y: event.touches[0].clientY - rect.top
+                        x:
+                            event.touches[0].clientX -
+                            rect.left,
+
+                        y:
+                            event.touches[0].clientY -
+                            rect.top
                     };
                 }
 
                 return {
-                    x: event.clientX - rect.left,
-                    y: event.clientY - rect.top
+                    x:
+                        event.clientX -
+                        rect.left,
+
+                    y:
+                        event.clientY -
+                        rect.top
                 };
 
             }
@@ -650,75 +1068,143 @@
 
                 drawing = true;
 
-                const position = getPosition(event);
+                const position =
+                    getPosition(event);
 
                 context.beginPath();
-                context.moveTo(position.x, position.y);
+
+                context.moveTo(
+                    position.x,
+                    position.y
+                );
 
             }
 
             function draw(event) {
 
-                if (!drawing) return;
+                if (!drawing) {
+                    return;
+                }
 
                 event.preventDefault();
 
-                const position = getPosition(event);
+                const position =
+                    getPosition(event);
 
-                context.lineTo(position.x, position.y);
+                context.lineTo(
+                    position.x,
+                    position.y
+                );
+
                 context.stroke();
 
             }
 
             function stopDrawing(event) {
 
-                if (!drawing) return;
+                if (!drawing) {
+                    return;
+                }
 
-                if (event) event.preventDefault();
+                if (event) {
+                    event.preventDefault();
+                }
 
                 drawing = false;
 
                 context.closePath();
 
-                signatureInput.value = canvas.toDataURL("image/png");
+                signatureInput.value =
+                    canvas.toDataURL("image/png");
 
-                const error = card.querySelector(".signature-error");
+                const error =
+                    card.querySelector(
+                        ".signature-error"
+                    );
 
-                if (error) error.textContent = "";
+                if (error) {
+                    error.textContent = "";
+                }
 
             }
 
-            canvas.addEventListener("mousedown", startDrawing);
-            canvas.addEventListener("mousemove", draw);
-            canvas.addEventListener("mouseup", stopDrawing);
-            canvas.addEventListener("mouseleave", stopDrawing);
+            canvas.addEventListener(
+                "mousedown",
+                startDrawing
+            );
 
-            canvas.addEventListener("touchstart", startDrawing, { passive: false });
-            canvas.addEventListener("touchmove", draw, { passive: false });
-            canvas.addEventListener("touchend", stopDrawing, { passive: false });
+            canvas.addEventListener(
+                "mousemove",
+                draw
+            );
+
+            canvas.addEventListener(
+                "mouseup",
+                stopDrawing
+            );
+
+            canvas.addEventListener(
+                "mouseleave",
+                stopDrawing
+            );
+
+            canvas.addEventListener(
+                "touchstart",
+                startDrawing,
+                { passive: false }
+            );
+
+            canvas.addEventListener(
+                "touchmove",
+                draw,
+                { passive: false }
+            );
+
+            canvas.addEventListener(
+                "touchend",
+                stopDrawing,
+                { passive: false }
+            );
 
         }
 
         function clearSignature(button) {
 
-            const card = button.closest(".lecturer-card");
+            const card =
+                button.closest(".lecturer-card");
 
-            if (!card) return;
+            if (!card) {
+                return;
+            }
 
-            const canvas = card.querySelector(".signature-pad");
-            const signatureInput = card.querySelector(".signatureData");
+            const canvas =
+                card.querySelector(".signature-pad");
 
-            if (!canvas || !signatureInput) return;
+            const signatureInput =
+                card.querySelector(".signatureData");
 
-            const context = canvas.getContext("2d");
+            if (!canvas || !signatureInput) {
+                return;
+            }
 
-            context.clearRect(0, 0, canvas.width, canvas.height);
+            const context =
+                canvas.getContext("2d");
+
+            context.clearRect(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
 
             signatureInput.value = "";
 
-            const error = card.querySelector(".signature-error");
+            const error =
+                card.querySelector(".signature-error");
 
-            if (error) error.textContent = "";
+            if (error) {
+                error.textContent = "";
+            }
 
         }
 

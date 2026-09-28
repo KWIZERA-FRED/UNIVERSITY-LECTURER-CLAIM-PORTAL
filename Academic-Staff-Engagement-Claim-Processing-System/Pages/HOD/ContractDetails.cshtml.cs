@@ -25,7 +25,7 @@ public class ContractDetailsModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int? ContractId { get; set; }
 
-    public string HodDepartment { get; private set; } = string.Empty;
+    public string HodFaculty { get; private set; } = string.Empty;
 
     public ContractDetail? Contract { get; private set; }
 
@@ -47,11 +47,27 @@ public class ContractDetailsModel : PageModel
         if (hod is null)
             return RedirectToPage("/Login");
 
-        HodDepartment = hod.Department;
+        HodFaculty = hod.Faculty.ToString();
 
         if (!ContractId.HasValue)
         {
             ErrorMessage = "No contract was specified.";
+            return Page();
+        }
+
+        // ============================================================
+        // DETERMINE THE DEPARTMENTS BELONGING TO THE HOD'S FACULTY
+        // ============================================================
+
+        var facultyDepartments = FacultyDepartments
+            .GetDepartments(hod.Faculty)
+            .Select(d => d.ToString())
+            .ToList();
+
+        if (facultyDepartments.Count == 0)
+        {
+            ErrorMessage =
+                "No departments are configured for your faculty.";
             return Page();
         }
 
@@ -67,12 +83,14 @@ public class ContractDetailsModel : PageModel
             .FirstOrDefaultAsync(c =>
                 c.Id == ContractId.Value &&
                 c.CourseAssignment != null &&
-                c.CourseAssignment.Course.Department == hod.Department);
+                c.CourseAssignment.Course != null &&
+                facultyDepartments.Contains(
+                    c.CourseAssignment.Course.Department));
 
         if (contract is null)
         {
             ErrorMessage =
-                "That contract was not found in your department.";
+                "That contract was not found within your faculty.";
             return Page();
         }
 
@@ -229,7 +247,8 @@ public class ContractDetailsModel : PageModel
         {
             if (!string.IsNullOrWhiteSpace(signature.SignatureFilePath))
             {
-                var safePath = WebUtility.HtmlEncode(signature.SignatureFilePath);
+                var safePath =
+                    WebUtility.HtmlEncode(signature.SignatureFilePath);
 
                 return $"""
 <div class="signature-image-wrapper">
@@ -308,7 +327,8 @@ public class ContractDetailsModel : PageModel
         _ => role.ToString()
     };
 
-    private static string GetAuthorizedSignerName(ContractSignature signature)
+    private static string GetAuthorizedSignerName(
+        ContractSignature signature)
     {
         if (signature.SignerRole == SignerRole.Lecturer)
         {
@@ -332,21 +352,32 @@ public class ContractDetailsModel : PageModel
     public sealed class ContractDetail
     {
         public int Id { get; init; }
+
         public string Reference { get; init; } = string.Empty;
+
         public string LecturerName { get; init; } = string.Empty;
+
         public string CourseTitle { get; init; } = string.Empty;
+
         public string AcademicYear { get; init; } = string.Empty;
+
         public string Content { get; init; } = string.Empty;
+
         public ContractStatus Status { get; init; }
+
         public List<SignatureStepRow> Steps { get; init; } = new();
     }
 
     public sealed class SignatureStepRow
     {
         public SignerRole Role { get; init; }
+
         public SignatureDecision Decision { get; init; }
+
         public DateTime? SignedAtUtc { get; init; }
+
         public string? Comments { get; init; }
+
         public string? SignatureFilePath { get; init; }
     }
 }

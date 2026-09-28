@@ -1,8 +1,10 @@
 using System.Security.Claims;
+
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 {
     [Authorize(Roles = "Lecturer")]
+    [ValidateAntiForgeryToken]
     public class SubmitMarksModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -24,6 +27,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
             _context = context;
             _marksSigningService = marksSigningService;
         }
+
         [BindProperty]
         public int CourseAssignmentId { get; set; }
 
@@ -54,7 +58,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
             return Page();
         }
-        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> OnPostAsync()
         {
             var lecturer = await GetAuthenticatedLecturerAsync();
@@ -74,6 +78,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
                 return Page();
             }
+
             var assignment =
                 await _context.CourseAssignments
                     .Include(ca => ca.Course)
@@ -93,6 +98,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
                 return Page();
             }
+
             if (MarksFile == null || MarksFile.Length == 0)
             {
                 ErrorMessage =
@@ -102,6 +108,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
                 return Page();
             }
+
             var result = await _marksSigningService.SubmitAsync(
                 lecturer.Id,
                 assignment.Id,
@@ -123,6 +130,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
                 return Page();
             }
+
             SuccessMessage =
                 $"Marks submitted successfully. " +
                 $"Reference: {result.SubmissionReference}";
@@ -134,11 +142,13 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
 
             return Page();
         }
+
         private async Task<
             Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Lecturer?>
             GetAuthenticatedLecturerAsync()
         {
-            var userIdValue = User.FindFirstValue("UserId");
+            var userIdValue =
+                User.FindFirstValue("UserId");
 
             if (!int.TryParse(
                     userIdValue,
@@ -152,6 +162,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer
                     l.Id == lecturerId &&
                     l.IsActive);
         }
+
         private async Task LoadAssignmentsAsync(int lecturerId)
         {
             Assignments =

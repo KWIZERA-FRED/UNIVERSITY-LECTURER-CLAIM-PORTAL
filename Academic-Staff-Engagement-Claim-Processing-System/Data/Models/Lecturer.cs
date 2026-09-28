@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.Contracts;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 {
@@ -30,6 +29,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 
         [MaxLength(30)]
         public string RssbNumber { get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        public string Department { get; set; } = string.Empty;
+
+        public Faculty? Faculty { get; set; }
 
         [Required]
         public string PasswordHash { get; private set; } = string.Empty;
