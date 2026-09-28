@@ -7,10 +7,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
     {
         public static async Task SeedAsync(ApplicationDbContext db)
         {
-            // Do not create another template if one already exists.
-            if (await db.Templates.AnyAsync())
-                return;
-
             var contractTemplate = """
 <div class="official-contract">
 
@@ -97,7 +93,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
         <p>
             UNILAK employs <strong>{{LecturerName}}</strong> as
             <strong>{{EmploymentType}}</strong> part time lecturer in the
-            faculty of Computing and Information Sciences, Department of
+            faculty of {{Faculty}}, Department of
             {{DepartmentOptionsList}}, Intake <strong>{{Intake}}</strong>,
             Session {{SessionOptionsList}}, to teach the course of
             <strong>{{CourseTitle}}</strong>, Academic year
@@ -340,7 +336,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
         <div class="paper-signature-line dvcar-signature-line">
 
             <span class="paper-signature-name">
-                DVCAR Prof. HAKIZAMANA Emmanuel
+                DVCAR Prof. HAKIZIMANA Emmanuel
             </span>
 
             <span class="paper-signature-field paper-signature-area">
@@ -383,14 +379,21 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 </div>
 """;
 
-            var template = new Template
-            {
-                Contract = contractTemplate,
-                Claim = string.Empty,
-                Letter = string.Empty
-            };
+            var existing = await db.Templates.FirstOrDefaultAsync();
 
-            db.Templates.Add(template);
+            if (existing is not null)
+            {
+                existing.Contract = contractTemplate;
+            }
+            else
+            {
+                db.Templates.Add(new Template
+                {
+                    Contract = contractTemplate,
+                    Claim = string.Empty,
+                    Letter = string.Empty
+                });
+            }
 
             await db.SaveChangesAsync();
         }

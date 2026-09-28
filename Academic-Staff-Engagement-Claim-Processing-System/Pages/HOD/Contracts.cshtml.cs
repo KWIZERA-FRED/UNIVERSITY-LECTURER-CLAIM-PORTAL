@@ -1,136 +1,334 @@
+using System.Net;
+using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
+
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Academic_Staff_Engagement_Claim_Processing_System.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD;
+namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer;
 
-[Authorize(Roles = "HOD")]
+[Authorize(Roles = "Lecturer")]
 public class ContractsModel : PageModel
 {
     private readonly ApplicationDbContext _context;
+    private readonly ContractSigningService _contractSigningService;
 
-    public ContractsModel(ApplicationDbContext context)
+    public ContractsModel(
+        ApplicationDbContext context,
+        ContractSigningService contractSigningService)
     {
         _context = context;
+        _contractSigningService = contractSigningService;
     }
 
-    public Faculty HodFaculty { get; private set; }
+    [BindProperty(SupportsGet = true)]
+    public int? ContractId { get; set; }
 
-    public string HodFacultyName =>
-        HodFaculty.ToString();
+    public string LecturerName { get; private set; } = string.Empty;
 
     public List<ContractRow> Contracts { get; private set; } = new();
 
+    public ContractDetail? SelectedContract { get; private set; }
+
+    public string? SuccessMessage { get; private set; }
+
     public string? ErrorMessage { get; private set; }
+
+    public int PendingSignatureCount =>
+        Contracts.Count(c =>
+            !c.IsSignedByLecturer &&
+            !c.IsClosed);
+
+    public int ActiveContractCount =>
+        Contracts.Count(c =>
+            c.Status == ContractStatus.Active);
+
+    // ============================================================
+    // GET
+    // ============================================================
 
     public async Task<IActionResult> OnGetAsync()
     {
-        var username = User.Identity?.Name;
+        var lecturerId = GetLecturerId();
 
-        if (string.IsNullOrWhiteSpace(username))
-            return RedirectToPage("/Login");
+        if (lecturerId is null)
+            return Challenge();
 
-        var hod = await _context.Hods
-            .AsNoTracking()
-            .FirstOrDefaultAsync(h =>
-                h.UserName == username &&
-                h.IsActive);
+        SuccessMessage =
+            TempData["SuccessMessage"] as string;
 
-        if (hod is null)
-            return RedirectToPage("/Login");
-
-        HodFaculty = hod.Faculty;
-
-        var facultyDepartments = FacultyDepartments
-            .GetDepartments(hod.Faculty)
-            .Select(d => d.ToString())
-            .ToList();
-
-        if (facultyDepartments.Count == 0)
-        {
-            ErrorMessage =
-                "No departments are configured for your faculty.";
-
-            return Page();
-        }
-
-        var contracts = await _context.Contracts
-            .AsNoTracking()
-            .Include(c => c.Lecturer)
-            .Include(c => c.CourseAssignment)
-                .ThenInclude(a => a!.Course)
-            .Where(c =>
-                c.CourseAssignment != null &&
-                c.CourseAssignment.Course != null &&
-                facultyDepartments.Contains(
-                    c.CourseAssignment.Course.Department))
-            .OrderByDescending(c => c.CreatedAtUtc)
-            .ToListAsync();
-
-        var contractIds = contracts
-            .Select(c => c.Id)
-            .ToList();
-
-        var signatures = await _context.ContractSignatures
-            .AsNoTracking()
-            .Where(s => contractIds.Contains(s.ContractId))
-            .ToListAsync();
-
-        Contracts = contracts
-            .Select(c => new ContractRow
-            {
-                Id = c.Id,
-
-                Reference = $"CON-{c.Id:D6}",
-
-                LecturerName =
-                    c.Lecturer?.UserName ?? "—",
-
-                CourseCode =
-                    c.CourseAssignment?.Course?.Code ?? "—",
-
-                CourseTitle =
-                    c.CourseAssignment?.Course?.Title ?? "—",
-
-                AcademicYear =
-                    c.CourseAssignment?.AcademicYear ?? "—",
-
-                Status = c.Status,
-
-                SignedSteps = signatures.Count(s =>
-                    s.ContractId == c.Id &&
-                    s.Decision == SignatureDecision.Signed),
-
-                TotalSteps = signatures.Count(s =>
-                    s.ContractId == c.Id)
-            })
-            .ToList();
+        await LoadAsync(lecturerId.Value);
 
         return Page();
     }
 
-    public sealed class ContractRow
+    // ============================================================
+    // SIGN
+    // ============================================================
+
+    public async Task<IActionResult> OnPostSignAsync(
+        int contractId)
     {
-        public int Id { get; init; }
+        var lecturerId = GetLecturerId();
 
-        public string Reference { get; init; } = string.Empty;
+        if (lecturerId is null)
+            return Challenge();
 
-        public string LecturerName { get; init; } = string.Empty;
+        var result =
+            await _contractSigningService.SignAsLecturerAsync(
+                contractId,
+                lecturerId.Value,
+                User.Identity?.Name ?? "Unknown",
+                HttpContext.Connection.RemoteIpAddress?.ToString());
 
-        public string CourseCode { get; init; } = string.Empty;
+        if (result.Succeeded)
+        {
+            TempData["SuccessMessage"] =
+                "Your signature was recorded. " +
+                "The contract will now continue through its approval workflow.";
 
-        public string CourseTitle { get; init; } = string.Empty;
+            return RedirectToPage(
+                new
+                {
+                    ContractId = contractId
+                });
+        }
 
-        public string AcademicYear { get; init; } = string.Empty;
+        ErrorMessage =
+            result.ErrorMessage;
 
-        public ContractStatus Status { get; init; }
+        await LoadAsync(
+            lecturerId.Value);
 
-        public int SignedSteps { get; init; }
-
-        public int TotalSteps { get; init; }
+        return Page();
     }
-}
+
+    // ============================================================
+    // CURRENT LECTURER
+    // ============================================================
+
+    private int? GetLecturerId()
+    {
+        return int.TryParse(
+            User.FindFirstValue("UserId"),
+            out var lecturerId)
+                ? lecturerId
+                : null;
+    }
+
+    // ============================================================
+    // LOAD
+    // ============================================================
+
+    private async Task LoadAsync(
+        int lecturerId)
+    {
+        LecturerName =
+            await _context.Lecturers
+                .Where(l =>
+                    l.Id == lecturerId &&
+                    l.IsActive)
+                .Select(l => l.UserName)
+                .FirstOrDefaultAsync()
+            ?? string.Empty;
+
+        var contracts =
+            await _context.Contracts
+                .AsNoTracking()
+                .Include(c => c.CourseAssignment)
+                    .ThenInclude(a => a!.Course)
+                .Where(c =>
+                    c.LecturerId == lecturerId)
+                .OrderByDescending(
+                    c => c.CreatedAtUtc)
+                .ToListAsync();
+
+        var contractIds =
+            contracts
+                .Select(c => c.Id)
+                .ToList();
+
+        var signedContractIds =
+            (await _context.ContractSignatures
+                .AsNoTracking()
+                .Where(s =>
+                    contractIds.Contains(s.ContractId) &&
+                    s.SignerRole == SignerRole.Lecturer &&
+                    s.Decision == SignatureDecision.Signed)
+                .Select(s =>
+                    s.ContractId)
+                .ToListAsync())
+            .ToHashSet();
+
+        Contracts =
+            contracts
+                .Select(c => new ContractRow
+                {
+                    Id = c.Id,
+
+                    Reference =
+                        $"CON-{c.Id:D6}",
+
+                    CourseCode =
+                        c.CourseAssignment?.Course.Code
+                        ?? "—",
+
+                    CourseTitle =
+                        c.CourseAssignment?.Course.Title
+                        ?? "Unassigned course",
+
+                    AcademicYear =
+                        c.CourseAssignment?.AcademicYear
+                        ?? "—",
+
+                    Campus =
+                        c.CourseAssignment?.Campus.ToString()
+                        ?? "—",
+
+                    AllocatedHours =
+                        c.CourseAssignment?.AllocatedHours
+                        ?? 0,
+
+                    Status =
+                        c.Status,
+
+                    IsSignedByLecturer =
+                        signedContractIds.Contains(c.Id)
+                })
+                .ToList();
+
+        // ========================================================
+        // SELECTED CONTRACT
+        // ========================================================
+
+        if (!ContractId.HasValue)
+            return;
+
+        var contract =
+            contracts.FirstOrDefault(
+                c => c.Id == ContractId.Value);
+
+        if (contract is null)
+        {
+            ErrorMessage ??=
+                "The requested contract was not found.";
+
+            return;
+        }
+
+        var signatureSteps =
+            await _context.ContractSignatures
+                .AsNoTracking()
+                .Include(s => s.SignedByAdminAccount)
+                .Include(s => s.SignedByLecturer)
+                .Where(s =>
+                    s.ContractId == contract.Id)
+                .OrderBy(s => s.SequenceOrder)
+                .ThenBy(s => s.SignerRole)
+                .ToListAsync();
+
+        var signerStatuses =
+            signatureSteps
+                .Select(s => new SignerStatusRow
+                {
+                    Role =
+                        s.SignerRole,
+
+                    SequenceOrder =
+                        s.SequenceOrder,
+
+                    Decision =
+                        s.Decision,
+
+                    SignedAtUtc =
+                        s.SignedAtUtc,
+
+                    SignatureFilePath =
+                        s.SignatureFilePath,
+
+                    SignerDisplayName =
+                        s.SignerRole == SignerRole.Lecturer
+                            ? LecturerName
+                            : s.SignedByAdminAccount?.UserName
+                })
+                .ToList();
+
+        // ========================================================
+        // LIVE CONTRACT CONTENT
+        // ========================================================
+        //
+        // Contract.Content is the immutable snapshot stored when
+        // the contract was generated. Its signature block is
+        // static dotted-line text. We rebuild that section from
+        // the live ContractSignatures rows so the rendered
+        // document shows the real signature images and dates,
+        // matching the paper form exactly.
+        //
+
+        var liveContent =
+            BuildLiveContractContent(
+                contract.Content ?? string.Empty,
+                signatureSteps);
+
+        SelectedContract =
+            new ContractDetail
+            {
+                Id =
+                    contract.Id,
+
+                Reference =
+                    $"CON-{contract.Id:D6}",
+
+                Content =
+                    liveContent,
+
+                Status =
+                    contract.Status,
+
+                IsSignedByLecturer =
+                    signedContractIds.Contains(contract.Id),
+
+                IsClosed =
+                    contract.Status is
+                        ContractStatus.Expired or
+                        ContractStatus.Terminated,
+
+                IsFullySigned =
+                    contract.Status ==
+                    ContractStatus.Active,
+
+                SignerStatuses =
+                    signerStatuses
+            };
+    }
+
+    // ================================================================
+    // LIVE CONTRACT CONTENT
+    // ================================================================
+    //
+    // Contract.Content remains the original immutable snapshot.
+    // We only replace the paper-style signature block for display,
+    // so the rendered contract shows the real signatures from
+    // ContractSignatures.SignatureFilePath. Handles both the
+    // current markup (<div class="paper-signatures">) and, for
+    // any contract generated before that shape existed, the old
+    // <table class="signature-table"> markup.
+    // ================================================================
+
+    private static string BuildLiveContractContent(
+        string originalContent,
+        IReadOnlyCollection<ContractSignature> signatures)
+    {
+        if (string.IsNullOrWhiteSpace(originalContent))
+            return string.Empty;
+
+        if (signatures.Count == 0)
+            return originalContent;

@@ -11,7 +11,6 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
@@ -183,18 +182,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return Page();
             }
 
-            if (lecturer.Faculty != hod.Faculty)
-            {
-                ErrorMessage =
-                    "The selected lecturer does not belong to your faculty.";
-
-                return Page();
-            }
-
             if (!lecturer.Faculty.HasValue)
             {
                 ErrorMessage =
                     "The selected lecturer does not have a faculty assigned.";
+
+                return Page();
+            }
+
+            if (lecturer.Faculty != hod.Faculty)
+            {
+                ErrorMessage =
+                    "The selected lecturer does not belong to your faculty.";
 
                 return Page();
             }
@@ -645,216 +644,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                         "{{OnlineHours}}",
                         "....");
 
-            mainContract =
-                RemoveExistingSignatureSection(
-                    mainContract);
-
-            mainContract =
-                RemoveWorkflowNotice(
-                    mainContract);
-
-            mainContract =
-                RemoveDocumentFooter(
-                    mainContract);
-
-            var paperSignatureSection =
-                BuildPaperSignatureSection(
-                    lecturerName);
-
-            var accreditationMarker =
-                "<p class=\"contract-accreditation-note\">";
-
-            var accreditationIndex =
-                mainContract.IndexOf(
-                    accreditationMarker,
-                    StringComparison.OrdinalIgnoreCase);
-
-            if (accreditationIndex >= 0)
-            {
-                mainContract =
-                    mainContract.Insert(
-                        accreditationIndex,
-                        paperSignatureSection +
-                        Environment.NewLine);
-            }
-            else
-            {
-                var closingIndex =
-                    mainContract.LastIndexOf(
-                        "</div>",
-                        StringComparison.OrdinalIgnoreCase);
-
-                if (closingIndex >= 0)
-                {
-                    mainContract =
-                        mainContract.Insert(
-                            closingIndex,
-                            paperSignatureSection +
-                            Environment.NewLine);
-                }
-                else
-                {
-                    mainContract +=
-                        Environment.NewLine +
-                        paperSignatureSection;
-                }
-            }
-
             return mainContract;
-        }
-
-        private static string RemoveExistingSignatureSection(
-            string html)
-        {
-            return Regex.Replace(
-                html,
-                @"<div\s+class\s*=\s*[""']contract-signatures[""'][^>]*>.*?</div>",
-                string.Empty,
-                RegexOptions.IgnoreCase |
-                RegexOptions.Singleline);
-        }
-
-        private static string RemoveWorkflowNotice(
-            string html)
-        {
-            return Regex.Replace(
-                html,
-                @"<div\s+class\s*=\s*[""']contract-workflow-notice[""'][^>]*>.*?</div>",
-                string.Empty,
-                RegexOptions.IgnoreCase |
-                RegexOptions.Singleline);
-        }
-
-        private static string RemoveDocumentFooter(
-            string html)
-        {
-            return Regex.Replace(
-                html,
-                @"<div\s+class\s*=\s*[""']contract-document-footer[""'][^>]*>.*?</div>",
-                string.Empty,
-                RegexOptions.IgnoreCase |
-                RegexOptions.Singleline);
-        }
-
-        private static string BuildPaperSignatureSection(
-            string lecturerName)
-        {
-            var html =
-                new StringBuilder();
-
-            html.AppendLine(
-                "<div class=\"paper-signatures\">");
-
-            html.AppendLine(
-                "<div class=\"paper-signature-line lecturer-signature-line\">");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-name\">" +
-                $"{WebUtility.HtmlEncode(lecturerName)}" +
-                "...................................................." +
-                "</span>");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-field\">" +
-                "Signature........................" +
-                "</span>");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-field\">" +
-                "Date................." +
-                "</span>");
-
-            html.AppendLine(
-                "</div>");
-
-            html.AppendLine(
-                "<div class=\"paper-signature-line dean-signature-line\">");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-name\">" +
-                "Dean of Faculty: Prof. NYESHEJA M. Enan" +
-                "</span>");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-field\">" +
-                "Signature........................." +
-                "</span>");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-field\">" +
-                "Date................." +
-                "</span>");
-
-            html.AppendLine(
-                "</div>");
-
-            html.AppendLine(
-                "<div class=\"paper-signature-line hr-signature-line\">");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-name\">" +
-                "Human Resource Officer Mr. NTAKIRUTIMANA Elison" +
-                "</span>");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-field\">" +
-                "Signature......" +
-                "</span>");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-field\">" +
-                "Date................." +
-                "</span>");
-
-            html.AppendLine(
-                "</div>");
-
-            html.AppendLine(
-                "<div class=\"paper-signature-line dvcar-signature-line\">");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-name\">" +
-                "DVCAR Prof. HAKIZIMANA Emmanuel" +
-                "</span>");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-field\">" +
-                "Signature........................." +
-                "</span>");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-field\">" +
-                "Date................." +
-                "</span>");
-
-            html.AppendLine(
-                "</div>");
-
-            html.AppendLine(
-                "<div class=\"paper-signature-line vc-signature-line\">");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-name\">" +
-                "Vice Chancellor Prof. NGAMIJE Jean" +
-                "</span>");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-field\">" +
-                "Signature..............................." +
-                "</span>");
-
-            html.AppendLine(
-                "<span class=\"paper-signature-field\">" +
-                "Date................." +
-                "</span>");
-
-            html.AppendLine(
-                "</div>");
-
-            html.AppendLine(
-                "</div>");
-
-            return html.ToString();
         }
 
         private static string BuildDepartmentOptions(
@@ -1065,43 +855,3 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
         private static string SplitPascalCase(
             string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return value;
-            }
-
-            var result =
-                new StringBuilder();
-
-            for (var i = 0; i < value.Length; i++)
-            {
-                if (i > 0 &&
-                    char.IsUpper(value[i]) &&
-                    !char.IsUpper(value[i - 1]))
-                {
-                    result.Append(' ');
-                }
-
-                result.Append(value[i]);
-            }
-
-            return result.ToString();
-        }
-
-        private static string NormalizeOptionText(
-            string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return string.Empty;
-            }
-
-            return new string(
-                value
-                    .Where(char.IsLetterOrDigit)
-                    .ToArray())
-                .ToLowerInvariant();
-        }
-    }
-}
