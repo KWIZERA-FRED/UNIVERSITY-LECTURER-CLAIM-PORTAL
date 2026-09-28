@@ -3,154 +3,173 @@
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
-    ViewData["Title"] = "HOD Dashboard";
+ViewData["Title"] = "HOD Dashboard";
 }
 
-@section Styles {
-    <link rel="stylesheet"
-          href="~/css/HOD/dashboard.css"
-          asp-append-version="true" />
+@section Styles { <link rel="stylesheet"
+       href="~/css/HOD/dashboard.css"
+       asp-append-version="true" />
 }
 
 <div class="dashboard-page">
 
-    <header class="page-header">
-        <h1>Welcome, @Model.HodName</h1>
-        <p>@Model.HodDepartment Department overview and pending academic activities.</p>
+
+<header class="page-header">
+    <h1>Welcome, @Model.HodName</h1>
+    <p>@Model.HodFaculty Faculty overview and pending academic activities.</p>
+</header>
+
+<section class="stats-grid">
+
+    <a href="/HOD/Contracts" class="stat-card stat-card-blue">
+        <div class="stat-icon">
+            <i class="bi bi-file-earmark-text-fill"></i>
+        </div>
+        <div class="stat-value">@Model.ContractsToSign</div>
+        <span class="stat-label">Contracts to Sign</span>
+    </a>
+
+    <a href="/HOD/Contracts" class="stat-card stat-card-green">
+        <div class="stat-icon">
+            <i class="bi bi-file-earmark-check-fill"></i>
+        </div>
+        <div class="stat-value">@Model.ContractsToReview</div>
+        <span class="stat-label">Active Contracts</span>
+    </a>
+
+    <a href="/HOD/Claims" class="stat-card stat-card-purple">
+        <div class="stat-icon">
+            <i class="bi bi-receipt"></i>
+        </div>
+        <div class="stat-value">@Model.ClaimsReceived</div>
+        <span class="stat-label">Claims Received</span>
+    </a>
+
+    <a href="/HOD/Staff" class="stat-card stat-card-orange">
+        <div class="stat-icon">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="stat-value">@Model.AcademicStaff</div>
+        <span class="stat-label">Academic Staff</span>
+    </a>
+
+</section>
+
+<section class="section-card">
+
+    <header class="section-header">
+        <h2>Recent Claims</h2>
+        <a href="/HOD/Claims" class="section-link">View all</a>
     </header>
 
-    <section class="stats-grid">
+    @if (Model.RecentClaims.Any())
+    {
+        <div class="list-table">
 
-        <a href="/HOD/Contracts" class="stat-card stat-card-blue">
-            <div class="stat-icon">
-                <i class="bi bi-file-earmark-text-fill"></i>
-            </div>
-            <div class="stat-value">@Model.ContractsToSign</div>
-            <span class="stat-label">Contracts to Sign</span>
-        </a>
+            @foreach (var claim in Model.RecentClaims)
+            {
+                var claimStatusClass =
+                    claim.Status == ClaimStatus.Approved ||
+                    claim.Status == ClaimStatus.Paid
+                        ? "status-active"
+                        : claim.Status == ClaimStatus.Rejected
+                            ? "status-danger"
+                            : "status-pending";
 
-        <a href="/HOD/Contracts" class="stat-card stat-card-green">
-            <div class="stat-icon">
-                <i class="bi bi-file-earmark-check-fill"></i>
-            </div>
-            <div class="stat-value">@Model.ContractsToReview</div>
-            <span class="stat-label">Active Contracts</span>
-        </a>
+                <div class="list-row">
 
-        <a href="/HOD/Claims" class="stat-card stat-card-purple">
-            <div class="stat-icon">
-                <i class="bi bi-receipt"></i>
-            </div>
-            <div class="stat-value">@Model.ClaimsReceived</div>
-            <span class="stat-label">Claims Received</span>
-        </a>
-
-        <a href="/HOD/Staff" class="stat-card stat-card-orange">
-            <div class="stat-icon">
-                <i class="bi bi-people-fill"></i>
-            </div>
-            <div class="stat-value">@Model.AcademicStaff</div>
-            <span class="stat-label">Academic Staff</span>
-        </a>
-
-    </section>
-
-    <section class="section-card">
-
-        <header class="section-header">
-            <h2>Recent Claims</h2>
-            <a href="/HOD/Claims" class="section-link">View all</a>
-        </header>
-
-        @if (Model.RecentClaims.Any())
-        {
-            <div class="list-table">
-
-                @foreach (var claim in Model.RecentClaims)
-                {
-                    var claimStatusClass =
-                        claim.Status == ClaimStatus.Approved || claim.Status == ClaimStatus.Paid
-                            ? "status-active"
-                            : claim.Status == ClaimStatus.Rejected
-                                ? "status-danger"
-                                : "status-pending";
-
-                    <div class="list-row">
-
-                        <div class="list-main">
-                            <span class="list-reference">CON-@claim.ContractId.ToString("D6")</span>
-                            <strong>@claim.LecturerName</strong>
-                        </div>
-
-                        <span class="status-badge @claimStatusClass">
-                            @claim.Status
+                    <div class="list-main">
+                        <span class="list-reference">
+                            CON-@claim.ContractId.ToString("D6")
                         </span>
 
+                        <strong>@claim.LecturerName</strong>
                     </div>
-                }
 
-            </div>
-        }
-        else
-        {
-            <div class="empty-state">
-                <p>No recent claims.</p>
-            </div>
-        }
+                    <span class="status-badge @claimStatusClass">
+                        @claim.Status
+                    </span>
 
-    </section>
+                </div>
+            }
 
-    <section class="section-card">
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <p>No recent claims.</p>
+        </div>
+    }
 
-        <header class="section-header">
-            <h2>Contracts Awaiting Signature</h2>
-            <a href="/HOD/Contracts" class="section-link">View all</a>
-        </header>
+</section>
 
-        @if (Model.ContractsAwaitingSignature.Any())
-        {
-            <div class="table-wrapper">
-                <table class="data-table">
-                    <thead>
+<section class="section-card">
+
+    <header class="section-header">
+        <h2>Contracts Awaiting Signature</h2>
+        <a href="/HOD/Contracts" class="section-link">View all</a>
+    </header>
+
+    @if (Model.ContractsAwaitingSignature.Any())
+    {
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+                    <tr>
+                        <th>Lecturer</th>
+                        <th>Course</th>
+                        <th>Hours</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var contract in Model.ContractsAwaitingSignature)
+                    {
                         <tr>
-                            <th>Lecturer</th>
-                            <th>Course</th>
-                            <th>Hours</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var contract in Model.ContractsAwaitingSignature)
-                        {
-                            <tr>
-                                <td>@contract.LecturerName</td>
-                                <td>@contract.CourseTitle</td>
-                                <td>@contract.Hours</td>
-                                <td>
-                                    <span class="status-badge status-pending">
-                                        @contract.Status
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="/HOD/Contracts?ContractId=@contract.Id" class="row-action">
-                                        View
-                                        <i class="bi bi-arrow-right"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <div class="empty-state">
-                <p>No contracts awaiting signature.</p>
-            </div>
-        }
 
-    </section>
+                            <td>@contract.LecturerName</td>
+
+                            <td>@contract.CourseTitle</td>
+
+                            <td>@contract.Hours</td>
+
+                            <td>
+                                <span class="status-badge status-pending">
+                                    @contract.Status
+                                </span>
+                            </td>
+
+                            <td>
+                                <a href="/HOD/Contracts?ContractId=@contract.Id"
+                                   class="row-action">
+                                    View
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <p>No contracts awaiting signature.</p>
+        </div>
+    }
+
+</section>
+
 
 </div>

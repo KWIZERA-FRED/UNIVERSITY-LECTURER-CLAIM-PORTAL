@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
@@ -29,10 +31,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             _auditLogger = auditLogger;
             _emailService = emailService;
         }
-
-        // ============================================================
-        // FORM PROPERTIES
-        // ============================================================
 
         [BindProperty]
         public int? SelectedCourse { get; set; }
@@ -55,10 +53,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         [BindProperty]
         public TeachingHoursOption? AllocatedHoursOption { get; set; }
 
-        // ============================================================
-        // PAGE DATA
-        // ============================================================
-
         public List<Course> Courses { get; set; } = new();
 
         public List<LecturerOption> Lecturers { get; set; } = new();
@@ -66,10 +60,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         public decimal HourlyRate { get; set; }
 
         public string? ErrorMessage { get; set; }
-
-        // ============================================================
-        // LECTURER OPTION
-        // ============================================================
 
         public sealed class LecturerOption
         {
@@ -80,28 +70,22 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             public string Email { get; set; } = string.Empty;
 
             public LecturerRank? Rank { get; set; }
-        }
 
-        // ============================================================
-        // GET
-        // ============================================================
+            public UserRole Type { get; set; }
+
+            public Faculty? Faculty { get; set; }
+
+            public string Department { get; set; } = string.Empty;
+        }
 
         public async Task OnGetAsync()
         {
             await LoadDataAsync();
         }
 
-        // ============================================================
-        // POST
-        // ============================================================
-
         public async Task<IActionResult> OnPostAsync()
         {
             await LoadDataAsync();
-
-            // --------------------------------------------------------
-            // VALIDATION
-            // --------------------------------------------------------
 
             if (!SelectedCourse.HasValue)
             {
@@ -142,17 +126,23 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             if (!AllocatedHoursOption.HasValue)
             {
                 ErrorMessage =
-                    "Please select the number of teaching hours " +
-                    "(30, 45, or 60).";
+                    "Please select the number of teaching hours (30, 45, or 60).";
 
                 return Page();
             }
 
-            var allocatedHours = (decimal)AllocatedHoursOption.Value;
+            var hod = await GetCurrentHodAsync();
 
-            // ========================================================
-            // FIND COURSE
-            // ========================================================
+            if (hod is null)
+            {
+                ErrorMessage =
+                    "The current HOD account could not be identified.";
+
+                return Page();
+            }
+
+            var allocatedHours =
+                (decimal)AllocatedHoursOption.Value;
 
             var course = await _context.Courses
                 .AsNoTracking()
@@ -168,10 +158,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return Page();
             }
 
-            // ========================================================
-            // FIND LECTURER
-            // ========================================================
-
             var lecturer = await _context.Lecturers
                 .AsNoTracking()
                 .Where(l =>
@@ -182,7 +168,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                     Id = l.Id,
                     UserName = l.UserName,
                     Email = l.Email,
-                    Rank = l.Rank
+                    Rank = l.Rank,
+                    Type = l.Type,
+                    Faculty = l.Faculty,
+                    Department = l.Department
                 })
                 .FirstOrDefaultAsync();
 
@@ -194,47 +183,53 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return Page();
             }
 
-            // ========================================================
-            // NORMALIZE ACADEMIC YEAR
-            // ========================================================
+            if (lecturer.Faculty != hod.Faculty)
+            {
+                ErrorMessage =
+                    "The selected lecturer does not belong to your faculty.";
+
+                return Page();
+            }
+
+            if (!lecturer.Faculty.HasValue)
+            {
+                ErrorMessage =
+                    "The selected lecturer does not have a faculty assigned.";
+
+                return Page();
+            }
+
+            if (string.IsNullOrWhiteSpace(lecturer.Department))
+            {
+                ErrorMessage =
+                    "The selected lecturer does not have a department assigned.";
+
+                return Page();
+            }
 
             var normalizedAcademicYear =
                 AcademicYear.Trim();
-
-            // ========================================================
-            // CHECK DUPLICATE ASSIGNMENT
-            // ========================================================
 
             var existingAssignment =
                 await _context.CourseAssignments
                     .AnyAsync(ca =>
                         ca.LecturerId == lecturer.Id &&
                         ca.CourseId == course.Id &&
-                        ca.AcademicYear ==
-                            normalizedAcademicYear &&
-                        ca.Semester ==
-                            Semester.Value &&
+                        ca.AcademicYear == normalizedAcademicYear &&
+                        ca.Semester == Semester.Value &&
                         ca.IsActive);
 
             if (existingAssignment)
             {
                 ErrorMessage =
-                    "This lecturer has already been assigned this " +
-                    "course for the selected academic year and semester.";
+                    "This lecturer has already been assigned this course " +
+                    "for the selected academic year and semester.";
 
                 return Page();
             }
 
-            // ========================================================
-            // GET HOURLY RATE
-            // ========================================================
-
             HourlyRate =
                 GetRateForRank(lecturer.Rank);
-
-            // ========================================================
-            // CREATE COURSE ASSIGNMENT
-            // ========================================================
 
             var assignment =
                 new CourseAssignment
@@ -270,14 +265,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                         DateTime.UtcNow
                 };
 
-            _context.CourseAssignments.Add(
-                assignment);
+            _context.CourseAssignments.Add(assignment);
 
             await _context.SaveChangesAsync();
-
-            // ========================================================
-            // GET GOVERNMENT ID
-            // ========================================================
 
             var governmentId =
                 await _context.Lecturers
@@ -288,16 +278,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                         l.GovernmentIdEncrypted)
                     .FirstOrDefaultAsync();
 
-            // ========================================================
-            // CONTRACT DATE
-            // ========================================================
-
             var contractDate =
                 DateTime.UtcNow;
-
-            // ========================================================
-            // BUILD CONTRACT HTML
-            // ========================================================
 
             var content =
                 await BuildContractHtmlAsync(
@@ -305,7 +287,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                     lecturer.UserName,
                     lecturer.Rank?.ToString(),
                     governmentId,
-                    course.Department,
+                    lecturer.Department,
+                    lecturer.Faculty.Value,
+                    lecturer.Type,
                     assignment.Session.ToString(),
                     course.Code,
                     course.Title,
@@ -314,10 +298,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                     assignment.Campus.ToString(),
                     assignment.AllocatedHours,
                     HourlyRate);
-
-            // ========================================================
-            // CREATE CONTRACT
-            // ========================================================
 
             var contract =
                 new Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Contract(
@@ -343,21 +323,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                         ContractStatus.PendingSignature
                 };
 
-            _context.Contracts.Add(
-                contract);
+            _context.Contracts.Add(contract);
 
             await _context.SaveChangesAsync();
-
-            // ========================================================
-            // CREATE SEQUENTIAL SIGNATURE STEPS
-            // ========================================================
-            //
-            // 1 = Lecturer
-            // 2 = Dean
-            // 3 = HR Officer
-            // 4 = DVCAR
-            // 5 = Vice Chancellor
-            // ========================================================
 
             _context.ContractSignatures.AddRange(
 
@@ -394,12 +362,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
             await _context.SaveChangesAsync();
 
-            // ========================================================
-            // NOTIFY LECTURER
-            // ========================================================
-
-            if (!string.IsNullOrWhiteSpace(
-                    lecturer.Email))
+            if (!string.IsNullOrWhiteSpace(lecturer.Email))
             {
                 try
                 {
@@ -423,10 +386,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                     $"Contract CON-{contract.Id:D6} was created, " +
                     "but the selected lecturer has no email address.");
             }
-
-            // ========================================================
-            // AUDIT LOG
-            // ========================================================
 
             var actorUsername =
                 User.Identity?.Name ??
@@ -467,10 +426,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 $"Contract CON-{contract.Id:D6} created.",
                 ipAddress);
 
-            // ========================================================
-            // GO TO CONTRACT PREVIEW
-            // ========================================================
-
             return RedirectToPage(
                 "./ContractPreview",
                 new
@@ -480,10 +435,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 });
         }
 
-        // ============================================================
-        // LOAD COURSES
-        // ============================================================
-
         private async Task LoadDataAsync()
         {
             Courses = await _context.Courses
@@ -492,46 +443,70 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 .OrderBy(c => c.Code)
                 .ToListAsync();
 
+            var hod = await GetCurrentHodAsync();
+
+            if (hod is null)
+            {
+                Lecturers = new List<LecturerOption>();
+                return;
+            }
+
             Lecturers = await _context.Lecturers
                 .AsNoTracking()
-                .Where(l => l.IsActive)
+                .Where(l =>
+                    l.IsActive &&
+                    l.Faculty == hod.Faculty)
                 .OrderBy(l => l.UserName)
                 .Select(l => new LecturerOption
                 {
                     Id = l.Id,
                     UserName = l.UserName,
                     Email = l.Email,
-                    Rank = l.Rank
+                    Rank = l.Rank,
+                    Type = l.Type,
+                    Faculty = l.Faculty,
+                    Department = l.Department
                 })
                 .ToListAsync();
         }
 
-        // ============================================================
-        // HOURLY RATE
-        // ============================================================
+        private async Task<Hod?> GetCurrentHodAsync()
+        {
+            var userName =
+                User.Identity?.Name;
+
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                return null;
+            }
+
+            return await _context.Hods
+                .AsNoTracking()
+                .FirstOrDefaultAsync(h =>
+                    h.UserName == userName &&
+                    h.IsActive);
+        }
 
         private static decimal GetRateForRank(
             LecturerRank? rank)
-                {
-                    if (!rank.HasValue)
-                        return 7000m;
+        {
+            if (!rank.HasValue)
+            {
+                return 7000m;
+            }
 
-                    return rank.Value switch
-                    {
-                        LecturerRank.TutorialAssistant => 7000m,
-                        LecturerRank.AssistantLecturer => 10000m,
-                        LecturerRank.LecturerWithMasters => 14000m,
-                        LecturerRank.LecturerWithPhD => 16000m,
-                        LecturerRank.SeniorLecturer => 18000m,
-                        LecturerRank.AssistantProfessor => 20000m,
-                        LecturerRank.Professor => 25000m,
-                        _ => 7000m
-                    };
+            return rank.Value switch
+            {
+                LecturerRank.TutorialAssistant => 7000m,
+                LecturerRank.AssistantLecturer => 10000m,
+                LecturerRank.LecturerWithMasters => 14000m,
+                LecturerRank.LecturerWithPhD => 16000m,
+                LecturerRank.SeniorLecturer => 18000m,
+                LecturerRank.AssistantProfessor => 20000m,
+                LecturerRank.Professor => 25000m,
+                _ => 7000m
+            };
         }
-
-        // ============================================================
-        // BUILD CONTRACT HTML
-        // ============================================================
 
         private async Task<string> BuildContractHtmlAsync(
             DateTime contractDate,
@@ -539,6 +514,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             string? academicRank,
             string? governmentId,
             string department,
+            Faculty faculty,
+            UserRole lecturerType,
             string session,
             string courseCode,
             string courseTitle,
@@ -560,355 +537,571 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                     "The contract template could not be found in the database.");
             }
 
-            // --------------------------------------------------------
-            // REPLACE DATABASE TEMPLATE PLACEHOLDERS
-            // --------------------------------------------------------
+            var facultyName =
+                GetEnumDisplayName(faculty);
 
-            var mainContract = template
-                .Replace(
-                    "{{LecturerName}}",
-                    WebUtility.HtmlEncode(lecturerName))
-                .Replace(
-                    "{{AcademicRank}}",
-                    WebUtility.HtmlEncode(
-                        academicRank ?? "N/A"))
-                .Replace(
-                    "{{GovernmentId}}",
-                    WebUtility.HtmlEncode(
-                        string.IsNullOrWhiteSpace(governmentId)
-                            ? "On file with UNILAK"
-                            : governmentId))
-                .Replace(
-                    "{{Department}}",
-                    WebUtility.HtmlEncode(department))
-                .Replace(
-                    "{{Intake}}",
-                    WebUtility.HtmlEncode(session))
-                .Replace(
-                    "{{Session}}",
-                    WebUtility.HtmlEncode(session))
-                .Replace(
-                    "{{CourseTitle}}",
-                    WebUtility.HtmlEncode(
-                        $"{courseCode} — {courseTitle}"))
-                .Replace(
-                    "{{AcademicYear}}",
-                    WebUtility.HtmlEncode(academicYear))
-                .Replace(
-                    "{{Semester}}",
-                    WebUtility.HtmlEncode(semester))
-                .Replace(
-                    "{{Campus}}",
-                    WebUtility.HtmlEncode(campus))
-                .Replace(
-                    "{{AllocatedHours}}",
-                    allocatedHours.ToString("0.##"))
-                .Replace(
-                    "{{HourlyRate}}",
-                    $"{hourlyRate:N0} RWF")
-                .Replace(
-                    "{{NumberOfOnlineClasses}}",
-                    "0")
-                .Replace(
-                    "{{OnlineHours}}",
-                    "0");
+            var employmentType =
+                GetEmploymentTypeText(lecturerType);
 
-            // --------------------------------------------------------
-            // REMOVE THE ORIGINAL SIGNATURE SECTION
-            // --------------------------------------------------------
+            var departmentOptions =
+                BuildDepartmentOptions(
+                    faculty,
+                    department);
 
-            var signatureIndex =
+            var sessionOptions =
+                BuildSessionOptions(session);
+
+            var campusOptions =
+                BuildCampusOptions(campus);
+
+            var contactHoursOptions =
+                BuildContactHoursOptions(allocatedHours);
+
+            var rateOptions =
+                BuildRateOptions(hourlyRate);
+
+            var mainContract =
+                template
+                    .Replace(
+                        "{{ContractDate}}",
+                        WebUtility.HtmlEncode(
+                            contractDate.ToLocalTime()
+                                .ToString("dd/MM/yyyy")))
+                    .Replace(
+                        "{{LecturerName}}",
+                        WebUtility.HtmlEncode(
+                            lecturerName))
+                    .Replace(
+                        "{{AcademicRank}}",
+                        WebUtility.HtmlEncode(
+                            academicRank ?? "N/A"))
+                    .Replace(
+                        "{{GovernmentId}}",
+                        WebUtility.HtmlEncode(
+                            string.IsNullOrWhiteSpace(governmentId)
+                                ? "On file with UNILAK"
+                                : governmentId))
+                    .Replace(
+                        "{{EmploymentType}}",
+                        WebUtility.HtmlEncode(
+                            employmentType))
+                    .Replace(
+                        "{{Faculty}}",
+                        WebUtility.HtmlEncode(
+                            facultyName))
+                    .Replace(
+                        "{{Department}}",
+                        WebUtility.HtmlEncode(
+                            department))
+                    .Replace(
+                        "{{DepartmentOptionsList}}",
+                        departmentOptions)
+                    .Replace(
+                        "{{Intake}}",
+                        WebUtility.HtmlEncode(
+                            session))
+                    .Replace(
+                        "{{Session}}",
+                        WebUtility.HtmlEncode(
+                            session))
+                    .Replace(
+                        "{{SessionOptionsList}}",
+                        sessionOptions)
+                    .Replace(
+                        "{{CourseTitle}}",
+                        WebUtility.HtmlEncode(
+                            $"{courseCode} — {courseTitle}"))
+                    .Replace(
+                        "{{AcademicYear}}",
+                        WebUtility.HtmlEncode(
+                            academicYear))
+                    .Replace(
+                        "{{Semester}}",
+                        WebUtility.HtmlEncode(
+                            semester))
+                    .Replace(
+                        "{{Campus}}",
+                        WebUtility.HtmlEncode(
+                            campus))
+                    .Replace(
+                        "{{CampusOptionsList}}",
+                        campusOptions)
+                    .Replace(
+                        "{{AllocatedHours}}",
+                        allocatedHours.ToString("0.##"))
+                    .Replace(
+                        "{{ContactHoursOptionsList}}",
+                        contactHoursOptions)
+                    .Replace(
+                        "{{HourlyRate}}",
+                        $"{hourlyRate:N0} RWF")
+                    .Replace(
+                        "{{RateOptionsList}}",
+                        rateOptions)
+                    .Replace(
+                        "{{NumberOfOnlineClasses}}",
+                        "....")
+                    .Replace(
+                        "{{OnlineHours}}",
+                        "....");
+
+            mainContract =
+                RemoveExistingSignatureSection(
+                    mainContract);
+
+            mainContract =
+                RemoveWorkflowNotice(
+                    mainContract);
+
+            mainContract =
+                RemoveDocumentFooter(
+                    mainContract);
+
+            var paperSignatureSection =
+                BuildPaperSignatureSection(
+                    lecturerName);
+
+            var accreditationMarker =
+                "<p class=\"contract-accreditation-note\">";
+
+            var accreditationIndex =
                 mainContract.IndexOf(
-                    "SIGNATURES",
+                    accreditationMarker,
                     StringComparison.OrdinalIgnoreCase);
 
-            if (signatureIndex >= 0)
+            if (accreditationIndex >= 0)
             {
                 mainContract =
-                    mainContract.Substring(
-                        0,
-                        signatureIndex);
+                    mainContract.Insert(
+                        accreditationIndex,
+                        paperSignatureSection +
+                        Environment.NewLine);
             }
-
-            // --------------------------------------------------------
-            // BUILD RENDERED HTML DOCUMENT
-            // --------------------------------------------------------
-
-            var html = new StringBuilder();
-
-            html.AppendLine(
-                "<div class=\"contract-content\">");
-
-            // --------------------------------------------------------
-            // UNILAK HEADER
-            // --------------------------------------------------------
-
-            html.AppendLine(
-                "<div class=\"contract-header\">");
-
-            html.AppendLine(
-                "<img src=\"/images/PNG_LOGO-_UNILAK-removebg-preview.png\" " +
-                "alt=\"UNILAK Logo\" class=\"contract-logo\" />");
-
-            html.AppendLine(
-                "<div class=\"university-name\">" +
-                "UNIVERSITY OF LAY ADVENTISTS OF KIGALI" +
-                "</div>");
-
-            html.AppendLine(
-                "<div>PO Box 6392 Kigali, Rwanda</div>");
-
-            html.AppendLine(
-                "<div>Phone: +250(0)731743439 / +250(0)751743431</div>");
-
-            html.AppendLine(
-                "<div>Website: www.unilak.ac.rw, " +
-                "E-mail: info@unilak.ac.rw</div>");
-
-            html.AppendLine(
-                "</div>");
-
-            // --------------------------------------------------------
-            // DATE
-            // --------------------------------------------------------
-
-            html.AppendLine(
-                $"<p class=\"contract-date\">" +
-                $"Kigali, {contractDate.ToLocalTime():dd MMMM yyyy}" +
-                $"</p>");
-
-            // --------------------------------------------------------
-            // TITLE
-            // --------------------------------------------------------
-
-            html.AppendLine(
-                "<h1>EMPLOYMENT PART-TIME CONTRACT</h1>");
-
-            // --------------------------------------------------------
-            // CONTRACT BODY
-            // --------------------------------------------------------
-
-            var blocks =
-                mainContract
-                    .Replace("\r\n", "\n")
-                    .Split(
-                        new[] { "\n\n" },
-                        StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var rawBlock in blocks)
+            else
             {
-                var block =
-                    rawBlock.Trim();
+                var closingIndex =
+                    mainContract.LastIndexOf(
+                        "</div>",
+                        StringComparison.OrdinalIgnoreCase);
 
-                if (string.IsNullOrWhiteSpace(block))
-                    continue;
-
-                if (block.Contains(
-                        "UNIVERSITY OF LAY ADVENTISTS OF KIGALI",
-                        StringComparison.OrdinalIgnoreCase))
+                if (closingIndex >= 0)
                 {
-                    continue;
+                    mainContract =
+                        mainContract.Insert(
+                            closingIndex,
+                            paperSignatureSection +
+                            Environment.NewLine);
                 }
-
-                if (block.StartsWith(
-                        "PO Box",
-                        StringComparison.OrdinalIgnoreCase))
+                else
                 {
-                    continue;
+                    mainContract +=
+                        Environment.NewLine +
+                        paperSignatureSection;
                 }
-
-                if (block.StartsWith(
-                        "Phone:",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                if (block.StartsWith(
-                        "Website:",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                if (block.StartsWith(
-                        "Kigali,",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                if (block.Equals(
-                        "EMPLOYMENT PART-TIME CONTRACT",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                // ----------------------------------------------------
-                // ARTICLE HEADINGS
-                // ----------------------------------------------------
-
-                if (block.StartsWith(
-                        "ARTICLE ",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    html.AppendLine(
-                        $"<h3>{WebUtility.HtmlEncode(block)}</h3>");
-
-                    continue;
-                }
-
-                // ----------------------------------------------------
-                // BULLET LISTS
-                // ----------------------------------------------------
-
-                var lines =
-                    block
-                        .Replace("\r\n", "\n")
-                        .Split(
-                            '\n',
-                            StringSplitOptions.RemoveEmptyEntries);
-
-                var bulletLines = new List<string>();
-
-                foreach (var line in lines)
-                {
-                    var trimmedLine =
-                        line.Trim();
-
-                    if (trimmedLine.StartsWith("-"))
-                    {
-                        bulletLines.Add(
-                            trimmedLine
-                                .TrimStart('-')
-                                .Trim());
-                    }
-                }
-
-                if (bulletLines.Count > 0)
-                {
-                    html.AppendLine("<ul>");
-
-                    foreach (var bullet in bulletLines)
-                    {
-                        html.AppendLine(
-                            $"<li>{WebUtility.HtmlEncode(bullet)}</li>");
-                    }
-
-                    html.AppendLine("</ul>");
-
-                    continue;
-                }
-
-                // ----------------------------------------------------
-                // NORMAL PARAGRAPH
-                // ----------------------------------------------------
-
-                var paragraph =
-                    string.Join(
-                        " ",
-                        lines.Select(
-                            line => line.Trim()));
-
-                html.AppendLine(
-                    $"<p>{WebUtility.HtmlEncode(paragraph)}</p>");
             }
 
-            // --------------------------------------------------------
-            // SIGNATURE TABLE
-            // --------------------------------------------------------
+            return mainContract;
+        }
+
+        private static string RemoveExistingSignatureSection(
+            string html)
+        {
+            return Regex.Replace(
+                html,
+                @"<div\s+class\s*=\s*[""']contract-signatures[""'][^>]*>.*?</div>",
+                string.Empty,
+                RegexOptions.IgnoreCase |
+                RegexOptions.Singleline);
+        }
+
+        private static string RemoveWorkflowNotice(
+            string html)
+        {
+            return Regex.Replace(
+                html,
+                @"<div\s+class\s*=\s*[""']contract-workflow-notice[""'][^>]*>.*?</div>",
+                string.Empty,
+                RegexOptions.IgnoreCase |
+                RegexOptions.Singleline);
+        }
+
+        private static string RemoveDocumentFooter(
+            string html)
+        {
+            return Regex.Replace(
+                html,
+                @"<div\s+class\s*=\s*[""']contract-document-footer[""'][^>]*>.*?</div>",
+                string.Empty,
+                RegexOptions.IgnoreCase |
+                RegexOptions.Singleline);
+        }
+
+        private static string BuildPaperSignatureSection(
+            string lecturerName)
+        {
+            var html =
+                new StringBuilder();
 
             html.AppendLine(
-                "<h3>SIGNATURES</h3>");
+                "<div class=\"paper-signatures\">");
 
             html.AppendLine(
-                "<table class=\"signature-table\">");
-
-            html.AppendLine("<thead>");
-            html.AppendLine("<tr>");
-            html.AppendLine("<th>Signatory</th>");
-            html.AppendLine("<th>Name</th>");
-            html.AppendLine("<th>Signature</th>");
-            html.AppendLine("<th>Date</th>");
-            html.AppendLine("</tr>");
-            html.AppendLine("</thead>");
-
-            html.AppendLine("<tbody>");
-
-            html.AppendLine("<tr>");
-            html.AppendLine("<td>Lecturer</td>");
-            html.AppendLine(
-                $"<td>{WebUtility.HtmlEncode(lecturerName)}</td>");
-            html.AppendLine(
-                "<td>{{LecturerSignature}}</td>");
-            html.AppendLine(
-                "<td>{{LecturerSignatureDate}}</td>");
-            html.AppendLine("</tr>");
-
-            html.AppendLine("<tr>");
-            html.AppendLine("<td>Dean</td>");
-            html.AppendLine("<td>Dean</td>");
-            html.AppendLine(
-                "<td>{{DeanSignature}}</td>");
-            html.AppendLine(
-                "<td>{{DeanSignatureDate}}</td>");
-            html.AppendLine("</tr>");
-
-            html.AppendLine("<tr>");
-            html.AppendLine("<td>Human Resource Officer</td>");
-            html.AppendLine("<td>Human Resource Officer</td>");
-            html.AppendLine(
-                "<td>{{HRSignature}}</td>");
-            html.AppendLine(
-                "<td>{{HRSignatureDate}}</td>");
-            html.AppendLine("</tr>");
-
-            html.AppendLine("<tr>");
-            html.AppendLine("<td>DVCAR</td>");
-            html.AppendLine("<td>DVCAR</td>");
-            html.AppendLine(
-                "<td>{{DVCARSignature}}</td>");
-            html.AppendLine(
-                "<td>{{DVCARSignatureDate}}</td>");
-            html.AppendLine("</tr>");
-
-            html.AppendLine("<tr>");
-            html.AppendLine("<td>Vice Chancellor</td>");
-            html.AppendLine("<td>Vice Chancellor</td>");
-            html.AppendLine(
-                "<td>{{VCSignature}}</td>");
-            html.AppendLine(
-                "<td>{{VCSignatureDate}}</td>");
-            html.AppendLine("</tr>");
-
-            html.AppendLine("</tbody>");
-            html.AppendLine("</table>");
-
-            // --------------------------------------------------------
-            // APPROVAL SEQUENCE
-            // --------------------------------------------------------
+                "<div class=\"paper-signature-line lecturer-signature-line\">");
 
             html.AppendLine(
-                "<p class=\"approval-sequence\">" +
-                "<strong>CONTRACT APPROVAL SEQUENCE</strong> " +
-                "Lecturer → Dean → Human Resource Officer → " +
-                "DVCAR → Vice Chancellor" +
-                "</p>");
-
-            // --------------------------------------------------------
-            // FOOTER
-            // --------------------------------------------------------
+                "<span class=\"paper-signature-name\">" +
+                $"{WebUtility.HtmlEncode(lecturerName)}" +
+                "...................................................." +
+                "</span>");
 
             html.AppendLine(
-                "<div class=\"contract-footer\">" +
-                "University of Lay Adventists of Kigali " +
-                "Academic Staff Engagement Claim Processing System" +
+                "<span class=\"paper-signature-field\">" +
+                "Signature........................" +
+                "</span>");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-field\">" +
+                "Date................." +
+                "</span>");
+
+            html.AppendLine(
                 "</div>");
 
-            html.AppendLine("</div>");
+            html.AppendLine(
+                "<div class=\"paper-signature-line dean-signature-line\">");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-name\">" +
+                "Dean of Faculty: Prof. NYESHEJA M. Enan" +
+                "</span>");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-field\">" +
+                "Signature........................." +
+                "</span>");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-field\">" +
+                "Date................." +
+                "</span>");
+
+            html.AppendLine(
+                "</div>");
+
+            html.AppendLine(
+                "<div class=\"paper-signature-line hr-signature-line\">");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-name\">" +
+                "Human Resource Officer Mr. NTAKIRUTIMANA Elison" +
+                "</span>");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-field\">" +
+                "Signature......" +
+                "</span>");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-field\">" +
+                "Date................." +
+                "</span>");
+
+            html.AppendLine(
+                "</div>");
+
+            html.AppendLine(
+                "<div class=\"paper-signature-line dvcar-signature-line\">");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-name\">" +
+                "DVCAR Prof. HAKIZIMANA Emmanuel" +
+                "</span>");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-field\">" +
+                "Signature........................." +
+                "</span>");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-field\">" +
+                "Date................." +
+                "</span>");
+
+            html.AppendLine(
+                "</div>");
+
+            html.AppendLine(
+                "<div class=\"paper-signature-line vc-signature-line\">");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-name\">" +
+                "Vice Chancellor Prof. NGAMIJE Jean" +
+                "</span>");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-field\">" +
+                "Signature..............................." +
+                "</span>");
+
+            html.AppendLine(
+                "<span class=\"paper-signature-field\">" +
+                "Date................." +
+                "</span>");
+
+            html.AppendLine(
+                "</div>");
+
+            html.AppendLine(
+                "</div>");
 
             return html.ToString();
+        }
+
+        private static string BuildDepartmentOptions(
+            Faculty faculty,
+            string selectedDepartment)
+        {
+            var options =
+                faculty ==
+                Faculty.ComputingAndInformationSciences
+                    ? new[]
+                    {
+                        ("IT-NET", "Networking"),
+                        ("IT-MULT", "Multimedia"),
+                        ("SE", "Software Engineering"),
+                        ("ISM", "Information Systems Management")
+                    }
+                    : FacultyDepartments
+                        .GetDepartments(faculty)
+                        .Select(d =>
+                            (
+                                GetEnumDisplayName(d),
+                                GetEnumDisplayName(d)))
+                        .ToArray();
+
+            var selected =
+                NormalizeOptionText(
+                    selectedDepartment);
+
+            return string.Join(
+                ", ",
+                options.Select(option =>
+                    IsDepartmentMatch(
+                        selected,
+                        option.Item1,
+                        option.Item2)
+                        ? BuildSelectedOption(
+                            option.Item1)
+                        : WebUtility.HtmlEncode(
+                            option.Item1)));
+        }
+
+        private static bool IsDepartmentMatch(
+            string selected,
+            string abbreviation,
+            string fullName)
+        {
+            if (string.Equals(
+                    selected,
+                    NormalizeOptionText(abbreviation),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (string.Equals(
+                    selected,
+                    NormalizeOptionText(fullName),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return selected switch
+            {
+                "softwareengineering" =>
+                    abbreviation == "SE",
+
+                "informationsystemsmanagement" =>
+                    abbreviation == "ISM",
+
+                "multimedia" =>
+                    abbreviation == "IT-MULT",
+
+                "networking" =>
+                    abbreviation == "IT-NET",
+
+                _ => false
+            };
+        }
+
+        private static string BuildSessionOptions(
+            string selectedSession)
+        {
+            var options =
+                new[]
+                {
+                    "Day",
+                    "Evening",
+                    "Weekend"
+                };
+
+            return BuildOptions(
+                options,
+                selectedSession);
+        }
+
+        private static string BuildCampusOptions(
+            string selectedCampus)
+        {
+            var options =
+                new[]
+                {
+                    "KIGALI",
+                    "NYANZA",
+                    "RWAMAGANA"
+                };
+
+            return BuildOptions(
+                options,
+                selectedCampus);
+        }
+
+        private static string BuildContactHoursOptions(
+            decimal selectedHours)
+        {
+            var options =
+                new[]
+                {
+                    "30",
+                    "45",
+                    "60"
+                };
+
+            return string.Join(
+                "/",
+                options.Select(option =>
+                    decimal.TryParse(
+                            option,
+                            out var value) &&
+                        value == selectedHours
+                        ? BuildSelectedOption(option)
+                        : WebUtility.HtmlEncode(option)));
+        }
+
+        private static string BuildRateOptions(
+            decimal selectedRate)
+        {
+            var rates =
+                new[]
+                {
+                    (25000m, "25K"),
+                    (20000m, "20K"),
+                    (18000m, "18K"),
+                    (16000m, "16K"),
+                    (14000m, "14K"),
+                    (10000m, "10K"),
+                    (7000m, "7K")
+                };
+
+            return string.Join(
+                ", ",
+                rates.Select(rate =>
+                    rate.Item1 == selectedRate
+                        ? BuildSelectedOption(rate.Item2)
+                        : WebUtility.HtmlEncode(rate.Item2)));
+        }
+
+        private static string BuildOptions(
+            IEnumerable<string> options,
+            string selected)
+        {
+            var normalizedSelected =
+                NormalizeOptionText(selected);
+
+            return string.Join(
+                ", ",
+                options.Select(option =>
+                    NormalizeOptionText(option) ==
+                    normalizedSelected
+                        ? BuildSelectedOption(option)
+                        : WebUtility.HtmlEncode(option)));
+        }
+
+        private static string BuildSelectedOption(
+            string value)
+        {
+            return
+                $"<span class=\"contract-selected-option\">" +
+                $"({WebUtility.HtmlEncode(value)})" +
+                "</span>";
+        }
+
+        private static string GetEmploymentTypeText(
+            UserRole type)
+        {
+            return type switch
+            {
+                UserRole.FullTimeLecturer =>
+                    "Internal",
+
+                UserRole.PartTimeLecturer =>
+                    "External",
+
+                _ =>
+                    "External/Internal"
+            };
+        }
+
+        private static string GetEnumDisplayName<TEnum>(
+            TEnum value)
+            where TEnum : struct, Enum
+        {
+            var name =
+                value.ToString();
+
+            return SplitPascalCase(name);
+        }
+
+        private static string SplitPascalCase(
+            string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            var result =
+                new StringBuilder();
+
+            for (var i = 0; i < value.Length; i++)
+            {
+                if (i > 0 &&
+                    char.IsUpper(value[i]) &&
+                    !char.IsUpper(value[i - 1]))
+                {
+                    result.Append(' ');
+                }
+
+                result.Append(value[i]);
+            }
+
+            return result.ToString();
+        }
+
+        private static string NormalizeOptionText(
+            string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            return new string(
+                value
+                    .Where(char.IsLetterOrDigit)
+                    .ToArray())
+                .ToLowerInvariant();
         }
     }
 }

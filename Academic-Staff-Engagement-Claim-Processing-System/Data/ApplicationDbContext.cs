@@ -117,8 +117,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .IsUnique();
 
             modelBuilder.Entity<Hod>()
-                .Property(h => h.Department)
-                .HasMaxLength(100)
+                .Property(h => h.Faculty)
+                .HasConversion<int>()
                 .IsRequired();
 
             modelBuilder.Entity<Management>()
@@ -150,6 +150,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
             modelBuilder.Entity<Lecturer>()
                 .Property(l => l.RssbNumber)
                 .HasMaxLength(30);
+
+            modelBuilder.Entity<Lecturer>()
+                .Property(l => l.Department)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Lecturer>()
+                .Property(l => l.Faculty)
+                .HasConversion<int?>();
 
             modelBuilder.Entity<Lecturer>()
                 .Property(l => l.PasswordHash)
@@ -207,6 +215,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 
             modelBuilder.Entity<Lecturer>()
                 .HasIndex(l => l.RssbNumber);
+
+            modelBuilder.Entity<Lecturer>()
+                .HasIndex(l => l.Faculty);
 
             // ================================================================
             // COURSES

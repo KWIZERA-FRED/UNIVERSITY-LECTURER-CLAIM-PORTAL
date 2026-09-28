@@ -25,10 +25,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         public Hod? CurrentHod { get; private set; }
 
         public string HodName =>
-            CurrentHod?.UserName ?? "Head of Department";
+            CurrentHod?.UserName ?? "Head of Faculty";
 
-        public string HodDepartment =>
-            CurrentHod?.Department ?? "Department";
+        public string HodFaculty =>
+            CurrentHod?.Faculty.ToString() ?? "Faculty";
 
 
         // ============================================================
@@ -67,10 +67,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // --------------------------------------------------------
-            // Identify logged-in HOD
-            // --------------------------------------------------------
-
             var username = User.Identity?.Name;
 
             if (string.IsNullOrWhiteSpace(username))
@@ -89,23 +85,27 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage("/Login");
             }
 
-            var department = CurrentHod.Department;
+            var facultyDepartments = FacultyDepartments
+                .GetDepartments(CurrentHod.Faculty)
+                .Select(d => d.ToString())
+                .ToList();
 
 
             // ========================================================
-            // DEPARTMENT CONTRACTS
+            // FACULTY CONTRACTS
             // ========================================================
 
-            var departmentContracts = _context.Contracts
+            var facultyContracts = _context.Contracts
                 .AsNoTracking()
                 .Where(c =>
                     c.CourseAssignment != null &&
-                    c.CourseAssignment.Course.Department == department);
+                    facultyDepartments.Contains(
+                        c.CourseAssignment.Course.Department));
 
 
-            // --------------------------------------------------------
+            // ========================================================
             // CONTRACTS REQUIRING HOD ACTION
-            // --------------------------------------------------------
+            // ========================================================
 
             ContractsAwaitingSignature = await _context.ContractSignatures
                 .AsNoTracking()
@@ -114,7 +114,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                     cs.Decision == SignatureDecision.Pending &&
                     cs.Contract.Status == ContractStatus.PendingSignature &&
                     cs.Contract.CourseAssignment != null &&
-                    cs.Contract.CourseAssignment.Course.Department == department)
+                    facultyDepartments.Contains(
+                        cs.Contract.CourseAssignment.Course.Department))
                 .OrderByDescending(cs => cs.Contract.CreatedAtUtc)
                 .Take(10)
                 .Select(cs => new ContractDashboardItem
@@ -143,47 +144,45 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                     cs.Decision == SignatureDecision.Pending &&
                     cs.Contract.Status == ContractStatus.PendingSignature &&
                     cs.Contract.CourseAssignment != null &&
-                    cs.Contract.CourseAssignment.Course.Department == department);
+                    facultyDepartments.Contains(
+                        cs.Contract.CourseAssignment.Course.Department));
 
 
-            // --------------------------------------------------------
+            // ========================================================
             // ACTIVE CONTRACTS
-            // --------------------------------------------------------
+            // ========================================================
 
-            ContractsToReview = await departmentContracts
+            ContractsToReview = await facultyContracts
                 .CountAsync(c =>
                     c.Status == ContractStatus.Active);
 
 
             // ========================================================
-            // DEPARTMENT CLAIMS
+            // FACULTY CLAIMS
             // ========================================================
 
-            var departmentClaims = _context.Claims
+            var facultyClaims = _context.Claims
                 .AsNoTracking()
                 .Where(c =>
                     c.CourseAssignment != null &&
-                    c.CourseAssignment.Course.Department == department);
+                    facultyDepartments.Contains(
+                        c.CourseAssignment.Course.Department));
 
 
-            // --------------------------------------------------------
+            // ========================================================
             // CLAIMS WAITING FOR HOD
-            // --------------------------------------------------------
+            // ========================================================
 
-            ClaimsReceived = await departmentClaims
+            ClaimsReceived = await facultyClaims
                 .CountAsync(c =>
                     c.Status == ClaimStatus.PendingHODApproval);
 
 
-            // --------------------------------------------------------
+            // ========================================================
             // RECENT CLAIMS
-            // --------------------------------------------------------
-            //
-            // Show claims from every meaningful stage of the workflow.
-            // ClaimsReceived above remains specifically limited to
-            // claims waiting for HOD approval.
+            // ========================================================
 
-            RecentClaims = await departmentClaims
+            RecentClaims = await facultyClaims
                 .Where(c =>
                     c.Status == ClaimStatus.PendingHODApproval ||
                     c.Status == ClaimStatus.PendingDeanApproval ||
@@ -218,7 +217,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 .AsNoTracking()
                 .Where(ca =>
                     ca.IsActive &&
-                    ca.Course.Department == department &&
+                    facultyDepartments.Contains(
+                        ca.Course.Department) &&
                     ca.Lecturer.IsActive)
                 .Select(ca => ca.LecturerId)
                 .Distinct()

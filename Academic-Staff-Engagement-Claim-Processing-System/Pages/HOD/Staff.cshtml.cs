@@ -18,7 +18,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             _context = context;
         }
 
-
         // ============================================================
         // CURRENT HOD
         // ============================================================
@@ -26,10 +25,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         public Hod? CurrentHod { get; private set; }
 
         public string HodName =>
-            CurrentHod?.UserName ?? "Head of Department";
+            CurrentHod?.UserName ?? "Head of Faculty";
 
-        public string HodDepartment =>
-            CurrentHod?.Department ?? "Department";
+        public string HodFaculty =>
+            CurrentHod?.Faculty.ToString() ?? "Faculty";
 
 
         // ============================================================
@@ -37,7 +36,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         // ============================================================
 
         public List<StaffListItem> Lecturers { get; private set; } = new();
-
 
         public class StaffListItem
         {
@@ -93,7 +91,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
         // ============================================================
 
         public List<CourseOption> CourseOptions { get; private set; } = new();
-
 
         public class CourseOption
         {
@@ -192,10 +189,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage();
             }
 
-
-            // --------------------------------------------------------
-            // LOAD ASSIGNMENT
-            // --------------------------------------------------------
+            var facultyDepartments = GetCurrentFacultyDepartments();
 
             var assignment = await _context.CourseAssignments
                 .Include(ca => ca.Course)
@@ -210,27 +204,13 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage();
             }
 
-
-            // --------------------------------------------------------
-            // SECURITY:
-            // VERIFY CURRENT HOD OWNS THIS DEPARTMENT
-            // --------------------------------------------------------
-
-            if (!string.Equals(
-                    assignment.Course.Department,
-                    CurrentHod!.Department,
-                    StringComparison.OrdinalIgnoreCase))
+            if (!facultyDepartments.Contains(assignment.Course.Department))
             {
                 TempData["ErrorMessage"] =
                     "You are not authorized to modify this assignment.";
 
                 return RedirectToPage();
             }
-
-
-            // --------------------------------------------------------
-            // VERIFY LECTURER
-            // --------------------------------------------------------
 
             if (assignment.LecturerId != LecturerId)
             {
@@ -240,29 +220,20 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage();
             }
 
-
-            // --------------------------------------------------------
-            // VERIFY SELECTED COURSE BELONGS TO HOD DEPARTMENT
-            // --------------------------------------------------------
-
             var selectedCourse = await _context.Courses
+                .AsNoTracking()
                 .FirstOrDefaultAsync(c =>
                     c.Id == CourseId &&
                     c.IsActive &&
-                    c.Department == CurrentHod.Department);
+                    facultyDepartments.Contains(c.Department));
 
             if (selectedCourse == null)
             {
                 TempData["ErrorMessage"] =
-                    "The selected course is not available in your department.";
+                    "The selected course is not available in your faculty.";
 
                 return RedirectToPage();
             }
-
-
-            // --------------------------------------------------------
-            // PREVENT DUPLICATE ACTIVE ASSIGNMENTS
-            // --------------------------------------------------------
 
             bool duplicateExists = await _context.CourseAssignments
                 .AnyAsync(ca =>
@@ -281,11 +252,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage();
             }
 
-
-            // --------------------------------------------------------
-            // DETECT MATERIAL CHANGES
-            // --------------------------------------------------------
-
             bool assignmentChanged =
                 assignment.CourseId != CourseId ||
                 !string.Equals(
@@ -295,22 +261,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 assignment.Semester != Semester ||
                 assignment.AllocatedHours != AllocatedHours;
 
-
-            // --------------------------------------------------------
-            // UPDATE
-            // --------------------------------------------------------
-
             assignment.CourseId = CourseId;
             assignment.AcademicYear = AcademicYear.Trim();
             assignment.Semester = Semester;
             assignment.AllocatedHours = AllocatedHours;
             assignment.UpdatedAtUtc = DateTime.UtcNow;
-
-
-            // --------------------------------------------------------
-            // IMPORTANT:
-            // CHANGING ASSIGNMENT DETAILS INVALIDATES OLD APPROVAL
-            // --------------------------------------------------------
 
             if (assignmentChanged)
             {
@@ -319,9 +274,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 assignment.ApprovedAtUtc = null;
             }
 
-
             await _context.SaveChangesAsync();
-
 
             TempData["SuccessMessage"] = assignmentChanged
                 ? "Course assignment updated and returned to Pending Approval."
@@ -343,6 +296,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage("/Login");
             }
 
+            var facultyDepartments = GetCurrentFacultyDepartments();
 
             var assignment = await _context.CourseAssignments
                 .Include(ca => ca.Course)
@@ -356,16 +310,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage();
             }
 
-
-            // --------------------------------------------------------
-            // SECURITY:
-            // ONLY THIS HOD'S DEPARTMENT
-            // --------------------------------------------------------
-
-            if (!string.Equals(
-                    assignment.Course.Department,
-                    CurrentHod!.Department,
-                    StringComparison.OrdinalIgnoreCase))
+            if (!facultyDepartments.Contains(assignment.Course.Department))
             {
                 TempData["ErrorMessage"] =
                     "You are not authorized to remove this assignment.";
@@ -373,16 +318,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage();
             }
 
-
-            // --------------------------------------------------------
-            // SOFT DELETE
-            // --------------------------------------------------------
-
             assignment.IsActive = false;
             assignment.UpdatedAtUtc = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-
 
             TempData["SuccessMessage"] =
                 $"The {assignment.Course.Code} assignment has been deactivated.";
@@ -402,6 +341,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage("/Login");
             }
 
+            var facultyDepartments = GetCurrentFacultyDepartments();
 
             var lecturer = await _context.Lecturers
                 .FirstOrDefaultAsync(l => l.Id == id);
@@ -414,23 +354,19 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage();
             }
 
+            bool belongsToFaculty = lecturer.Faculty == CurrentHod!.Faculty;
 
-            // --------------------------------------------------------
-            // SECURITY:
-            // VERIFY THIS HOD CREATED / OWNS THE LECTURER
-            // OR HAS AN ASSIGNMENT IN THE HOD DEPARTMENT
-            // --------------------------------------------------------
-
-            bool belongsToDepartment = await _context.CourseAssignments
+            bool hasFacultyAssignment = await _context.CourseAssignments
                 .AnyAsync(ca =>
                     ca.LecturerId == lecturer.Id &&
-                    ca.Course.Department == CurrentHod.Department);
+                    facultyDepartments.Contains(ca.Course.Department));
 
             bool createdByThisHod =
                 lecturer.SignatureCapturedByHodId == CurrentHod.Id;
 
-
-            if (!belongsToDepartment && !createdByThisHod)
+            if (!belongsToFaculty &&
+                !hasFacultyAssignment &&
+                !createdByThisHod)
             {
                 TempData["ErrorMessage"] =
                     "You are not authorized to manage this lecturer.";
@@ -438,16 +374,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage();
             }
 
-
-            // --------------------------------------------------------
-            // SOFT DEACTIVATE
-            // --------------------------------------------------------
-
             lecturer.IsActive = false;
             lecturer.UpdatedAtUtc = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-
 
             TempData["SuccessMessage"] =
                 $"The lecturer account for {lecturer.UserName} has been deactivated.";
@@ -480,16 +410,36 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
 
         // ============================================================
+        // GET HOD FACULTY DEPARTMENTS
+        // ============================================================
+
+        private List<string> GetCurrentFacultyDepartments()
+        {
+            if (CurrentHod == null)
+            {
+                return new List<string>();
+            }
+
+            return FacultyDepartments
+                .GetDepartments(CurrentHod.Faculty)
+                .Select(d => d.ToString())
+                .ToList();
+        }
+
+
+        // ============================================================
         // LOAD COURSE OPTIONS
         // ============================================================
 
         private async Task LoadCourseOptionsAsync()
         {
+            var facultyDepartments = GetCurrentFacultyDepartments();
+
             CourseOptions = await _context.Courses
                 .AsNoTracking()
                 .Where(c =>
                     c.IsActive &&
-                    c.Department == CurrentHod!.Department)
+                    facultyDepartments.Contains(c.Department))
                 .OrderBy(c => c.Code)
                 .Select(c => new CourseOption
                 {
@@ -507,25 +457,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
         private async Task LoadLecturersAsync()
         {
-            var department = CurrentHod!.Department;
-            var hodId = CurrentHod.Id;
-
-
-            // --------------------------------------------------------
-            // LECTURERS ARE LIMITED TO:
-            //
-            // 1. Lecturers created/captured by this HOD
-            // OR
-            // 2. Lecturers who have a course assignment in this
-            //    HOD's department
-            // --------------------------------------------------------
+            var facultyDepartments = GetCurrentFacultyDepartments();
+            var hodId = CurrentHod!.Id;
+            var faculty = CurrentHod.Faculty;
 
             var lecturers = await _context.Lecturers
                 .AsNoTracking()
                 .Where(l =>
+                    l.Faculty == faculty ||
                     l.SignatureCapturedByHodId == hodId ||
                     l.CourseAssignments.Any(ca =>
-                        ca.Course.Department == department))
+                        facultyDepartments.Contains(
+                            ca.Course.Department)))
                 .OrderBy(l => l.UserName)
                 .Select(l => new StaffListItem
                 {
@@ -538,7 +481,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
                     Assignments = l.CourseAssignments
                         .Where(ca =>
-                            ca.Course.Department == department)
+                            facultyDepartments.Contains(
+                                ca.Course.Department))
                         .OrderByDescending(ca => ca.IsActive)
                         .ThenByDescending(ca => ca.AcademicYear)
                         .ThenBy(ca => ca.Course.Code)
@@ -562,7 +506,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                         .ToList()
                 })
                 .ToListAsync();
-
 
             Lecturers = lecturers;
         }

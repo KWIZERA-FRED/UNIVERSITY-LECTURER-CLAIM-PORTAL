@@ -1,8 +1,10 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -13,48 +15,33 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
     public class AccountRegistrationRequest
     {
         public string Name { get; set; } = string.Empty;
-
-
-    public string Email { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
 
         public string Department { get; set; } = string.Empty;
 
         public string Faculty { get; set; } = string.Empty;
 
         public string Rank { get; set; } = string.Empty;
-
         public string Role { get; set; } = string.Empty;
-
         public string GovernmentId { get; set; } = string.Empty;
-
         public string SignatureData { get; set; } = string.Empty;
-
         public string? ManagementTitle { get; set; }
-
         public UserRole? LecturerType { get; set; }
 
         public int RegisteringUserId { get; set; }
 
         public string ActorUsername { get; set; } = string.Empty;
-
         public string ActorRole { get; set; } = string.Empty;
-
         public string? IpAddress { get; set; }
     }
-
 
     public class AccountRegistrationResult
     {
         public bool Succeeded { get; private set; }
-
         public string? SuccessMessage { get; set; }
-
         public string? ErrorMessage { get; private set; }
-
         public int? CreatedUserId { get; private set; }
-
         public string? Username { get; private set; }
-
 
         public static AccountRegistrationResult Success(
             string message,
@@ -70,9 +57,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             };
         }
 
-
-        public static AccountRegistrationResult Fail(
-            string message)
+        public static AccountRegistrationResult Fail(string message)
         {
             return new AccountRegistrationResult
             {
@@ -82,7 +67,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         }
     }
 
-
     public class AccountRegistrationService
     {
         private readonly ApplicationDbContext _context;
@@ -90,7 +74,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         private readonly EmailService _emailService;
         private readonly ILogger<AccountRegistrationService> _logger;
         private readonly IWebHostEnvironment _environment;
-
 
         public AccountRegistrationService(
             ApplicationDbContext context,
@@ -106,48 +89,24 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             _environment = environment;
         }
 
-
         public async Task<AccountRegistrationResult> RegisterAsync(
             AccountRegistrationRequest request)
         {
             if (request == null)
             {
                 return AccountRegistrationResult.Fail(
-                    "The registration request is invalid.");
+                    "Registration request is required.");
             }
 
-
-            request.Name =
-                request.Name?.Trim()
-                ?? string.Empty;
-
-            request.Email =
-                request.Email?.Trim()
-                ?? string.Empty;
-
-            request.Department =
-                request.Department?.Trim()
-                ?? string.Empty;
-
-            request.Faculty =
-                request.Faculty?.Trim()
-                ?? string.Empty;
-
-            request.Rank =
-                request.Rank?.Trim()
-                ?? string.Empty;
-
-            request.Role =
-                request.Role?.Trim()
-                ?? string.Empty;
-
-            request.GovernmentId =
-                request.GovernmentId?.Trim()
-                ?? string.Empty;
-
-            request.ManagementTitle =
-                request.ManagementTitle?.Trim();
-
+            request.Name = request.Name?.Trim() ?? string.Empty;
+            request.Email = request.Email?.Trim() ?? string.Empty;
+            request.Department = request.Department?.Trim() ?? string.Empty;
+            request.Faculty = request.Faculty?.Trim() ?? string.Empty;
+            request.Rank = request.Rank?.Trim() ?? string.Empty;
+            request.Role = request.Role?.Trim() ?? string.Empty;
+            request.GovernmentId = request.GovernmentId?.Trim() ?? string.Empty;
+            request.SignatureData = request.SignatureData?.Trim() ?? string.Empty;
+            request.ManagementTitle = request.ManagementTitle?.Trim();
 
             if (string.IsNullOrWhiteSpace(request.Name))
             {
@@ -155,1045 +114,726 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     "Full name is required.");
             }
 
-
             if (string.IsNullOrWhiteSpace(request.Email))
             {
                 return AccountRegistrationResult.Fail(
                     "Email address is required.");
             }
 
-
             if (!IsValidEmail(request.Email))
             {
                 return AccountRegistrationResult.Fail(
-                    "The email address is not valid.");
+                    "Please provide a valid email address.");
             }
-
 
             if (string.IsNullOrWhiteSpace(request.Role))
             {
                 return AccountRegistrationResult.Fail(
-                    "User role is required.");
+                    "Account role is required.");
             }
 
+            bool isLecturer = string.Equals(
+                request.Role,
+                "Lecturer",
+                StringComparison.OrdinalIgnoreCase);
 
-            string selectedRole =
-                request.Role;
+            bool isHod = string.Equals(
+                request.Role,
+                "HOD",
+                StringComparison.OrdinalIgnoreCase);
 
+            bool isManagement = string.Equals(
+                request.Role,
+                "Management",
+                StringComparison.OrdinalIgnoreCase);
 
-            bool isLecturer =
-                selectedRole.Equals(
-                    "Lecturer",
-                    StringComparison.OrdinalIgnoreCase);
+            bool isDean = string.Equals(
+                request.Role,
+                "Dean",
+                StringComparison.OrdinalIgnoreCase);
 
-            bool isHod =
-                selectedRole.Equals(
-                    "HOD",
-                    StringComparison.OrdinalIgnoreCase);
-
-            bool isManagement =
-                selectedRole.Equals(
-                    "Management",
-                    StringComparison.OrdinalIgnoreCase);
-
-            bool isDean =
-                selectedRole.Equals(
-                    "Dean",
-                    StringComparison.OrdinalIgnoreCase);
-
-
-            if (!isLecturer &&
-                !isHod &&
-                !isManagement &&
-                !isDean)
+            if (!isLecturer && !isHod && !isManagement && !isDean)
             {
                 return AccountRegistrationResult.Fail(
-                    $"The role '{selectedRole}' is not supported.");
+                    "The selected account role is not supported.");
             }
 
-
-            // Every account that can sign a contract must have
-            // a digital signature.
-            if (string.IsNullOrWhiteSpace(
-                request.SignatureData))
+            if (string.IsNullOrWhiteSpace(request.SignatureData))
             {
                 return AccountRegistrationResult.Fail(
-                    "Digital signature is required.");
+                    "A digital signature is required.");
             }
 
-
-            // Lecturer-specific validation.
             if (isLecturer)
             {
-                if (string.IsNullOrWhiteSpace(
-                    request.GovernmentId))
+                if (string.IsNullOrWhiteSpace(request.GovernmentId))
                 {
                     return AccountRegistrationResult.Fail(
-                        "Government ID is required.");
+                        "Government ID is required for lecturer registration.");
                 }
 
-
-                if (string.IsNullOrWhiteSpace(
-                    request.Rank))
+                if (string.IsNullOrWhiteSpace(request.Rank))
                 {
                     return AccountRegistrationResult.Fail(
-                        "Academic rank is required.");
+                        "Academic rank is required for lecturer registration.");
                 }
-
 
                 if (!request.LecturerType.HasValue)
                 {
                     return AccountRegistrationResult.Fail(
-                        "Lecturer employment type is required.");
+                        "Employment type is required for lecturer registration.");
                 }
 
-
-                if (request.LecturerType.Value !=
-                        UserRole.PartTimeLecturer &&
-                    request.LecturerType.Value !=
-                        UserRole.FullTimeLecturer)
+                if (request.LecturerType.Value != UserRole.PartTimeLecturer &&
+                    request.LecturerType.Value != UserRole.FullTimeLecturer)
                 {
                     return AccountRegistrationResult.Fail(
-                        "Only Part-Time Lecturer or Full-Time Lecturer is allowed.");
+                        "Only Part-Time or Full-Time Lecturer is allowed.");
+                }
+
+                if (string.IsNullOrWhiteSpace(request.Department))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Department is required for lecturer registration.");
                 }
             }
 
-
-            // HOD-specific validation.
             Faculty? parsedFaculty = null;
 
             if (isHod)
             {
-                if (string.IsNullOrWhiteSpace(
-                    request.Department))
+                if (string.IsNullOrWhiteSpace(request.Faculty))
                 {
                     return AccountRegistrationResult.Fail(
-                        "Department is required for an HOD account.");
+                        "Faculty is required for HOD registration.");
                 }
-
 
                 if (!Enum.TryParse<Faculty>(
-                    request.Faculty,
-                    true,
-                    out var hodFaculty))
+                        request.Faculty,
+                        true,
+                        out Faculty hodFaculty))
                 {
                     return AccountRegistrationResult.Fail(
-                        "Please select a valid faculty for the HOD account.");
+                        "The selected faculty is invalid.");
                 }
-
 
                 parsedFaculty = hodFaculty;
             }
 
-
-            // Management-specific validation.
             ManagementTitle? parsedManagementTitle = null;
 
             if (isManagement)
             {
+                if (string.IsNullOrWhiteSpace(request.ManagementTitle))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Management title is required.");
+                }
+
                 if (!Enum.TryParse<ManagementTitle>(
                         request.ManagementTitle,
                         true,
-                        out var managementTitle))
+                        out ManagementTitle managementTitle))
                 {
                     return AccountRegistrationResult.Fail(
-                        "Please select a valid Management office.");
+                        "The selected management title is invalid.");
                 }
 
-
-                parsedManagementTitle =
-                    managementTitle;
+                parsedManagementTitle = managementTitle;
             }
 
-
-            // Only the bootstrap Dean may be created without
-            // an authenticated registering account.
             if (isDean)
             {
-                bool anyDeanExists =
+                bool deanExists =
                     await _context.Deans.AnyAsync();
 
-
-                if (anyDeanExists)
+                if (deanExists)
                 {
                     return AccountRegistrationResult.Fail(
-                        "A Dean account already exists.");
+                        "A Dean account already exists. Only the initial Dean account can be created through this registration process.");
                 }
             }
-            else
+
+            Hod? registeringHod = null;
+
+            if (isLecturer)
             {
-                // Lecturers must be registered by an HOD.
-                if (isLecturer)
-                {
-                    var registeringHod =
-                        await _context.Hods
-                            .FirstOrDefaultAsync(
-                                h => h.Id ==
-                                     request.RegisteringUserId);
+                registeringHod = await _context.Hods
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(
+                        h => h.Id == request.RegisteringUserId);
 
-                    if (registeringHod == null)
-                    {
-                        return AccountRegistrationResult.Fail(
-                            "The registering HOD account could not be found.");
-                    }
+                if (registeringHod == null)
+                {
+                    return AccountRegistrationResult.Fail(
+                        "The registering HOD account could not be found.");
                 }
 
-                // HOD and Management accounts must be registered
-                // by an existing Dean.
-                if (isHod || isManagement)
+                if (!string.Equals(
+                        registeringHod.UserName,
+                        request.ActorUsername,
+                        StringComparison.OrdinalIgnoreCase))
                 {
-                    var registeringDean =
-                        await _context.Deans
-                            .FirstOrDefaultAsync(
-                                d => d.Id ==
-                                     request.RegisteringUserId);
+                    return AccountRegistrationResult.Fail(
+                        "The registering HOD account could not be verified.");
+                }
 
-                    if (registeringDean == null)
-                    {
-                        return AccountRegistrationResult.Fail(
-                            "The registering Dean account could not be found.");
-                    }
+                if (!Enum.TryParse<Department>(
+                        request.Department,
+                        true,
+                        out Department selectedDepartment))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "The selected department is invalid.");
+                }
+
+                if (!FacultyDepartments.IsValidDepartment(
+                    registeringHod.Faculty,
+                    selectedDepartment))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "The selected department does not belong to your faculty.");
+                }
+            }
+            else if (!isDean)
+            {
+                var registeringDean = await _context.Deans
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(
+                        d => d.Id == request.RegisteringUserId);
+
+                if (registeringDean == null)
+                {
+                    return AccountRegistrationResult.Fail(
+                        "The registering Dean account could not be found.");
+                }
+
+                if (!string.Equals(
+                        registeringDean.UserName,
+                        request.ActorUsername,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "The registering Dean account could not be verified.");
                 }
             }
 
-
-            // Check email across the complete account hierarchy.
             bool emailExists =
-                await _context.Lecturers
-                    .AnyAsync(x =>
-                        x.Email == request.Email)
-                ||
-                await _context.AdminAccounts
-                    .AnyAsync(x =>
-                        x.Email == request.Email);
-
+                await _context.Lecturers.AnyAsync(
+                    x => x.Email == request.Email) ||
+                await _context.Hods.AnyAsync(
+                    x => x.Email == request.Email) ||
+                await _context.Deans.AnyAsync(
+                    x => x.Email == request.Email) ||
+                await _context.ManagementAccounts.AnyAsync(
+                    x => x.Email == request.Email);
 
             if (emailExists)
             {
                 return AccountRegistrationResult.Fail(
-                    $"An account with the email '{request.Email}' already exists.");
+                    "An account with this email address already exists.");
             }
 
-
             string username =
-                request.Name;
+                GenerateUsername(request.Name);
 
-
-            // Check username across the complete account hierarchy.
             bool usernameExists =
-                await _context.Lecturers
-                    .AnyAsync(x =>
-                        x.UserName == username)
-                ||
-                await _context.AdminAccounts
-                    .AnyAsync(x =>
-                        x.UserName == username);
-
+                await _context.Lecturers.AnyAsync(
+                    x => x.UserName == username) ||
+                await _context.Hods.AnyAsync(
+                    x => x.UserName == username) ||
+                await _context.Deans.AnyAsync(
+                    x => x.UserName == username) ||
+                await _context.ManagementAccounts.AnyAsync(
+                    x => x.UserName == username);
 
             if (usernameExists)
             {
-                return AccountRegistrationResult.Fail(
-                    $"An account with the username '{username}' already exists.");
+                username =
+                    $"{username}{RandomNumberGenerator.GetInt32(100, 1000)}";
             }
 
+            string temporaryPassword =
+                GenerateTemporaryPassword();
 
-            string password =
-                GenerateSecurePassword();
+            var passwordHasher =
+                new PasswordHasher<object>();
 
-
-            string? signatureFilePath = null;
-
-            string? signatureHash = null;
-
+            string signatureRelativePath = string.Empty;
+            string signatureAbsolutePath = string.Empty;
 
             try
             {
-                // Save the signature for EVERY account type
-                // through the same controlled mechanism.
-                var signatureResult =
-                    await SaveSignatureAsync(
-                        request.SignatureData,
-                        username);
+                string signatureFolder =
+                    Path.Combine(
+                        _environment.WebRootPath,
+                        "uploads",
+                        "signatures");
 
+                Directory.CreateDirectory(
+                    signatureFolder);
 
-                if (!signatureResult.Success)
+                string safeUsername =
+                    SanitizeFileName(username);
+
+                string signatureFileName =
+                    $"{safeUsername}_{Guid.NewGuid():N}.png";
+
+                signatureAbsolutePath =
+                    Path.Combine(
+                        signatureFolder,
+                        signatureFileName);
+
+                string base64Signature =
+                    request.SignatureData;
+
+                if (base64Signature.Contains(","))
                 {
-                    return AccountRegistrationResult.Fail(
-                        signatureResult.ErrorMessage
-                        ??
-                        "The digital signature could not be saved.");
+                    base64Signature =
+                        base64Signature[
+                            (base64Signature.IndexOf(',') + 1)..];
                 }
 
+                byte[] signatureBytes =
+                    Convert.FromBase64String(
+                        base64Signature);
 
-                signatureFilePath =
-                    signatureResult.FilePath;
+                if (signatureBytes.Length == 0)
+                {
+                    return AccountRegistrationResult.Fail(
+                        "The digital signature cannot be empty.");
+                }
 
+                const int maxSignatureBytes = 500_000;
 
-                signatureHash =
-                    ComputeSha256FromBase64Png(
-                        request.SignatureData);
+                if (signatureBytes.Length > maxSignatureBytes)
+                {
+                    return AccountRegistrationResult.Fail(
+                        "The digital signature is too large. Please capture a smaller signature.");
+                }
 
+                byte[] pngSignature =
+                {
+                    0x89,
+                    0x50,
+                    0x4E,
+                    0x47,
+                    0x0D,
+                    0x0A,
+                    0x1A,
+                    0x0A
+                };
 
-                var passwordHasher =
-                    new PasswordHasher<AdminAccount>();
+                if (signatureBytes.Length < pngSignature.Length ||
+                    !signatureBytes
+                        .AsSpan(0, pngSignature.Length)
+                        .SequenceEqual(pngSignature))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "The digital signature must be a valid PNG image.");
+                }
 
+                await File.WriteAllBytesAsync(
+                    signatureAbsolutePath,
+                    signatureBytes);
 
-                AccountRegistrationResult?
-                    registrationResult = null;
+                signatureRelativePath =
+                    Path.Combine(
+                        "uploads",
+                        "signatures",
+                        signatureFileName)
+                    .Replace("\\", "/");
 
+                string signatureHash;
+
+                using (var sha256 = SHA256.Create())
+                {
+                    byte[] hashBytes =
+                        sha256.ComputeHash(
+                            signatureBytes);
+
+                    signatureHash =
+                        Convert.ToHexString(
+                            hashBytes);
+                }
 
                 var strategy =
-                    _context.Database
-                        .CreateExecutionStrategy();
+                    _context.Database.CreateExecutionStrategy();
 
+                AccountRegistrationResult? registrationResult =
+                    null;
 
-                await strategy.ExecuteAsync(
-                    async () =>
+                await strategy.ExecuteAsync(async () =>
+                {
+                    await using var transaction =
+                        await _context.Database.BeginTransactionAsync();
+
+                    try
                     {
-                        await using var transaction =
-                            await _context.Database
-                                .BeginTransactionAsync();
-
-
-                        try
+                        if (isLecturer)
                         {
-                            int createdUserId;
-
-                            string auditEntityType;
-
-                            string auditDescription;
-
-
-                            // =================================================
-                            // LECTURER
-                            // =================================================
-
-                            if (isLecturer)
+                            if (!Enum.TryParse<LecturerRank>(
+                                    request.Rank,
+                                    true,
+                                    out LecturerRank lecturerRank))
                             {
-                                if (!Enum.TryParse<LecturerRank>(
-                                        request.Rank,
-                                        true,
-                                        out LecturerRank lecturerRank))
+                                throw new InvalidOperationException(
+                                    "The selected academic rank is invalid.");
+                            }
+
+                            if (!request.LecturerType.HasValue)
+                            {
+                                throw new InvalidOperationException(
+                                    "Employment type is required.");
+                            }
+
+                            var transactionHod =
+                                await _context.Hods
+                                    .FirstOrDefaultAsync(
+                                        h => h.Id == request.RegisteringUserId);
+
+                            if (transactionHod == null)
+                            {
+                                throw new InvalidOperationException(
+                                    "The registering HOD account could not be found.");
+                            }
+
+                            if (!string.Equals(
+                                    transactionHod.UserName,
+                                    request.ActorUsername,
+                                    StringComparison.OrdinalIgnoreCase))
+                            {
+                                throw new InvalidOperationException(
+                                    "The registering HOD account could not be verified.");
+                            }
+
+                            if (!Enum.TryParse<Department>(
+                                    request.Department,
+                                    true,
+                                    out Department selectedDepartment))
+                            {
+                                throw new InvalidOperationException(
+                                    "The selected department is invalid.");
+                            }
+
+                            if (!FacultyDepartments.IsValidDepartment(
+                                    transactionHod.Faculty,
+                                    selectedDepartment))
+                            {
+                                throw new InvalidOperationException(
+                                    "The selected department does not belong to the HOD's faculty.");
+                            }
+
+                            Faculty lecturerFaculty =
+                                transactionHod.Faculty;
+
+                            var lecturer =
+                                new Lecturer(
+                                    0,
+                                    username,
+                                    request.Email)
                                 {
-                                    throw new InvalidOperationException(
-                                        "The selected academic rank is invalid.");
-                                }
-
-
-                                var registeringHod =
-                                    await _context.Hods
-                                        .FirstAsync(
-                                            h => h.Id ==
-                                                 request.RegisteringUserId);
-
-
-                                var lecturer =
-                                    new Lecturer(
-                                        0,
-                                        username,
-                                        request.Email)
-                                    {
-                                        Rank =
-                                            lecturerRank,
-
-                                        Type =
-                                            request.LecturerType!.Value
-                                    };
-
-
-                                var lecturerPasswordHasher =
-                                    new PasswordHasher<Lecturer>();
-
-
-                                lecturer.SetPasswordHash(
-                                    lecturerPasswordHasher.HashPassword(
-                                        lecturer,
-                                        password));
-
-
-                                lecturer.SetGovernmentIdEncrypted(
-                                    request.GovernmentId);
-
-
-                                lecturer.CaptureSignature(
-                                    signatureFilePath!,
-                                    signatureHash!,
-                                    registeringHod.Id);
-
-
-                                _context.Lecturers.Add(
-                                    lecturer);
-
-
-                                await _context.SaveChangesAsync();
-
-
-                                createdUserId =
-                                    lecturer.Id;
-
-
-                                auditEntityType =
-                                    "Lecturer";
-
-
-                                auditDescription =
-                                    $"Lecturer account created. Username: {username}. Email: {request.Email}.";
-                            }
-
-
-                            // =================================================
-                            // HOD
-                            // =================================================
-
-                            else if (isHod)
-                            {
-                                var hod =
-                                    new Hod(
-                                        0,
-                                        username,
-                                        request.Email,
-                                        request.Department,
-                                        parsedFaculty!.Value);
-
-
-                                hod.SetPasswordHash(
-                                    passwordHasher.HashPassword(
-                                        hod,
-                                        password));
-
-
-                                hod.CaptureSignature(
-                                    signatureFilePath!,
-                                    signatureHash!);
-
-
-                                _context.Hods.Add(
-                                    hod);
-
-
-                                await _context.SaveChangesAsync();
-
-
-                                createdUserId =
-                                    hod.Id;
-
-
-                                auditEntityType =
-                                    "HOD";
-
-
-                                auditDescription =
-                                    $"HOD account created. Username: {username}. Email: {request.Email}. Department: {request.Department}. Faculty: {parsedFaculty.Value}.";
-                            }
-
-
-                            // =================================================
-                            // MANAGEMENT
-                            // =================================================
-
-                            else if (isManagement)
-                            {
-                                var management =
-                                    new Management(
-                                        0,
-                                        username,
-                                        request.Email,
-                                        parsedManagementTitle!.Value);
-
-
-                                management.SetPasswordHash(
-                                    passwordHasher.HashPassword(
-                                        management,
-                                        password));
-
-
-                                management.CaptureSignature(
-                                    signatureFilePath!,
-                                    signatureHash!);
-
-
-                                _context.ManagementAccounts.Add(
-                                    management);
-
-
-                                await _context.SaveChangesAsync();
-
-
-                                createdUserId =
-                                    management.Id;
-
-
-                                auditEntityType =
-                                    "Management";
-
-
-                                auditDescription =
-                                    $"Management account created. Username: {username}. Email: {request.Email}. Office: {parsedManagementTitle.Value}.";
-                            }
-
-
-                            // =================================================
-                            // BOOTSTRAP DEAN
-                            // =================================================
-
-                            else
-                            {
-                                var dean =
-                                    new Dean(
-                                        0,
-                                        username,
-                                        request.Email);
-
-
-                                dean.SetPasswordHash(
-                                    passwordHasher.HashPassword(
-                                        dean,
-                                        password));
-
-
-                                dean.CaptureSignature(
-                                    signatureFilePath!,
-                                    signatureHash!);
-
-
-                                _context.Deans.Add(
-                                    dean);
-
-
-                                await _context.SaveChangesAsync();
-
-
-                                createdUserId =
-                                    dean.Id;
-
-
-                                auditEntityType =
-                                    "Dean";
-
-
-                                auditDescription =
-                                    $"Dean account created. Username: {username}. Email: {request.Email}.";
-                            }
-
-
-                            _auditLogger.Add(
-                                AuditAction.AccountCreated,
-                                request.ActorUsername,
-                                request.ActorRole,
-                                request.RegisteringUserId > 0
-                                    ? request.RegisteringUserId
-                                    : null,
-                                auditEntityType,
-                                createdUserId,
-                                auditDescription,
-                                request.IpAddress);
-
+                                    Rank = lecturerRank,
+                                    Type = request.LecturerType.Value,
+                                    Department = selectedDepartment.ToString(),
+                                    Faculty = lecturerFaculty
+                                };
+
+                            lecturer.SetPasswordHash(
+                                passwordHasher.HashPassword(
+                                    lecturer,
+                                    temporaryPassword));
+
+                            lecturer.SetGovernmentIdEncrypted(
+                                request.GovernmentId);
+
+                            lecturer.CaptureSignature(
+                                signatureRelativePath,
+                                signatureHash,
+                                transactionHod.Id);
+
+                            _context.Lecturers.Add(
+                                lecturer);
 
                             await _context.SaveChangesAsync();
 
+                            await _auditLogger.LogAsync(
+                                AuditAction.AccountCreated,
+                                request.ActorUsername,
+                                request.ActorRole,
+                                request.RegisteringUserId,
+                                "Lecturer",
+                                lecturer.Id,
+                                $"Lecturer account created for {lecturer.UserName}. " +
+                                $"Department: {lecturer.Department}. " +
+                                $"Faculty: {lecturer.Faculty}. " +
+                                $"Employment Type: {lecturer.Type}.",
+                                request.IpAddress);
 
                             await transaction.CommitAsync();
 
+                            registrationResult =
+                                AccountRegistrationResult.Success(
+                                    $"{request.Name} was registered successfully as a {lecturer.Type}.",
+                                    lecturer.Id,
+                                    lecturer.UserName);
+                        }
+                        else if (isHod)
+                        {
+                            if (!parsedFaculty.HasValue)
+                            {
+                                throw new InvalidOperationException(
+                                    "A valid faculty is required for HOD registration.");
+                            }
+
+                            var hod =
+                                new Hod(
+                                    0,
+                                    username,
+                                    request.Email,
+                                    parsedFaculty.Value);
+
+                            hod.SetPasswordHash(
+                                passwordHasher.HashPassword(
+                                    hod,
+                                    temporaryPassword));
+
+                            hod.CaptureSignature(
+                                signatureRelativePath,
+                                signatureHash);
+
+                            _context.Hods.Add(hod);
+
+                            await _context.SaveChangesAsync();
+
+                            await _auditLogger.LogAsync(
+                                AuditAction.AccountCreated,
+                                request.ActorUsername,
+                                request.ActorRole,
+                                request.RegisteringUserId,
+                                "HOD",
+                                hod.Id,
+                                $"HOD account created for {hod.UserName}. " +
+                                $"Faculty: {hod.Faculty}.",
+                                request.IpAddress);
+
+                            await transaction.CommitAsync();
+
+                            registrationResult =
+                                AccountRegistrationResult.Success(
+                                    $"{request.Name} was registered successfully as HOD.",
+                                    hod.Id,
+                                    hod.UserName);
+                        }
+                        else if (isManagement)
+                        {
+                            if (!parsedManagementTitle.HasValue)
+                            {
+                                throw new InvalidOperationException(
+                                    "A valid management title is required.");
+                            }
+
+                            var management =
+                                new Management(
+                                    0,
+                                    username,
+                                    request.Email,
+                                    parsedManagementTitle.Value);
+
+                            management.SetPasswordHash(
+                                passwordHasher.HashPassword(
+                                    management,
+                                    temporaryPassword));
+
+                            management.CaptureSignature(
+                                signatureRelativePath,
+                                signatureHash);
+
+                            _context.ManagementAccounts.Add(
+                                management);
+
+                            await _context.SaveChangesAsync();
+
+                            await _auditLogger.LogAsync(
+                                AuditAction.AccountCreated,
+                                request.ActorUsername,
+                                request.ActorRole,
+                                request.RegisteringUserId,
+                                "Management",
+                                management.Id,
+                                $"Management account created for {management.UserName}. " +
+                                $"Management Title: {management.Title}.",
+                                request.IpAddress);
+
+                            await transaction.CommitAsync();
 
                             registrationResult =
                                 AccountRegistrationResult.Success(
                                     $"{request.Name} was registered successfully.",
-                                    createdUserId,
-                                    username);
+                                    management.Id,
+                                    management.UserName);
                         }
-                        catch
+                        else if (isDean)
                         {
-                            await transaction.RollbackAsync();
+                            var dean =
+                                new Dean(
+                                    0,
+                                    username,
+                                    request.Email);
 
-                            throw;
+                            dean.SetPasswordHash(
+                                passwordHasher.HashPassword(
+                                    dean,
+                                    temporaryPassword));
+
+                            dean.CaptureSignature(
+                                signatureRelativePath,
+                                signatureHash);
+
+                            _context.Deans.Add(dean);
+
+                            await _context.SaveChangesAsync();
+
+                            await _auditLogger.LogAsync(
+                                AuditAction.AccountCreated,
+                                request.ActorUsername,
+                                request.ActorRole,
+                                request.RegisteringUserId,
+                                "Dean",
+                                dean.Id,
+                                $"Dean account created for {dean.UserName}.",
+                                request.IpAddress);
+
+                            await transaction.CommitAsync();
+
+                            registrationResult =
+                                AccountRegistrationResult.Success(
+                                    $"{request.Name} was registered successfully as Dean.",
+                                    dean.Id,
+                                    dean.UserName);
                         }
-                    });
-
+                    }
+                    catch
+                    {
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
+                });
 
                 if (registrationResult == null)
                 {
-                    DeleteSignatureFileIfExists(
-                        signatureFilePath);
+                    DeleteSignatureFile(
+                        signatureAbsolutePath);
 
                     return AccountRegistrationResult.Fail(
-                        "The account could not be created.");
+                        "The registration could not be completed.");
                 }
 
-
-                /*
-                 * The database transaction has already been committed.
-                 *
-                 * Therefore, an email failure does NOT delete or roll back
-                 * the account.
-                 */
-                try
+                if (registrationResult.Succeeded)
                 {
-                    await _emailService
-                        .SendWelcomeEmailAsync(
+                    try
+                    {
+                        await _emailService.SendWelcomeEmailAsync(
                             request.Email,
                             request.Name,
-                            username,
-                            password);
+                            registrationResult.Username ?? username,
+                            temporaryPassword);
+                    }
+                    catch (Exception emailException)
+                    {
+                        _logger.LogError(
+                            emailException,
+                            "Account {Username} was created, but the welcome email could not be sent.",
+                            registrationResult.Username ?? username);
 
-
-                    registrationResult.SuccessMessage =
-                        $"{request.Name} was registered successfully and the welcome email was sent.";
+                        registrationResult.SuccessMessage =
+                            $"{registrationResult.SuccessMessage} " +
+                            "The account was created, but the welcome email could not be sent. " +
+                            "Please provide the login credentials manually.";
+                    }
                 }
-                catch (Exception emailException)
-                {
-                    _logger.LogError(
-                        emailException,
-                        "Account was created but welcome email failed for {Email}.",
-                        request.Email);
-
-
-                    registrationResult.SuccessMessage =
-                        $"{request.Name} was registered successfully, but the welcome email could not be sent.";
-                }
-
 
                 return registrationResult;
             }
-            catch (DbUpdateException dbException)
-            {
-                _logger.LogError(
-                    dbException,
-                    "Database error while registering user {Name} / {Email}.",
-                    request.Name,
-                    request.Email);
-
-
-                DeleteSignatureFileIfExists(
-                    signatureFilePath);
-
-
-                return AccountRegistrationResult.Fail(
-                    GetDatabaseErrorMessage(
-                        dbException));
-            }
-            catch (InvalidOperationException exception)
+            catch (DbUpdateException exception)
             {
                 _logger.LogError(
                     exception,
-                    "Validation error while registering user {Name} / {Email}.",
-                    request.Name,
+                    "Database error while registering account for {Email}.",
                     request.Email);
 
+                DeleteSignatureFile(
+                    signatureAbsolutePath);
 
-                DeleteSignatureFileIfExists(
-                    signatureFilePath);
+                return AccountRegistrationResult.Fail(
+                    "The account could not be created because of a database error. Please try again.");
+            }
+            catch (InvalidOperationException exception)
+            {
+                _logger.LogWarning(
+                    exception,
+                    "Registration validation failed for {Email}.",
+                    request.Email);
 
+                DeleteSignatureFile(
+                    signatureAbsolutePath);
 
                 return AccountRegistrationResult.Fail(
                     exception.Message);
             }
-            catch (Exception exception)
+            catch (FormatException exception)
             {
-                _logger.LogError(
+                _logger.LogWarning(
                     exception,
-                    "Unexpected error while registering user {Name} / {Email}.",
-                    request.Name,
+                    "Invalid signature format supplied for {Email}.",
                     request.Email);
 
-
-                DeleteSignatureFileIfExists(
-                    signatureFilePath);
-
+                DeleteSignatureFile(
+                    signatureAbsolutePath);
 
                 return AccountRegistrationResult.Fail(
-                    "An unexpected error occurred while creating the account. Check the application logs for details.");
-            }
-        }
-
-
-        // =============================================================
-        // SIGNATURE STORAGE
-        // =============================================================
-
-        private async Task<SignatureSaveResult>
-            SaveSignatureAsync(
-                string signatureData,
-                string username)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(
-                    signatureData))
-                {
-                    return SignatureSaveResult.CreateFailure(
-                        "Digital signature is required.");
-                }
-
-
-                const string prefix =
-                    "data:image/png;base64,";
-
-
-                if (!signatureData.StartsWith(
-                        prefix,
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    return SignatureSaveResult.CreateFailure(
-                        "The signature must be a PNG image.");
-                }
-
-
-                string base64 =
-                    signatureData[prefix.Length..];
-
-
-                byte[] imageBytes;
-
-
-                try
-                {
-                    imageBytes =
-                        Convert.FromBase64String(
-                            base64);
-                }
-                catch (FormatException)
-                {
-                    return SignatureSaveResult.CreateFailure(
-                        "The digital signature data is invalid.");
-                }
-
-
-                if (imageBytes.Length == 0)
-                {
-                    return SignatureSaveResult.CreateFailure(
-                        "The digital signature is empty.");
-                }
-
-
-                const int maxSignatureSize =
-                    500 * 1024;
-
-
-                if (imageBytes.Length >
-                    maxSignatureSize)
-                {
-                    return SignatureSaveResult.CreateFailure(
-                        "The digital signature is too large. Please sign again.");
-                }
-
-
-                if (!IsPng(imageBytes))
-                {
-                    return SignatureSaveResult.CreateFailure(
-                        "The uploaded signature is not a valid PNG image.");
-                }
-
-
-                string webRoot =
-                    _environment.WebRootPath;
-
-
-                if (string.IsNullOrWhiteSpace(
-                    webRoot))
-                {
-                    return SignatureSaveResult.CreateFailure(
-                        "The web root directory could not be located.");
-                }
-
-
-                string signatureDirectory =
-                    Path.Combine(
-                        webRoot,
-                        "uploads",
-                        "signatures");
-
-
-                Directory.CreateDirectory(
-                    signatureDirectory);
-
-
-                string safeFileName =
-                    $"{Guid.NewGuid():N}.png";
-
-
-                string physicalPath =
-                    Path.Combine(
-                        signatureDirectory,
-                        safeFileName);
-
-
-                await File.WriteAllBytesAsync(
-                    physicalPath,
-                    imageBytes);
-
-
-                // Verify that the file was actually written.
-                if (!File.Exists(
-                    physicalPath))
-                {
-                    return SignatureSaveResult.CreateFailure(
-                        "The digital signature file could not be verified after saving.");
-                }
-
-
-                string relativePath =
-                    $"/uploads/signatures/{safeFileName}";
-
-
-                _logger.LogInformation(
-                    "Signature saved successfully for {Username}. Signature path: {SignaturePath}",
-                    username,
-                    relativePath);
-
-
-                return SignatureSaveResult.CreateSuccess(
-                    relativePath);
+                    "The digital signature format is invalid. Please capture the signature again.");
             }
             catch (Exception exception)
             {
                 _logger.LogError(
                     exception,
-                    "Error saving signature for {Username}.",
-                    username);
+                    "Unexpected error while registering account for {Email}.",
+                    request.Email);
 
+                DeleteSignatureFile(
+                    signatureAbsolutePath);
 
-                return SignatureSaveResult.CreateFailure(
-                    "The digital signature could not be saved.");
+                return AccountRegistrationResult.Fail(
+                    "An unexpected error occurred while creating the account. Please try again.");
             }
         }
 
-
-        private string?
-            GetPhysicalSignaturePath(
-                string? relativePath)
+        private static void DeleteSignatureFile(
+            string signatureAbsolutePath)
         {
-            if (string.IsNullOrWhiteSpace(
-                relativePath))
+            if (!string.IsNullOrWhiteSpace(signatureAbsolutePath) &&
+                File.Exists(signatureAbsolutePath))
             {
-                return null;
-            }
-
-
-            string cleanPath =
-                relativePath.TrimStart(
-                    '/',
-                    '\\');
-
-
-            string webRoot =
-                _environment.WebRootPath;
-
-
-            if (string.IsNullOrWhiteSpace(
-                webRoot))
-            {
-                return null;
-            }
-
-
-            string physicalPath =
-                Path.Combine(
-                    webRoot,
-                    cleanPath);
-
-
-            return physicalPath;
-        }
-
-
-        private void
-            DeleteSignatureFileIfExists(
-                string? relativePath)
-        {
-            try
-            {
-                string? physicalPath =
-                    GetPhysicalSignaturePath(
-                        relativePath);
-
-
-                if (!string.IsNullOrWhiteSpace(
-                    physicalPath) &&
-                    File.Exists(
-                        physicalPath))
+                try
                 {
-                    File.Delete(
-                        physicalPath);
+                    File.Delete(signatureAbsolutePath);
+                }
+                catch
+                {
                 }
             }
-            catch
-            {
-                // Do not replace the original
-                // registration error with a
-                // cleanup error.
-            }
         }
 
-
-        private static string
-            ComputeSha256FromBase64Png(
-                string signatureData)
-        {
-            const string prefix =
-                "data:image/png;base64,";
-
-
-            if (!signatureData.StartsWith(
-                    prefix,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException(
-                    "Invalid signature format.");
-            }
-
-
-            string base64 =
-                signatureData[prefix.Length..];
-
-
-            byte[] bytes =
-                Convert.FromBase64String(
-                    base64);
-
-
-            using SHA256 sha256 =
-                SHA256.Create();
-
-
-            byte[] hash =
-                sha256.ComputeHash(bytes);
-
-
-            return Convert.ToHexString(
-                hash);
-        }
-
-
-        private static bool IsPng(
-            byte[] bytes)
-        {
-            if (bytes.Length < 8)
-            {
-                return false;
-            }
-
-
-            return bytes[0] == 0x89 &&
-                   bytes[1] == 0x50 &&
-                   bytes[2] == 0x4E &&
-                   bytes[3] == 0x47 &&
-                   bytes[4] == 0x0D &&
-                   bytes[5] == 0x0A &&
-                   bytes[6] == 0x1A &&
-                   bytes[7] == 0x0A;
-        }
-
-
-        private static string
-            GenerateSecurePassword()
-        {
-            const string upper =
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-            const string lower =
-                "abcdefghijklmnopqrstuvwxyz";
-
-            const string numbers =
-                "0123456789";
-
-            const string symbols =
-                "!@#$%^&*_-+=";
-
-            const string all =
-                upper +
-                lower +
-                numbers +
-                symbols;
-
-
-            const int length =
-                14;
-
-
-            var password =
-                new char[length];
-
-
-            password[0] =
-                GetRandomCharacter(
-                    upper);
-
-            password[1] =
-                GetRandomCharacter(
-                    lower);
-
-            password[2] =
-                GetRandomCharacter(
-                    numbers);
-
-            password[3] =
-                GetRandomCharacter(
-                    symbols);
-
-
-            for (int i = 4;
-                 i < length;
-                 i++)
-            {
-                password[i] =
-                    GetRandomCharacter(
-                        all);
-            }
-
-
-            Shuffle(password);
-
-
-            return new string(
-                password);
-        }
-
-
-        private static char
-            GetRandomCharacter(
-                string characters)
-        {
-            int index =
-                RandomNumberGenerator
-                    .GetInt32(
-                        characters.Length);
-
-
-            return characters[index];
-        }
-
-
-        private static void Shuffle(
-            char[] characters)
-        {
-            for (int i =
-                    characters.Length - 1;
-                 i > 0;
-                 i--)
-            {
-                int j =
-                    RandomNumberGenerator
-                        .GetInt32(
-                            i + 1);
-
-
-                (characters[i], characters[j]) =
-                    (characters[j], characters[i]);
-            }
-        }
-
-
-        private static bool IsValidEmail(
-            string email)
+        private static bool IsValidEmail(string email)
         {
             try
             {
                 var address =
-                    new System.Net.Mail.MailAddress(
-                        email);
+                    new System.Net.Mail.MailAddress(email);
 
-
-                return address.Address.Equals(
+                return string.Equals(
+                    address.Address,
                     email,
                     StringComparison.OrdinalIgnoreCase);
             }
@@ -1203,96 +843,160 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             }
         }
 
-
-        private static string
-            GetDatabaseErrorMessage(
-                DbUpdateException exception)
+        private static string GenerateUsername(string name)
         {
-            Exception? current =
-                exception;
+            string[] parts =
+                name.Trim()
+                    .Split(
+                        ' ',
+                        StringSplitOptions.RemoveEmptyEntries);
 
-
-            while (current != null)
+            if (parts.Length == 0)
             {
-                if (!string.IsNullOrWhiteSpace(
-                    current.Message))
-                {
-                    string message =
-                        current.Message
-                            .ToLowerInvariant();
-
-
-                    if (message.Contains("unique") ||
-                        message.Contains("duplicate") ||
-                        message.Contains("ux_") ||
-                        message.Contains(
-                            "cannot insert duplicate"))
-                    {
-                        return
-                            "The account could not be created because the username or email already exists.";
-                    }
-                }
-
-
-                current =
-                    current.InnerException;
+                return
+                    $"user{RandomNumberGenerator.GetInt32(1000, 9999)}";
             }
 
+            string firstName =
+                SanitizeUsernamePart(parts[0]);
 
-            return
-                "The account could not be saved to the database. Check the application logs for the database error.";
+            string lastName =
+                parts.Length > 1
+                    ? SanitizeUsernamePart(parts[^1])
+                    : string.Empty;
+
+            string username;
+
+            if (!string.IsNullOrWhiteSpace(lastName))
+            {
+                username =
+                    $"{firstName}.{lastName}";
+            }
+            else
+            {
+                username =
+                    firstName;
+            }
+
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                username =
+                    $"user{RandomNumberGenerator.GetInt32(1000, 9999)}";
+            }
+
+            return username.ToLowerInvariant();
         }
 
-
-        private class SignatureSaveResult
+        private static string SanitizeUsernamePart(
+            string value)
         {
-            public bool Success
+            if (string.IsNullOrWhiteSpace(value))
             {
-                get;
-                private set;
+                return string.Empty;
             }
 
+            char[] characters =
+                value.Trim()
+                    .ToLowerInvariant()
+                    .ToCharArray();
 
-            public string? FilePath
+            var result =
+                new System.Text.StringBuilder();
+
+            foreach (char character in characters)
             {
-                get;
-                private set;
-            }
-
-
-            public string? ErrorMessage
-            {
-                get;
-                private set;
-            }
-
-
-            public static SignatureSaveResult
-                CreateSuccess(
-                    string filePath)
-            {
-                return new SignatureSaveResult
+                if (char.IsLetterOrDigit(character))
                 {
-                    Success = true,
-
-                    FilePath = filePath
-                };
+                    result.Append(character);
+                }
             }
 
+            return result.ToString();
+        }
 
-            public static SignatureSaveResult
-                CreateFailure(
-                    string message)
+        private static string SanitizeFileName(
+            string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
             {
-                return new SignatureSaveResult
-                {
-                    Success = false,
-
-                    ErrorMessage = message
-                };
+                return "signature";
             }
+
+            foreach (char invalidCharacter in
+                     Path.GetInvalidFileNameChars())
+            {
+                value =
+                    value.Replace(
+                        invalidCharacter.ToString(),
+                        string.Empty);
+            }
+
+            return string.IsNullOrWhiteSpace(value)
+                ? "signature"
+                : value;
+        }
+
+        private static string GenerateTemporaryPassword()
+        {
+            const string upper =
+                "ABCDEFGHJKLMNPQRSTUVWXYZ";
+
+            const string lower =
+                "abcdefghijkmnopqrstuvwxyz";
+
+            const string numbers =
+                "23456789";
+
+            const string special =
+                "@#$%";
+
+            string password =
+                $"{GetRandomCharacter(upper)}" +
+                $"{GetRandomCharacter(lower)}" +
+                $"{GetRandomCharacter(numbers)}" +
+                $"{GetRandomCharacter(special)}";
+
+            const string all =
+                upper + lower + numbers + special;
+
+            for (int i = password.Length; i < 12; i++)
+            {
+                password +=
+                    GetRandomCharacter(all);
+            }
+
+            return Shuffle(password);
+        }
+
+        private static char GetRandomCharacter(
+            string characters)
+        {
+            int index =
+                RandomNumberGenerator.GetInt32(
+                    0,
+                    characters.Length);
+
+            return characters[index];
+        }
+
+        private static string Shuffle(
+            string value)
+        {
+            char[] characters =
+                value.ToCharArray();
+
+            for (int i = characters.Length - 1; i > 0; i--)
+            {
+                int j =
+                    RandomNumberGenerator.GetInt32(
+                        0,
+                        i + 1);
+
+                (characters[i], characters[j]) =
+                    (characters[j], characters[i]);
+            }
+
+            return new string(characters);
         }
     }
-
-
 }

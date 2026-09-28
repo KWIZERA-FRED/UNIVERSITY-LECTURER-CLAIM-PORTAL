@@ -1,6 +1,5 @@
-using System.Security.Claims;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
-using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -21,88 +20,88 @@ public class ClaimDetailModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int ClaimId { get; set; }
 
-    public ClaimDetailView? Claim { get; private set; }
+    public ClaimDetailsViewModel? Claim { get; private set; }
 
     public string? ErrorMessage { get; private set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
-        var lecturerId = GetLecturerId();
+        var username = User.Identity?.Name;
 
-        if (lecturerId is null)
-            return Challenge();
+        if (string.IsNullOrWhiteSpace(username))
+            return RedirectToPage("/Login");
 
-        if (ClaimId <= 0)
-        {
-            ErrorMessage =
-                "The requested claim could not be identified.";
+        var lecturer = await _context.Lecturers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(l =>
+                l.UserName == username &&
+                l.IsActive);
 
-            return Page();
-        }
+        if (lecturer is null)
+            return RedirectToPage("/Login");
 
         var claim = await _context.Claims
             .AsNoTracking()
             .Include(c => c.CourseAssignment)
-                .ThenInclude(a => a.Course)
-            .Include(c => c.Contract)
-            .Include(c => c.MarksSubmission)
-                .ThenInclude(m => m!.ReviewedByManagement)
-            .Include(c => c.Attendance)
-                .ThenInclude(a => a!.Records)
-            .Include(c => c.Approvals)
-                .ThenInclude(a => a.ApprovedByAdminAccount)
+                .ThenInclude(a => a!.Course)
             .FirstOrDefaultAsync(c =>
                 c.Id == ClaimId &&
-                c.CourseAssignment.LecturerId == lecturerId.Value);
+                c.CourseAssignment != null &&
+                c.CourseAssignment.LecturerId == lecturer.Id);
 
         if (claim is null)
         {
-            ErrorMessage =
-                "That claim could not be found, or does not belong to you.";
-
+            ErrorMessage = "The requested claim could not be found.";
             return Page();
         }
 
-        var publicUrl =
-            Url.Page(
-                "/Public/ClaimDocuments",
-                null,
-                new
-                {
-                    token = claim.QrCodeToken
-                },
-                Request.Scheme);
+        var publicUrl = Url.Page(
+            "/Lecturer/ClaimDocuments",
+            null,
+            new { claimId = claim.Id },
+            Request.Scheme);
 
-        Claim = new ClaimDetailView
+        var status = claim.Status.ToString();
+
+        var isRejected = status.Equals(
+            "Rejected",
+            StringComparison.OrdinalIgnoreCase);
+
+        var isApproved = status.Equals(
+            "Approved",
+            StringComparison.OrdinalIgnoreCase);
+
+        var isSubmitted = claim.SubmittedAtUtc.HasValue;
+
+        Claim = new ClaimDetailsViewModel
         {
             Id = claim.Id,
 
-            Reference =
-                $"CLM-{claim.Id:D6}",
+            Reference = $"CLM-{claim.Id:D6}",
 
             ContractReference =
                 $"CON-{claim.ContractId:D6}",
 
             CourseCode =
-                claim.CourseAssignment.Course.Code,
+                claim.CourseAssignment?.Course?.Code ?? "—",
 
             CourseTitle =
-                claim.CourseAssignment.Course.Title,
+                claim.CourseAssignment?.Course?.Title ?? "—",
 
             AcademicYear =
-                claim.CourseAssignment.AcademicYear,
+                claim.CourseAssignment?.AcademicYear ?? "—",
 
             Campus =
-                claim.CourseAssignment.Campus.ToString(),
+                claim.CourseAssignment?.Campus.ToString() ?? "—",
 
             HoursClaimed =
                 claim.HoursClaimed,
 
             Description =
-                claim.Description,
+                claim.Description ?? string.Empty,
 
             Status =
-                claim.Status,
+                status,
 
             SubmittedAtUtc =
                 claim.SubmittedAtUtc,
@@ -111,268 +110,217 @@ public class ClaimDetailModel : PageModel
                 publicUrl,
 
             QrCodeToken =
-                claim.QrCodeToken,
+                claim.QrCodeToken ?? string.Empty,
 
-            Marks =
-                claim.MarksSubmission is null
-                    ? null
-                    : new MarksEvidenceView
-                    {
-                        SubmissionId =
-                            claim.MarksSubmission.Id,
+            IsRejected =
+                isRejected,
 
-                        Reference =
-                            claim.MarksSubmission.SubmissionReference,
+            IsFullyApproved =
+                isApproved,
 
-                        FileName =
-                            claim.MarksSubmission.FileName,
+            Marks = new MarksViewModel
+            {
+                Reference = "—",
+                FileName = "—",
+                Status = "Not submitted",
+                SignedBy = "—",
+                SignedAtUtc = null
+            },
 
-                        Status =
-                            claim.MarksSubmission.Status,
+            Attendance = new AttendanceViewModel
+            {
+                MisReference = "—",
+                TotalSessions = 0,
+                AttendedSessions = 0,
+                RetrievedAtUtc = null,
+                Records = new List<AttendanceRecordViewModel>()
+            },
 
-                        SignedAtUtc =
-                            claim.MarksSubmission.ReviewedAtUtc,
-
-                        SignedBy =
-                            claim.MarksSubmission
-                                .ReviewedByManagement
-                                ?.UserName,
-
-                        StorageFileId =
-                            claim.MarksSubmission.StorageFileId
-                    },
-
-            Attendance =
-                claim.Attendance is null
-                    ? null
-                    : new AttendanceEvidenceView
-                    {
-                        MisReference =
-                            claim.Attendance.MisReference,
-
-                        LecturerName =
-                            claim.Attendance.LecturerName,
-
-                        CourseCode =
-                            claim.Attendance.CourseCode,
-
-                        CourseTitle =
-                            claim.Attendance.CourseTitle,
-
-                        AcademicYear =
-                            claim.Attendance.AcademicYear,
-
-                        Semester =
-                            claim.Attendance.Semester,
-
-                        TotalSessions =
-                            claim.Attendance.TotalSessions,
-
-                        AttendedSessions =
-                            claim.Attendance.AttendedSessions,
-
-                        RetrievedAtUtc =
-                            claim.Attendance.RetrievedAtUtc,
-
-                        Records =
-                            claim.Attendance.Records
-                                .OrderBy(r => r.SessionDate)
-                                .Select(r =>
-                                    new AttendanceRecordView
-                                    {
-                                        SessionDate =
-                                            r.SessionDate,
-
-                                        SessionTitle =
-                                            r.SessionTitle,
-
-                                        Attended =
-                                            r.Attended
-                                    })
-                                .ToList()
-                    },
-
-            Steps =
-                claim.Approvals
-                    .OrderBy(a => a.SequenceOrder)
-                    .Select(a =>
-                        new ApprovalStepView
-                        {
-                            Role =
-                                a.ApprovalRole,
-
-                            Decision =
-                                a.Decision,
-
-                            ApproverName =
-                                a.ApprovedByAdminAccount
-                                    ?.UserName,
-
-                            DecidedAtUtc =
-                                a.DecidedAtUtc,
-
-                            Comments =
-                                a.Comments
-                        })
-                    .ToList()
+            Steps = BuildSteps(
+                isSubmitted,
+                isApproved,
+                isRejected)
         };
 
         return Page();
     }
 
-    private int? GetLecturerId()
+    private static List<ClaimStepViewModel> BuildSteps(
+        bool isSubmitted,
+        bool isApproved,
+        bool isRejected)
     {
-        var userId =
-            User.FindFirstValue("UserId");
+        var decision = isRejected
+            ? "Rejected"
+            : isApproved
+                ? "Approved"
+                : "Pending";
 
-        return int.TryParse(
-            userId,
-            out var lecturerId)
-                ? lecturerId
-                : null;
+        var decidedAt = isApproved || isRejected
+            ? DateTime.UtcNow
+            : (DateTime?)null;
+
+        return new List<ClaimStepViewModel>
+        {
+            new()
+            {
+                Name = "Claim Submitted",
+                Decision = isSubmitted ? "Submitted" : "Pending",
+                DecidedAtUtc = null,
+                ApproverName = "Lecturer",
+                RoleLabel = "Lecturer",
+                Comments = string.Empty
+            },
+
+            new()
+            {
+                Name = "Dean Review",
+                Decision = decision,
+                DecidedAtUtc = decidedAt,
+                ApproverName = "Dean",
+                RoleLabel = "Dean",
+                Comments = string.Empty
+            },
+
+            new()
+            {
+                Name = "DVCAR Review",
+                Decision = decision,
+                DecidedAtUtc = decidedAt,
+                ApproverName = "DVCAR",
+                RoleLabel = "DVCAR",
+                Comments = string.Empty
+            },
+
+            new()
+            {
+                Name = "Payment Processing",
+                Decision = isApproved
+                    ? "Approved"
+                    : isRejected
+                        ? "Rejected"
+                        : "Pending",
+                DecidedAtUtc = decidedAt,
+                ApproverName = "Finance",
+                RoleLabel = "Finance",
+                Comments = string.Empty
+            }
+        };
     }
 
-    public sealed class ClaimDetailView
+    public sealed class ClaimDetailsViewModel
     {
         public int Id { get; init; }
 
-        public string Reference { get; init; } =
-            string.Empty;
+        public string Reference { get; init; } = string.Empty;
 
-        public string ContractReference { get; init; } =
-            string.Empty;
+        public string ContractReference { get; init; } = string.Empty;
 
-        public string CourseCode { get; init; } =
-            string.Empty;
+        public string CourseCode { get; init; } = string.Empty;
 
-        public string CourseTitle { get; init; } =
-            string.Empty;
+        public string CourseTitle { get; init; } = string.Empty;
 
-        public string AcademicYear { get; init; } =
-            string.Empty;
+        public string AcademicYear { get; init; } = string.Empty;
 
-        public string Campus { get; init; } =
-            string.Empty;
+        public string Campus { get; init; } = string.Empty;
 
         public decimal HoursClaimed { get; init; }
 
-        public string Description { get; init; } =
-            string.Empty;
+        public string Description { get; init; } = string.Empty;
 
-        public ClaimStatus Status { get; init; }
+        public string Status { get; init; } = string.Empty;
 
         public DateTime? SubmittedAtUtc { get; init; }
 
         public string? PublicDocumentsUrl { get; init; }
 
-        public string QrCodeToken { get; init; } =
-            string.Empty;
+        public string QrCodeToken { get; init; } = string.Empty;
 
-        public MarksEvidenceView? Marks { get; init; }
+        public bool IsFullyApproved { get; init; }
 
-        public AttendanceEvidenceView? Attendance { get; init; }
+        public bool IsRejected { get; init; }
 
-        public List<ApprovalStepView> Steps { get; init; } =
-            new();
+        public MarksViewModel Marks { get; init; } = new();
 
-        public bool IsFullyApproved =>
-            Status == ClaimStatus.Approved ||
-            Status == ClaimStatus.Paid;
+        public AttendanceViewModel Attendance { get; init; } = new();
 
-        public bool IsRejected =>
-            Status == ClaimStatus.Rejected;
+        public List<ClaimStepViewModel> Steps { get; init; } = new();
     }
 
-    public sealed class MarksEvidenceView
+    public sealed class MarksViewModel
     {
-        public int SubmissionId { get; init; }
+        public string Reference { get; init; } = string.Empty;
 
-        public string Reference { get; init; } =
-            string.Empty;
+        public string FileName { get; init; } = string.Empty;
 
-        public string FileName { get; init; } =
-            string.Empty;
+        public string Status { get; init; } = string.Empty;
 
-        public MarksSubmissionStatus Status { get; init; }
+        public string SignedBy { get; init; } = string.Empty;
 
         public DateTime? SignedAtUtc { get; init; }
-
-        public string? SignedBy { get; init; }
-
-        public Guid StorageFileId { get; init; }
     }
 
-    public sealed class AttendanceEvidenceView
+    public sealed class AttendanceViewModel
     {
-        public string MisReference { get; init; } =
-            string.Empty;
-
-        public string LecturerName { get; init; } =
-            string.Empty;
-
-        public string CourseCode { get; init; } =
-            string.Empty;
-
-        public string CourseTitle { get; init; } =
-            string.Empty;
-
-        public string AcademicYear { get; init; } =
-            string.Empty;
-
-        public string Semester { get; init; } =
-            string.Empty;
+        public string MisReference { get; init; } = string.Empty;
 
         public int TotalSessions { get; init; }
 
         public int AttendedSessions { get; init; }
 
-        public DateTime RetrievedAtUtc { get; init; }
+        public DateTime? RetrievedAtUtc { get; init; }
 
-        public List<AttendanceRecordView> Records { get; init; } =
-            new();
+        public List<AttendanceRecordViewModel> Records { get; init; } = new();
     }
 
-    public sealed class AttendanceRecordView
+    public sealed class AttendanceRecordViewModel
     {
         public DateTime SessionDate { get; init; }
 
-        public string SessionTitle { get; init; } =
-            string.Empty;
+        public string SessionTitle { get; init; } = string.Empty;
 
         public bool Attended { get; init; }
+
+        public TimeSpan StartTime { get; init; }
+
+        public TimeSpan EndTime { get; init; }
+
+        public decimal Hours { get; init; }
+
+        public string DateDisplay =>
+            SessionDate.ToString("dd MMM yyyy");
+
+        public string TimeDisplay =>
+            $"{StartTime:hh\\:mm} - {EndTime:hh\\:mm}";
     }
 
-    public sealed class ApprovalStepView
+    public sealed class ClaimStepViewModel
     {
-        public ApprovalRole Role { get; init; }
+        public string Name { get; init; } = string.Empty;
 
-        public ApprovalDecision Decision { get; init; }
-
-        public string? ApproverName { get; init; }
+        public string Decision { get; init; } = string.Empty;
 
         public DateTime? DecidedAtUtc { get; init; }
 
-        public string? Comments { get; init; }
+        public string ApproverName { get; init; } = string.Empty;
 
-        public string RoleLabel =>
-            Role switch
-            {
-                ApprovalRole.Dean => "Dean",
-                ApprovalRole.HROfficer => "HR Officer",
-                ApprovalRole.DVCAR => "DVCAR",
-                ApprovalRole.ViceChancellor => "Vice Chancellor",
-                ApprovalRole.HOD => "HOD",
-                ApprovalRole.Management => "Management",
-                ApprovalRole.DirectorOfQuality => "Director of Quality",
-                _ => Role.ToString()
-            };
+        public string RoleLabel { get; init; } = string.Empty;
 
-        public string BadgeClass =>
-            Decision switch
+        public string Comments { get; init; } = string.Empty;
+
+        public string BadgeClass
+        {
+            get
             {
-                ApprovalDecision.Approved => "badge-active",
-                ApprovalDecision.Rejected => "badge-closed",
-                _ => "badge-pending"
-            };
+                return Decision.ToLowerInvariant() switch
+                {
+                    "approved" => "bg-success",
+                    "submitted" => "bg-primary",
+                    "rejected" => "bg-danger",
+                    "pending" => "bg-warning text-dark",
+                    _ => "bg-secondary"
+                };
+            }
+        }
     }
 }

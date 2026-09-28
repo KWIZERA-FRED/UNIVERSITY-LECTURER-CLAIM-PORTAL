@@ -285,91 +285,96 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
 
     <!-- ============================================================
          SIGNATURES
-         (Placeholder rows below — Pages/HOD/Contracts.cshtml.cs
-         replaces this entire <table class="signature-table"> with the
-         live one from ContractSignatures on every render, via
-         RenderLiveSignatureSection / BuildLiveSignatureTable. The
-         columns here match that live table exactly so the fallback
-         looks identical if it's ever read before that replacement runs.)
          ============================================================ -->
 
-    <div class="contract-signatures">
+    <div class="paper-signatures">
 
-        <h2>SIGNATURES</h2>
+        <div class="paper-signature-line lecturer-signature-line">
 
-        <table class="signature-table">
+            <span class="paper-signature-name">
+                Lecturer’s Name: {{LecturerName}} ................
+            </span>
 
-            <thead>
-                <tr>
-                    <th>Role</th>
-                    <th>Authorized Signatory</th>
-                    <th>Signature</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
+            <span class="paper-signature-field paper-signature-area">
+                Signature ................
+            </span>
 
-            <tbody>
+            <span class="paper-signature-field paper-date-area">
+                Date ................
+            </span>
 
-                <tr>
-                    <td><strong>Lecturer</strong></td>
-                    <td>{{LecturerName}}</td>
-                    <td class="signature-placeholder">Pending electronic signature</td>
-                    <td>Pending</td>
-                </tr>
+        </div>
 
-                <tr>
-                    <td><strong>Dean</strong></td>
-                    <td>Prof. NYESHEJA M. Enan</td>
-                    <td class="signature-placeholder">Pending electronic signature</td>
-                    <td>Pending</td>
-                </tr>
+        <div class="paper-signature-line dean-signature-line">
 
-                <tr>
-                    <td><strong>HR Officer</strong></td>
-                    <td>Mr. NTAKIRUTIMANA Elison</td>
-                    <td class="signature-placeholder">Pending electronic signature</td>
-                    <td>Pending</td>
-                </tr>
+            <span class="paper-signature-name">
+                Dean of Faculty: Prof. NYESHEJA M. Enan
+            </span>
 
-                <tr>
-                    <td><strong>DVCAR</strong></td>
-                    <td>Prof. HAKIZIMANA Emmanuel</td>
-                    <td class="signature-placeholder">Pending electronic signature</td>
-                    <td>Pending</td>
-                </tr>
+            <span class="paper-signature-field paper-signature-area">
+                Signature ................
+            </span>
 
-                <tr>
-                    <td><strong>Vice Chancellor</strong></td>
-                    <td>Prof. NGAMIJE Jean</td>
-                    <td class="signature-placeholder">Pending electronic signature</td>
-                    <td>Pending</td>
-                </tr>
+            <span class="paper-signature-field paper-date-area">
+                Date ................
+            </span>
 
-            </tbody>
+        </div>
 
-        </table>
+        <div class="paper-signature-line hr-signature-line">
+
+            <span class="paper-signature-name">
+                Human Resource Officer Mr. NTAKIRUTIMANA Elison
+            </span>
+
+            <span class="paper-signature-field paper-signature-area">
+                Signature ................
+            </span>
+
+            <span class="paper-signature-field paper-date-area">
+                Date ................
+            </span>
+
+        </div>
+
+        <div class="paper-signature-line dvcar-signature-line">
+
+            <span class="paper-signature-name">
+                DVCAR Prof. HAKIZAMANA Emmanuel
+            </span>
+
+            <span class="paper-signature-field paper-signature-area">
+                Signature ................
+            </span>
+
+            <span class="paper-signature-field paper-date-area">
+                Date ................
+            </span>
+
+        </div>
+
+        <div class="paper-signature-line vc-signature-line">
+
+            <span class="paper-signature-name">
+                Vice Chancellor Prof. NGAMIJE Jean
+            </span>
+
+            <span class="paper-signature-field paper-signature-area">
+                Signature ................
+            </span>
+
+            <span class="paper-signature-field paper-date-area">
+                Date ................
+            </span>
+
+        </div>
 
     </div>
 
 
     <!-- ============================================================
-         APPROVAL SEQUENCE NOTICE
+         ACCREDITATION
          ============================================================ -->
-
-    <div class="contract-workflow-notice">
-        <strong>CONTRACT APPROVAL SEQUENCE</strong>
-        <span>Lecturer &rarr; Dean &rarr; Human Resource Officer &rarr; DVCAR &rarr; Vice Chancellor</span>
-    </div>
-
-
-    <!-- ============================================================
-         DOCUMENT FOOTER
-         ============================================================ -->
-
-    <div class="contract-document-footer">
-        <span>University of Lay Adventists of Kigali</span>
-        <span>Academic Staff Engagement &amp; Claim Processing System</span>
-    </div>
 
     <p class="contract-accreditation-note">
         Accredited by Ministerial Order N&deg; 002/09 of 09/04/2009 granting the Definitive Operating Licence.

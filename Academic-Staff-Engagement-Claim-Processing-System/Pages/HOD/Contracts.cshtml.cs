@@ -1,6 +1,6 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -18,7 +18,10 @@ public class ContractsModel : PageModel
         _context = context;
     }
 
-    public string HodDepartment { get; private set; } = string.Empty;
+    public Faculty HodFaculty { get; private set; }
+
+    public string HodFacultyName =>
+        HodFaculty.ToString();
 
     public List<ContractRow> Contracts { get; private set; } = new();
 
@@ -34,12 +37,26 @@ public class ContractsModel : PageModel
         var hod = await _context.Hods
             .AsNoTracking()
             .FirstOrDefaultAsync(h =>
-                h.UserName == username && h.IsActive);
+                h.UserName == username &&
+                h.IsActive);
 
         if (hod is null)
             return RedirectToPage("/Login");
 
-        HodDepartment = hod.Department;
+        HodFaculty = hod.Faculty;
+
+        var facultyDepartments = FacultyDepartments
+            .GetDepartments(hod.Faculty)
+            .Select(d => d.ToString())
+            .ToList();
+
+        if (facultyDepartments.Count == 0)
+        {
+            ErrorMessage =
+                "No departments are configured for your faculty.";
+
+            return Page();
+        }
 
         var contracts = await _context.Contracts
             .AsNoTracking()
@@ -48,11 +65,15 @@ public class ContractsModel : PageModel
                 .ThenInclude(a => a!.Course)
             .Where(c =>
                 c.CourseAssignment != null &&
-                c.CourseAssignment.Course.Department == hod.Department)
+                c.CourseAssignment.Course != null &&
+                facultyDepartments.Contains(
+                    c.CourseAssignment.Course.Department))
             .OrderByDescending(c => c.CreatedAtUtc)
             .ToListAsync();
 
-        var contractIds = contracts.Select(c => c.Id).ToList();
+        var contractIds = contracts
+            .Select(c => c.Id)
+            .ToList();
 
         var signatures = await _context.ContractSignatures
             .AsNoTracking()
@@ -66,7 +87,8 @@ public class ContractsModel : PageModel
 
                 Reference = $"CON-{c.Id:D6}",
 
-                LecturerName = c.Lecturer?.UserName ?? "—",
+                LecturerName =
+                    c.Lecturer?.UserName ?? "—",
 
                 CourseCode =
                     c.CourseAssignment?.Course?.Code ?? "—",
@@ -94,13 +116,21 @@ public class ContractsModel : PageModel
     public sealed class ContractRow
     {
         public int Id { get; init; }
+
         public string Reference { get; init; } = string.Empty;
+
         public string LecturerName { get; init; } = string.Empty;
+
         public string CourseCode { get; init; } = string.Empty;
+
         public string CourseTitle { get; init; } = string.Empty;
+
         public string AcademicYear { get; init; } = string.Empty;
+
         public ContractStatus Status { get; init; }
+
         public int SignedSteps { get; init; }
+
         public int TotalSteps { get; init; }
     }
 }

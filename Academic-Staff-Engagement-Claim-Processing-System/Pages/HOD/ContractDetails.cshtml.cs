@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
@@ -25,7 +26,7 @@ public class ContractDetailsModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int? ContractId { get; set; }
 
-    public string HodDepartment { get; private set; } = string.Empty;
+    public string HodFaculty { get; private set; } = string.Empty;
 
     public ContractDetail? Contract { get; private set; }
 
@@ -47,7 +48,7 @@ public class ContractDetailsModel : PageModel
         if (hod is null)
             return RedirectToPage("/Login");
 
-        HodDepartment = hod.Department;
+        HodFaculty = hod.Faculty.ToString();
 
         if (!ContractId.HasValue)
         {
@@ -55,9 +56,18 @@ public class ContractDetailsModel : PageModel
             return Page();
         }
 
-        // ============================================================
-        // LOAD THE CONTRACT
-        // ============================================================
+        var facultyDepartments = FacultyDepartments
+            .GetDepartments(hod.Faculty)
+            .Select(d => d.ToString())
+            .ToList();
+
+        if (facultyDepartments.Count == 0)
+        {
+            ErrorMessage =
+                "No departments are configured for your faculty.";
+
+            return Page();
+        }
 
         var contract = await _context.Contracts
             .AsNoTracking()
@@ -67,18 +77,17 @@ public class ContractDetailsModel : PageModel
             .FirstOrDefaultAsync(c =>
                 c.Id == ContractId.Value &&
                 c.CourseAssignment != null &&
-                c.CourseAssignment.Course.Department == hod.Department);
+                c.CourseAssignment.Course != null &&
+                facultyDepartments.Contains(
+                    c.CourseAssignment.Course.Department));
 
         if (contract is null)
         {
             ErrorMessage =
-                "That contract was not found in your department.";
+                "That contract was not found within your faculty.";
+
             return Page();
         }
-
-        // ============================================================
-        // LOAD SIGNATURES
-        // ============================================================
 
         var signatures = await _context.ContractSignatures
             .AsNoTracking()
@@ -86,19 +95,17 @@ public class ContractDetailsModel : PageModel
             .OrderBy(s => s.SequenceOrder)
             .ToListAsync();
 
-        // ============================================================
-        // BUILD LIVE CONTENT
-        // ============================================================
-
         var liveContent = BuildLiveContractContent(
             contract.Content ?? string.Empty,
-            signatures);
+            signatures,
+            contract.Lecturer?.UserName);
 
         Contract = new ContractDetail
         {
             Id = contract.Id,
 
-            Reference = $"CON-{contract.Id:D6}",
+            Reference =
+                $"CON-{contract.Id:D6}",
 
             LecturerName =
                 contract.Lecturer?.UserName ?? "—",
@@ -109,32 +116,41 @@ public class ContractDetailsModel : PageModel
             AcademicYear =
                 contract.CourseAssignment?.AcademicYear ?? "—",
 
-            Content = liveContent,
+            Content =
+                liveContent,
 
-            Status = contract.Status,
+            Status =
+                contract.Status,
 
-            Steps = signatures
-                .Select(s => new SignatureStepRow
-                {
-                    Role = s.SignerRole,
-                    Decision = s.Decision,
-                    SignedAtUtc = s.SignedAtUtc,
-                    Comments = s.Comments,
-                    SignatureFilePath = s.SignatureFilePath
-                })
-                .ToList()
+            Steps =
+                signatures
+                    .Select(s => new SignatureStepRow
+                    {
+                        Role =
+                            s.SignerRole,
+
+                        Decision =
+                            s.Decision,
+
+                        SignedAtUtc =
+                            s.SignedAtUtc,
+
+                        Comments =
+                            s.Comments,
+
+                        SignatureFilePath =
+                            s.SignatureFilePath
+                    })
+                    .ToList()
         };
 
         return Page();
     }
 
-    // ================================================================
-    // LIVE CONTRACT CONTENT
-    // ================================================================
-
     private static string BuildLiveContractContent(
         string originalContent,
-        IReadOnlyCollection<ContractSignature> signatures)
+        IReadOnlyCollection<ContractSignature> signatures,
+        string? lecturerName)
     {
         if (string.IsNullOrWhiteSpace(originalContent))
             return string.Empty;
@@ -142,211 +158,279 @@ public class ContractDetailsModel : PageModel
         if (signatures.Count == 0)
             return originalContent;
 
-        var pattern =
-            @"<table\s+class\s*=\s*[""']signature-table[""'][^>]*>.*?</table>";
+        var content = originalContent;
 
-        var liveSignatureTable =
-            BuildLiveSignatureTable(signatures);
+        content =
+            RemoveOldSignatureTable(content);
 
-        return Regex.Replace(
-            originalContent,
-            pattern,
-            liveSignatureTable,
-            RegexOptions.IgnoreCase |
-            RegexOptions.Singleline);
-    }
-
-    private static string BuildLiveSignatureTable(
-        IEnumerable<ContractSignature> signatures)
-    {
         var orderedSignatures = signatures
             .OrderBy(s => s.SequenceOrder)
             .ToList();
 
-        var rows = string.Join(
-            Environment.NewLine,
-            orderedSignatures.Select(BuildSignatureRow));
-
-        return $"""
-<table class="signature-table live-signature-table">
-
-    <thead>
-
-        <tr>
-
-            <th>Signatory</th>
-            <th>Name</th>
-            <th>Signature</th>
-            <th>Date</th>
-
-        </tr>
-
-    </thead>
-
-    <tbody>
-
-        {rows}
-
-    </tbody>
-
-</table>
-""";
-    }
-
-    private static string BuildSignatureRow(ContractSignature signature)
-    {
-        var roleName = GetSignerDisplayName(signature.SignerRole);
-        var signerName = GetAuthorizedSignerName(signature);
-
-        var safeRole = WebUtility.HtmlEncode(roleName);
-        var safeSignerName = WebUtility.HtmlEncode(signerName);
-
-        var rowClass = signature.Decision switch
+        foreach (var signature in orderedSignatures)
         {
-            SignatureDecision.Signed => "signature-row-signed",
-            SignatureDecision.Declined => "signature-row-declined",
-            _ => string.Empty
-        };
-
-        var signatureHtml = BuildSignatureCell(signature);
-        var dateHtml = BuildDateCell(signature);
-
-        return $"""
-<tr class="{rowClass}">
-
-    <td><strong>{safeRole}</strong></td>
-    <td>{safeSignerName}</td>
-    <td class="signature-cell">{signatureHtml}</td>
-    <td>{dateHtml}</td>
-
-</tr>
-""";
-    }
-
-    private static string BuildSignatureCell(ContractSignature signature)
-    {
-        if (signature.Decision == SignatureDecision.Signed)
-        {
-            if (!string.IsNullOrWhiteSpace(signature.SignatureFilePath))
-            {
-                var safePath = WebUtility.HtmlEncode(signature.SignatureFilePath);
-
-                return $"""
-<div class="signature-image-wrapper">
-    <img src="{safePath}" alt="Electronic signature" class="contract-signature-image" />
-</div>
-
-<span class="signature-status signed">Signed</span>
-""";
-            }
-
-            return """
-<span class="signature-missing">Signature recorded</span>
-<br />
-<span class="signature-status signed">Signed</span>
-""";
+            content =
+                ReplacePaperSignatureLine(
+                    content,
+                    signature,
+                    lecturerName);
         }
 
-        if (signature.Decision == SignatureDecision.Declined)
+        return content;
+    }
+
+    private static string RemoveOldSignatureTable(
+        string html)
+    {
+        var pattern =
+            @"<table\s+class\s*=\s*[""']signature-table[^""']*[""'][^>]*>.*?</table>";
+
+        return Regex.Replace(
+            html,
+            pattern,
+            string.Empty,
+            RegexOptions.IgnoreCase |
+            RegexOptions.Singleline);
+    }
+
+    private static string ReplacePaperSignatureLine(
+        string html,
+        ContractSignature signature,
+        string? lecturerName)
+    {
+        var roleClass =
+            GetRoleCssClass(signature.SignerRole);
+
+        var pattern =
+            $@"<div\s+class\s*=\s*[""']paper-signature-line\s+{Regex.Escape(roleClass)}[""'][^>]*>.*?</div>";
+
+        var replacement =
+            BuildPaperSignatureLine(
+                signature,
+                lecturerName);
+
+        return Regex.Replace(
+            html,
+            pattern,
+            replacement,
+            RegexOptions.IgnoreCase |
+            RegexOptions.Singleline);
+    }
+
+    private static string BuildPaperSignatureLine(
+        ContractSignature signature,
+        string? lecturerName)
+    {
+        var signerName =
+            GetAuthorizedSignerName(
+                signature,
+                lecturerName);
+
+        var safeSignerName =
+            WebUtility.HtmlEncode(
+                signerName);
+
+        var signatureContent =
+            BuildSignatureContent(
+                signature);
+
+        var dateContent =
+            BuildDateContent(
+                signature);
+
+        var roleClass =
+            GetRoleCssClass(
+                signature.SignerRole);
+
+        return $"""
+<div class="paper-signature-line {roleClass}">
+
+    <span class="paper-signature-name">
+        {safeSignerName}
+    </span>
+
+    <span class="paper-signature-field paper-signature-area">
+        {signatureContent}
+    </span>
+
+    <span class="paper-signature-field paper-date-area">
+        {dateContent}
+    </span>
+
+</div>
+""";
+    }
+
+    private static string BuildSignatureContent(
+        ContractSignature signature)
+    {
+        if (signature.Decision == SignatureDecision.Signed &&
+            !string.IsNullOrWhiteSpace(
+                signature.SignatureFilePath))
         {
-            var reason = string.IsNullOrWhiteSpace(signature.Comments)
-                ? "No reason provided."
-                : signature.Comments.Trim();
+            var safePath =
+                WebUtility.HtmlEncode(
+                    signature.SignatureFilePath);
 
             return $"""
-<span class="signature-status declined">Declined</span>
-<br />
-<span class="signature-missing">{WebUtility.HtmlEncode(reason)}</span>
+<img
+    src="{safePath}"
+    alt="Electronic signature"
+    class="contract-signature-image" />
 """;
         }
 
-        return """
-<span class="signature-placeholder">Pending electronic signature</span>
-<br />
-<span class="signature-status pending">Pending</span>
+        if (signature.Decision == SignatureDecision.Signed)
+        {
+            return """
+<span class="signature-recorded">
+    Signed
+</span>
 """;
+        }
+
+        return string.Empty;
     }
 
-    private static string BuildDateCell(ContractSignature signature)
+    private static string BuildDateContent(
+        ContractSignature signature)
     {
         if (signature.Decision == SignatureDecision.Signed &&
             signature.SignedAtUtc.HasValue)
         {
-            return $"""
-<span class="signature-date">
-    {signature.SignedAtUtc.Value.ToLocalTime():dd MMMM yyyy}
-    <br />
-    {signature.SignedAtUtc.Value.ToLocalTime():HH:mm}
-</span>
-""";
+            return
+                signature.SignedAtUtc
+                    .Value
+                    .ToLocalTime()
+                    .ToString("dd/MM/yyyy");
         }
 
-        if (signature.Decision == SignatureDecision.Declined &&
-            signature.SignedAtUtc.HasValue)
-        {
-            return $"""
-<span class="signature-date">
-    Declined
-    <br />
-    {signature.SignedAtUtc.Value.ToLocalTime():dd MMMM yyyy}
-</span>
-""";
-        }
-
-        return """
-<span class="signature-placeholder">Pending</span>
-""";
+        return string.Empty;
     }
 
-    private static string GetSignerDisplayName(SignerRole role) => role switch
+    private static string GetRoleCssClass(
+        SignerRole role)
     {
-        SignerRole.Lecturer => "Lecturer",
-        SignerRole.Dean => "Dean of Faculty",
-        SignerRole.HROfficer => "Human Resource Officer",
-        SignerRole.DVCAR => "DVCAR",
-        SignerRole.ViceChancellor => "Vice Chancellor",
-        _ => role.ToString()
-    };
-
-    private static string GetAuthorizedSignerName(ContractSignature signature)
-    {
-        if (signature.SignerRole == SignerRole.Lecturer)
+        return role switch
         {
-            return signature.SignedByLecturer?.UserName ?? "Lecturer";
+            SignerRole.Lecturer =>
+                "lecturer-signature-line",
+
+            SignerRole.Dean =>
+                "dean-signature-line",
+
+            SignerRole.HROfficer =>
+                "hr-signature-line",
+
+            SignerRole.DVCAR =>
+                "dvcar-signature-line",
+
+            SignerRole.ViceChancellor =>
+                "vc-signature-line",
+
+            _ =>
+                "unknown-signature-line"
+        };
+    }
+
+    private static string GetSignerDisplayName(
+        SignerRole role)
+    {
+        return role switch
+        {
+            SignerRole.Lecturer =>
+                "Lecturer",
+
+            SignerRole.Dean =>
+                "Dean of Faculty",
+
+            SignerRole.HROfficer =>
+                "Human Resource Officer",
+
+            SignerRole.DVCAR =>
+                "DVCAR",
+
+            SignerRole.ViceChancellor =>
+                "Vice Chancellor",
+
+            _ =>
+                role.ToString()
+        };
+    }
+
+    private static string GetAuthorizedSignerName(
+        ContractSignature signature,
+        string? lecturerName)
+    {
+        if (signature.SignerRole ==
+            SignerRole.Lecturer)
+        {
+            if (!string.IsNullOrWhiteSpace(
+                    signature.SignedByLecturer?.UserName))
+            {
+                return signature
+                    .SignedByLecturer!
+                    .UserName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(
+                    lecturerName))
+            {
+                return lecturerName;
+            }
+
+            return "Lecturer";
         }
 
         return signature.SignerRole switch
         {
-            SignerRole.Dean => "Prof. NYESHEJA M. Enan",
-            SignerRole.HROfficer => "Mr. NTAKIRUTIMANA Elison",
-            SignerRole.DVCAR => "Prof. HAKIZIMANA Emmanuel",
-            SignerRole.ViceChancellor => "Prof. NGAMIJE Jean",
-            _ => "Authorized Signatory"
+            SignerRole.Dean =>
+                "Dean of Faculty: Prof. NYESHEJA M. Enan",
+
+            SignerRole.HROfficer =>
+                "Human Resource Officer Mr. NTAKIRUTIMANA Elison",
+
+            SignerRole.DVCAR =>
+                "DVCAR Prof. HAKIZIMANA Emmanuel",
+
+            SignerRole.ViceChancellor =>
+                "Vice Chancellor Prof. NGAMIJE Jean",
+
+            _ =>
+                GetSignerDisplayName(
+                    signature.SignerRole)
         };
     }
-
-    // ================================================================
-    // VIEW MODELS
-    // ================================================================
 
     public sealed class ContractDetail
     {
         public int Id { get; init; }
+
         public string Reference { get; init; } = string.Empty;
+
         public string LecturerName { get; init; } = string.Empty;
+
         public string CourseTitle { get; init; } = string.Empty;
+
         public string AcademicYear { get; init; } = string.Empty;
+
         public string Content { get; init; } = string.Empty;
+
         public ContractStatus Status { get; init; }
+
         public List<SignatureStepRow> Steps { get; init; } = new();
     }
 
     public sealed class SignatureStepRow
     {
         public SignerRole Role { get; init; }
+
         public SignatureDecision Decision { get; init; }
+
         public DateTime? SignedAtUtc { get; init; }
+
         public string? Comments { get; init; }
+
         public string? SignatureFilePath { get; init; }
     }
 }

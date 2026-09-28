@@ -1,0 +1,511 @@
+:root {
+    --primary: #0f2742;
+    --primary-soft: #1e3a5f;
+    --accent: #059669;
+    --accent-dark: #047857;
+    --accent-soft: #ecfdf5;
+    --accent-line: #a7f3d0;
+    --surface: #ffffff;
+    --surface-soft: #fafbfc;
+    --surface-sunken: #f5f7fb;
+    --border: #e6ebf1;
+    --border-soft: #eef2f6;
+    --border-strong: #d5dde6;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #7a8699;
+    --text-faint: #a8b3c2;
+    --text-inverse: #ffffff;
+    --danger: #b91c1c;
+    --danger-soft: #fef2f2;
+    --danger-line: #fecaca;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --transition: 140ms ease;
+}
+
+.edit-page {
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    color: var(--text);
+    font-family: var(--font-primary);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+    .edit-page *,
+    .edit-page *::before,
+    .edit-page *::after {
+        box-sizing: border-box;
+    }
+
+    .edit-page .page-header {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding-bottom: 4px;
+    }
+
+        .edit-page .page-header h1 {
+            margin: 0;
+            color: var(--primary);
+            font-family: var(--font-secondary);
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            line-height: 1.2;
+        }
+
+        .edit-page .page-header p {
+            margin: 0;
+            max-width: 620px;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+    .edit-page .section-card {
+        display: flex;
+        flex-direction: column;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .edit-page .section-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 22px;
+        border-bottom: 1px solid var(--border-soft);
+    }
+
+        .edit-page .section-header > div {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .edit-page .section-header h2 {
+            margin: 0;
+            color: var(--primary);
+            font-family: var(--font-secondary);
+            font-size: 13.5px;
+            font-weight: 600;
+            letter-spacing: -0.1px;
+            line-height: 1.35;
+        }
+
+    .edit-page .card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 22px;
+    }
+
+    .edit-page form {
+        width: 100%;
+    }
+
+    .edit-page .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px 20px;
+    }
+
+    .edit-page .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+    }
+
+        .edit-page .form-group > label {
+            color: var(--text-secondary);
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 0.1px;
+            line-height: 1.4;
+        }
+
+        .edit-page .form-group input[type="text"],
+        .edit-page .form-group input[type="email"],
+        .edit-page .form-group input[type="tel"],
+        .edit-page .form-group input:not([type]),
+        .edit-page .form-group select {
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            outline: none;
+            background: var(--surface);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+            .edit-page .form-group input:hover,
+            .edit-page .form-group select:hover {
+                border-color: var(--border-strong);
+            }
+
+            .edit-page .form-group input:focus,
+            .edit-page .form-group select:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+            }
+
+        .edit-page .form-group select {
+            cursor: pointer;
+            appearance: auto;
+        }
+
+    .edit-page .readonly-field {
+        width: 100%;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 0 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface-sunken);
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: not-allowed;
+    }
+
+        .edit-page .readonly-field i {
+            flex-shrink: 0;
+            color: var(--primary-soft);
+            font-size: 13px;
+        }
+
+        .edit-page .readonly-field span {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+    .edit-page .form-group-phone {
+        grid-column: span 1;
+    }
+
+    .edit-page .phone-field {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+        height: 40px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        background: var(--surface);
+        transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+        .edit-page .phone-field:hover {
+            border-color: var(--border-strong);
+        }
+
+        .edit-page .phone-field:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+    .edit-page .phone-country {
+        flex: 0 0 140px;
+        width: 140px;
+        height: 100%;
+        padding: 0 10px;
+        border: none;
+        border-right: 1px solid var(--border-soft);
+        border-radius: 0;
+        outline: none;
+        background: var(--surface-soft);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 12.5px;
+        font-weight: 500;
+        line-height: 1;
+        cursor: pointer;
+        appearance: auto;
+        text-align: left;
+    }
+
+        .edit-page .phone-country:hover {
+            background: var(--surface-sunken);
+        }
+
+        .edit-page .phone-country:focus {
+            outline: none;
+        }
+
+        .edit-page .phone-country option {
+            background: var(--surface);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+            padding: 6px 8px;
+        }
+
+    .edit-page .phone-local {
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        padding: 0 12px;
+        border: none;
+        border-radius: 0;
+        outline: none;
+        background: var(--surface);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 13px;
+        line-height: 1;
+        letter-spacing: 0.25px;
+    }
+
+        .edit-page .phone-local::placeholder {
+            color: transparent;
+        }
+
+    .edit-page .checkbox-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 40px;
+        padding-top: 20px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+        .edit-page .checkbox-label input[type="checkbox"] {
+            width: 17px;
+            height: 17px;
+            flex-shrink: 0;
+            margin: 0;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .edit-page .checkbox-label span {
+            color: var(--text-secondary);
+            font-size: 12.5px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+    .edit-page .validation {
+        display: block;
+        color: var(--danger);
+        font-size: 11.5px;
+        font-weight: 450;
+        line-height: 1.4;
+    }
+
+    .edit-page .validation-summary {
+        padding: 12px 14px;
+        border: 1px solid var(--danger-line);
+        border-radius: var(--radius-md);
+        background: var(--danger-soft);
+        color: var(--danger);
+        font-size: 12.5px;
+        line-height: 1.55;
+    }
+
+        .edit-page .validation-summary ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .edit-page .validation-summary li {
+            margin: 0;
+        }
+
+    .edit-page .form-group input.input-validation-error,
+    .edit-page .form-group select.input-validation-error,
+    .edit-page .phone-field:has(.input-validation-error) {
+        border-color: var(--danger);
+    }
+
+    .edit-page .card-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 4px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border-soft);
+        flex-wrap: wrap;
+    }
+
+    .edit-page .primary-button,
+    .edit-page .secondary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        flex-shrink: 0;
+        min-height: 36px;
+        padding: 0 16px;
+        border: 1px solid transparent;
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 12.5px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background var(--transition), border-color var(--transition), color var(--transition);
+    }
+
+        .edit-page .primary-button i,
+        .edit-page .secondary-button i {
+            font-size: 12.5px;
+        }
+
+    .edit-page .primary-button {
+        background: var(--accent);
+        color: var(--text-inverse);
+        border-color: var(--accent);
+    }
+
+        .edit-page .primary-button:hover {
+            background: var(--accent-dark);
+            border-color: var(--accent-dark);
+        }
+
+    .edit-page .secondary-button {
+        background: var(--surface);
+        color: var(--text-secondary);
+        border-color: var(--border);
+    }
+
+        .edit-page .secondary-button:hover {
+            background: var(--surface-sunken);
+            border-color: var(--border-strong);
+            color: var(--primary);
+        }
+
+        .edit-page .primary-button:focus-visible,
+        .edit-page .secondary-button:focus-visible {
+            outline: 2px solid rgba(5, 150, 105, 0.35);
+            outline-offset: 2px;
+        }
+
+@media (max-width: 900px) {
+
+    .edit-page .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .edit-page .form-group-phone {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 650px) {
+
+    .edit-page {
+        gap: 18px;
+    }
+
+        .edit-page .page-header h1 {
+            font-size: 20px;
+        }
+
+        .edit-page .page-header p {
+            font-size: 12.5px;
+        }
+
+        .edit-page .section-header {
+            padding: 14px 18px;
+        }
+
+            .edit-page .section-header h2 {
+                font-size: 13px;
+            }
+
+        .edit-page .card-body {
+            gap: 16px;
+            padding: 18px;
+        }
+
+        .edit-page .form-grid {
+            gap: 16px;
+        }
+
+        .edit-page .card-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .edit-page .card-actions .primary-button,
+            .edit-page .card-actions .secondary-button {
+                width: 100%;
+            }
+
+        .edit-page .checkbox-label {
+            padding-top: 0;
+        }
+
+        .edit-page .phone-country {
+            flex: 0 0 120px;
+            width: 120px;
+            font-size: 12px;
+            padding: 0 8px;
+        }
+
+        .edit-page .phone-local {
+            padding: 0 10px;
+            font-size: 12.5px;
+        }
+}
+
+@media (max-width: 400px) {
+
+    .edit-page .section-header {
+        padding: 13px 15px;
+    }
+
+    .edit-page .card-body {
+        padding: 15px;
+    }
+
+    .edit-page .primary-button,
+    .edit-page .secondary-button {
+        min-height: 38px;
+    }
+
+    .edit-page .phone-country {
+        flex: 0 0 110px;
+        width: 110px;
+        font-size: 11.5px;
+        padding: 0 6px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .edit-page *,
+    .edit-page *::before,
+    .edit-page *::after {
+        transition: none !important;
+        animation-duration: 0.01ms !important;
+    }
+}
