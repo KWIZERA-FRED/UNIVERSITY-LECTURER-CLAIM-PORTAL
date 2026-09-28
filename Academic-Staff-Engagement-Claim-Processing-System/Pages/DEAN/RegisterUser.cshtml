@@ -62,29 +62,49 @@
 
                         <div class="form-group form-group-full">
                             <label asp-for="Name">Full Name <span>*</span></label>
+
                             <input asp-for="Name"
                                    class="form-control"
                                    placeholder="Enter full name"
                                    autocomplete="name" />
-                            <span asp-validation-for="Name" class="field-validation"></span>
+
+                            <span asp-validation-for="Name"
+                                  class="field-validation">
+                            </span>
                         </div>
 
                         <div class="form-group">
-                            <label asp-for="Email">Email Address <span>*</span></label>
+
+                            <label asp-for="Email">
+                                Email Address <span>*</span>
+                            </label>
+
                             <input asp-for="Email"
                                    type="email"
                                    class="form-control"
                                    placeholder="Enter institutional email"
                                    autocomplete="email" />
-                            <span asp-validation-for="Email" class="field-validation"></span>
+
+                            <span asp-validation-for="Email"
+                                  class="field-validation">
+                            </span>
+
                         </div>
 
                         <div class="form-group">
-                            <label asp-for="Department">Department</label>
+
+                            <label asp-for="Department">
+                                Department
+                            </label>
+
                             <input asp-for="Department"
                                    class="form-control"
                                    placeholder="Enter department" />
-                            <span asp-validation-for="Department" class="field-validation"></span>
+
+                            <span asp-validation-for="Department"
+                                  class="field-validation">
+                            </span>
+
                         </div>
 
                     </div>
@@ -100,8 +120,15 @@
                     <div class="form-grid">
 
                         <div class="form-group">
-                            <label asp-for="Role">Role <span>*</span></label>
-                            <select asp-for="Role" class="form-control" id="roleSelect">
+
+                            <label asp-for="Role">
+                                Role <span>*</span>
+                            </label>
+
+                            <select asp-for="Role"
+                                    class="form-control"
+                                    id="roleSelect">
+
                                 <option value="">Select role</option>
 
                                 @if (Model.IsBootstrapMode)
@@ -110,28 +137,83 @@
                                 }
                                 else
                                 {
-                                    <option value="HOD">Head of Department (HOD)</option>
-                                    <option value="Management">Management</option>
+                                    <option value="HOD">
+                                        Head of Department (HOD)
+                                    </option>
+
+                                    <option value="Management">
+                                        Management
+                                    </option>
                                 }
+
                             </select>
-                            <span asp-validation-for="Role" class="field-validation"></span>
+
+                            <span asp-validation-for="Role"
+                                  class="field-validation">
+                            </span>
+
+                        </div>
+
+                        <div class="form-group"
+                             id="facultyContainer"
+                             style="display:none;">
+
+                            <label asp-for="Faculty">
+                                Faculty <span>*</span>
+                            </label>
+
+                            <select asp-for="Faculty"
+                                    class="form-control"
+                                    id="facultySelect">
+
+                                <option value="">
+                                    Select faculty
+                                </option>
+
+                                @foreach (var faculty in Enum.GetValues<Faculty>())
+                                {
+                                    <option value="@faculty">
+                                        @faculty
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="Faculty"
+                                  class="field-validation">
+                            </span>
+
                         </div>
 
                         <div class="form-group"
                              id="managementTitleContainer"
                              style="display:none;">
-                            <label asp-for="ManagementTitle">Management Office</label>
+
+                            <label asp-for="ManagementTitle">
+                                Management Office
+                            </label>
+
                             <select asp-for="ManagementTitle"
                                     class="form-control"
                                     id="managementTitleSelect">
-                                <option value="">Select management office</option>
+
+                                <option value="">
+                                    Select management office
+                                </option>
 
                                 @foreach (var title in Enum.GetValues<ManagementTitle>())
                                 {
-                                    <option value="@title">@title</option>
+                                    <option value="@title">
+                                        @title
+                                    </option>
                                 }
+
                             </select>
-                            <span asp-validation-for="ManagementTitle" class="field-validation"></span>
+
+                            <span asp-validation-for="ManagementTitle"
+                                  class="field-validation">
+                            </span>
+
                         </div>
 
                     </div>
@@ -163,7 +245,10 @@
                             </div>
 
                             <div class="signature-line"></div>
-                            <div class="signature-label">Electronic Signature</div>
+
+                            <div class="signature-label">
+                                Electronic Signature
+                            </div>
 
                         </div>
 
@@ -196,7 +281,8 @@
 
             <footer class="form-actions">
 
-                <a asp-page="/DEAN/Index" class="secondary-button">
+                <a asp-page="/DEAN/Index"
+                   class="secondary-button">
                     Cancel
                 </a>
 
@@ -235,6 +321,12 @@
             const roleSelect =
                 document.getElementById("roleSelect");
 
+            const facultyContainer =
+                document.getElementById("facultyContainer");
+
+            const facultySelect =
+                document.getElementById("facultySelect");
+
             const managementTitleContainer =
                 document.getElementById("managementTitleContainer");
 
@@ -261,33 +353,63 @@
 
 
             /* ============================================================
-               MANAGEMENT TITLE VISIBILITY
+               ROLE-DEPENDENT FIELD VISIBILITY
                ============================================================ */
 
-            function updateManagementTitleVisibility() {
+            function updateRoleFields() {
 
-                if (!roleSelect || !managementTitleContainer) return;
+                if (!roleSelect) return;
+
+                const selectedRole =
+                    roleSelect.value.toLowerCase();
+
+                const isHod =
+                    selectedRole === "hod";
 
                 const isManagement =
-                    roleSelect.value.toLowerCase() === "management";
+                    selectedRole === "management";
 
-                managementTitleContainer.style.display =
-                    isManagement ? "" : "none";
+
+                if (facultyContainer) {
+
+                    facultyContainer.style.display =
+                        isHod ? "" : "none";
+
+                }
+
+
+                if (!isHod && facultySelect) {
+
+                    facultySelect.value = "";
+
+                }
+
+
+                if (managementTitleContainer) {
+
+                    managementTitleContainer.style.display =
+                        isManagement ? "" : "none";
+
+                }
+
 
                 if (!isManagement && managementTitleSelect) {
+
                     managementTitleSelect.value = "";
+
                 }
 
             }
+
 
             if (roleSelect) {
 
                 roleSelect.addEventListener(
                     "change",
-                    updateManagementTitleVisibility
+                    updateRoleFields
                 );
 
-                updateManagementTitleVisibility();
+                updateRoleFields();
 
             }
 
@@ -298,7 +420,8 @@
 
             if (!canvas) return;
 
-            const context = canvas.getContext("2d");
+            const context =
+                canvas.getContext("2d");
 
             if (!context) return;
 
@@ -310,50 +433,112 @@
 
             function resizeCanvas() {
 
-                const rect = canvas.getBoundingClientRect();
+                const rect =
+                    canvas.getBoundingClientRect();
 
-                if (rect.width === 0 || rect.height === 0) return;
-
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-
-                /* Snapshot existing pixels before resizing */
-                let snapshot = null;
-
-                if (canvas.width > 0 && canvas.height > 0) {
-                    try {
-                        snapshot = context.getImageData(0, 0, canvas.width, canvas.height);
-                    } catch { snapshot = null; }
+                if (rect.width === 0 ||
+                    rect.height === 0) {
+                    return;
                 }
 
-                canvas.width  = Math.round(rect.width  * ratio);
-                canvas.height = Math.round(rect.height * ratio);
+                const ratio =
+                    Math.max(
+                        window.devicePixelRatio || 1,
+                        1
+                    );
 
-                context.setTransform(ratio, 0, 0, ratio, 0, 0);
+                let snapshot = null;
+
+                if (canvas.width > 0 &&
+                    canvas.height > 0) {
+
+                    try {
+
+                        snapshot =
+                            context.getImageData(
+                                0,
+                                0,
+                                canvas.width,
+                                canvas.height
+                            );
+
+                    }
+                    catch {
+
+                        snapshot = null;
+
+                    }
+
+                }
+
+
+                canvas.width =
+                    Math.round(
+                        rect.width * ratio
+                    );
+
+                canvas.height =
+                    Math.round(
+                        rect.height * ratio
+                    );
+
+                context.setTransform(
+                    ratio,
+                    0,
+                    0,
+                    ratio,
+                    0,
+                    0
+                );
 
                 context.lineWidth = 2.2;
                 context.lineCap = "round";
                 context.lineJoin = "round";
                 context.strokeStyle = "#0f2742";
 
+
                 if (snapshot) {
+
                     try {
-                        context.putImageData(snapshot, 0, 0);
-                    } catch { /* ignore */ }
+
+                        context.putImageData(
+                            snapshot,
+                            0,
+                            0
+                        );
+
+                    }
+                    catch {
+                    }
+
                 }
 
             }
 
+
             resizeCanvas();
 
+
             if (typeof ResizeObserver !== "undefined") {
-                const observer = new ResizeObserver(resizeCanvas);
+
+                const observer =
+                    new ResizeObserver(
+                        resizeCanvas
+                    );
+
                 observer.observe(canvas);
+
             }
 
-            window.addEventListener("resize", resizeCanvas);
+
+            window.addEventListener(
+                "resize",
+                resizeCanvas
+            );
 
 
             /* Scroll-safe cursor → canvas coordinates */
+
             function getCanvasOffset() {
 
                 let offsetX = 0;
@@ -361,32 +546,77 @@
                 let el = canvas;
 
                 while (el) {
-                    offsetX += el.offsetLeft || 0;
-                    offsetY += el.offsetTop || 0;
-                    el = el.offsetParent;
+
+                    offsetX +=
+                        el.offsetLeft || 0;
+
+                    offsetY +=
+                        el.offsetTop || 0;
+
+                    el =
+                        el.offsetParent;
+
                 }
 
-                return { x: offsetX, y: offsetY };
+                return {
+                    x: offsetX,
+                    y: offsetY
+                };
 
             }
+
 
             function getPosition(event) {
 
                 let pageX;
                 let pageY;
 
-                if (event.touches && event.touches.length > 0) {
-                    pageX = event.touches[0].pageX;
-                    pageY = event.touches[0].pageY;
-                } else if (event.changedTouches && event.changedTouches.length > 0) {
-                    pageX = event.changedTouches[0].pageX;
-                    pageY = event.changedTouches[0].pageY;
-                } else {
-                    pageX = event.clientX + (window.pageXOffset || document.documentElement.scrollLeft || 0);
-                    pageY = event.clientY + (window.pageYOffset || document.documentElement.scrollTop || 0);
+                if (event.touches &&
+                    event.touches.length > 0) {
+
+                    pageX =
+                        event.touches[0].pageX;
+
+                    pageY =
+                        event.touches[0].pageY;
+
+                }
+                else if (
+                    event.changedTouches &&
+                    event.changedTouches.length > 0
+                ) {
+
+                    pageX =
+                        event.changedTouches[0].pageX;
+
+                    pageY =
+                        event.changedTouches[0].pageY;
+
+                }
+                else {
+
+                    pageX =
+                        event.clientX +
+                        (
+                            window.pageXOffset ||
+                            document.documentElement.scrollLeft ||
+                            0
+                        );
+
+                    pageY =
+                        event.clientY +
+                        (
+                            window.pageYOffset ||
+                            document.documentElement.scrollTop ||
+                            0
+                        );
+
                 }
 
-                const offset = getCanvasOffset();
+
+                const offset =
+                    getCanvasOffset();
+
 
                 return {
                     x: pageX - offset.x,
@@ -400,26 +630,49 @@
 
                 event.preventDefault();
 
-                const pos = getPosition(event);
+                const pos =
+                    getPosition(event);
 
                 drawing = true;
                 hasSignature = true;
+
                 lastX = pos.x;
                 lastY = pos.y;
 
+
                 context.beginPath();
-                context.arc(pos.x, pos.y, 1.1, 0, Math.PI * 2);
-                context.fillStyle = context.strokeStyle;
+
+                context.arc(
+                    pos.x,
+                    pos.y,
+                    1.1,
+                    0,
+                    Math.PI * 2
+                );
+
+                context.fillStyle =
+                    context.strokeStyle;
+
                 context.fill();
 
                 context.beginPath();
-                context.moveTo(pos.x, pos.y);
+
+                context.moveTo(
+                    pos.x,
+                    pos.y
+                );
+
 
                 if (signaturePlaceholder) {
-                    signaturePlaceholder.classList.add("signature-placeholder-hidden");
+
+                    signaturePlaceholder.classList.add(
+                        "signature-placeholder-hidden"
+                    );
+
                 }
 
             }
+
 
             function draw(event) {
 
@@ -427,27 +680,46 @@
 
                 event.preventDefault();
 
-                const pos = getPosition(event);
+                const pos =
+                    getPosition(event);
 
-                const midX = (lastX + pos.x) / 2;
-                const midY = (lastY + pos.y) / 2;
+                const midX =
+                    (lastX + pos.x) / 2;
 
-                context.quadraticCurveTo(lastX, lastY, midX, midY);
+                const midY =
+                    (lastY + pos.y) / 2;
+
+
+                context.quadraticCurveTo(
+                    lastX,
+                    lastY,
+                    midX,
+                    midY
+                );
+
                 context.stroke();
 
                 context.beginPath();
-                context.moveTo(midX, midY);
+
+                context.moveTo(
+                    midX,
+                    midY
+                );
+
 
                 lastX = pos.x;
                 lastY = pos.y;
 
             }
 
+
             function stopDrawing(event) {
 
                 if (!drawing) return;
 
-                if (event) event.preventDefault();
+                if (event) {
+                    event.preventDefault();
+                }
 
                 drawing = false;
 
@@ -455,15 +727,51 @@
 
             }
 
-            canvas.addEventListener("mousedown", startDrawing);
-            canvas.addEventListener("mousemove", draw);
-            canvas.addEventListener("mouseup", stopDrawing);
-            canvas.addEventListener("mouseleave", stopDrawing);
 
-            canvas.addEventListener("touchstart", startDrawing, { passive: false });
-            canvas.addEventListener("touchmove", draw, { passive: false });
-            canvas.addEventListener("touchend", stopDrawing, { passive: false });
-            canvas.addEventListener("touchcancel", stopDrawing, { passive: false });
+            canvas.addEventListener(
+                "mousedown",
+                startDrawing
+            );
+
+            canvas.addEventListener(
+                "mousemove",
+                draw
+            );
+
+            canvas.addEventListener(
+                "mouseup",
+                stopDrawing
+            );
+
+            canvas.addEventListener(
+                "mouseleave",
+                stopDrawing
+            );
+
+
+            canvas.addEventListener(
+                "touchstart",
+                startDrawing,
+                { passive: false }
+            );
+
+            canvas.addEventListener(
+                "touchmove",
+                draw,
+                { passive: false }
+            );
+
+            canvas.addEventListener(
+                "touchend",
+                stopDrawing,
+                { passive: false }
+            );
+
+            canvas.addEventListener(
+                "touchcancel",
+                stopDrawing,
+                { passive: false }
+            );
 
 
             /* ============================================================
@@ -472,20 +780,39 @@
 
             function clearSignaturePad() {
 
-                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.clearRect(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
 
                 hasSignature = false;
 
-                if (signatureData) signatureData.value = "";
+
+                if (signatureData) {
+                    signatureData.value = "";
+                }
+
 
                 if (signaturePlaceholder) {
-                    signaturePlaceholder.classList.remove("signature-placeholder-hidden");
+
+                    signaturePlaceholder.classList.remove(
+                        "signature-placeholder-hidden"
+                    );
+
                 }
 
             }
 
+
             if (clearButton) {
-                clearButton.addEventListener("click", clearSignaturePad);
+
+                clearButton.addEventListener(
+                    "click",
+                    clearSignaturePad
+                );
+
             }
 
 
@@ -495,37 +822,66 @@
 
             if (form) {
 
-                form.addEventListener("submit", function (event) {
+                form.addEventListener(
+                    "submit",
+                    function (event) {
 
-                    if (!hasSignature) {
+                        if (!hasSignature) {
 
-                        event.preventDefault();
+                            event.preventDefault();
 
-                        alert("Please capture the user's electronic signature before registering the account.");
+                            alert(
+                                "Please capture the user's electronic signature before registering the account."
+                            );
 
-                        canvas.focus();
+                            canvas.focus();
 
-                        return;
+                            return;
+
+                        }
+
+
+                        if (signatureData) {
+
+                            signatureData.value =
+                                canvas.toDataURL(
+                                    "image/png"
+                                );
+
+                        }
+
+
+                        if (registerButton) {
+
+                            registerButton.disabled =
+                                true;
+
+                            const text =
+                                registerButton.querySelector(
+                                    ".button-text"
+                                );
+
+                            const loading =
+                                registerButton.querySelector(
+                                    ".button-loading"
+                                );
+
+
+                            if (text) {
+                                text.style.display =
+                                    "none";
+                            }
+
+
+                            if (loading) {
+                                loading.style.display =
+                                    "inline-flex";
+                            }
+
+                        }
 
                     }
-
-                    if (signatureData) {
-                        signatureData.value = canvas.toDataURL("image/png");
-                    }
-
-                    if (registerButton) {
-
-                        registerButton.disabled = true;
-
-                        const text = registerButton.querySelector(".button-text");
-                        const loading = registerButton.querySelector(".button-loading");
-
-                        if (text) text.style.display = "none";
-                        if (loading) loading.style.display = "inline-flex";
-
-                    }
-
-                });
+                );
 
             }
 

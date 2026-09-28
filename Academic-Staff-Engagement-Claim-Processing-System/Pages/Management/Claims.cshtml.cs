@@ -266,11 +266,29 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management
 
         private async Task LoadPendingListAsync(ApprovalRole role)
         {
+            var requiredStatus = role switch
+            {
+                ApprovalRole.DirectorOfQuality =>
+                    ClaimStatus.PendingDirectorOfQualityApproval,
+
+                ApprovalRole.DVCAR =>
+                    ClaimStatus.PendingDVCARApproval,
+
+                _ => (ClaimStatus?)null
+            };
+
+            if (requiredStatus is null)
+            {
+                PendingClaims = new List<PendingClaimRow>();
+                return;
+            }
+
             PendingClaims = await _context.ClaimApprovals
                 .AsNoTracking()
                 .Where(ca =>
                     ca.ApprovalRole == role &&
-                    ca.Decision == ApprovalDecision.Pending)
+                    ca.Decision == ApprovalDecision.Pending &&
+                    ca.Claim.Status == requiredStatus.Value)
                 .Select(ca => new PendingClaimRow
                 {
                     ClaimId = ca.Claim.Id,

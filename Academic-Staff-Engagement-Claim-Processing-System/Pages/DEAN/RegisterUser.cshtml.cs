@@ -34,46 +34,39 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
             _auditLogger = auditLogger;
         }
 
-
         [BindProperty]
         public string Name { get; set; } = string.Empty;
-
 
         [BindProperty]
         public string Email { get; set; } = string.Empty;
 
-
         [BindProperty]
         public string Department { get; set; } = string.Empty;
 
+        [BindProperty]
+        public string Faculty { get; set; } = string.Empty;
 
         [BindProperty]
         public string Role { get; set; } = string.Empty;
 
-
         [BindProperty]
         public string SignatureData { get; set; } = string.Empty;
-
 
         // Only meaningful when Role == "Management".
         [BindProperty]
         public string ManagementTitle { get; set; } = string.Empty;
 
-
         // True only when no Dean account exists yet.
         public bool IsBootstrapMode { get; set; }
-
 
         public string? SuccessMessage { get; set; }
 
         public string? ErrorMessage { get; set; }
 
-
         public async Task<IActionResult> OnGetAsync()
         {
             bool anyDeanExists =
                 await _context.Deans.AnyAsync();
-
 
             if (anyDeanExists &&
                 !User.IsInRole("Dean"))
@@ -88,41 +81,32 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                     "GET blocked: not authorized as Dean",
                     HttpContext.Connection.RemoteIpAddress?.ToString());
 
-
                 return Forbid();
             }
-
 
             IsBootstrapMode =
                 !anyDeanExists;
 
-
             return Page();
         }
-
 
         public async Task<IActionResult> OnPostAsync()
         {
             string actorUsername =
                 User.Identity?.Name ?? "Unknown";
 
-
             string actorRole =
                 User.FindFirst(ClaimTypes.Role)?.Value
                 ?? "Unknown";
 
-
             int? actorId =
                 GetActorId();
-
 
             string? ipAddress =
                 HttpContext.Connection.RemoteIpAddress?.ToString();
 
-
             bool anyDeanExists =
                 await _context.Deans.AnyAsync();
-
 
             if (anyDeanExists &&
                 !User.IsInRole("Dean"))
@@ -137,18 +121,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                     "POST blocked: not authorized as Dean",
                     ipAddress);
 
-
                 return Forbid();
             }
-
 
             IsBootstrapMode =
                 !anyDeanExists;
 
-
             string selectedRole =
                 Role?.Trim() ?? string.Empty;
-
 
             if (IsBootstrapMode)
             {
@@ -181,10 +161,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                 }
             }
 
-
             ManagementTitle? parsedTitle =
                 null;
-
 
             if (selectedRole.Equals(
                     "Management",
@@ -201,11 +179,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                     return Page();
                 }
 
-
                 parsedTitle =
                     titleValue;
             }
-
 
             var request =
                 new AccountRegistrationRequest
@@ -219,18 +195,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                     Department =
                         Department?.Trim() ?? string.Empty,
 
+                    Faculty =
+                        Faculty?.Trim() ?? string.Empty,
+
                     Role =
                         selectedRole,
 
                     SignatureData =
                         SignatureData ?? string.Empty,
 
-                    // AccountRegistrationRequest.ManagementTitle
-                    // is a string, while the Dean page parses the
-                    // submitted value into ManagementTitle?.
-                    //
-                    // Convert the enum to its string representation
-                    // before passing it to the service.
                     ManagementTitle =
                         parsedTitle?.ToString(),
 
@@ -247,11 +220,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                         ipAddress
                 };
 
-
             var result =
                 await _registrationService.RegisterAsync(
                     request);
-
 
             if (!result.Succeeded)
             {
@@ -261,17 +232,13 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                 return Page();
             }
 
-
             SuccessMessage =
                 result.SuccessMessage;
 
-
             ClearForm();
-
 
             return Page();
         }
-
 
         private int? GetActorId()
         {
@@ -280,39 +247,34 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                     User.FindFirst("UserId")?.Value,
                     out int parsedActorId);
 
-
             if (parsed &&
                 parsedActorId > 0)
             {
                 return parsedActorId;
             }
 
-
             return null;
         }
-
 
         private void ClearForm()
         {
             Name =
                 string.Empty;
 
-
             Email =
                 string.Empty;
-
 
             Department =
                 string.Empty;
 
+            Faculty =
+                string.Empty;
 
             Role =
                 string.Empty;
 
-
             SignatureData =
                 string.Empty;
-
 
             ManagementTitle =
                 string.Empty;

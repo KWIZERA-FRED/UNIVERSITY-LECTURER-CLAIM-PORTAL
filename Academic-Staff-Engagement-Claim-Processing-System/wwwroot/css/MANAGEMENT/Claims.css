@@ -1,0 +1,653 @@
+/* ============================================================
+   Management Claims
+   ============================================================ */
+
+.claims-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ------------------------------------------------------------
+   Page Header
+   ------------------------------------------------------------ */
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.page-title-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.page-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: #eaf6f0;
+    color: #2a7f5e;
+    font-size: 21px;
+}
+
+.page-header h1 {
+    margin: 0;
+    color: #0b2545;
+    font-size: 1.55rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.page-header p {
+    margin: 5px 0 0;
+    color: #66788a;
+    font-size: 0.86rem;
+}
+
+.back-dashboard {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 14px;
+    border: 1px solid #d8e1ea;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #0b2545;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+    .back-dashboard:hover {
+        background: #f4f7fa;
+        border-color: #c5d2df;
+        color: #2a7f5e;
+    }
+
+/* ------------------------------------------------------------
+   Approval Stage
+   ------------------------------------------------------------ */
+
+.approval-stage {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    border: 1px solid #d9e7f2;
+    border-radius: 11px;
+    background: #f2f7fb;
+}
+
+.stage-icon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #2a7f5e;
+    border: 1px solid #d9e7f2;
+}
+
+.approval-stage strong {
+    display: block;
+    margin-bottom: 2px;
+    color: #0b2545;
+    font-size: 0.82rem;
+}
+
+.approval-stage span {
+    display: block;
+    color: #607387;
+    font-size: 0.78rem;
+}
+
+/* ------------------------------------------------------------
+   Alerts
+   ------------------------------------------------------------ */
+
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border-radius: 9px;
+    font-size: 0.82rem;
+}
+
+    .alert i {
+        margin-top: 1px;
+    }
+
+.alert-success {
+    border: 1px solid #cfe3d8;
+    background: #eaf6f0;
+    color: #275c46;
+}
+
+.alert-error {
+    border: 1px solid #f0cccc;
+    background: #fdf0f0;
+    color: #9c3b3b;
+}
+
+/* ------------------------------------------------------------
+   Content Card
+   ------------------------------------------------------------ */
+
+.content-card {
+    overflow: hidden;
+    margin-bottom: 22px;
+    border: 1px solid #dce4ed;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 7px 22px rgba(11, 37, 69, 0.06);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5ebf1;
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #0b2545;
+    font-size: 0.98rem;
+    font-weight: 700;
+}
+
+    .card-title i {
+        color: #2a7f5e;
+    }
+
+.card-subtitle {
+    margin-top: 4px;
+    color: #718296;
+    font-size: 0.77rem;
+}
+
+.count-badge {
+    min-width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 9px;
+    border-radius: 20px;
+    background: #eaf6f0;
+    color: #2a7f5e;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.review-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: #edf4fb;
+    color: #315a7f;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------
+   Claims Table
+   ------------------------------------------------------------ */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.claims-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+    .claims-table th {
+        padding: 12px 18px;
+        background: #f7f9fb;
+        border-bottom: 1px solid #dce4ed;
+        color: #53677c;
+        font-size: 0.71rem;
+        font-weight: 700;
+        text-align: left;
+        text-transform: uppercase;
+        letter-spacing: 0.035em;
+        white-space: nowrap;
+    }
+
+    .claims-table td {
+        padding: 13px 18px;
+        border-bottom: 1px solid #edf1f5;
+        color: #394c60;
+        vertical-align: middle;
+    }
+
+    .claims-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .claims-table tbody tr {
+        transition: background 0.15s ease;
+    }
+
+        .claims-table tbody tr:hover {
+            background: #f9fbfd;
+        }
+
+.claim-reference {
+    color: #0b2545;
+    font-weight: 700;
+}
+
+.lecturer-name {
+    color: #24384c;
+    font-weight: 600;
+}
+
+.hours-value {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.action-column {
+    text-align: right !important;
+    white-space: nowrap;
+}
+
+/* ------------------------------------------------------------
+   Buttons
+   ------------------------------------------------------------ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-review {
+    min-height: 34px;
+    padding: 7px 12px;
+    background: #0b2545;
+    color: #ffffff;
+}
+
+    .btn-review:hover {
+        background: #163b68;
+        color: #ffffff;
+    }
+
+.btn-approve {
+    border: 1px solid #2a7f5e;
+    background: #2a7f5e;
+    color: #ffffff;
+}
+
+    .btn-approve:hover {
+        background: #1f694d;
+        border-color: #1f694d;
+    }
+
+.btn-reject {
+    border: 1px solid #e2bcbc;
+    background: #ffffff;
+    color: #a33d3d;
+}
+
+    .btn-reject:hover {
+        background: #fdf0f0;
+        border-color: #dca9a9;
+    }
+
+.btn-secondary {
+    border: 1px solid #d5dee7;
+    background: #ffffff;
+    color: #526579;
+}
+
+    .btn-secondary:hover {
+        background: #f5f7fa;
+        color: #0b2545;
+    }
+
+/* ------------------------------------------------------------
+   Claim Review
+   ------------------------------------------------------------ */
+
+.claim-review-card {
+    padding-bottom: 0;
+}
+
+.claim-details {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    padding: 20px;
+}
+
+.detail-item {
+    min-width: 0;
+}
+
+.detail-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #728398;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.045em;
+}
+
+.detail-item strong {
+    display: block;
+    color: #24384c;
+    font-size: 0.9rem;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.description-section {
+    padding: 0 20px 20px;
+}
+
+.claim-description {
+    min-height: 70px;
+    padding: 13px 14px;
+    border: 1px solid #dce4ed;
+    border-radius: 9px;
+    background: #f7f9fb;
+    color: #42566a;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.muted-text {
+    color: #8997a6;
+}
+
+/* ------------------------------------------------------------
+   Blocked Notice
+   ------------------------------------------------------------ */
+
+.blocked-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin: 0 20px 20px;
+    padding: 13px 14px;
+    border: 1px solid #ead9a3;
+    border-radius: 9px;
+    background: #fff9e8;
+    color: #735e1b;
+}
+
+.blocked-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 7px;
+    background: #fff0bd;
+}
+
+.blocked-notice strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 0.8rem;
+}
+
+.blocked-notice span {
+    display: block;
+    font-size: 0.77rem;
+    line-height: 1.5;
+}
+
+/* ------------------------------------------------------------
+   Decision Section
+   ------------------------------------------------------------ */
+
+.decision-section {
+    padding: 20px;
+    border-top: 1px solid #e5ebf1;
+    background: #fbfcfd;
+}
+
+.decision-heading h3 {
+    margin: 0;
+    color: #0b2545;
+    font-size: 0.92rem;
+}
+
+.decision-heading p {
+    margin: 4px 0 17px;
+    color: #718296;
+    font-size: 0.76rem;
+}
+
+.decision-actions {
+    display: grid;
+    grid-template-columns: auto minmax(300px, 1fr);
+    gap: 28px;
+    align-items: start;
+}
+
+.approve-form {
+    padding-top: 4px;
+}
+
+.reject-panel {
+    padding-left: 28px;
+    border-left: 1px solid #e0e7ee;
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        color: #394c60;
+        font-size: 0.76rem;
+        font-weight: 700;
+    }
+
+.form-control {
+    width: 100%;
+    min-height: 92px;
+    padding: 10px 12px;
+    border: 1px solid #d3dde7;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #263a4e;
+    font-family: inherit;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .form-control:focus {
+        outline: none;
+        border-color: #2a7f5e;
+        box-shadow: 0 0 0 3px rgba(42, 127, 94, 0.1);
+    }
+
+.field-hint {
+    margin-top: 5px;
+    color: #8492a2;
+    font-size: 0.7rem;
+}
+
+/* ------------------------------------------------------------
+   Card Footer
+   ------------------------------------------------------------ */
+
+.card-footer {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-top: 1px solid #e5ebf1;
+}
+
+/* ------------------------------------------------------------
+   Empty State
+   ------------------------------------------------------------ */
+
+.empty-state {
+    padding: 55px 20px;
+    text-align: center;
+}
+
+.empty-icon {
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 13px;
+    border-radius: 50%;
+    background: #f0f4f8;
+    color: #8a9aac;
+    font-size: 22px;
+}
+
+.empty-state h3 {
+    margin: 0 0 6px;
+    color: #31465b;
+    font-size: 0.92rem;
+}
+
+.empty-state p {
+    max-width: 420px;
+    margin: 0 auto;
+    color: #7a8998;
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+/* ------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------ */
+
+@media (max-width: 800px) {
+    .page-header {
+        flex-direction: column;
+    }
+
+    .back-dashboard {
+        align-self: flex-start;
+    }
+
+    .claim-details {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .decision-actions {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .reject-panel {
+        padding-left: 0;
+        padding-top: 20px;
+        border-left: none;
+        border-top: 1px solid #e0e7ee;
+    }
+}
+
+@media (max-width: 600px) {
+    .page-title-row {
+        align-items: flex-start;
+    }
+
+    .page-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+
+    .page-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .approval-stage {
+        align-items: flex-start;
+    }
+
+    .claim-details {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .card-header {
+        align-items: flex-start;
+    }
+
+    .review-badge {
+        display: none;
+    }
+
+    .decision-section,
+    .description-section {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .blocked-notice {
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+
+    .card-footer {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .approve-form .btn,
+    .reject-panel .btn {
+        width: 100%;
+    }
+}
