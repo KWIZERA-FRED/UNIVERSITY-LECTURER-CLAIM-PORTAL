@@ -308,18 +308,17 @@
     .contract-document .paper-signature-line,
     .contract-preview-paper .paper-signature-line {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         align-items: flex-end;
-        gap: 4px 12px;
+        gap: 0 12px;
         width: 100%;
-        min-height: 38px;
-        margin: 0 0 6px;
-        padding: 2px 0;
+        min-height: 46px;
+        margin: 0 0 4px;
+        padding: 0 0 2px;
         color: var(--contract-ink);
         font-size: 11.5pt;
         line-height: 1.35;
         white-space: normal;
-        overflow-wrap: anywhere;
     }
 
     .contract-document .paper-signature-name,
@@ -329,25 +328,64 @@
         color: var(--contract-ink);
         font-weight: 400;
         white-space: normal;
-        overflow-wrap: anywhere;
+        overflow-wrap: normal;
     }
 
+    /* The dots inside each field ARE the line, so no extra border.
+       The signature image and the date sit on top of the dots. */
     .contract-document .paper-signature-field,
     .contract-preview-paper .paper-signature-field {
-        flex: 0 1 auto;
+        position: relative;
+        flex: 0 0 auto;
         min-width: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
         color: var(--contract-ink);
-        white-space: normal;
+        white-space: nowrap;
     }
 
     .contract-document .paper-signature-area,
+    .contract-preview-paper .paper-signature-area {
+        flex: 0 0 195px;
+        width: 195px;
+    }
+
     .contract-document .paper-date-area,
-    .contract-preview-paper .paper-signature-area,
     .contract-preview-paper .paper-date-area {
-        min-width: 130px;
-        margin-left: 0;
-        border-bottom: 1px dotted var(--contract-ink);
-        padding-bottom: 2px;
+        flex: 0 0 135px;
+        width: 135px;
+    }
+
+    .contract-document .paper-signature-image-wrapper,
+    .contract-preview-paper .paper-signature-image-wrapper {
+        position: absolute;
+        left: 64px;
+        bottom: 4px;
+        display: block;
+        margin: 0;
+        line-height: 0;
+        pointer-events: none;
+    }
+
+    .contract-document .paper-signature-area .contract-signature-image,
+    .contract-preview-paper .paper-signature-area .contract-signature-image {
+        display: block;
+        width: auto;
+        height: auto;
+        max-width: 125px;
+        max-height: 36px;
+        object-fit: contain;
+    }
+
+    .contract-document .paper-date-value,
+    .contract-preview-paper .paper-date-value {
+        position: absolute;
+        left: 38px;
+        bottom: 2px;
+        font-size: 10.5pt;
+        line-height: 1.2;
+        white-space: nowrap;
     }
 
 
@@ -512,7 +550,14 @@
 
         .contract-document .paper-signature-area,
         .contract-preview-paper .paper-signature-area {
-            min-width: 110px;
+            flex-basis: 160px;
+            width: 160px;
+        }
+
+        .contract-document .paper-date-area,
+        .contract-preview-paper .paper-date-area {
+            flex-basis: 120px;
+            width: 120px;
         }
 }
 
@@ -561,7 +606,14 @@
 
         .contract-document .paper-signature-line,
         .contract-preview-paper .paper-signature-line {
+            flex-wrap: wrap;
+            row-gap: 2px;
             font-size: 10pt;
+        }
+
+        .contract-document .paper-signature-name,
+        .contract-preview-paper .paper-signature-name {
+            flex: 1 1 100%;
         }
 }
 

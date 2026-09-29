@@ -169,11 +169,14 @@ public static class ContractSignatureMarkup
 
         if (isSigned && signature!.SignedAtUtc.HasValue)
         {
-            dateHtml =
+            var formattedDate =
                 WebUtility.HtmlEncode(
                     signature.SignedAtUtc.Value
                         .ToLocalTime()
                         .ToString("dd/MM/yyyy"));
+
+            dateHtml =
+                $"<span class=\"paper-date-value\">{formattedDate}</span>";
         }
 
         var safeName = WebUtility.HtmlEncode(displayName);

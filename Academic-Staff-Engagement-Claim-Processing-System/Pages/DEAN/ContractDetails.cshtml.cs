@@ -1,7 +1,4 @@
-using System.Net;
 using System.Security.Claims;
-using System.Text;
-using System.Text.RegularExpressions;
 
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
@@ -236,140 +233,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         }
 
         private static string BuildLiveContractContent(
-    string originalContent,
-    IReadOnlyCollection<ContractSignature> signatures)
-        {
-            if (string.IsNullOrWhiteSpace(originalContent)) return string.Empty;
-            if (signatures.Count == 0) return originalContent;
-
-            var liveSignatureSection = BuildLiveSignatureSection(signatures);
-
-            var paperSignaturesPattern =
-                @"<div\s+class\s*=\s*[""']paper-signatures[""'][^>]*>.*?</div>";
-
-            var updatedContent = Regex.Replace(
-                originalContent, paperSignaturesPattern, liveSignatureSection,
-                RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
-            var oldSignatureTablePattern =
-                @"<table\s+class\s*=\s*[""']signature-table[^""']*[""'][^>]*>.*?</table>";
-
-            updatedContent = Regex.Replace(
-                updatedContent, oldSignatureTablePattern, liveSignatureSection,
-                RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
-            return updatedContent;
-        }
-
-        private static string BuildLiveSignatureSection(
-            IEnumerable<ContractSignature> signatures)
-        {
-            var ordered = signatures.OrderBy(s => s.SequenceOrder).ToList();
-
-            var lecturer = ordered.FirstOrDefault(s => s.SignerRole == SignerRole.Lecturer);
-            var dean = ordered.FirstOrDefault(s => s.SignerRole == SignerRole.Dean);
-            var hr = ordered.FirstOrDefault(s => s.SignerRole == SignerRole.HROfficer);
-            var dvcar = ordered.FirstOrDefault(s => s.SignerRole == SignerRole.DVCAR);
-            var viceChancellor = ordered.FirstOrDefault(s => s.SignerRole == SignerRole.ViceChancellor);
-
-            var html = new StringBuilder();
-
-            html.AppendLine("<div class=\"paper-signatures\">");
-
-            html.AppendLine(BuildPaperSignatureLine(lecturer));
-            html.AppendLine(BuildPaperSignatureLine(dean));
-            html.AppendLine(BuildPaperSignatureLine(hr));
-            html.AppendLine(BuildPaperSignatureLine(dvcar));
-            html.AppendLine(BuildPaperSignatureLine(viceChancellor));
-
-            html.AppendLine("</div>");
-
-            return html.ToString();
-        }
-
-        private static string BuildPaperSignatureLine(ContractSignature? signature)
-        {
-            var safeName = WebUtility.HtmlEncode(GetAuthorizedSignerName(signature));
-            var signatureContent = BuildSignatureImage(signature);
-            var dateContent = BuildSignatureDate(signature);
-
-            var roleClass = signature?.SignerRole switch
-            {
-                SignerRole.Lecturer => "lecturer-signature-line",
-                SignerRole.Dean => "dean-signature-line",
-                SignerRole.HROfficer => "hr-signature-line",
-                SignerRole.DVCAR => "dvcar-signature-line",
-                SignerRole.ViceChancellor => "vc-signature-line",
-                _ => string.Empty
-            };
-
-            return $"""
-<div class="paper-signature-line {roleClass}">
-
-    <span class="paper-signature-name">
-        {safeName}
-    </span>
-
-    <span class="paper-signature-field paper-signature-area">
-        Signature........................
-        {signatureContent}
-    </span>
-
-    <span class="paper-signature-field paper-date-area">
-        Date.................
-        {dateContent}
-    </span>
-
-</div>
-""";
-        }
-
-        private static string BuildSignatureImage(ContractSignature? signature)
-        {
-            if (signature?.Decision != SignatureDecision.Signed) return string.Empty;
-            if (string.IsNullOrWhiteSpace(signature.SignatureFilePath)) return string.Empty;
-
-            var safePath = WebUtility.HtmlEncode(signature.SignatureFilePath);
-
-            return $"""
-<span class="paper-signature-image-wrapper">
-    <img
-        src="{safePath}"
-        alt="Electronic signature"
-        class="contract-signature-image" />
-</span>
-""";
-        }
-
-        private static string BuildSignatureDate(ContractSignature? signature)
-        {
-            if (signature?.Decision != SignatureDecision.Signed) return string.Empty;
-            if (!signature.SignedAtUtc.HasValue) return string.Empty;
-
-            return WebUtility.HtmlEncode(
-                signature.SignedAtUtc.Value.ToLocalTime().ToString("dd/MM/yyyy"));
-        }
-
-        private static string GetAuthorizedSignerName(ContractSignature? signature)
-        {
-            if (signature?.SignerRole == SignerRole.Lecturer)
-            {
-                var name = signature.SignedByLecturer?.UserName;
-
-                return string.IsNullOrWhiteSpace(name)
-                    ? "Lecturer’s Name"
-                    : $"Lecturer’s Name: {name}";
-            }
-
-            return signature?.SignerRole switch
-            {
-                SignerRole.Dean => "Dean of Faculty: Prof. NYESHEJA M. Enan",
-                SignerRole.HROfficer => "Human Resource Officer Mr. NTAKIRUTIMANA Elison",
-                SignerRole.DVCAR => "DVCAR Prof. HAKIZIMANA Emmanuel",
-                SignerRole.ViceChancellor => "Vice Chancellor Prof. NGAMIJE Jean",
-                _ => "Authorized Signatory"
-            };
-        }
+            string originalContent,
+            IReadOnlyCollection<ContractSignature> signatures) =>
+            ContractSignatureMarkup.ApplyLiveSignatures(
+                originalContent,
+                signatures);
 
         private static string FormatSignerRole(SignerRole role) => role switch
         {
