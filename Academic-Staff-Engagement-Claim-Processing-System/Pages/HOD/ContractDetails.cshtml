@@ -1,4 +1,4 @@
-@page
+@page "/HOD/ContractDetails"
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ContractDetailsModel
 
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
@@ -36,7 +36,10 @@
 }
 
 @section Styles {
-<link rel="stylesheet" href="~/css/shared/contract-document.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/shared/contract-document.css"
+          asp-append-version="true" />
+
     <link rel="stylesheet"
           href="~/css/HOD/contracts.css"
           asp-append-version="true" />
@@ -48,12 +51,16 @@
 
         <div class="page-header-main">
             <h1>Contract Details</h1>
-            <p>Review the contract and monitor its signature workflow.</p>
+
+            <p>
+                Review the contract and monitor its electronic signature workflow.
+            </p>
         </div>
 
         <div class="page-header-actions">
 
-            <a href="/HOD/Contracts" class="secondary-button">
+            <a asp-page="/HOD/Contracts"
+               class="secondary-button">
                 <i class="bi bi-arrow-left"></i>
                 Back to Contracts
             </a>
@@ -84,41 +91,65 @@
         <section class="section-card">
 
             <header class="section-header">
-                <h2>@contract.Reference</h2>
+
+                <h2>
+                    @contract.Reference
+                </h2>
 
                 <span class="status-badge @GetStatusClass(contract.Status)">
                     @GetStatusLabel(contract.Status)
                 </span>
+
             </header>
 
             <div class="detail-grid">
 
                 <div class="detail-item">
-                    <span class="detail-label">Lecturer</span>
+
+                    <span class="detail-label">
+                        Lecturer
+                    </span>
+
                     <span class="detail-value">
                         @contract.LecturerName
                     </span>
+
                 </div>
 
                 <div class="detail-item">
-                    <span class="detail-label">Course</span>
+
+                    <span class="detail-label">
+                        Course
+                    </span>
+
                     <span class="detail-value">
                         @contract.CourseTitle
                     </span>
+
                 </div>
 
                 <div class="detail-item">
-                    <span class="detail-label">Academic Year</span>
+
+                    <span class="detail-label">
+                        Academic Year
+                    </span>
+
                     <span class="detail-value">
                         @contract.AcademicYear
                     </span>
+
                 </div>
 
                 <div class="detail-item">
-                    <span class="detail-label">Signature Progress</span>
+
+                    <span class="detail-label">
+                        Signature Progress
+                    </span>
+
                     <span class="detail-value">
                         @signedSteps / @totalSteps
                     </span>
+
                 </div>
 
             </div>
@@ -128,12 +159,19 @@
         <section class="section-card">
 
             <header class="section-header">
+
                 <div>
-                    <h2>Signature Workflow</h2>
+
+                    <h2>
+                        Signature Workflow
+                    </h2>
+
                     <p class="section-description">
                         Electronic signing progress for internal workflow tracking.
                     </p>
+
                 </div>
+
             </header>
 
             @if (contract.Steps.Count > 0)
@@ -152,27 +190,40 @@
                         var isDeclined =
                             step.Decision == SignatureDecision.Declined;
 
-                        var previousSteps =
-                            contract.Steps.Take(index).ToList();
-
                         var isCurrent =
                             !isSigned &&
                             !isDeclined &&
-                            previousSteps.All(
-                                s => s.Decision == SignatureDecision.Signed);
+                            contract.Steps
+                                .Take(index)
+                                .All(s =>
+                                    s.Decision ==
+                                    SignatureDecision.Signed);
 
                         <div class="timeline-step">
 
                             <div class="timeline-role">
+
                                 @(step.Role switch
                                 {
-                                    SignerRole.Lecturer => "Lecturer",
-                                    SignerRole.Dean => "Dean of Faculty",
-                                    SignerRole.HROfficer => "Human Resource Officer",
-                                    SignerRole.DVCAR => "DVCAR",
-                                    SignerRole.ViceChancellor => "Vice Chancellor",
-                                    _ => step.Role.ToString()
+                                    SignerRole.Lecturer =>
+                                        "Lecturer",
+
+                                    SignerRole.Dean =>
+                                        "Dean of Faculty",
+
+                                    SignerRole.HROfficer =>
+                                        "Human Resource Officer",
+
+                                    SignerRole.DVCAR =>
+                                        "DVCAR",
+
+                                    SignerRole.ViceChancellor =>
+                                        "Vice Chancellor",
+
+                                    _ =>
+                                        step.Role.ToString()
                                 })
+
                             </div>
 
                             <div class="timeline-content">
@@ -232,8 +283,13 @@
             else
             {
                 <div class="empty-state">
+
                     <i class="bi bi-file-earmark-x"></i>
-                    <p>No signature records are available for this contract.</p>
+
+                    <p>
+                        No signature records are available for this contract.
+                    </p>
+
                 </div>
             }
 
@@ -244,10 +300,15 @@
             <header class="section-header">
 
                 <div>
-                    <h2>Contract Document</h2>
+
+                    <h2>
+                        Contract Document
+                    </h2>
+
                     <p class="section-description">
                         Official contract document with the current signature records.
                     </p>
+
                 </div>
 
             </header>
@@ -311,62 +372,64 @@
 }
 
 @section Scripts {
-<script>
 
-    function openContractPreview() {
+    <script>
 
-        const modal =
-            document.getElementById("contractPreview");
+        function openContractPreview() {
 
-        if (!modal) {
-            return;
-        }
+            const modal =
+                document.getElementById("contractPreview");
 
-        modal.classList.add("is-open");
-
-        modal.setAttribute(
-            "aria-hidden",
-            "false"
-        );
-
-        document.body.classList.add(
-            "preview-open"
-        );
-    }
-
-    function closeContractPreview() {
-
-        const modal =
-            document.getElementById("contractPreview");
-
-        if (!modal) {
-            return;
-        }
-
-        modal.classList.remove(
-            "is-open"
-        );
-
-        modal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-        document.body.classList.remove(
-            "preview-open"
-        );
-    }
-
-    document.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (event.key === "Escape") {
-                closeContractPreview();
+            if (!modal) {
+                return;
             }
 
-        }
-    );
+            modal.classList.add("is-open");
 
-</script>
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+            document.body.classList.add(
+                "preview-open"
+            );
+        }
+
+        function closeContractPreview() {
+
+            const modal =
+                document.getElementById("contractPreview");
+
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.remove(
+                "is-open"
+            );
+
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+            document.body.classList.remove(
+                "preview-open"
+            );
+        }
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (event.key === "Escape") {
+                    closeContractPreview();
+                }
+
+            }
+        );
+
+    </script>
+
 }

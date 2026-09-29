@@ -4,257 +4,320 @@
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
-    Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
-    ViewData["Title"] = "Contracts";
+Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
+ViewData["Title"] = "Contracts";
 
-    string GetStatusClass(ContractStatus status) => status switch
-    {
-        ContractStatus.Active => "status-active",
-        ContractStatus.PendingSignature => "status-pending",
-        ContractStatus.Expired => "status-neutral",
-        ContractStatus.Terminated => "status-danger",
-        ContractStatus.Renewed => "status-active",
-        _ => "status-neutral"
-    };
 
-    string GetStatusLabel(ContractStatus status) => status switch
-    {
-        ContractStatus.PendingSignature => "Pending Signature",
-        ContractStatus.Active => "Active",
-        ContractStatus.Expired => "Expired",
-        ContractStatus.Terminated => "Terminated",
-        ContractStatus.Renewed => "Renewed",
-        _ => status.ToString()
-    };
+string GetStatusClass(ContractStatus status) => status switch
+{
+    ContractStatus.Active => "status-active",
+    ContractStatus.PendingSignature => "status-pending",
+    ContractStatus.Expired => "status-neutral",
+    ContractStatus.Terminated => "status-danger",
+    ContractStatus.Renewed => "status-active",
+    _ => "status-neutral"
+};
 
-    var totalContracts = Model.Contracts.Count;
+string GetStatusLabel(ContractStatus status) => status switch
+{
+    ContractStatus.PendingSignature => "Pending Signature",
+    ContractStatus.Active => "Active",
+    ContractStatus.Expired => "Expired",
+    ContractStatus.Terminated => "Terminated",
+    ContractStatus.Renewed => "Renewed",
+    _ => status.ToString()
+};
 
-    var fullySignedContracts = Model.Contracts.Count(c =>
-        c.TotalSteps > 0 && c.SignedSteps == c.TotalSteps);
+var totalContracts = Model.Contracts.Count;
 
-    var pendingContracts = Model.Contracts.Count(c =>
-        c.TotalSteps == 0 || c.SignedSteps < c.TotalSteps);
+var fullySignedContracts = Model.Contracts.Count(c =>
+    c.TotalSteps > 0 &&
+    c.SignedSteps == c.TotalSteps);
+
+var pendingContracts = Model.Contracts.Count(c =>
+    c.TotalSteps == 0 ||
+    c.SignedSteps < c.TotalSteps);
+
+
 }
 
-@section Styles {
-    <link rel="stylesheet"
-          href="~/css/HOD/contracts.css"
-          asp-append-version="true" />
+@section Styles { <link rel="stylesheet"
+       href="~/css/HOD/contracts.css"
+       asp-append-version="true" />
 }
 
 <section class="contracts-page">
 
-    <header class="page-header">
 
-        <div class="page-header-main">
-            <h1>Contracts</h1>
-            <p>Review academic staff contracts and monitor their electronic signature progress.</p>
+<header class="page-header">
+
+    <div class="page-header-main">
+        <h1>Contracts</h1>
+        <p>
+            Review academic staff contracts across your faculty
+            and monitor their electronic signature progress.
+        </p>
+    </div>
+
+    <a asp-page="/HOD/AssignCourse"
+       class="primary-button">
+        <i class="bi bi-plus-lg"></i>
+        Assign Course
+    </a>
+
+</header>
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="page-alert page-alert-error">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span>@Model.ErrorMessage</span>
+    </div>
+}
+
+<section class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-blue">
+            <i class="bi bi-file-earmark-text-fill"></i>
         </div>
+        <div class="stat-value">@totalContracts</div>
+        <span class="stat-label">Faculty Contracts</span>
+    </div>
 
-        <a asp-page="/HOD/AssignCourse" class="primary-button">
-            <i class="bi bi-plus-lg"></i>
-            Assign Course
-        </a>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-green">
+            <i class="bi bi-patch-check-fill"></i>
+        </div>
+        <div class="stat-value">@fullySignedContracts</div>
+        <span class="stat-label">Fully Signed</span>
+    </div>
 
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-orange">
+            <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="stat-value">@pendingContracts</div>
+        <span class="stat-label">Pending Signatures</span>
+    </div>
+
+</section>
+
+<section class="section-card">
+
+    <header class="section-header">
+        <h2>Faculty Contracts</h2>
+
+        <span class="section-meta">
+            @Model.Contracts.Count
+            @(Model.Contracts.Count == 1 ? "contract" : "contracts")
+        </span>
     </header>
 
-    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    <div class="toolbar">
+
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+
+            <input type="search"
+                   id="contractSearch"
+                   placeholder="Search by contract, lecturer, course or year…"
+                   autocomplete="off" />
+        </div>
+
+    </div>
+
+    @if (Model.Contracts.Count > 0)
     {
-        <div class="page-alert page-alert-error">
-            <i class="bi bi-exclamation-circle-fill"></i>
-            <span>@Model.ErrorMessage</span>
+        <div class="table-wrapper">
+
+            <table class="data-table"
+                   id="contractsTable">
+
+                <thead>
+                    <tr>
+                        <th>Contract</th>
+                        <th>Lecturer</th>
+                        <th>Course</th>
+                        <th class="col-right">Academic Year</th>
+                        <th>Progress</th>
+                        <th>Status</th>
+                        <th class="col-action"></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var contract in Model.Contracts)
+                    {
+                        var progress = contract.TotalSteps > 0
+                            ? Math.Round(
+                                (double)contract.SignedSteps /
+                                contract.TotalSteps *
+                                100)
+                            : 0;
+
+                        <tr class="contract-row"
+                            data-search="@contract.Reference @contract.LecturerName @contract.CourseTitle @contract.AcademicYear">
+
+                            <td>
+                                <span class="reference-pill">
+                                    @contract.Reference
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="lecturer-name">
+                                    @contract.LecturerName
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="course-title">
+                                    @contract.CourseTitle
+                                </span>
+                            </td>
+
+                            <td class="col-right">
+                                <span class="year-value">
+                                    @contract.AcademicYear
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="progress-cell">
+
+                                    <span class="progress-text">
+                                        @contract.SignedSteps /
+                                        @contract.TotalSteps
+                                    </span>
+
+                                    @if (progress > 0)
+                                    {
+                                        <div class="progress-track"
+                                             role="progressbar"
+                                             aria-valuenow="@progress"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100"
+                                             aria-label="Contract signature progress">
+
+                                            <div class="progress-bar"
+                                                 style="width:@progress%">
+                                            </div>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="progress-empty">
+                                            Not started
+                                        </span>
+                                    }
+
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="status-badge @GetStatusClass(contract.Status)">
+                                    @GetStatusLabel(contract.Status)
+                                </span>
+                            </td>
+
+                            <td class="col-action">
+
+                                <a asp-page="/HOD/ContractDetails"
+                                   asp-route-id="@contract.Id"
+                                   class="gray-button">
+                                    View
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="table-empty"
+             id="noResults"
+             style="display:none;">
+
+            <p>No contracts match your search.</p>
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+
+            <p>No contracts found in your faculty.</p>
+
+            <a asp-page="/HOD/AssignCourse"
+               class="primary-button">
+                <i class="bi bi-plus-lg"></i>
+                Assign Course
+            </a>
+
         </div>
     }
 
-    <section class="stats-grid">
+</section>
 
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-blue">
-                <i class="bi bi-file-earmark-text-fill"></i>
-            </div>
-            <div class="stat-value">@totalContracts</div>
-            <span class="stat-label">Department Contracts</span>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-green">
-                <i class="bi bi-patch-check-fill"></i>
-            </div>
-            <div class="stat-value">@fullySignedContracts</div>
-            <span class="stat-label">Fully Signed</span>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-orange">
-                <i class="bi bi-hourglass-split"></i>
-            </div>
-            <div class="stat-value">@pendingContracts</div>
-            <span class="stat-label">Pending Signatures</span>
-        </div>
-
-    </section>
-
-    <section class="section-card">
-
-        <header class="section-header">
-            <h2>Department Contracts</h2>
-            <span class="section-meta">
-                @Model.Contracts.Count @(Model.Contracts.Count == 1 ? "contract" : "contracts")
-            </span>
-        </header>
-
-        <div class="toolbar">
-
-            <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input type="search"
-                       id="contractSearch"
-                       placeholder="Search by contract, lecturer, course or year…"
-                       autocomplete="off" />
-            </div>
-
-        </div>
-
-        @if (Model.Contracts.Count > 0)
-        {
-            <div class="table-wrapper">
-                <table class="data-table" id="contractsTable">
-
-                    <thead>
-                        <tr>
-                            <th>Contract</th>
-                            <th>Lecturer</th>
-                            <th>Course</th>
-                            <th class="col-right">Academic Year</th>
-                            <th>Progress</th>
-                            <th>Status</th>
-                            <th class="col-action"></th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @foreach (var contract in Model.Contracts)
-                        {
-                            var progress = contract.TotalSteps > 0
-                                ? Math.Round((double)contract.SignedSteps / contract.TotalSteps * 100)
-                                : 0;
-
-                            <tr class="contract-row"
-                                data-search="@contract.Reference @contract.LecturerName @contract.CourseTitle @contract.AcademicYear">
-
-                                <td>
-                                    <span class="reference-pill">@contract.Reference</span>
-                                </td>
-
-                                <td>
-                                    <span class="lecturer-name">@contract.LecturerName</span>
-                                </td>
-
-                                <td>
-                                    <span class="course-title">@contract.CourseTitle</span>
-                                </td>
-
-                                <td class="col-right">
-                                    <span class="year-value">@contract.AcademicYear</span>
-                                </td>
-
-                                <td>
-                                    <div class="progress-cell">
-                                        <span class="progress-text">
-                                            @contract.SignedSteps / @contract.TotalSteps
-                                        </span>
-
-                                        @if (progress > 0)
-                                        {
-                                            <div class="progress-track"
-                                                 role="progressbar"
-                                                 aria-valuenow="@progress"
-                                                 aria-valuemin="0"
-                                                 aria-valuemax="100">
-                                                <div class="progress-bar" style="width:@progress%"></div>
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <span class="progress-empty">Not started</span>
-                                        }
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <span class="status-badge @GetStatusClass(contract.Status)">
-                                        @GetStatusLabel(contract.Status)
-                                    </span>
-                                </td>
-
-                                <td class="col-action">
-                                    <a asp-page="/HOD/ContractDetails"
-                                       asp-route-ContractId="@contract.Id"
-                                       class="gray-button">
-                                        View
-                                        <i class="bi bi-arrow-right"></i>
-                                    </a>
-                                </td>
-
-                            </tr>
-                        }
-                    </tbody>
-
-                </table>
-            </div>
-
-            <div class="table-empty" id="noResults" style="display:none;">
-                <p>No contracts match your search.</p>
-            </div>
-        }
-        else
-        {
-            <div class="empty-state">
-                <p>No contracts found in your department.</p>
-                <a asp-page="/HOD/AssignCourse" class="primary-button">
-                    <i class="bi bi-plus-lg"></i>
-                    Assign Course
-                </a>
-            </div>
-        }
-
-    </section>
 
 </section>
 
 @section Scripts {
-<script>
 
-    const contractSearch = document.getElementById("contractSearch");
-    const noResults = document.getElementById("noResults");
+<script>
+    const contractSearch =
+        document.getElementById("contractSearch");
+
+    const noResults =
+        document.getElementById("noResults");
 
     if (contractSearch) {
 
         contractSearch.addEventListener("input", function () {
 
-            const term = this.value.toLowerCase().trim();
-            const rows = document.querySelectorAll(".contract-row");
+            const term =
+                this.value.toLowerCase().trim();
+
+            const rows =
+                document.querySelectorAll(".contract-row");
 
             let visible = 0;
 
             rows.forEach(function (row) {
 
-                const haystack = (row.dataset.search || "").toLowerCase();
-                const match = term === "" || haystack.includes(term);
+                const haystack =
+                    (row.dataset.search || "").toLowerCase();
 
-                row.style.display = match ? "" : "none";
+                const match =
+                    term === "" ||
+                    haystack.includes(term);
 
-                if (match) visible++;
+                row.style.display =
+                    match ? "" : "none";
+
+                if (match) {
+                    visible++;
+                }
 
             });
 
             if (noResults) {
-                noResults.style.display = visible === 0 ? "" : "none";
+                noResults.style.display =
+                    visible === 0 ? "" : "none";
             }
 
         });
 
     }
-
 </script>
+
 }

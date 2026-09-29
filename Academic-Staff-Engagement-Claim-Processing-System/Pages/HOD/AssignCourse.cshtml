@@ -4,202 +4,325 @@
 @using System.Text.Json
 
 @{
-    Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
-    ViewData["Title"] = "Assign Course";
+Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
+ViewData["Title"] = "Assign Course";
 
-    var lecturerInformation = Model.Lecturers.ToDictionary(
-        lecturer => lecturer.Id.ToString(),
-        lecturer => new
-        {
-            Rank = lecturer.Rank?.ToString() ?? "Not specified",
-            GovernmentId = "Protected"
-        });
+
+var lecturerInformation = Model.Lecturers.ToDictionary(
+    lecturer => lecturer.Id.ToString(),
+    lecturer => new
+    {
+        Rank = lecturer.Rank?.ToString() ?? "Not specified",
+        GovernmentId = "Protected"
+    });
+
+
 }
 
-@section Styles {
-    <link rel="stylesheet"
-          href="~/css/HOD/assign-course.css"
-          asp-append-version="true" />
+@section Styles { <link rel="stylesheet"
+       href="~/css/HOD/assign-course.css"
+       asp-append-version="true" />
 }
 
 <section class="assign-page">
 
-    <header class="page-header">
-        <h1>Assign Course</h1>
-        <p>Assign a course to a lecturer and generate their academic engagement contract.</p>
+
+<header class="page-header">
+    <h1>Assign Course</h1>
+    <p>
+        Assign a faculty course to a lecturer and generate
+        their academic engagement contract.
+    </p>
+</header>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="page-alert page-alert-error">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span>@Model.ErrorMessage</span>
+    </div>
+}
+
+<section class="section-card">
+
+    <header class="section-header">
+        <h2>Assignment Details</h2>
     </header>
 
-    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-    {
-        <div class="page-alert page-alert-error">
-            <i class="bi bi-exclamation-circle-fill"></i>
-            <span>@Model.ErrorMessage</span>
-        </div>
-    }
+    <form method="post">
 
-    <section class="section-card">
+        @Html.AntiForgeryToken()
 
-        <header class="section-header">
-            <h2>Assignment Details</h2>
-        </header>
+        <div class="form-body">
 
-        <form method="post">
+            <div class="form-grid">
 
-            @Html.AntiForgeryToken()
+                <div class="form-group">
+                    <label for="courseSelect">
+                        Course <span>*</span>
+                    </label>
 
-            <div class="form-body">
+                    <select asp-for="SelectedCourse"
+                            id="courseSelect"
+                            class="form-control"
+                            required>
 
-                <div class="form-grid">
+                        <option value="">
+                            Select course
+                        </option>
 
-                    <div class="form-group">
-                        <label for="courseSelect">Course <span>*</span></label>
-                        <select asp-for="SelectedCourse"
-                                id="courseSelect"
-                                class="form-control"
-                                required>
-                            <option value="">Select course</option>
-                            @foreach (var course in Model.Courses)
-                            {
-                                <option value="@course.Id">
-                                    @course.Code — @course.Title
-                                </option>
-                            }
-                        </select>
-                    </div>
+                        @foreach (var course in Model.Courses)
+                        {
+                            <option value="@course.Id">
+                                @course.Code — @course.Title
+                            </option>
+                        }
 
-                    <div class="form-group">
-                        <label for="lecturerSelect">Lecturer <span>*</span></label>
-                        <select asp-for="SelectedLecturer"
-                                id="lecturerSelect"
-                                class="form-control"
-                                required>
-                            <option value="">Select lecturer</option>
-                            @foreach (var lecturer in Model.Lecturers)
-                            {
-                                <option value="@lecturer.Id">
-                                    @lecturer.UserName
-                                </option>
-                            }
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="rank">Lecturer Rank</label>
-                        <input id="rank"
-                               class="form-control"
-                               readonly
-                               placeholder="Automatically displayed" />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="governmentId">Government ID</label>
-                        <input id="governmentId"
-                               class="form-control"
-                               readonly
-                               value="Protected" />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="semester">Semester <span>*</span></label>
-                        <select asp-for="Semester"
-                                id="semester"
-                                class="form-control"
-                                required>
-                            <option value="">Select semester</option>
-                            <option value="1">Semester One</option>
-                            <option value="2">Semester Two</option>
-                            <option value="3">Summer Semester</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="session">Session <span>*</span></label>
-                        <select asp-for="Session"
-                                id="session"
-                                class="form-control"
-                                required>
-                            <option value="">Select session</option>
-                            <option value="1">Day</option>
-                            <option value="2">Evening</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="academicYear">Academic Year <span>*</span></label>
-                        <select asp-for="AcademicYear"
-                                id="academicYear"
-                                class="form-control"
-                                required>
-                            <option value="">Select academic year</option>
-                            <option value="2025/2026">2025/2026</option>
-                            <option value="2026/2027">2026/2027</option>
-                            <option value="2027/2028">2027/2028</option>
-                            <option value="2028/2029">2028/2029</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="campus">Campus <span>*</span></label>
-                        <select asp-for="Campus"
-                                id="campus"
-                                class="form-control"
-                                required>
-                            <option value="">Select campus</option>
-                            <option value="1">Kigali</option>
-                            <option value="2">Rwamagana</option>
-                            <option value="3">Nyanza</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group form-group-full">
-                        <label for="allocatedHours">Number of Hours <span>*</span></label>
-                        <select asp-for="AllocatedHoursOption"
-                                id="allocatedHours"
-                                class="form-control"
-                                required>
-                            <option value="">Select hours</option>
-                            <option value="Thirty">30 hours</option>
-                            <option value="FortyFive">45 hours</option>
-                            <option value="Sixty">60 hours</option>
-                        </select>
-                    </div>
-
+                    </select>
                 </div>
 
-                <section class="summary">
+                <div class="form-group">
+                    <label for="lecturerSelect">
+                        Lecturer <span>*</span>
+                    </label>
 
-                    <div class="summary-item">
-                        <span class="summary-label">Rate Per Hour</span>
-                        <strong class="summary-value" id="rateDisplay">RWF 0</strong>
-                    </div>
+                    <select asp-for="SelectedLecturer"
+                            id="lecturerSelect"
+                            class="form-control"
+                            required>
 
-                    <div class="summary-divider"></div>
+                        <option value="">
+                            Select lecturer
+                        </option>
 
-                    <div class="summary-item">
-                        <span class="summary-label">Total Amount</span>
-                        <strong class="summary-value summary-value-accent" id="totalDisplay">RWF 0</strong>
-                    </div>
+                        @foreach (var lecturer in Model.Lecturers)
+                        {
+                            <option value="@lecturer.Id">
+                                @lecturer.UserName
+                            </option>
+                        }
 
-                </section>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="rank">
+                        Lecturer Rank
+                    </label>
+
+                    <input id="rank"
+                           class="form-control"
+                           readonly
+                           placeholder="Automatically displayed" />
+                </div>
+
+                <div class="form-group">
+                    <label for="governmentId">
+                        Government ID
+                    </label>
+
+                    <input id="governmentId"
+                           class="form-control"
+                           readonly
+                           value="Protected" />
+                </div>
+
+                <div class="form-group">
+                    <label for="semester">
+                        Semester <span>*</span>
+                    </label>
+
+                    <select asp-for="Semester"
+                            id="semester"
+                            class="form-control"
+                            required>
+
+                        <option value="">
+                            Select semester
+                        </option>
+
+                        <option value="1">
+                            Semester One
+                        </option>
+
+                        <option value="2">
+                            Semester Two
+                        </option>
+
+                        <option value="3">
+                            Summer Semester
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="session">
+                        Session <span>*</span>
+                    </label>
+
+                    <select asp-for="Session"
+                            id="session"
+                            class="form-control"
+                            required>
+
+                        <option value="">
+                            Select session
+                        </option>
+
+                        <option value="1">
+                            Day
+                        </option>
+
+                        <option value="2">
+                            Evening
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="academicYear">
+                        Academic Year <span>*</span>
+                    </label>
+
+                    <select asp-for="AcademicYear"
+                            id="academicYear"
+                            class="form-control"
+                            required>
+
+                        <option value="">
+                            Select academic year
+                        </option>
+
+                        <option value="2025/2026">
+                            2025/2026
+                        </option>
+
+                        <option value="2026/2027">
+                            2026/2027
+                        </option>
+
+                        <option value="2027/2028">
+                            2027/2028
+                        </option>
+
+                        <option value="2028/2029">
+                            2028/2029
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="campus">
+                        Campus <span>*</span>
+                    </label>
+
+                    <select asp-for="Campus"
+                            id="campus"
+                            class="form-control"
+                            required>
+
+                        <option value="">
+                            Select campus
+                        </option>
+
+                        <option value="1">
+                            Kigali
+                        </option>
+
+                        <option value="2">
+                            Rwamagana
+                        </option>
+
+                        <option value="3">
+                            Nyanza
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="allocatedHours">
+                        Number of Hours <span>*</span>
+                    </label>
+
+                    <select asp-for="AllocatedHoursOption"
+                            id="allocatedHours"
+                            class="form-control"
+                            required>
+
+                        <option value="">
+                            Select hours
+                        </option>
+
+                        <option value="Thirty">
+                            30 hours
+                        </option>
+
+                        <option value="FortyFive">
+                            45 hours
+                        </option>
+
+                        <option value="Sixty">
+                            60 hours
+                        </option>
+
+                    </select>
+                </div>
 
             </div>
 
-            <footer class="form-actions">
+            <section class="summary">
 
-                <a href="/HOD/Index" class="secondary-button">
-                    Cancel
-                </a>
+                <div class="summary-item">
+                    <span class="summary-label">
+                        Rate Per Hour
+                    </span>
 
-                <button type="submit" class="primary-button">
-                    <i class="bi bi-file-earmark-plus"></i>
-                    Generate Contract
-                </button>
+                    <strong class="summary-value"
+                            id="rateDisplay">
+                        RWF 0
+                    </strong>
+                </div>
 
-            </footer>
+                <div class="summary-divider"></div>
 
-        </form>
+                <div class="summary-item">
+                    <span class="summary-label">
+                        Total Amount
+                    </span>
 
-    </section>
+                    <strong class="summary-value summary-value-accent"
+                            id="totalDisplay">
+                        RWF 0
+                    </strong>
+                </div>
+
+            </section>
+
+        </div>
+
+        <footer class="form-actions">
+
+            <a asp-page="/HOD/Index"
+               class="secondary-button">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="primary-button">
+                <i class="bi bi-file-earmark-plus"></i>
+                Generate Contract
+            </button>
+
+        </footer>
+
+    </form>
+
+</section>
+
 
 </section>
 
@@ -210,104 +333,173 @@
     const lecturerData =
         @Html.Raw(JsonSerializer.Serialize(lecturerInformation));
 
-    const lecturerSelect = document.getElementById("lecturerSelect");
-    const rankInput = document.getElementById("rank");
-    const governmentIdInput = document.getElementById("governmentId");
-    const rateDisplay = document.getElementById("rateDisplay");
-    const totalDisplay = document.getElementById("totalDisplay");
-    const allocatedHoursSelect = document.getElementById("allocatedHours");
+    const lecturerSelect =
+        document.getElementById("lecturerSelect");
+
+    const rankInput =
+        document.getElementById("rank");
+
+    const governmentIdInput =
+        document.getElementById("governmentId");
+
+    const rateDisplay =
+        document.getElementById("rateDisplay");
+
+    const totalDisplay =
+        document.getElementById("totalDisplay");
+
+    const allocatedHoursSelect =
+        document.getElementById("allocatedHours");
+
 
     function getRateForRank(rank) {
 
         switch (rank) {
-            case "TutorialAssistant":     return 7000;
-            case "AssistantLecturer":     return 10000;
-            case "LecturerWithMasters":   return 14000;
-            case "LecturerWithPhD":       return 16000;
-            case "SeniorLecturer":        return 18000;
-            case "AssistantProfessor":    return 20000;
-            case "Professor":             return 25000;
-            default:                      return 7000;
+
+            case "TutorialAssistant":
+                return 7000;
+
+            case "AssistantLecturer":
+                return 10000;
+
+            case "LecturerWithMasters":
+                return 14000;
+
+            case "LecturerWithPhD":
+                return 16000;
+
+            case "SeniorLecturer":
+                return 18000;
+
+            case "AssistantProfessor":
+                return 20000;
+
+            case "Professor":
+                return 25000;
+
+            default:
+                return 7000;
         }
 
     }
+
 
     function getSelectedHours() {
 
         switch (allocatedHoursSelect.value) {
-            case "Thirty":      return 30;
-            case "FortyFive":   return 45;
-            case "Sixty":       return 60;
-            default:            return 0;
+
+            case "Thirty":
+                return 30;
+
+            case "FortyFive":
+                return 45;
+
+            case "Sixty":
+                return 60;
+
+            default:
+                return 0;
         }
 
     }
 
+
     function formatRank(rank) {
 
-        if (!rank) return "Not specified";
+        if (!rank)
+            return "Not specified";
 
-        return rank.replace(/([a-z])([A-Z])/g, "$1 $2");
+        return rank.replace(
+            /([a-z])([A-Z])/g,
+            "$1 $2"
+        );
 
     }
 
+
     function updateLecturer() {
 
-        const id = lecturerSelect.value;
-        const lecturer = lecturerData[id];
+        const id =
+            lecturerSelect.value;
+
+        const lecturer =
+            lecturerData[id];
 
         if (!lecturer) {
 
             rankInput.value = "";
-            governmentIdInput.value = "Protected";
-            rateDisplay.textContent = "RWF 0";
+
+            governmentIdInput.value =
+                "Protected";
+
+            rateDisplay.textContent =
+                "RWF 0";
+
             updateTotal(0);
 
             return;
-
         }
 
-        rankInput.value = formatRank(lecturer.Rank);
-        governmentIdInput.value = lecturer.GovernmentId;
+        rankInput.value =
+            formatRank(lecturer.Rank);
 
-        const rate = getRateForRank(lecturer.Rank);
+        governmentIdInput.value =
+            lecturer.GovernmentId;
 
-        rateDisplay.textContent = "RWF " + rate.toLocaleString();
+        const rate =
+            getRateForRank(lecturer.Rank);
+
+        rateDisplay.textContent =
+            "RWF " + rate.toLocaleString();
 
         updateTotal(rate);
-
     }
+
 
     function updateTotal(rate) {
 
-        const hours = getSelectedHours();
-        const total = rate * hours;
+        const hours =
+            getSelectedHours();
 
-        totalDisplay.textContent = "RWF " + total.toLocaleString();
+        const total =
+            rate * hours;
 
+        totalDisplay.textContent =
+            "RWF " + total.toLocaleString();
     }
+
 
     if (lecturerSelect) {
 
-        lecturerSelect.addEventListener("change", updateLecturer);
+        lecturerSelect.addEventListener(
+            "change",
+            updateLecturer
+        );
 
         updateLecturer();
-
     }
+
 
     if (allocatedHoursSelect) {
 
-        allocatedHoursSelect.addEventListener("change", function () {
+        allocatedHoursSelect.addEventListener(
+            "change",
+            function () {
 
-            const id = lecturerSelect.value;
-            const lecturer = lecturerData[id];
+                const id =
+                    lecturerSelect.value;
 
-            const rate = lecturer ? getRateForRank(lecturer.Rank) : 0;
+                const lecturer =
+                    lecturerData[id];
 
-            updateTotal(rate);
+                const rate =
+                    lecturer
+                        ? getRateForRank(lecturer.Rank)
+                        : 0;
 
-        });
-
+                updateTotal(rate);
+            }
+        );
     }
 
 </script>

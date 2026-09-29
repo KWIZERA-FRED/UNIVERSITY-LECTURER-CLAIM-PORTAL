@@ -91,10 +91,14 @@ public sealed class OfficialDocumentService
 
         using var data = generator.CreateQrCode(
             url,
-            QRCodeGenerator.ECCLevel.Q);
+            QRCodeGenerator.ECCLevel.H);
 
         return new PngByteQRCode(data)
-            .GetGraphic(12);
+            .GetGraphic(
+                pixelsPerModule: 20,
+                darkColorRgba: new byte[] { 0, 0, 0, 255 },
+                lightColorRgba: new byte[] { 255, 255, 255, 255 },
+                drawQuietZones: true);
     }
 
     private async Task<Claim?> LoadClaimAsync(string token) =>
@@ -122,90 +126,70 @@ public sealed class OfficialDocumentService
         var logo = GetLogoBytes();
 
         var idDisplay =
-            string.IsNullOrWhiteSpace(
-                lecturer.GovernmentIdEncrypted)
+            string.IsNullOrWhiteSpace(lecturer.GovernmentIdEncrypted)
                 ? "……………………………"
                 : lecturer.GovernmentIdEncrypted;
 
         var rankLabel =
             lecturer.Rank.HasValue
-                ? FormatEnumLabel(
-                    lecturer.Rank.Value.ToString())
+                ? FormatEnumLabel(lecturer.Rank.Value.ToString())
                 : "Not Yet Assigned";
 
         var sessionLabel =
-            FormatEnumLabel(
-                assignment.Session.ToString());
+            FormatEnumLabel(assignment.Session.ToString());
 
         var semesterLabel =
-            FormatEnumLabel(
-                assignment.Semester.ToString());
+            FormatEnumLabel(assignment.Semester.ToString());
 
         var campusLabel =
-            FormatEnumLabel(
-                assignment.Campus.ToString());
+            FormatEnumLabel(assignment.Campus.ToString());
 
         var signatures = await _context.ContractSignatures
             .AsNoTracking()
-            .Where(s =>
-                s.ContractId == claim.Contract.Id)
-            .OrderBy(s =>
-                s.SequenceOrder)
+            .Where(s => s.ContractId == claim.Contract.Id)
+            .OrderBy(s => s.SequenceOrder)
             .ToListAsync();
 
         var lecturerSignature =
-            signatures.FirstOrDefault(
-                s => s.SignerRole == SignerRole.Lecturer);
+            signatures.FirstOrDefault(s => s.SignerRole == SignerRole.Lecturer);
 
         var deanSignature =
-            signatures.FirstOrDefault(
-                s => s.SignerRole == SignerRole.Dean);
+            signatures.FirstOrDefault(s => s.SignerRole == SignerRole.Dean);
 
         var hrSignature =
-            signatures.FirstOrDefault(
-                s => s.SignerRole == SignerRole.HROfficer);
+            signatures.FirstOrDefault(s => s.SignerRole == SignerRole.HROfficer);
 
         var dvcarSignature =
-            signatures.FirstOrDefault(
-                s => s.SignerRole == SignerRole.DVCAR);
+            signatures.FirstOrDefault(s => s.SignerRole == SignerRole.DVCAR);
 
         var viceChancellorSignature =
-            signatures.FirstOrDefault(
-                s => s.SignerRole == SignerRole.ViceChancellor);
+            signatures.FirstOrDefault(s => s.SignerRole == SignerRole.ViceChancellor);
 
         return Document.Create(document =>
         {
             // ---------------------------------------------------
-            // PAGE 1 — Header, preamble, Articles 1–5
+            // PAGE 1 — Letterhead, preamble, Articles 1–5
             // ---------------------------------------------------
             document.Page(page =>
             {
                 ConfigurePage(page);
 
-                page.Header()
-                    .Element(c =>
-                        OfficialHeader(
-                            c,
-                            logo,
-                            qr));
-
                 page.Content().Column(column =>
                 {
                     column.Spacing(9);
 
+                    column.Item().Element(c => OfficialHeader(c, logo, qr));
+
                     column.Item()
-                        .AlignRight()
-                        .Text(
-                            $"Kigali, {DateTime.UtcNow:dd/MM/yyyy}")
+                        .PaddingTop(14)
+                        .Text($"Kigali, {DateTime.UtcNow:dd/MM/yyyy}")
                         .FontSize(11);
 
                     column.Item()
                         .PaddingTop(6)
-                        .AlignCenter()
                         .Text("EMPLOYMENT PART-TIME CONTRACT")
                         .Bold()
-                        .FontSize(15)
-                        .Underline();
+                        .FontSize(13);
 
                     column.Item()
                         .PaddingTop(10)
@@ -232,20 +216,17 @@ public sealed class OfficialDocumentService
                             text.Span(lecturer.UserName)
                                 .Bold();
 
-                            text.Span(
-                                ", having the Academic rank of ");
+                            text.Span(", having the Academic rank of ");
 
                             text.Span(rankLabel)
                                 .Bold();
 
-                            text.Span(
-                                " with identity card/Passport No. ");
+                            text.Span(" with identity card/Passport No. ");
 
                             text.Span(idDisplay)
                                 .Italic();
 
-                            text.Span(
-                                ", on the other hand;");
+                            text.Span(", on the other hand;");
                         });
 
                     column.Item()
@@ -301,25 +282,15 @@ public sealed class OfficialDocumentService
                 });
 
                 page.Footer()
-                    .Column(col =>
-                    {
-                        col.Item()
-                            .PaddingTop(10)
-                            .AlignCenter()
-                            .Text(
-                                "Accredited by Ministerial Order N° 002/09 of 09/04/2009 granting the Definitive Operating Licence.")
-                            .FontSize(8)
-                            .FontColor(Colors.Grey.Darken1);
-
-                        col.Item()
-                            .AlignCenter()
-                            .Text("Page 1 of 2")
-                            .FontSize(8);
-                    });
+                    .AlignCenter()
+                    .Text(
+                        "Accredited by Ministerial Order N° 002/09 of 09/04/2009 granting the Definitive Operating Licence.")
+                    .FontSize(8)
+                    .FontColor(Colors.Grey.Darken1);
             });
 
             // ---------------------------------------------------
-            // PAGE 2 — Articles 6–10 and paper-style signatures
+            // PAGE 2 — Articles 6–10 and signature block
             // ---------------------------------------------------
             document.Page(page =>
             {
@@ -372,37 +343,32 @@ public sealed class OfficialDocumentService
                         "prior notice in case the employee seems to be inefficient, immoral, or absent without informing the HOD.");
 
                     column.Item()
-                        .PaddingTop(16)
+                        .PaddingTop(24)
                         .Column(signatureColumn =>
                         {
-                            AddPaperSignatureLine(
+                            SignatureBlock(
                                 signatureColumn,
-                                "Lecturer’s Name:",
-                                lecturer.UserName,
+                                $"Lecturer's Name: {lecturer.UserName}",
                                 lecturerSignature);
 
-                            AddPaperSignatureLine(
+                            SignatureBlock(
                                 signatureColumn,
                                 "Dean of Faculty: Prof. NYESHEJA M. Enan",
-                                null,
                                 deanSignature);
 
-                            AddPaperSignatureLine(
+                            SignatureBlock(
                                 signatureColumn,
-                                "Human Resource Officer Mr. NTAKIRUTIMANA Elison",
-                                null,
+                                "Human Resource Officer: Mr. NTAKIRUTIMANA Elison",
                                 hrSignature);
 
-                            AddPaperSignatureLine(
+                            SignatureBlock(
                                 signatureColumn,
-                                "DVCAR Prof. HAKIZIMANA Emmanuel",
-                                null,
+                                "DVCAR: Prof. HAKIZIMANA Emmanuel",
                                 dvcarSignature);
 
-                            AddPaperSignatureLine(
+                            SignatureBlock(
                                 signatureColumn,
-                                "Vice Chancellor Prof. NGAMIJE Jean",
-                                null,
+                                "Vice Chancellor: Prof. NGAMIJE Jean",
                                 viceChancellorSignature);
                         });
                 });
@@ -416,19 +382,17 @@ public sealed class OfficialDocumentService
     }
 
     // ================================================================
-    // REAL-WORLD PAPER CONTRACT SIGNATURE LINE
+    // SIGNATURE BLOCK
     // ================================================================
 
-    private void AddPaperSignatureLine(
+    private void SignatureBlock(
         ColumnDescriptor column,
         string label,
-        string? actualName,
         ContractSignature? signature)
     {
         var signatureImage =
             signature?.Decision == SignatureDecision.Signed
-                ? GetSignatureBytes(
-                    signature.SignatureFilePath)
+                ? GetSignatureBytes(signature.SignatureFilePath)
                 : null;
 
         var signedDate =
@@ -441,82 +405,72 @@ public sealed class OfficialDocumentService
                 : string.Empty;
 
         column.Item()
-            .Height(27)
-            .Layers(layers =>
+            .PaddingTop(22)
+            .Column(block =>
             {
-                layers.PrimaryLayer()
+                block.Item()
+                    .Text(label)
+                    .Bold()
+                    .FontSize(10);
+
+                block.Item()
+                    .PaddingTop(20)
                     .Row(row =>
                     {
-                        row.RelativeItem(4.5f)
-                            .Text(
-                                $"{label} .........................")
-                            .FontSize(8.8f);
-
-                        row.RelativeItem(3.0f)
-                            .Text(
-                                "Signature .........................")
-                            .FontSize(8.8f);
-
-                        row.RelativeItem(2.0f)
-                            .Text(
-                                "Date ................")
-                            .FontSize(8.8f);
-                    });
-
-                layers.Layer()
-                    .Row(row =>
-                    {
-                        row.RelativeItem(4.5f)
-                            .PaddingLeft(
-                                GetNameOverlayOffset(label))
-                            .TranslateY(-3)
-                            .Text(
-                                actualName ?? string.Empty)
-                            .FontSize(8.8f);
-
-                        row.RelativeItem(3.0f)
-                            .PaddingLeft(57)
-                            .TranslateY(-3)
-                            .AlignBottom()
-                            .Element(container =>
+                        row.RelativeItem(62)
+                            .Column(sigCol =>
                             {
-                                if (signatureImage is not null)
-                                {
-                                    container
-                                        .Height(19)
-                                        .Width(75)
-                                        .AlignCenter()
-                                        .AlignBottom()
-                                        .Image(signatureImage)
-                                        .FitArea();
-                                }
+                                sigCol.Item()
+                                    .Height(30)
+                                    .Element(e =>
+                                    {
+                                        if (signatureImage is not null)
+                                        {
+                                            e.AlignLeft()
+                                             .AlignBottom()
+                                             .Width(120)
+                                             .Height(26)
+                                             .Image(signatureImage)
+                                             .FitArea();
+                                        }
+                                    });
+
+                                sigCol.Item()
+                                    .PaddingTop(2)
+                                    .LineHorizontal(0.6f)
+                                    .LineColor("#B8B8B8");
+
+                                sigCol.Item()
+                                    .PaddingTop(3)
+                                    .Text("Signature")
+                                    .FontSize(8)
+                                    .FontColor("#8A8A8A");
                             });
 
-                        row.RelativeItem(2.0f)
-                            .PaddingLeft(30)
-                            .TranslateY(-3)
-                            .Text(signedDate)
-                            .FontSize(8.8f);
+                        row.ConstantItem(28);
+
+                        row.RelativeItem()
+                            .Column(dateCol =>
+                            {
+                                dateCol.Item()
+                                    .Height(30)
+                                    .AlignBottom()
+                                    .Text(signedDate)
+                                    .FontSize(11);
+
+                                dateCol.Item()
+                                    .PaddingTop(2)
+                                    .LineHorizontal(0.6f)
+                                    .LineColor("#B8B8B8");
+
+                                dateCol.Item()
+                                    .PaddingTop(3)
+                                    .Text("Date")
+                                    .FontSize(8)
+                                    .FontColor("#8A8A8A");
+                            });
                     });
             });
-    }
-
-    private static float GetNameOverlayOffset(string label)
-    {
-        return label switch
-        {
-            "Lecturer’s Name:" => 73,
-
-            "Dean of Faculty: Prof. NYESHEJA M. Enan" => 0,
-
-            "Human Resource Officer Mr. NTAKIRUTIMANA Elison" => 0,
-
-            "DVCAR Prof. HAKIZIMANA Emmanuel" => 0,
-
-            "Vice Chancellor Prof. NGAMIJE Jean" => 0,
-
-            _ => 0
-        };
     }
 
     // ================================================================
@@ -657,7 +611,7 @@ public sealed class OfficialDocumentService
     private static void OfficialHeader(
         IContainer container,
         byte[]? logo,
-        byte[] qr,
+        byte[]? qr,
         string? title = null) =>
         container.Column(col =>
         {
@@ -666,53 +620,62 @@ public sealed class OfficialDocumentService
                 {
                     if (logo is not null)
                     {
-                        row.ConstantItem(60)
-                            .Height(60)
-                            .Image(logo)
-                            .FitArea();
+                        row.ConstantItem(90)
+                            .AlignMiddle()
+                            .Element(e =>
+                            {
+                                e.Width(72)
+                                 .Height(72)
+                                 .Image(logo)
+                                 .FitArea();
+                            });
                     }
 
                     row.RelativeItem()
-                        .PaddingLeft(10)
-                        .Column(c =>
+                        .PaddingLeft(12)
+                        .PaddingRight(12)
+                        .Column(center =>
                         {
-                            c.Item()
-                                .Text(
-                                    "UNIVERSITY OF LAY ADVENTISTS OF KIGALI")
+                            center.Item()
+                                .AlignCenter()
+                                .Text("UNIVERSITY OF LAY ADVENTISTS OF KIGALI")
                                 .Bold()
-                                .FontSize(15)
-                                .FontColor("174D3B");
+                                .FontSize(14)
+                                .FontColor("#000000");
 
-                            c.Item()
-                                .Text(
-                                    "P.O. Box 6392 Kigali, Rwanda")
-                                .FontSize(8);
+                            center.Item()
+                                .PaddingTop(4)
+                                .AlignCenter()
+                                .Text("P.O. Box 6392 Kigali, Rwanda")
+                                .FontSize(8)
+                                .FontColor("#000000");
 
-                            c.Item()
-                                .Text(
-                                    "Phone: +250 (0)731 743 439 / +250 (0)751 743 431")
-                                .FontSize(8);
-
-                            c.Item()
-                                .Text(
-                                    "Website: www.unilak.ac.rw   E-mail: info@unilak.ac.rw")
-                                .FontSize(8);
+                            center.Item()
+                                .PaddingTop(1)
+                                .AlignCenter()
+                                .Text("Phone: +250 (0)731 743 439 / +250 (0)751 743 431")
+                                .FontSize(8)
+                                .FontColor("#000000");
                         });
 
-                    row.ConstantItem(58)
-                        .Image(qr)
-                        .FitArea();
+                    if (qr is not null)
+                    {
+                        row.ConstantItem(56)
+                            .AlignMiddle()
+                            .Element(e =>
+                            {
+                                e.Width(46)
+                                 .Height(46)
+                                 .Image(qr)
+                                 .FitArea();
+                            });
+                    }
                 });
-
-            col.Item()
-                .PaddingTop(4)
-                .LineHorizontal(2)
-                .LineColor("174D3B");
 
             if (!string.IsNullOrWhiteSpace(title))
             {
                 col.Item()
-                    .PaddingTop(6)
+                    .PaddingTop(10)
                     .Text(title)
                     .Bold()
                     .FontSize(12);
@@ -727,8 +690,6 @@ public sealed class OfficialDocumentService
             .PaddingTop(4)
             .Text(text =>
             {
-                text.Justify();
-
                 text.Span($"{heading}: ")
                     .Bold();
 

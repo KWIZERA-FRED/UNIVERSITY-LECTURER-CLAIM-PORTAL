@@ -2,6 +2,7 @@ using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ using System.Threading.Tasks;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 {
+    [Authorize(Roles = "HOD")]
     public class AssignCourseModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -78,9 +80,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             public string Department { get; set; } = string.Empty;
         }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
             await LoadDataAsync();
+
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -141,6 +145,19 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return Page();
             }
 
+            var facultyDepartments = FacultyDepartments
+                .GetDepartments(hod.Faculty)
+                .Select(d => d.ToString())
+                .ToHashSet();
+
+            if (facultyDepartments.Count == 0)
+            {
+                ErrorMessage =
+                    "No departments are configured for your faculty.";
+
+                return Page();
+            }
+
             var allocatedHours =
                 (decimal)AllocatedHoursOption.Value;
 
@@ -148,12 +165,13 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c =>
                     c.Id == SelectedCourse.Value &&
-                    c.IsActive);
+                    c.IsActive &&
+                    facultyDepartments.Contains(c.Department));
 
             if (course is null)
             {
                 ErrorMessage =
-                    "Selected course could not be found.";
+                    "The selected course does not belong to your faculty.";
 
                 return Page();
             }
@@ -162,7 +180,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 .AsNoTracking()
                 .Where(l =>
                     l.Id == SelectedLecturer.Value &&
-                    l.IsActive)
+                    l.IsActive &&
+                    l.Faculty == hod.Faculty)
                 .Select(l => new LecturerOption
                 {
                     Id = l.Id,
@@ -178,15 +197,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             if (lecturer is null)
             {
                 ErrorMessage =
-                    "Selected lecturer could not be found.";
-
-                return Page();
-            }
-
-            if (lecturer.Faculty != hod.Faculty)
-            {
-                ErrorMessage =
-                    "The selected lecturer does not belong to your faculty.";
+                    "Selected lecturer could not be found in your faculty.";
 
                 return Page();
             }
@@ -437,19 +448,34 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
         private async Task LoadDataAsync()
         {
-            Courses = await _context.Courses
-                .AsNoTracking()
-                .Where(c => c.IsActive)
-                .OrderBy(c => c.Code)
-                .ToListAsync();
-
             var hod = await GetCurrentHodAsync();
 
             if (hod is null)
             {
+                Courses = new List<Course>();
                 Lecturers = new List<LecturerOption>();
                 return;
             }
+
+            var facultyDepartments = FacultyDepartments
+                .GetDepartments(hod.Faculty)
+                .Select(d => d.ToString())
+                .ToHashSet();
+
+            if (facultyDepartments.Count == 0)
+            {
+                Courses = new List<Course>();
+                Lecturers = new List<LecturerOption>();
+                return;
+            }
+
+            Courses = await _context.Courses
+                .AsNoTracking()
+                .Where(c =>
+                    c.IsActive &&
+                    facultyDepartments.Contains(c.Department))
+                .OrderBy(c => c.Code)
+                .ToListAsync();
 
             Lecturers = await _context.Lecturers
                 .AsNoTracking()
@@ -713,9 +739,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 RegexOptions.IgnoreCase |
                 RegexOptions.Singleline);
 
-            // The template already contains a paper-signatures block;
-            // strip it (and any legacy table) so only the generated
-            // block below is stored.
             return ContractSignatureMarkup.RemoveSignatureBlocks(html);
         }
 

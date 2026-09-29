@@ -33,7 +33,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
         </div>
 
         <div class="contract-web">
-            Website: www.unilak.ac.rw &nbsp;&nbsp; E-mail: info@unilak.ac.rw
+            Website: www.unilak.ac.rw<br />
+            E-mail: info@unilak.ac.rw
         </div>
 
         <div class="contract-header-line"></div>

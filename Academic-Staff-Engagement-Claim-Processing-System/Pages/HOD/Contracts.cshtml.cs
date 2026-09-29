@@ -32,28 +32,31 @@ public class ContractsModel : PageModel
         var username = User.Identity?.Name;
 
         if (string.IsNullOrWhiteSpace(username))
-            return RedirectToPage("/Login");
+            return Challenge();
 
         var hod = await _context.Hods
             .AsNoTracking()
-            .FirstOrDefaultAsync(h =>
+            .Where(h =>
                 h.UserName == username &&
-                h.IsActive);
+                h.IsActive)
+            .Select(h => new
+            {
+                h.Faculty
+            })
+            .FirstOrDefaultAsync();
 
         if (hod is null)
-            return RedirectToPage("/Login");
+            return Challenge();
 
         HodFaculty = hod.Faculty;
 
-        var facultyDepartments = FacultyDepartments
-            .GetDepartments(hod.Faculty)
-            .Select(d => d.ToString())
-            .ToList();
+        var facultyDepartmentValues =
+            GetFacultyCourseDepartmentValues(HodFaculty);
 
-        if (facultyDepartments.Count == 0)
+        if (facultyDepartmentValues.Count == 0)
         {
             ErrorMessage =
-                "No departments are configured for your faculty.";
+                "No course departments are configured for your faculty.";
 
             return Page();
         }
@@ -66,10 +69,13 @@ public class ContractsModel : PageModel
             .Where(c =>
                 c.CourseAssignment != null &&
                 c.CourseAssignment.Course != null &&
-                facultyDepartments.Contains(
+                facultyDepartmentValues.Contains(
                     c.CourseAssignment.Course.Department))
             .OrderByDescending(c => c.CreatedAtUtc)
             .ToListAsync();
+
+        if (contracts.Count == 0)
+            return Page();
 
         var contractIds = contracts
             .Select(c => c.Id)
@@ -78,54 +84,98 @@ public class ContractsModel : PageModel
         var signatures = await _context.ContractSignatures
             .AsNoTracking()
             .Where(s => contractIds.Contains(s.ContractId))
+            .Select(s => new SignatureSummary
+            {
+                ContractId = s.ContractId,
+                Decision = s.Decision
+            })
             .ToListAsync();
 
+        var signaturesByContract = signatures
+            .GroupBy(s => s.ContractId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.ToList());
+
         Contracts = contracts
-            .Select(c => new ContractRow
+            .Select(c =>
             {
-                Id = c.Id,
+                signaturesByContract.TryGetValue(
+                    c.Id,
+                    out var contractSignatures);
 
-                Reference = $"CON-{c.Id:D6}",
+                contractSignatures ??= new List<SignatureSummary>();
 
-                LecturerName =
-                    c.Lecturer?.UserName ?? "—",
+                return new ContractRow
+                {
+                    Id = c.Id,
 
-                CourseCode =
-                    c.CourseAssignment?.Course?.Code ?? "—",
+                    Reference =
+                        $"CON-{c.Id:D6}",
 
-                CourseTitle =
-                    c.CourseAssignment?.Course?.Title ?? "—",
+                    LecturerName =
+                        c.Lecturer?.UserName ?? "—",
 
-                AcademicYear =
-                    c.CourseAssignment?.AcademicYear ?? "—",
+                    CourseCode =
+                        c.CourseAssignment?.Course?.Code ?? "—",
 
-                Status = c.Status,
+                    CourseTitle =
+                        c.CourseAssignment?.Course?.Title ?? "—",
 
-                SignedSteps = signatures.Count(s =>
-                    s.ContractId == c.Id &&
-                    s.Decision == SignatureDecision.Signed),
+                    AcademicYear =
+                        c.CourseAssignment?.AcademicYear ?? "—",
 
-                TotalSteps = signatures.Count(s =>
-                    s.ContractId == c.Id)
+                    Status =
+                        c.Status,
+
+                    SignedSteps =
+                        contractSignatures.Count(s =>
+                            s.Decision == SignatureDecision.Signed),
+
+                    TotalSteps =
+                        contractSignatures.Count
+                };
             })
             .ToList();
 
         return Page();
     }
 
+    private static HashSet<string> GetFacultyCourseDepartmentValues(
+        Faculty faculty)
+    {
+        return FacultyDepartments
+            .GetDepartments(faculty)
+            .Select(d => d.ToString())
+            .ToHashSet(
+                StringComparer.OrdinalIgnoreCase);
+    }
+
+    private sealed class SignatureSummary
+    {
+        public int ContractId { get; init; }
+
+        public SignatureDecision Decision { get; init; }
+    }
+
     public sealed class ContractRow
     {
         public int Id { get; init; }
 
-        public string Reference { get; init; } = string.Empty;
+        public string Reference { get; init; } =
+            string.Empty;
 
-        public string LecturerName { get; init; } = string.Empty;
+        public string LecturerName { get; init; } =
+            string.Empty;
 
-        public string CourseCode { get; init; } = string.Empty;
+        public string CourseCode { get; init; } =
+            string.Empty;
 
-        public string CourseTitle { get; init; } = string.Empty;
+        public string CourseTitle { get; init; } =
+            string.Empty;
 
-        public string AcademicYear { get; init; } = string.Empty;
+        public string AcademicYear { get; init; } =
+            string.Empty;
 
         public ContractStatus Status { get; init; }
 
