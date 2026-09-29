@@ -2,7 +2,7 @@
    UNILAK ASECPS
    PUBLIC CLAIM DOCUMENTS
    ================================================================
-   Public verification view. Minimal, self-contained, professional.
+   Compact card-based verification view.
    ================================================================ */
 
 
@@ -12,7 +12,6 @@
 
 :root {
     --primary: #0f2742;
-    --primary-light: #183b60;
     --accent: #059669;
     --accent-dark: #047857;
     --accent-light: #a7f3d0;
@@ -30,7 +29,6 @@
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 14px;
-    --radius-full: 9999px;
     --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --transition: 160ms ease;
@@ -53,14 +51,14 @@
 
 
 /* ================================================================
-   PAGE SHELL
+   PAGE SHELL — compact and centred
    ================================================================ */
 
 .claim-documents-page {
     width: 100%;
-    max-width: 720px;
+    max-width: 440px;
     margin: 0 auto;
-    padding: 40px 24px 60px;
+    padding: 32px 20px 40px;
     box-sizing: border-box;
     font-family: var(--font-primary);
     font-size: 14px;
@@ -81,49 +79,6 @@
 
 
 /* ================================================================
-   PAGE HEADER (BACK BUTTON)
-   ================================================================ */
-
-.cd-page-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
-}
-
-.cd-back-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    min-height: 34px;
-    padding: 0 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--surface);
-    color: var(--text-secondary);
-    font-size: 11.5px;
-    font-weight: 500;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background var(--transition), border-color var(--transition), color var(--transition);
-}
-
-    .cd-back-button:hover {
-        background: var(--accent-soft);
-        border-color: var(--accent-light);
-        color: var(--accent-dark);
-    }
-
-    .cd-back-button i {
-        font-size: 12px;
-    }
-
-    .cd-back-button:focus-visible {
-        outline: 2px solid rgba(5, 150, 105, 0.35);
-        outline-offset: 2px;
-    }
-
-
-/* ================================================================
    CARD
    ================================================================ */
 
@@ -138,88 +93,140 @@
 
 
 /* ================================================================
-   CARD HEADER
+   CARD HEADER — back arrow on left, title centred
    ================================================================ */
 
 .cd-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 28px 28px 24px;
-    border-bottom: 1px solid var(--border-light);
+    display: grid;
+    grid-template-columns: 36px 1fr 36px;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px 14px;
+}
+
+.cd-header-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: background var(--transition), color var(--transition);
+}
+
+    .cd-header-back:hover {
+        background: var(--surface-raised);
+        color: var(--primary);
+    }
+
+    .cd-header-back i {
+        font-size: 15px;
+    }
+
+    .cd-header-back:focus-visible {
+        outline: 2px solid rgba(5, 150, 105, 0.35);
+        outline-offset: 2px;
+    }
+
+.cd-header-spacer {
+    width: 36px;
+    height: 36px;
 }
 
 .cd-header-main {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-}
-
-.cd-brand {
-    display: inline-block;
-    color: var(--accent-dark);
-    font-size: 10.5px;
-    font-weight: 800;
-    letter-spacing: 1.4px;
-    text-transform: uppercase;
-    margin-bottom: 2px;
+    gap: 0;
+    align-items: center;
+    text-align: center;
 }
 
 .cd-header h1 {
     margin: 0;
     color: var(--primary);
     font-family: var(--font-secondary);
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    line-height: 1.2;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    line-height: 1.25;
 }
 
-.cd-header p {
-    margin: 0;
+.cd-header-refs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 4px 0 0;
     color: var(--text-muted);
-    font-size: 12.5px;
+    font-size: 11.5px;
     font-weight: 500;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 .cd-separator {
-    margin: 0 4px;
     color: var(--border-strong);
 }
 
+
+/* ================================================================
+   QR HERO — compact dashed container
+   ================================================================ */
+
+.cd-qr-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 20px 18px;
+}
+
 .cd-qr {
-    flex-shrink: 0;
-    padding: 6px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-md);
     background: var(--surface);
 }
 
     .cd-qr img {
         display: block;
-        width: 96px;
-        height: 96px;
+        width: 140px;
+        height: 140px;
+        border-radius: 4px;
     }
+
+.cd-qr-caption {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+}
 
 
 /* ================================================================
-   DETAILS
+   DETAILS — two-column grid
    ================================================================ */
 
 .cd-details {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 4px 28px;
+    padding: 4px 20px;
+    border-top: 1px solid var(--border-light);
 }
 
 .cd-detail {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 16px 0;
+    gap: 3px;
+    padding: 12px 0;
     border-bottom: 1px solid var(--border-light);
 }
 
@@ -229,7 +236,7 @@
 
 .cd-detail-label {
     color: var(--text-muted);
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -238,7 +245,7 @@
 
 .cd-detail-value {
     color: var(--text);
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 500;
     line-height: 1.5;
     overflow-wrap: anywhere;
@@ -246,14 +253,14 @@
 
 
 /* ================================================================
-   ACTIONS
+   ACTIONS — stacked compact rows
    ================================================================ */
 
 .cd-actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    padding: 20px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 20px 18px;
     border-top: 1px solid var(--border-light);
     background: var(--surface-raised);
 }
@@ -262,32 +269,60 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 16px;
+    width: 100%;
+    padding: 10px 12px;
     border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     background: var(--surface);
     color: var(--text);
     text-decoration: none;
     transition: border-color var(--transition), background var(--transition), transform var(--transition);
 }
 
-    .cd-download > i:first-child {
-        font-size: 20px;
-        flex-shrink: 0;
+    .cd-download:hover {
+        border-color: var(--accent);
+        transform: translateY(-1px);
     }
 
-.cd-download-primary {
-    border-color: var(--accent-light);
-    background: var(--accent-soft);
-}
-
-    .cd-download-primary > i:first-child {
-        color: var(--accent-dark);
+    .cd-download:active {
+        transform: translateY(0);
     }
 
-.cd-download-secondary > i:first-child {
-    color: var(--text-secondary);
+    .cd-download:focus-visible {
+        outline: 2px solid rgba(5, 150, 105, 0.35);
+        outline-offset: 2px;
+    }
+
+
+/* Badge */
+
+.cd-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    color: #ffffff;
+    font-family: var(--font-primary);
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    line-height: 1;
+    text-transform: uppercase;
 }
+
+.cd-badge-pdf {
+    background: #dc2626;
+}
+
+.cd-badge-doc {
+    background: #2563eb;
+}
+
+
+/* Text */
 
 .cd-download-text {
     display: flex;
@@ -312,55 +347,20 @@
         line-height: 1.3;
     }
 
+
+/* Trailing icon */
+
 .cd-download-icon {
     color: var(--text-muted);
-    font-size: 13px;
+    font-size: 14px;
     flex-shrink: 0;
     transition: transform var(--transition), color var(--transition);
 }
 
-.cd-download:hover {
-    border-color: var(--accent);
-    transform: translateY(-1px);
+.cd-download:hover .cd-download-icon {
+    color: var(--accent-dark);
+    transform: translateY(1px);
 }
-
-    .cd-download:hover .cd-download-icon {
-        color: var(--accent-dark);
-        transform: translateY(1px);
-    }
-
-.cd-download:active {
-    transform: translateY(0) scale(0.99);
-}
-
-.cd-download:focus-visible {
-    outline: 2px solid rgba(5, 150, 105, 0.35);
-    outline-offset: 2px;
-}
-
-
-/* ================================================================
-   FOOTER NOTE
-   ================================================================ */
-
-.cd-footer {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin: 0;
-    padding: 16px 28px 22px;
-    color: var(--text-muted);
-    font-size: 11.5px;
-    line-height: 1.6;
-    border-top: 1px solid var(--border-light);
-}
-
-    .cd-footer i {
-        color: var(--accent);
-        font-size: 14px;
-        flex-shrink: 0;
-        margin-top: 1px;
-    }
 
 
 /* ================================================================
@@ -404,7 +404,7 @@
 
 .cd-empty p {
     margin: 8px 0 0;
-    max-width: 420px;
+    max-width: 380px;
     color: var(--text-muted);
     font-size: 13px;
     line-height: 1.55;
@@ -418,32 +418,7 @@
 @media (max-width: 700px) {
 
     .claim-documents-page {
-        padding: 28px 18px 45px;
-    }
-
-    .cd-header {
-        padding: 22px 22px 20px;
-    }
-
-        .cd-header h1 {
-            font-size: 22px;
-        }
-
-    .cd-qr img {
-        width: 84px;
-        height: 84px;
-    }
-
-    .cd-details {
-        padding: 4px 22px;
-    }
-
-    .cd-actions {
-        padding: 18px 22px 22px;
-    }
-
-    .cd-footer {
-        padding: 14px 22px 20px;
+        padding: 24px 16px 32px;
     }
 }
 
@@ -455,32 +430,29 @@
 @media (max-width: 560px) {
 
     .claim-documents-page {
-        padding: 24px 14px 40px;
-    }
-
-    .cd-page-header {
-        margin-bottom: 14px;
-    }
-
-    .cd-back-button {
-        width: 100%;
-        justify-content: center;
+        padding: 20px 12px 28px;
     }
 
     .cd-header {
-        flex-direction: column-reverse;
-        align-items: flex-start;
-        gap: 16px;
-        padding: 20px 18px;
+        padding: 16px 18px 12px;
+    }
+
+        .cd-header h1 {
+            font-size: 16px;
+        }
+
+    .cd-qr-hero {
+        padding: 4px 18px 16px;
     }
 
     .cd-qr {
-        align-self: flex-start;
+        padding: 10px;
     }
 
-    .cd-header h1 {
-        font-size: 20px;
-    }
+        .cd-qr img {
+            width: 120px;
+            height: 120px;
+        }
 
     .cd-details {
         grid-template-columns: 1fr;
@@ -488,7 +460,7 @@
     }
 
     .cd-detail {
-        padding: 12px 0;
+        padding: 10px 0;
     }
 
         .cd-detail:nth-last-child(-n + 2) {
@@ -500,12 +472,7 @@
         }
 
     .cd-actions {
-        grid-template-columns: 1fr;
-        padding: 16px 18px 20px;
-    }
-
-    .cd-footer {
-        padding: 14px 18px 18px;
+        padding: 14px 18px 16px;
     }
 
     .cd-empty {
@@ -515,25 +482,32 @@
 
 
 /* ================================================================
-   RESPONSIVE — SMALL MOBILE
+   SMALL MOBILE
    ================================================================ */
 
 @media (max-width: 420px) {
 
     .claim-documents-page {
-        padding: 18px 10px 32px;
+        padding: 16px 10px 24px;
     }
 
     .cd-header,
     .cd-details,
     .cd-actions,
-    .cd-footer {
+    .cd-qr-hero {
         padding-left: 14px;
         padding-right: 14px;
     }
 
     .cd-download {
-        padding: 12px 14px;
+        gap: 10px;
+        padding: 9px 10px;
+    }
+
+    .cd-badge {
+        width: 30px;
+        height: 30px;
+        font-size: 9px;
     }
 }
 
@@ -551,7 +525,8 @@
         animation: none !important;
     }
 
-    .cd-download:hover {
+    .cd-download:hover,
+    .cd-download:hover .cd-download-icon {
         transform: none;
     }
 }
@@ -572,10 +547,10 @@
         padding: 0;
     }
 
-    .cd-page-header,
     .cd-actions,
-    .cd-footer,
-    .cd-qr {
+    .cd-qr-hero,
+    .cd-header-back,
+    .cd-header-spacer {
         display: none;
     }
 

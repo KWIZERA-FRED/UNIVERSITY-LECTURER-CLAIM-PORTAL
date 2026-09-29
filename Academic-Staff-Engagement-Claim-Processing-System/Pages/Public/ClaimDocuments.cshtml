@@ -3,7 +3,21 @@
 
 @{
     ViewData["Title"] = "Claim Documents";
-    Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
+
+    var managementTitle = User.FindFirst("ManagementTitle")?.Value;
+
+    Layout =
+        User.IsInRole("Lecturer")
+            ? "/Pages/Shared/Lecturer/_LecturerLayout.cshtml"
+            : User.IsInRole("HOD")
+                ? "/Pages/Shared/HOD/_HODLayout.cshtml"
+                : User.IsInRole("Dean")
+                    ? "/Pages/Shared/DEAN/_DeanLayout.cshtml"
+                    : User.IsInRole("Management") &&
+                      (managementTitle == "DirectorOfQuality" ||
+                       managementTitle == "DVCAR")
+                        ? "/Pages/Shared/Management/_ManagementLayout.cshtml"
+                        : null;
 }
 
 @section Styles {
@@ -13,15 +27,6 @@
 }
 
 <section class="claim-documents-page">
-
-    <header class="cd-page-header">
-
-        <a class="cd-back-button" href="/Lecturer/Claims">
-            <i class="bi bi-arrow-left"></i>
-            <span>Back to Claims</span>
-        </a>
-
-    </header>
 
     @if (Model.Documents is null)
     {
@@ -48,37 +53,57 @@
 
             <header class="cd-header">
 
-                <div class="cd-header-main">
+                <a class="cd-header-back"
+                   href="@Model.BackUrl"
+                   aria-label="Back to claim">
 
-                    <span class="cd-brand">UNILAK</span>
+                    <i class="bi bi-arrow-left"></i>
+
+                </a>
+
+                <div class="cd-header-main">
 
                     <h1>Claim Documents</h1>
 
-                    <p>
-                        @documents.ClaimReference
+                    <p class="cd-header-refs">
+                        <span>@documents.ClaimReference</span>
                         <span class="cd-separator">·</span>
-                        @documents.ContractReference
+                        <span>@documents.ContractReference</span>
                     </p>
 
                 </div>
 
-                @if (!string.IsNullOrEmpty(Model.QrCodeDataUrl))
-                {
-                    <div class="cd-qr">
-                        <img src="@Model.QrCodeDataUrl"
-                             alt="QR code for these claim documents"
-                             width="96"
-                             height="96" />
-                    </div>
-                }
+                <div class="cd-header-spacer" aria-hidden="true"></div>
 
             </header>
+
+            @if (!string.IsNullOrEmpty(Model.QrCodeDataUrl))
+            {
+                <section class="cd-qr-hero">
+
+                    <div class="cd-qr">
+
+                        <img src="@Model.QrCodeDataUrl"
+                             alt="QR code for these claim documents"
+                             width="140"
+                             height="140" />
+
+                    </div>
+
+                    <p class="cd-qr-caption">
+                        Scan this code to verify the claim
+                    </p>
+
+                </section>
+            }
 
             <section class="cd-details">
 
                 <div class="cd-detail">
                     <span class="cd-detail-label">Lecturer</span>
-                    <span class="cd-detail-value">@documents.LecturerName</span>
+                    <span class="cd-detail-value">
+                        @documents.LecturerName
+                    </span>
                 </div>
 
                 <div class="cd-detail">
@@ -90,22 +115,26 @@
 
                 <div class="cd-detail">
                     <span class="cd-detail-label">Claimed Hours</span>
-                    <span class="cd-detail-value">@documents.Hours.ToString("N1")</span>
+                    <span class="cd-detail-value">
+                        @documents.Hours.ToString("N1")
+                    </span>
                 </div>
 
                 <div class="cd-detail">
                     <span class="cd-detail-label">Status</span>
-                    <span class="cd-detail-value">@documents.Status</span>
+                    <span class="cd-detail-value">
+                        @FormatStatus(documents.Status.ToString())
+                    </span>
                 </div>
 
             </section>
 
             <footer class="cd-actions">
 
-                <a class="cd-download cd-download-primary"
+                <a class="cd-download"
                    href="?handler=Pdf&token=@documents.Token&document=contract">
 
-                    <i class="bi bi-file-earmark-pdf"></i>
+                    <span class="cd-badge cd-badge-pdf">PDF</span>
 
                     <div class="cd-download-text">
                         <strong>Signed Contract</strong>
@@ -116,10 +145,10 @@
 
                 </a>
 
-                <a class="cd-download cd-download-secondary"
+                <a class="cd-download"
                    href="?handler=Pdf&token=@documents.Token&document=claim-letter">
 
-                    <i class="bi bi-file-earmark-text"></i>
+                    <span class="cd-badge cd-badge-doc">DOC</span>
 
                     <div class="cd-download-text">
                         <strong>Claim Letter</strong>
@@ -132,18 +161,35 @@
 
             </footer>
 
-            <p class="cd-footer">
-
-                <i class="bi bi-shield-check"></i>
-
-                <span>
-                    These documents are served through a secure verification link.
-                    Scan the QR code or share this URL to verify the claim.
-                </span>
-
-            </p>
-
         </article>
     }
 
 </section>
+
+@functions {
+
+    private static string FormatStatus(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return raw;
+        }
+
+        var sb = new System.Text.StringBuilder(raw.Length + 6);
+
+        for (var i = 0; i < raw.Length; i++)
+        {
+            if (i > 0 &&
+                char.IsUpper(raw[i]) &&
+                !char.IsUpper(raw[i - 1]))
+            {
+                sb.Append(' ');
+            }
+
+            sb.Append(raw[i]);
+        }
+
+        return sb.ToString();
+    }
+
+}

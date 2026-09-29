@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -37,7 +38,7 @@ public class ClaimDocumentsModel : PageModel
         if (Documents is null)
             return NotFound();
 
-        BackUrl = ResolveBackUrl();
+        BackUrl = ResolveBackUrl(Documents.ClaimId);
 
         var url =
             Url.Page(
@@ -52,7 +53,8 @@ public class ClaimDocumentsModel : PageModel
 
         QrCodeDataUrl =
             $"data:image/png;base64," +
-            $"{Convert.ToBase64String(_documents.CreateQrPng(url))}";
+            $"{Convert.ToBase64String(
+                _documents.CreateQrPng(url))}";
 
         return Page();
     }
@@ -97,7 +99,7 @@ public class ClaimDocumentsModel : PageModel
                 generated.FileName);
     }
 
-    private string ResolveBackUrl()
+    private string ResolveBackUrl(int claimId)
     {
         if (!User.Identity?.IsAuthenticated ?? true)
             return "/";
@@ -108,22 +110,57 @@ public class ClaimDocumentsModel : PageModel
         return role switch
         {
             "Lecturer" =>
-                "/Lecturer/Claims",
+                Url.Page(
+                    "/Lecturer/ClaimDetail",
+                    null,
+                    new { ClaimId = claimId })
+                ?? "/Lecturer/Claims",
 
             "HOD" =>
-                "/HOD/Claims",
+                Url.Page(
+                    "/HOD/ClaimDetails",
+                    null,
+                    new { ClaimId = claimId })
+                ?? "/HOD/Claims",
 
             "Dean" =>
-                "/DEAN/Claims",
+                Url.Page(
+                    "/DEAN/ClaimDetails",
+                    null,
+                    new { ClaimId = claimId })
+                ?? "/DEAN/Claims",
 
-            "DirectorOfQuality" =>
-                "/Management/Claims",
-
-            "DVCAR" =>
-                "/Management/Claims",
+            "Management" =>
+                ResolveManagementBackUrl(claimId),
 
             _ =>
                 "/"
+        };
+    }
+
+    private string ResolveManagementBackUrl(int claimId)
+    {
+        var managementTitle =
+            User.FindFirstValue("ManagementTitle");
+
+        return managementTitle switch
+        {
+            nameof(ManagementTitle.DirectorOfQuality) =>
+                Url.Page(
+                    "/Management/Claims",
+                    null,
+                    new { ClaimId = claimId })
+                ?? "/Management/Claims",
+
+            nameof(ManagementTitle.DVCAR) =>
+                Url.Page(
+                    "/Management/Claims",
+                    null,
+                    new { ClaimId = claimId })
+                ?? "/Management/Claims",
+
+            _ =>
+                "/Management/ManagementDashboard"
         };
     }
 }

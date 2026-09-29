@@ -47,10 +47,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             _auditLogger = auditLogger;
         }
 
-        // --------------------------------------------------------------
-        // LOAD ONE CLAIM FOR REVIEW BY A GIVEN ROLE
-        // --------------------------------------------------------------
-
         public async Task<ClaimReviewDto?> GetClaimForReviewAsync(
             int claimId,
             ApprovalRole role)
@@ -144,10 +140,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             return dto;
         }
 
-        // --------------------------------------------------------------
-        // APPROVE
-        // --------------------------------------------------------------
-
         public async Task<ClaimSigningResult> ApproveAsync(
             int claimId,
             ApprovalRole role,
@@ -165,22 +157,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
                 try
                 {
-                    // --------------------------------------------------
-                    // LOAD CLAIM
-                    // --------------------------------------------------
-
                     var claim = await _context.Claims
                         .FirstOrDefaultAsync(c => c.Id == claimId);
 
                     if (claim is null)
                     {
                         await transaction.RollbackAsync();
-                        return Fail("The claim could not be found.");
-                    }
 
-                    // --------------------------------------------------
-                    // LOAD CURRENT APPROVAL STEP
-                    // --------------------------------------------------
+                        return Fail(
+                            "The claim could not be found.");
+                    }
 
                     var step = await _context.ClaimApprovals
                         .Where(ca =>
@@ -192,6 +178,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     if (step is null)
                     {
                         await transaction.RollbackAsync();
+
                         return Fail(
                             "No approval step found for this role on this claim.");
                     }
@@ -199,13 +186,10 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     if (step.Decision != ApprovalDecision.Pending)
                     {
                         await transaction.RollbackAsync();
+
                         return Fail(
                             "This step has already been actioned.");
                     }
-
-                    // --------------------------------------------------
-                    // VERIFY EARLIER APPROVALS
-                    // --------------------------------------------------
 
                     bool earlierStepsComplete =
                         !await _context.ClaimApprovals
@@ -218,37 +202,33 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     if (!earlierStepsComplete)
                     {
                         await transaction.RollbackAsync();
+
                         return Fail(
                             "An earlier required approval on this claim is still pending.");
                     }
 
-                    // --------------------------------------------------
-                    // LOAD APPROVING ACCOUNT
-                    // --------------------------------------------------
-
                     var adminAccount =
                         await _context.AdminAccounts
                             .FirstOrDefaultAsync(a =>
-                                a.Id == adminAccountId);
+                                a.Id == adminAccountId &&
+                                a.IsActive);
 
                     if (adminAccount is null)
                     {
                         await transaction.RollbackAsync();
+
                         return Fail(
-                            "Your account could not be found.");
+                            "Your account could not be found or is inactive.");
                     }
 
                     if (string.IsNullOrWhiteSpace(
                         adminAccount.SignatureFileHash))
                     {
                         await transaction.RollbackAsync();
+
                         return Fail(
                             "Your account does not have a signature on file. Please contact an administrator.");
                     }
-
-                    // --------------------------------------------------
-                    // VERIFY ROLE AUTHORIZATION
-                    // --------------------------------------------------
 
                     if (!await IsAuthorizedApproverAsync(
                         claimId,
@@ -256,23 +236,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                         role))
                     {
                         await transaction.RollbackAsync();
+
                         return Fail(
                             "Your account is not authorized to approve this step.");
                     }
-
-                    // --------------------------------------------------
-                    // APPROVE CURRENT STEP
-                    // --------------------------------------------------
 
                     step.Approve(
                         adminAccountId,
                         adminAccount.SignatureFileHash);
 
                     await _context.SaveChangesAsync();
-
-                    // --------------------------------------------------
-                    // DETERMINE NEXT PIPELINE STAGE
-                    // --------------------------------------------------
 
                     var nextPendingRole =
                         await _context.ClaimApprovals
@@ -282,10 +255,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                             .OrderBy(ca => ca.SequenceOrder)
                             .Select(ca => (ApprovalRole?)ca.ApprovalRole)
                             .FirstOrDefaultAsync();
-
-                    // --------------------------------------------------
-                    // UPDATE CLAIM STATUS
-                    // --------------------------------------------------
 
                     claim.Status = nextPendingRole switch
                     {
@@ -317,10 +286,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
                     await _context.SaveChangesAsync();
 
-                    // --------------------------------------------------
-                    // AUDIT
-                    // --------------------------------------------------
-
                     await _auditLogger.LogAsync(
                         AuditAction.ClaimApproved,
                         actorUsername,
@@ -350,10 +315,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 }
             });
         }
-
-        // --------------------------------------------------------------
-        // REJECT
-        // --------------------------------------------------------------
 
         public async Task<ClaimSigningResult> RejectAsync(
             int claimId,
@@ -392,14 +353,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     var adminAccount =
                         await _context.AdminAccounts
                             .FirstOrDefaultAsync(a =>
-                                a.Id == adminAccountId);
+                                a.Id == adminAccountId &&
+                                a.IsActive);
 
                     if (adminAccount is null)
                     {
                         await transaction.RollbackAsync();
 
                         return Fail(
-                            "Your account could not be found.");
+                            "Your account could not be found or is inactive.");
                     }
 
                     if (!await IsAuthorizedApproverAsync(
@@ -465,14 +427,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             });
         }
 
-        // --------------------------------------------------------------
-        // AUTHORIZATION
-        // --------------------------------------------------------------
-        //
-        // For HOD specifically, authorization isn't just "any active HOD".
-        // It must be the exact HOD who approved the CourseAssignment behind
-        // this claim.
-
         private async Task<bool> IsAuthorizedApproverAsync(
             int claimId,
             Data.Models.AdminAccount account,
@@ -482,18 +436,28 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             {
                 case ApprovalRole.HOD:
 
-                    if (account is not Data.Models.Hod)
+                    if (account is not Data.Models.Hod hod)
                         return false;
 
-                    int? approvingHodId =
-                        await _context.Claims
-                            .Where(c => c.Id == claimId)
-                            .Select(c =>
-                                c.CourseAssignment.ApprovedByHodId)
-                            .FirstOrDefaultAsync();
+                    var facultyDepartments =
+                        FacultyDepartments
+                            .GetDepartments(hod.Faculty)
+                            .Select(d => d.ToString())
+                            .ToHashSet(
+                                StringComparer.OrdinalIgnoreCase);
 
-                    return approvingHodId.HasValue &&
-                           approvingHodId.Value == account.Id;
+                    if (facultyDepartments.Count == 0)
+                        return false;
+
+                    return await _context.Claims
+                        .AsNoTracking()
+                        .Where(c =>
+                            c.Id == claimId &&
+                            c.Status == ClaimStatus.PendingHODApproval &&
+                            c.CourseAssignment.Course != null)
+                        .AnyAsync(c =>
+                            facultyDepartments.Contains(
+                                c.CourseAssignment.Course.Department));
 
                 case ApprovalRole.Dean:
 

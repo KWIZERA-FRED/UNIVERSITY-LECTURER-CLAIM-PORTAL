@@ -58,10 +58,6 @@
     {
         var c = Model.SelectedClaim;
 
-        <!-- ============================================================
-             CLAIM SUMMARY
-             ============================================================ -->
-
         <section class="section-card">
 
             <header class="section-header">
@@ -95,10 +91,6 @@
 
         </section>
 
-        <!-- ============================================================
-             DESCRIPTION
-             ============================================================ -->
-
         <section class="section-card">
 
             <header class="section-header">
@@ -119,10 +111,6 @@
             </div>
 
         </section>
-
-        <!-- ============================================================
-             CONTRACT
-             ============================================================ -->
 
         <section class="section-card">
 
@@ -176,8 +164,6 @@
                 <div class="section-actions">
 
                     <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
-                       target="_blank"
-                       rel="noopener noreferrer"
                        class="primary-button">
                         <i class="bi bi-folder2-open"></i>
                         View Contract &amp; Claim Documents
@@ -187,10 +173,6 @@
             }
 
         </section>
-
-        <!-- ============================================================
-             CLAIM LETTER
-             ============================================================ -->
 
         <section class="section-card">
 
@@ -203,8 +185,6 @@
                 <div class="section-actions">
 
                     <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
-                       target="_blank"
-                       rel="noopener noreferrer"
                        class="secondary-button">
                         <i class="bi bi-file-earmark-text"></i>
                         View Claim Documents
@@ -220,10 +200,6 @@
             }
 
         </section>
-
-        <!-- ============================================================
-             MARKS SUBMISSION
-             ============================================================ -->
 
         <section class="section-card">
 
@@ -272,8 +248,6 @@
                     <a asp-page-handler="DownloadMarks"
                        asp-route-claimId="@c.ClaimId"
                        asp-route-marksId="@c.MarksSubmissionId.Value"
-                       target="_blank"
-                       rel="noopener noreferrer"
                        class="secondary-button">
                         <i class="bi bi-download"></i>
                         Download Marks
@@ -289,10 +263,6 @@
             }
 
         </section>
-
-        <!-- ============================================================
-             DEAN DECISION
-             ============================================================ -->
 
         @if (!c.IsThisRolesTurn)
         {
