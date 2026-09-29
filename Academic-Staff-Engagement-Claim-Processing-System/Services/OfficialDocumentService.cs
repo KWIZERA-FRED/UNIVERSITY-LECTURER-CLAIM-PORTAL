@@ -1,3 +1,4 @@
+using System.Globalization;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
@@ -18,6 +19,7 @@ public sealed class OfficialDocumentService
     private const string HrOfficerName = "Mr. NTAKIRUTIMANA Elison";
     private const string DvcarName = "Prof. HAKIZIMANA Emmanuel";
     private const string ViceChancellorName = "Prof. NGAMIJE Jean";
+    private const string ViceChancellorPreambleName = "Prof. Jean NGAMIJE";
 
     public OfficialDocumentService(
         ApplicationDbContext context,
@@ -112,7 +114,7 @@ public sealed class OfficialDocumentService
             .FirstOrDefaultAsync(c => c.QrCodeToken == token);
 
     // ================================================================
-    // CONTRACT PDF
+    // CONTRACT PDF  (mirrors the UNILAK paper contract, 2 pages max)
     // ================================================================
 
     private async Task<byte[]> CreateContractPdfAsync(
@@ -168,49 +170,50 @@ public sealed class OfficialDocumentService
         return Document.Create(document =>
         {
             // ---------------------------------------------------
-            // PAGE 1 — Letterhead, preamble, Articles 1–5
+            // PAGE 1 — Letterhead, preamble, Articles 1–5 (intro)
             // ---------------------------------------------------
             document.Page(page =>
             {
-                ConfigurePage(page);
+                ConfigurePage(page, compact: true);
 
                 page.Content().Column(column =>
                 {
-                    column.Spacing(9);
+                    column.Spacing(0);
 
-                    column.Item().Element(c => OfficialHeader(c, logo, qr));
+                    column.Item().Element(c => ContractLetterhead(c, logo));
+
+                    column.Item()
+                        .PaddingTop(22)
+                        .Text($"Kigali, {DateTime.UtcNow:dd/MM/yyyy}");
 
                     column.Item()
                         .PaddingTop(14)
-                        .Text($"Kigali, {DateTime.UtcNow:dd/MM/yyyy}")
-                        .FontSize(11);
+                        .Text("EMPLOYMENT PART-TIME CONTRACT");
 
                     column.Item()
-                        .PaddingTop(6)
-                        .Text("EMPLOYMENT PART-TIME CONTRACT")
-                        .Bold()
-                        .FontSize(13);
-
-                    column.Item()
-                        .PaddingTop(10)
+                        .PaddingTop(12)
                         .Text("Between the undersigned:");
 
                     column.Item()
                         .Text(text =>
                         {
+                            text.Justify();
+
                             text.Span(
                                 "University of Lay Adventists of Kigali (UNILAK) represented by Vice Chancellor ");
 
-                            text.Span(ViceChancellorName)
+                            text.Span(ViceChancellorPreambleName)
                                 .Bold();
 
                             text.Span(" on one hand,");
                         });
 
                     column.Item()
-                        .PaddingTop(6)
+                        .PaddingTop(10)
                         .Text(text =>
                         {
+                            text.Justify();
+
                             text.Span("And the Employee, ");
 
                             text.Span(lecturer.UserName)
@@ -230,9 +233,7 @@ public sealed class OfficialDocumentService
                         });
 
                     column.Item()
-                        .PaddingTop(4)
-                        .Text("The following has been agreed:")
-                        .Bold();
+                        .Text("The following has been agreed:");
 
                     Article(
                         column,
@@ -245,17 +246,17 @@ public sealed class OfficialDocumentService
                     Article(
                         column,
                         "Article 2",
-                        $"The number of contact hours allocated to the course/module is {assignment.AllocatedHours:N0} hours " +
-                        "and this includes the theory, practical as well as examinations. " +
-                        $"The rate per hour will be {claim.Contract.RatePerHour:N0} RWF (gross), applicable to the " +
-                        $"{rankLabel} category, in accordance with the University's approved part-time lecturer rate scale.");
+                        "The number of contact hours allocated to the course/module if the course is taught " +
+                        $"through face-to-face mode is {assignment.AllocatedHours:N0} hours and this includes the " +
+                        "theory, practical as well as examinations. " +
+                        $"The rate per hour will be {claim.Contract.RatePerHour:N0} RWF (gross).");
 
                     Article(
                         column,
                         "Article 3",
-                        "The number of classes combined, if the module/course is taught through online teaching mode, " +
-                        "and the total number of hours allocated to those combined classes taught by one academic staff " +
-                        "member, shall be as specified in the course assignment record.");
+                        "The numbers of classes combined if the module/course is taught through online teaching " +
+                        "mode: …………… and the total number of hours allocated to those combined classes taught " +
+                        "by one academic staff: ……………");
 
                     Article(
                         column,
@@ -264,41 +265,37 @@ public sealed class OfficialDocumentService
                         "office his/her application letter, CV, notarized copy of the degree, Equivalence if the degree " +
                         "is offered from a foreign country, as well as his/her nomination papers for his previous academic rank.");
 
-                    ArticleWithBullets(
+                    Article(
                         column,
                         "Article 5",
-                        "The Lecturer is required to submit to the Head of the Department the following documents:",
-                        new[]
-                        {
-                            "Course materials such as Handout/syllabuses and other supporting documents must be " +
-                            "uploaded to the UNILAK online teaching platform and submitted to the Head of Department " +
-                            "office before starting the class,",
-
-                            "Final exam and marking scheme,",
-
-                            "Continuous assessment papers: assignments/quiz/test."
-                        },
-                        "✓");
+                        "The Lecturer is required to submit to the Head of the Department the following documents:");
                 });
 
                 page.Footer()
-                    .AlignCenter()
-                    .Text(
-                        "Accredited by Ministerial Order N° 002/09 of 09/04/2009 granting the Definitive Operating Licence.")
-                    .FontSize(8)
-                    .FontColor(Colors.Grey.Darken1);
+                    .Element(f => ContractFooter(f, qr, firstPage: true));
             });
 
             // ---------------------------------------------------
-            // PAGE 2 — Articles 6–10 and signature block
+            // PAGE 2 — Article 5 items, Articles 6–10, signatories
             // ---------------------------------------------------
             document.Page(page =>
             {
-                ConfigurePage(page);
+                ConfigurePage(page, compact: true);
 
                 page.Content().Column(column =>
                 {
-                    column.Spacing(10);
+                    column.Spacing(0);
+
+                    BulletRow(
+                        column,
+                        "Course materials such as Handout/syllabuses and other supporting documents must be " +
+                        "uploaded to the UNILAK online teaching platform and submitted to the Head of Department " +
+                        "office before starting the class,",
+                        "✓");
+
+                    BulletRow(column, "Final exam and marking scheme,", "✓");
+
+                    BulletRow(column, "Continuous assessment papers: assignments/quiz/test.", "✓");
 
                     Article(
                         column,
@@ -342,50 +339,158 @@ public sealed class OfficialDocumentService
                         "writing. However, the University reserves the right to cancel the present contract without " +
                         "prior notice in case the employee seems to be inefficient, immoral, or absent without informing the HOD.");
 
-                    column.Item()
-                        .PaddingTop(24)
-                        .Column(signatureColumn =>
-                        {
-                            SignatureBlock(
-                                signatureColumn,
-                                $"Lecturer's Name: {lecturer.UserName}",
-                                lecturerSignature);
+                    column.Item().PaddingTop(10);
 
-                            SignatureBlock(
-                                signatureColumn,
-                                "Dean of Faculty: Prof. NYESHEJA M. Enan",
-                                deanSignature);
+                    SignatoryLine(
+                        column,
+                        $"Lecturer's Name: {lecturer.UserName}",
+                        lecturerSignature);
 
-                            SignatureBlock(
-                                signatureColumn,
-                                "Human Resource Officer: Mr. NTAKIRUTIMANA Elison",
-                                hrSignature);
+                    SignatoryLine(
+                        column,
+                        $"Dean of Faculty: {DeanName}",
+                        deanSignature);
 
-                            SignatureBlock(
-                                signatureColumn,
-                                "DVCAR: Prof. HAKIZIMANA Emmanuel",
-                                dvcarSignature);
+                    SignatoryLine(
+                        column,
+                        $"Human Resource Officer: {HrOfficerName}",
+                        hrSignature);
 
-                            SignatureBlock(
-                                signatureColumn,
-                                "Vice Chancellor: Prof. NGAMIJE Jean",
-                                viceChancellorSignature);
-                        });
+                    SignatoryLine(
+                        column,
+                        $"DVCAR: {DvcarName}",
+                        dvcarSignature);
+
+                    SignatoryLine(
+                        column,
+                        $"Vice Chancellor: {ViceChancellorName}",
+                        viceChancellorSignature);
                 });
 
                 page.Footer()
-                    .AlignCenter()
-                    .Text("Page 2 of 2")
-                    .FontSize(8);
+                    .Element(f => ContractFooter(f, qr, firstPage: false));
             });
         }).GeneratePdf();
     }
 
     // ================================================================
-    // SIGNATURE BLOCK
+    // CONTRACT: LETTERHEAD + FOOTER
     // ================================================================
 
-    private void SignatureBlock(
+    private static void ContractLetterhead(
+        IContainer container,
+        byte[]? logo) =>
+        container.Row(row =>
+        {
+            if (logo is not null)
+            {
+                row.ConstantItem(84)
+                    .AlignMiddle()
+                    .Width(76)
+                    .Height(76)
+                    .Image(logo)
+                    .FitArea();
+            }
+
+            row.RelativeItem()
+                .PaddingLeft(8)
+                .AlignMiddle()
+                .Column(col =>
+                {
+                    col.Item()
+                        .Text("UNIVERSITY OF LAY ADVENTISTS OF KIGALI")
+                        .Bold()
+                        .FontSize(14)
+                        .FontColor("#5F5F5F");
+
+                    col.Item()
+                        .PaddingTop(6)
+                        .Row(info =>
+                        {
+                            info.RelativeItem()
+                                .Text(t =>
+                                {
+                                    t.DefaultTextStyle(x =>
+                                        x.FontSize(7.5f)
+                                         .FontColor("#8A8A8A")
+                                         .LineHeight(1.3f));
+
+                                    t.Line("P.O. Box 6392 Kigali, Rwanda");
+                                    t.Line("Phone: +250 (0)731 743 439 / +250 (0)751 743 431");
+                                });
+
+                            info.ConstantItem(140)
+                                .Text(t =>
+                                {
+                                    t.AlignRight();
+
+                                    t.DefaultTextStyle(x =>
+                                        x.FontSize(7.5f)
+                                         .FontColor("#8A8A8A")
+                                         .LineHeight(1.3f));
+
+                                    t.Line("Website: www.unilak.ac.rw");
+                                    t.Line("E-mail: info@unilak.ac.rw");
+                                });
+                        });
+                });
+        });
+
+    private static void ContractFooter(
+        IContainer container,
+        byte[]? qr,
+        bool firstPage) =>
+        container
+            .PaddingTop(6)
+            .Row(row =>
+            {
+                row.ConstantItem(24)
+                    .AlignBottom()
+                    .Text(t =>
+                    {
+                        t.DefaultTextStyle(x => x.FontSize(10));
+                        t.CurrentPageNumber();
+                    });
+
+                if (firstPage)
+                {
+                    row.RelativeItem()
+                        .AlignMiddle()
+                        .Background("#8C8C8C")
+                        .Padding(6)
+                        .AlignCenter()
+                        .Text(
+                            "Accredited by Ministerial Order N° 002/09 of 09/04/2009 granting the Definitive Operating Licence.")
+                        .Bold()
+                        .FontSize(8)
+                        .FontColor(Colors.White);
+
+                    if (qr is not null)
+                    {
+                        row.ConstantItem(52)
+                            .AlignRight()
+                            .AlignMiddle()
+                            .Width(40)
+                            .Height(40)
+                            .Image(qr)
+                            .FitArea();
+                    }
+                    else
+                    {
+                        row.ConstantItem(52);
+                    }
+                }
+                else
+                {
+                    row.RelativeItem();
+                }
+            });
+
+    // ================================================================
+    // SIGNATORY LINE  (one line: name ... Signature ..... Date .....)
+    // ================================================================
+
+    private void SignatoryLine(
         ColumnDescriptor column,
         string label,
         ContractSignature? signature)
@@ -402,76 +507,99 @@ public sealed class OfficialDocumentService
                     .Value
                     .ToLocalTime()
                     .ToString("dd/MM/yyyy")
-                : string.Empty;
+                : null;
 
         column.Item()
-            .PaddingTop(22)
-            .Column(block =>
+            .PaddingTop(6)
+            .ShowEntire() // a signatory line is never split across pages
+            .Row(row =>
             {
-                block.Item()
+                row.AutoItem()
+                    .AlignBottom()
                     .Text(label)
-                    .Bold()
                     .FontSize(10);
 
-                block.Item()
-                    .PaddingTop(20)
-                    .Row(row =>
-                    {
-                        row.RelativeItem(62)
-                            .Column(sigCol =>
-                            {
-                                sigCol.Item()
-                                    .Height(30)
-                                    .Element(e =>
-                                    {
-                                        if (signatureImage is not null)
-                                        {
-                                            e.AlignLeft()
-                                             .AlignBottom()
-                                             .Width(120)
-                                             .Height(26)
-                                             .Image(signatureImage)
-                                             .FitArea();
-                                        }
-                                    });
+                row.ConstantItem(4);
 
-                                sigCol.Item()
-                                    .PaddingTop(2)
-                                    .LineHorizontal(0.6f)
-                                    .LineColor("#B8B8B8");
+                row.AutoItem()
+                    .AlignBottom()
+                    .Text("Signature")
+                    .FontSize(10);
 
-                                sigCol.Item()
-                                    .PaddingTop(3)
-                                    .Text("Signature")
-                                    .FontSize(8)
-                                    .FontColor("#8A8A8A");
-                            });
+                row.RelativeItem()
+                    .Height(28)
+                    .Element(e => DottedCell(e, signatureImage, null));
 
-                        row.ConstantItem(28);
+                row.ConstantItem(4);
 
-                        row.RelativeItem()
-                            .Column(dateCol =>
-                            {
-                                dateCol.Item()
-                                    .Height(30)
-                                    .AlignBottom()
-                                    .Text(signedDate)
-                                    .FontSize(11);
+                row.AutoItem()
+                    .AlignBottom()
+                    .Text("Date")
+                    .FontSize(10);
 
-                                dateCol.Item()
-                                    .PaddingTop(2)
-                                    .LineHorizontal(0.6f)
-                                    .LineColor("#B8B8B8");
+                row.ConstantItem(4);
 
-                                dateCol.Item()
-                                    .PaddingTop(3)
-                                    .Text("Date")
-                                    .FontSize(8)
-                                    .FontColor("#8A8A8A");
-                            });
-                    });
+                row.ConstantItem(84)
+                    .Height(28)
+                    .Element(e => DottedCell(e, null, signedDate));
             });
     }
+
+    // A dotted leader ("……………") with an optional signature image or
+    // date text sitting just above it, like the paper contract.
+    private static void DottedCell(
+        IContainer container,
+        byte[]? image,
+        string? text) =>
+        container.Layers(layers =>
+        {
+            layers.Layer()
+                .Svg(size =>
+                {
+                    var inv = CultureInfo.InvariantCulture;
+
+                    var w = size.Width;
+                    var h = size.Height;
+                    var y = (h - 3.5f).ToString("0.##", inv);
+
+                    var dots = new System.Text.StringBuilder();
+
+                    for (var x = 1f; x < w; x += 3.2f)
+                    {
+                        dots.Append(
+                            $"<circle cx=\"{x.ToString("0.##", inv)}\" cy=\"{y}\" r=\"0.55\" fill=\"#333333\" />");
+                    }
+
+                    return
+                        $"<svg xmlns=\"http://www.w3.org/2000/svg\" " +
+                        $"width=\"{w.ToString("0.##", inv)}\" " +
+                        $"height=\"{h.ToString("0.##", inv)}\" " +
+                        $"viewBox=\"0 0 {w.ToString("0.##", inv)} {h.ToString("0.##", inv)}\">" +
+                        dots +
+                        "</svg>";
+                });
+
+            layers.PrimaryLayer()
+                .PaddingBottom(4)
+                .AlignBottom()
+                .Element(e =>
+                {
+                    if (image is not null)
+                    {
+                        e.AlignLeft()
+                         .Width(100)
+                         .Height(20)
+                         .Image(image)
+                         .FitArea();
+                    }
+                    else if (!string.IsNullOrWhiteSpace(text))
+                    {
+                        e.AlignLeft()
+                         .Text(text)
+                         .FontSize(10);
+                    }
+                });
+        });
 
     // ================================================================
     // CLAIM LETTER PDF
@@ -597,15 +725,25 @@ public sealed class OfficialDocumentService
     // ================================================================
 
     private static void ConfigurePage(
-        PageDescriptor page)
+        PageDescriptor page,
+        bool compact = false)
     {
         page.Size(PageSizes.A4);
-        page.Margin(50);
+
+        if (compact)
+        {
+            page.MarginHorizontal(50);
+            page.MarginVertical(36);
+        }
+        else
+        {
+            page.Margin(50);
+        }
 
         page.DefaultTextStyle(x =>
             x.FontFamily("Times New Roman")
-             .FontSize(11)
-             .LineHeight(1.4f));
+             .FontSize(compact ? 11.5f : 11)
+             .LineHeight(compact ? 1.25f : 1.4f));
     }
 
     private static void OfficialHeader(
@@ -687,9 +825,11 @@ public sealed class OfficialDocumentService
         string heading,
         string body) =>
         column.Item()
-            .PaddingTop(4)
+            .PaddingTop(12)
             .Text(text =>
             {
+                text.Justify();
+
                 text.Span($"{heading}: ")
                     .Bold();
 
@@ -703,12 +843,14 @@ public sealed class OfficialDocumentService
         IReadOnlyList<string> items,
         string bullet) =>
         column.Item()
-            .PaddingTop(4)
+            .PaddingTop(12)
             .Column(article =>
             {
                 article.Item()
                     .Text(text =>
                     {
+                        text.Justify();
+
                         text.Span($"{heading}: ")
                             .Bold();
 
@@ -717,16 +859,28 @@ public sealed class OfficialDocumentService
 
                 foreach (var item in items)
                 {
-                    article.Item()
-                        .PaddingLeft(16)
-                        .Text(text =>
-                        {
-                            text.Span($"{bullet} ")
-                                .Bold();
-
-                            text.Span(item);
-                        });
+                    BulletRow(article, item, bullet);
                 }
+            });
+
+    // A bullet with a hanging indent, justified like the paper contract.
+    private static void BulletRow(
+        ColumnDescriptor column,
+        string item,
+        string bullet) =>
+        column.Item()
+            .PaddingLeft(16)
+            .Row(row =>
+            {
+                row.ConstantItem(14)
+                    .Text(bullet);
+
+                row.RelativeItem()
+                    .Text(text =>
+                    {
+                        text.Justify();
+                        text.Span(item);
+                    });
             });
 
     private static string FormatEnumLabel(
