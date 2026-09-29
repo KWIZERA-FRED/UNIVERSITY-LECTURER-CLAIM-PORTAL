@@ -1,6 +1,4 @@
-using System.Net;
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
@@ -265,18 +263,17 @@ public class ContractsModel : PageModel
         // ========================================================
         //
         // Contract.Content is the immutable snapshot stored when
-        // the contract was generated. It contains a static
-        // signature table with no images.
-        //
-        // We rebuild that table from the live ContractSignatures
-        // rows so the rendered document shows the real signature
-        // images (same behaviour as the HOD page).
+        // the contract was generated. Its signature block is
+        // rebuilt from the live ContractSignatures rows so exactly
+        // one block is shown, with the real signature images and
+        // dates (same behaviour as the HOD and Dean pages).
         //
 
         var liveContent =
             BuildLiveContractContent(
                 contract.Content ?? string.Empty,
-                signatureSteps);
+                signatureSteps,
+                LecturerName);
 
         SelectedContract =
             new ContractDetail
@@ -315,297 +312,17 @@ public class ContractsModel : PageModel
     // ================================================================
     //
     // Contract.Content remains the original immutable snapshot.
-    //
-    // We only replace the signature table for display, so the
-    // rendered contract shows the real signatures from
-    // ContractSignatures.SignatureFilePath.
+    // Only its signature block is replaced, for display.
     // ================================================================
 
     private static string BuildLiveContractContent(
         string originalContent,
-        IReadOnlyCollection<ContractSignature> signatures)
-    {
-        if (string.IsNullOrWhiteSpace(originalContent))
-            return string.Empty;
-
-        if (signatures.Count == 0)
-            return originalContent;
-
-        var pattern =
-            @"<table\s+class\s*=\s*[""']signature-table[""'][^>]*>.*?</table>";
-
-        var liveSignatureTable =
-            BuildLiveSignatureTable(signatures);
-
-        return Regex.Replace(
+        IReadOnlyCollection<ContractSignature> signatures,
+        string lecturerName) =>
+        ContractSignatureMarkup.ApplyLiveSignatures(
             originalContent,
-            pattern,
-            liveSignatureTable,
-            RegexOptions.IgnoreCase |
-            RegexOptions.Singleline);
-    }
-
-    // ================================================================
-    // BUILD LIVE SIGNATURE TABLE
-    // ================================================================
-
-    private static string BuildLiveSignatureTable(
-        IEnumerable<ContractSignature> signatures)
-    {
-        var orderedSignatures = signatures
-            .OrderBy(s => s.SequenceOrder)
-            .ThenBy(s => s.SignerRole)
-            .ToList();
-
-        var rows = string.Join(
-            Environment.NewLine,
-            orderedSignatures.Select(BuildSignatureRow));
-
-        return $"""
-<table class="signature-table live-signature-table">
-
-    <thead>
-
-        <tr>
-
-            <th>Signatory</th>
-
-            <th>Name</th>
-
-            <th>Signature</th>
-
-            <th>Date</th>
-
-        </tr>
-
-    </thead>
-
-    <tbody>
-
-        {rows}
-
-    </tbody>
-
-</table>
-""";
-    }
-
-    // ================================================================
-    // BUILD INDIVIDUAL SIGNATURE ROW
-    // ================================================================
-
-    private static string BuildSignatureRow(
-        ContractSignature signature)
-    {
-        var roleName =
-            GetSignerDisplayName(signature.SignerRole);
-
-        var signerName =
-            GetSignerName(signature);
-
-        var safeRole =
-            WebUtility.HtmlEncode(roleName);
-
-        var safeSignerName =
-            WebUtility.HtmlEncode(signerName);
-
-        var rowClass =
-            signature.Decision switch
-            {
-                SignatureDecision.Signed =>
-                    "signature-row-signed",
-
-                SignatureDecision.Declined =>
-                    "signature-row-declined",
-
-                _ => string.Empty
-            };
-
-        var signatureHtml =
-            BuildSignatureCell(signature);
-
-        var dateHtml =
-            BuildDateCell(signature);
-
-        return $"""
-<tr class="{rowClass}">
-
-    <td><strong>{safeRole}</strong></td>
-
-    <td>{safeSignerName}</td>
-
-    <td class="signature-cell">{signatureHtml}</td>
-
-    <td>{dateHtml}</td>
-
-</tr>
-""";
-    }
-
-    // ================================================================
-    // SIGNATURE CELL
-    // ================================================================
-
-    private static string BuildSignatureCell(
-        ContractSignature signature)
-    {
-        if (signature.Decision == SignatureDecision.Signed)
-        {
-            if (!string.IsNullOrWhiteSpace(signature.SignatureFilePath))
-            {
-                var safePath =
-                    WebUtility.HtmlEncode(
-                        signature.SignatureFilePath);
-
-                return $"""
-<div class="signature-image-wrapper">
-
-    <img src="{safePath}"
-         alt="Electronic signature"
-         class="contract-signature-image" />
-
-</div>
-
-<span class="signature-status signed">
-    Signed
-</span>
-""";
-            }
-
-            // The database says Signed but no image was stored.
-            return """
-<span class="signature-missing">
-    Signature recorded
-</span>
-
-<br />
-
-<span class="signature-status signed">
-    Signed
-</span>
-""";
-        }
-
-        if (signature.Decision == SignatureDecision.Declined)
-        {
-            var reason = string.IsNullOrWhiteSpace(signature.Comments)
-                ? "No reason provided."
-                : signature.Comments.Trim();
-
-            return $"""
-<span class="signature-status declined">
-    Declined
-</span>
-
-<br />
-
-<span class="signature-missing">
-    {WebUtility.HtmlEncode(reason)}
-</span>
-""";
-        }
-
-        return """
-<span class="signature-placeholder">
-    Pending electronic signature
-</span>
-
-<br />
-
-<span class="signature-status pending">
-    Pending
-</span>
-""";
-    }
-
-    // ================================================================
-    // DATE CELL
-    // ================================================================
-
-    private static string BuildDateCell(
-        ContractSignature signature)
-    {
-        if (signature.Decision == SignatureDecision.Signed &&
-            signature.SignedAtUtc.HasValue)
-        {
-            return $"""
-<span class="signature-date">
-    {signature.SignedAtUtc.Value.ToLocalTime():dd MMMM yyyy}
-    <br />
-    {signature.SignedAtUtc.Value.ToLocalTime():HH:mm}
-</span>
-""";
-        }
-
-        if (signature.Decision == SignatureDecision.Declined &&
-            signature.SignedAtUtc.HasValue)
-        {
-            return $"""
-<span class="signature-date">
-    Declined
-    <br />
-    {signature.SignedAtUtc.Value.ToLocalTime():dd MMMM yyyy}
-</span>
-""";
-        }
-
-        return """
-<span class="signature-placeholder">
-    Pending
-</span>
-""";
-    }
-
-    // ================================================================
-    // SIGNER ROLE DISPLAY
-    // ================================================================
-
-    private static string GetSignerDisplayName(
-        SignerRole role)
-    {
-        return role switch
-        {
-            SignerRole.Lecturer =>
-                "Lecturer",
-
-            SignerRole.Dean =>
-                "Dean of Faculty",
-
-            SignerRole.HROfficer =>
-                "Human Resource Officer",
-
-            SignerRole.DVCAR =>
-                "DVCAR",
-
-            SignerRole.ViceChancellor =>
-                "Vice Chancellor",
-
-            _ =>
-                role.ToString()
-        };
-    }
-
-    // ================================================================
-    // SIGNER NAME
-    // ================================================================
-    //
-    // Lecturer → the lecturer who owns the contract
-    // Admin    → the account that actually signed
-    // Fallback → role label
-    //
-
-    private static string GetSignerName(
-        ContractSignature signature)
-    {
-        if (signature.SignerRole == SignerRole.Lecturer)
-        {
-            return signature.SignedByLecturer?.UserName
-                ?? "Lecturer";
-        }
-
-        return signature.SignedByAdminAccount?.UserName
-            ?? GetSignerDisplayName(signature.SignerRole);
-    }
+            signatures,
+            lecturerName);
 
     // ============================================================
     // CONTRACT ROW

@@ -1,6 +1,8 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,54 +28,80 @@ public class ClaimsModel : PageModel
     {
         public int ClaimId { get; set; }
 
-        public string LecturerName { get; set; } = string.Empty;
+        public string LecturerName { get; set; } =
+            string.Empty;
 
         public int ContractId { get; set; }
 
         public decimal HoursClaimed { get; set; }
     }
 
-    public async Task OnGetAsync()
+    public async Task<IActionResult> OnGetAsync()
     {
-        SuccessMessage = TempData["SuccessMessage"] as string;
-        ErrorMessage = TempData["ErrorMessage"] as string;
+        SuccessMessage =
+            TempData["SuccessMessage"] as string;
 
-        int.TryParse(
-            User.FindFirst("UserId")?.Value,
-            out int hodId);
+        ErrorMessage =
+            TempData["ErrorMessage"] as string;
 
-        if (hodId <= 0)
-        {
-            ErrorMessage = "Your HOD account could not be identified.";
-            return;
-        }
+        var username = User.Identity?.Name;
 
-        var isHod = await _context.Hods
+        if (string.IsNullOrWhiteSpace(username))
+            return Challenge();
+
+        var hod = await _context.Hods
             .AsNoTracking()
-            .AnyAsync(h =>
-                h.Id == hodId &&
-                h.IsActive);
+            .Where(h =>
+                h.UserName == username &&
+                h.IsActive)
+            .Select(h => new
+            {
+                h.Id,
+                h.Faculty
+            })
+            .FirstOrDefaultAsync();
 
-        if (!isHod)
+        if (hod is null)
         {
-            ErrorMessage = "Your HOD account could not be found or is inactive.";
-            return;
+            ErrorMessage =
+                "Your HOD account could not be found or is inactive.";
+
+            return Page();
         }
 
-        await LoadPendingListAsync(hodId);
+        var facultyDepartmentValues =
+            GetFacultyCourseDepartmentValues(hod.Faculty);
+
+        if (facultyDepartmentValues.Count == 0)
+        {
+            ErrorMessage =
+                "No course departments are configured for your faculty.";
+
+            return Page();
+        }
+
+        await LoadPendingListAsync(
+            facultyDepartmentValues);
+
+        return Page();
     }
 
-    private async Task LoadPendingListAsync(int hodId)
+    private async Task LoadPendingListAsync(
+        HashSet<string> facultyDepartmentValues)
     {
         PendingClaims = await _context.ClaimApprovals
             .AsNoTracking()
             .Where(ca =>
                 ca.ApprovalRole == ApprovalRole.HOD &&
                 ca.Decision == ApprovalDecision.Pending &&
-                ca.Claim.CourseAssignment.ApprovedByHodId == hodId)
+                ca.Claim.Status == ClaimStatus.PendingHODApproval &&
+                ca.Claim.CourseAssignment.Course != null &&
+                facultyDepartmentValues.Contains(
+                    ca.Claim.CourseAssignment.Course.Department))
             .Select(ca => new PendingClaimRow
             {
-                ClaimId = ca.Claim.Id,
+                ClaimId =
+                    ca.Claim.Id,
 
                 LecturerName =
                     ca.Claim.CourseAssignment.Lecturer.UserName,
@@ -86,5 +114,15 @@ public class ClaimsModel : PageModel
             })
             .OrderByDescending(c => c.ClaimId)
             .ToListAsync();
+    }
+
+    private static HashSet<string> GetFacultyCourseDepartmentValues(
+        Faculty faculty)
+    {
+        return FacultyDepartments
+            .GetDepartments(faculty)
+            .Select(d => d.ToString())
+            .ToHashSet(
+                StringComparer.OrdinalIgnoreCase);
     }
 }

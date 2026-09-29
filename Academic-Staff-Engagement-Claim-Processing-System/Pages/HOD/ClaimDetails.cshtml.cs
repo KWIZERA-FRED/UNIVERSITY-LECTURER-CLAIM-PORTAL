@@ -1,9 +1,11 @@
 using System.Security.Claims;
 using System.Text;
+
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -55,7 +57,7 @@ public class ClaimDetailsModel : PageModel
         {
             ErrorMessage =
                 "You are not authorized to review this claim. " +
-                "The claim is assigned to a different HOD.";
+                "The claim does not belong to your faculty.";
 
             return Page();
         }
@@ -83,7 +85,7 @@ public class ClaimDetailsModel : PageModel
         {
             ErrorMessage =
                 "You are not authorized to approve this claim. " +
-                "The claim is assigned to a different HOD.";
+                "The claim does not belong to your faculty.";
 
             SelectedClaim =
                 await _signingService.GetClaimForReviewAsync(
@@ -114,7 +116,8 @@ public class ClaimDetailsModel : PageModel
 
         if (actorId <= 0)
         {
-            ErrorMessage = "Your account could not be identified.";
+            ErrorMessage =
+                "Your account could not be identified.";
 
             SelectedClaim =
                 await _signingService.GetClaimForReviewAsync(
@@ -135,7 +138,8 @@ public class ClaimDetailsModel : PageModel
 
         if (!result.Succeeded)
         {
-            ErrorMessage = result.ErrorMessage;
+            ErrorMessage =
+                result.ErrorMessage;
 
             SelectedClaim =
                 await _signingService.GetClaimForReviewAsync(
@@ -160,7 +164,7 @@ public class ClaimDetailsModel : PageModel
         {
             ErrorMessage =
                 "You are not authorized to reject this claim. " +
-                "The claim is assigned to a different HOD.";
+                "The claim does not belong to your faculty.";
 
             SelectedClaim =
                 await _signingService.GetClaimForReviewAsync(
@@ -188,7 +192,8 @@ public class ClaimDetailsModel : PageModel
 
         if (actorId <= 0)
         {
-            ErrorMessage = "Your account could not be identified.";
+            ErrorMessage =
+                "Your account could not be identified.";
 
             SelectedClaim =
                 await _signingService.GetClaimForReviewAsync(
@@ -210,7 +215,8 @@ public class ClaimDetailsModel : PageModel
 
         if (!result.Succeeded)
         {
-            ErrorMessage = result.ErrorMessage;
+            ErrorMessage =
+                result.ErrorMessage;
 
             SelectedClaim =
                 await _signingService.GetClaimForReviewAsync(
@@ -238,11 +244,15 @@ public class ClaimDetailsModel : PageModel
                 claimId,
                 ApprovalRole.HOD);
 
-        if (claim is null || claim.MarksSubmissionId != marksId)
+        if (claim is null ||
+            claim.MarksSubmissionId != marksId)
+        {
             return NotFound();
+        }
 
         var url =
-            await _marksService.GetSignedFileDownloadUrlAsync(marksId);
+            await _marksService.GetSignedFileDownloadUrlAsync(
+                marksId);
 
         return url is null
             ? NotFound()
@@ -252,30 +262,51 @@ public class ClaimDetailsModel : PageModel
     private async Task<bool> IsCurrentHodAuthorizedForClaimAsync(
         int claimId)
     {
-        int.TryParse(
-            User.FindFirst("UserId")?.Value,
-            out int actorId);
+        var username = User.Identity?.Name;
 
-        if (actorId <= 0)
+        if (string.IsNullOrWhiteSpace(username))
             return false;
 
-        var hodExists = await _context.Hods
+        var hod = await _context.Hods
             .AsNoTracking()
-            .AnyAsync(h =>
-                h.Id == actorId &&
-                h.IsActive);
-
-        if (!hodExists)
-            return false;
-
-        var assignedHodId = await _context.Claims
-            .AsNoTracking()
-            .Where(c => c.Id == claimId)
-            .Select(c => c.CourseAssignment.ApprovedByHodId)
+            .Where(h =>
+                h.UserName == username &&
+                h.IsActive)
+            .Select(h => new
+            {
+                h.Faculty
+            })
             .FirstOrDefaultAsync();
 
-        return assignedHodId.HasValue &&
-               assignedHodId.Value == actorId;
+        if (hod is null)
+            return false;
+
+        var facultyDepartmentValues =
+            GetFacultyCourseDepartmentValues(
+                hod.Faculty);
+
+        if (facultyDepartmentValues.Count == 0)
+            return false;
+
+        return await _context.Claims
+            .AsNoTracking()
+            .Where(c =>
+                c.Id == claimId &&
+                c.Status == ClaimStatus.PendingHODApproval &&
+                c.CourseAssignment.Course != null)
+            .AnyAsync(c =>
+                facultyDepartmentValues.Contains(
+                    c.CourseAssignment.Course.Department));
+    }
+
+    private static HashSet<string> GetFacultyCourseDepartmentValues(
+        Faculty faculty)
+    {
+        return FacultyDepartments
+            .GetDepartments(faculty)
+            .Select(d => d.ToString())
+            .ToHashSet(
+                StringComparer.OrdinalIgnoreCase);
     }
 
     private List<string> GetMissingChecklistItems()
@@ -283,28 +314,36 @@ public class ClaimDetailsModel : PageModel
         var missing = new List<string>();
 
         if (!Checklist.NotesUploadedToELearning)
-            missing.Add("Lecturer's notes/materials on E-Learning");
+            missing.Add(
+                "Lecturer's notes/materials on E-Learning");
 
         if (!Checklist.IndividualGroupWorkOnELearning)
-            missing.Add("Individual/group work on E-Learning");
+            missing.Add(
+                "Individual/group work on E-Learning");
 
         if (!Checklist.MarksAvailableInMIS)
-            missing.Add("Marks available in MIS");
+            missing.Add(
+                "Marks available in MIS");
 
         if (!Checklist.MarksApprovedByHOD)
-            missing.Add("Marks approved by HOD");
+            missing.Add(
+                "Marks approved by HOD");
 
         if (!Checklist.HardCopySubmittedToHodAndRegistrar)
-            missing.Add("Hard copy mark sheets submitted");
+            missing.Add(
+                "Hard copy mark sheets submitted");
 
         if (!Checklist.ExamAndMarkingSchemeAvailable)
-            missing.Add("Exam and marking scheme in HOD office");
+            missing.Add(
+                "Exam and marking scheme in HOD office");
 
         if (!Checklist.ClassAttendanceListAvailable)
-            missing.Add("Students' class attendance list");
+            missing.Add(
+                "Students' class attendance list");
 
         if (!Checklist.ExamScriptsReturned)
-            missing.Add("Exam scripts returned");
+            missing.Add(
+                "Exam scripts returned");
 
         return missing;
     }
@@ -313,23 +352,40 @@ public class ClaimDetailsModel : PageModel
     {
         var builder = new StringBuilder();
 
-        builder.AppendLine("Course Completion Checklist confirmed by HOD:");
         builder.AppendLine(
-            $"1. Notes/materials on E-Learning: {(Checklist.NotesUploadedToELearning ? "Yes" : "No")}");
+            "Course Completion Checklist confirmed by HOD:");
+
         builder.AppendLine(
-            $"2. Individual/group work on E-Learning: {(Checklist.IndividualGroupWorkOnELearning ? "Yes" : "No")}");
+            $"1. Notes/materials on E-Learning: " +
+            $"{(Checklist.NotesUploadedToELearning ? "Yes" : "No")}");
+
         builder.AppendLine(
-            $"3. Marks available in MIS: {(Checklist.MarksAvailableInMIS ? "Yes" : "No")}");
+            $"2. Individual/group work on E-Learning: " +
+            $"{(Checklist.IndividualGroupWorkOnELearning ? "Yes" : "No")}");
+
         builder.AppendLine(
-            $"4. Marks approved by HOD: {(Checklist.MarksApprovedByHOD ? "Yes" : "No")}");
+            $"3. Marks available in MIS: " +
+            $"{(Checklist.MarksAvailableInMIS ? "Yes" : "No")}");
+
         builder.AppendLine(
-            $"5. Hard copy mark sheets submitted: {(Checklist.HardCopySubmittedToHodAndRegistrar ? "Yes" : "No")}");
+            $"4. Marks approved by HOD: " +
+            $"{(Checklist.MarksApprovedByHOD ? "Yes" : "No")}");
+
         builder.AppendLine(
-            $"6. Exam and marking scheme in HOD office: {(Checklist.ExamAndMarkingSchemeAvailable ? "Yes" : "No")}");
+            $"5. Hard copy mark sheets submitted: " +
+            $"{(Checklist.HardCopySubmittedToHodAndRegistrar ? "Yes" : "No")}");
+
         builder.AppendLine(
-            $"7. Students' class attendance list: {(Checklist.ClassAttendanceListAvailable ? "Yes" : "No")}");
+            $"6. Exam and marking scheme in HOD office: " +
+            $"{(Checklist.ExamAndMarkingSchemeAvailable ? "Yes" : "No")}");
+
         builder.AppendLine(
-            $"8. Exam scripts returned: {(Checklist.ExamScriptsReturned ? "Yes" : "No")}");
+            $"7. Students' class attendance list: " +
+            $"{(Checklist.ClassAttendanceListAvailable ? "Yes" : "No")}");
+
+        builder.AppendLine(
+            $"8. Exam scripts returned: " +
+            $"{(Checklist.ExamScriptsReturned ? "Yes" : "No")}");
 
         return builder.ToString();
     }

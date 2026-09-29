@@ -374,7 +374,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
          ============================================================ -->
 
     <p class="contract-accreditation-note">
-        Accredited by Ministerial Order N&deg; 002/09 of 09/04/2009 granting the Definitive Operating Licence.
+        Accredited by Ministerial Order N&deg; 002/09 of 09/04/2009<br />
+        granting the Definitive Operating Licence.
     </p>
 
 </div>

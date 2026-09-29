@@ -50,18 +50,23 @@
    LETTERHEAD
    ================================================================ */
 
+    /* The header is its own size container: every measurement below is a
+       fraction of the header width (cqi), so the letterhead keeps the same
+       proportions as the paper form at any page width. */
     .contract-document .contract-header,
     .contract-preview-paper .contract-header {
+        container-type: inline-size;
         display: grid;
-        grid-template-columns: 100px minmax(0, 1fr) auto;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-rows: minmax(0, 1fr) auto auto;
         grid-template-areas:
             "logo name    name"
             "logo address web"
             "logo contact web";
-        column-gap: 20px;
-        row-gap: 4px;
-        align-items: center;
-        margin: 0 0 44px;
+        column-gap: 28px;
+        row-gap: 0;
+        align-items: stretch;
+        margin: 0 0 48px;
         text-align: left;
     }
 
@@ -69,8 +74,9 @@
     .contract-preview-paper .contract-logo {
         grid-area: logo;
         display: block;
-        width: 92px;
-        height: 92px;
+        width: clamp(64px, 14cqi, 124px);
+        height: auto;
+        aspect-ratio: 1 / 1;
         margin: 0;
         align-self: center;
         object-fit: contain;
@@ -79,16 +85,16 @@
     .contract-document .contract-university-name,
     .contract-preview-paper .contract-university-name {
         grid-area: name;
-        align-self: end;
+        align-self: center;
         margin: 0;
         color: var(--contract-ink);
-        font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
-        font-size: 18px;
+        font-family: Arial, Helvetica, "Segoe UI", sans-serif;
+        font-size: clamp(13px, 3.15cqi, 30px);
         font-weight: 700;
-        line-height: 1.2;
-        letter-spacing: 0.08em;
+        line-height: 1.15;
+        letter-spacing: 0.015em;
         text-transform: uppercase;
-        white-space: normal;
+        white-space: nowrap;
     }
 
     .contract-document .contract-address,
@@ -100,31 +106,33 @@
         margin: 0;
         color: var(--contract-ink);
         font-family: Arial, Helvetica, "Segoe UI", sans-serif;
-        font-size: 8.5pt;
-        line-height: 1.5;
+        font-size: clamp(8px, 1.5cqi, 12.5px);
+        font-weight: 400;
+        line-height: 1.9;
     }
 
+    /* Address + phone start under the left edge of the name */
     .contract-document .contract-address,
     .contract-preview-paper .contract-address {
         grid-area: address;
-        align-self: end;
-        text-align: center;
+        align-self: center;
+        text-align: left;
     }
 
     .contract-document .contract-contact,
     .contract-preview-paper .contract-contact {
         grid-area: contact;
-        align-self: start;
-        text-align: center;
+        align-self: center;
+        text-align: left;
     }
 
+    /* Website + e-mail: two right-aligned lines on the far right */
     .contract-document .contract-web,
     .contract-preview-paper .contract-web {
         grid-area: web;
         align-self: center;
         text-align: right;
         white-space: nowrap;
-        line-height: 1.7;
     }
 
     .contract-document .contract-header-line,
@@ -511,22 +519,26 @@
    ACCREDITATION BANNER — anchored to the bottom of the paper
    ================================================================ */
 
+    /* Full-width bar with the text centred on two lines, like the paper
+       form. The side padding narrows the text so it wraps in two balanced
+       lines; new contracts also carry an explicit line break. */
     .contract-document .contract-accreditation-note,
     .contract-preview-paper .contract-accreditation-note {
         margin-top: auto;
         margin-right: 0;
         margin-bottom: 0;
         margin-left: 0;
-        padding: 14px 20px;
+        padding: 12px 14%;
         background: linear-gradient( 180deg, var(--contract-banner-top) 0%, var(--contract-banner-mid) 50%, var(--contract-banner-bottom) 100% );
         color: var(--contract-ink);
         font-family: Arial, Helvetica, "Segoe UI", sans-serif;
-        font-size: 9pt;
+        font-size: 8.5pt;
         font-weight: 700;
-        line-height: 1.5;
+        line-height: 1.45;
         letter-spacing: 0.01em;
         text-align: center;
-        border-radius: 2px;
+        text-wrap: balance;
+        border-radius: 0;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
@@ -604,6 +616,16 @@
             white-space: normal;
         }
 
+        .contract-document .contract-address,
+        .contract-document .contract-contact,
+        .contract-document .contract-web,
+        .contract-preview-paper .contract-address,
+        .contract-preview-paper .contract-contact,
+        .contract-preview-paper .contract-web {
+            font-size: 9pt;
+            line-height: 1.6;
+        }
+
         .contract-document .paper-signature-line,
         .contract-preview-paper .paper-signature-line {
             flex-wrap: wrap;
@@ -654,7 +676,7 @@
 
         .contract-document .contract-accreditation-note,
         .contract-preview-paper .contract-accreditation-note {
-            padding: 12px 16px;
+            padding: 10px 8%;
             font-size: 8pt;
         }
 }

@@ -1,5 +1,6 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Academic_Staff_Engagement_Claim_Processing_System.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -69,10 +70,14 @@ public class ContractDetailsModel : PageModel
         if (contract is null)
             return NotFound();
 
-        var steps = await _context.ContractSignatures
+        var signatures = await _context.ContractSignatures
             .AsNoTracking()
+            .Include(s => s.SignedByLecturer)
             .Where(s => s.ContractId == contract.Id)
             .OrderBy(s => s.SequenceOrder)
+            .ToListAsync();
+
+        var steps = signatures
             .Select(s => new ContractSignatureViewModel
             {
                 Id = s.Id,
@@ -82,7 +87,17 @@ public class ContractDetailsModel : PageModel
                 Comments = s.Comments,
                 SignedAtUtc = s.SignedAtUtc
             })
-            .ToListAsync();
+            .ToList();
+
+        // Contract.Content is the snapshot stored when the contract was
+        // generated. Rebuild its signature block from the live
+        // ContractSignatures rows so exactly one block is shown, with the
+        // real signature images and dates.
+        var liveContent =
+            ContractSignatureMarkup.ApplyLiveSignatures(
+                contract.Content ?? string.Empty,
+                signatures,
+                contract.Lecturer?.UserName);
 
         Contract = new ContractDetailsViewModel
         {
@@ -104,7 +119,7 @@ public class ContractDetailsModel : PageModel
                 contract.Status,
 
             Content =
-                contract.Content,
+                liveContent,
 
             Steps =
                 steps
