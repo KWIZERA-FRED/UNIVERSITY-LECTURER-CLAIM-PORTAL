@@ -2,13 +2,13 @@
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.IndexModel
 
 @{
-    Layout = "~/Pages/Shared/DEAN/_DeanLayout.cshtml";
+    Layout = "~/Pages/Shared/Dean/_DeanLayout.cshtml";
     ViewData["Title"] = "Dean Dashboard";
 }
 
 @section Styles {
     <link rel="stylesheet"
-          href="~/css/DEAN/dashboard.css"
+          href="~/css/DEAN/Dashboard.css"
           asp-append-version="true" />
 }
 
@@ -16,20 +16,61 @@
 
     <header class="page-header">
         <h1>Dean Dashboard</h1>
-        <p>Monitor contracts, claims and pending academic staff approvals.</p>
+
+        <p>
+            @if (Model.TotalReadyCount > 0)
+            {
+                <text>
+                    <strong>@Model.TotalReadyCount</strong>
+                    @(Model.TotalReadyCount == 1 ? "item needs" : "items need")
+                    your signature.
+                </text>
+            }
+            else
+            {
+                <text>
+                    You're all caught up — nothing is waiting for your signature.
+                </text>
+            }
+        </p>
     </header>
 
     <section class="stats-grid">
 
-        <a asp-page="/DEAN/Contracts" class="stat-card stat-card-orange">
+        <a asp-page="/DEAN/Contracts"
+           class="stat-card stat-card-action stat-card-action-orange">
             <div class="stat-icon">
                 <i class="bi bi-file-earmark-text-fill"></i>
             </div>
             <div class="stat-value">@Model.ContractsToSignCount</div>
             <span class="stat-label">Contracts to Sign</span>
+
+            @if (Model.ContractsWaitingCount > 0)
+            {
+                <span class="stat-meta">
+                    +@Model.ContractsWaitingCount waiting on earlier signers
+                </span>
+            }
         </a>
 
-        <a asp-page="/DEAN/Contracts" class="stat-card stat-card-green">
+        <a asp-page="/DEAN/Claims"
+           class="stat-card stat-card-action stat-card-action-purple">
+            <div class="stat-icon">
+                <i class="bi bi-receipt"></i>
+            </div>
+            <div class="stat-value">@Model.ClaimsToSignCount</div>
+            <span class="stat-label">Claims to Sign</span>
+
+            @if (Model.ClaimsWaitingCount > 0)
+            {
+                <span class="stat-meta">
+                    +@Model.ClaimsWaitingCount waiting on earlier approvers
+                </span>
+            }
+        </a>
+
+        <a asp-page="/DEAN/Contracts"
+           class="stat-card stat-card-quiet stat-card-quiet-green">
             <div class="stat-icon">
                 <i class="bi bi-file-earmark-check-fill"></i>
             </div>
@@ -37,20 +78,13 @@
             <span class="stat-label">Active Contracts</span>
         </a>
 
-        <a asp-page="/DEAN/Claims" class="stat-card stat-card-purple">
-            <div class="stat-icon">
-                <i class="bi bi-receipt"></i>
-            </div>
-            <div class="stat-value">@Model.ClaimsToSignCount</div>
-            <span class="stat-label">Claims to Sign</span>
-        </a>
-
-        <a asp-page="/DEAN/Contracts" class="stat-card stat-card-blue">
+        <a asp-page="/DEAN/Contracts"
+           class="stat-card stat-card-quiet stat-card-quiet-blue">
             <div class="stat-icon">
                 <i class="bi bi-check2-circle"></i>
             </div>
             <div class="stat-value">@Model.CompletedApprovalsCount</div>
-            <span class="stat-label">Completed Approvals</span>
+            <span class="stat-label">Signed by You</span>
         </a>
 
     </section>
@@ -58,12 +92,14 @@
     <section class="section-card">
 
         <header class="section-header">
-            <h2>Contracts Awaiting Signature</h2>
+            <h2>
+                Contracts Awaiting Signature
+                <span class="section-count">@Model.ContractsTotalPending</span>
+            </h2>
             <a asp-page="/DEAN/Contracts" class="section-link">View all</a>
         </header>
 
-        @if (Model.ContractsAwaitingSignature != null &&
-             Model.ContractsAwaitingSignature.Any())
+        @if (Model.ContractsAwaitingSignature.Any())
         {
             <div class="table-wrapper">
                 <table class="data-table">
@@ -75,6 +111,7 @@
                             <th>Department</th>
                             <th>Course</th>
                             <th>Status</th>
+                            <th>Waiting</th>
                             <th class="col-action"></th>
                         </tr>
                     </thead>
@@ -100,16 +137,31 @@
                                 </td>
 
                                 <td>
-                                    <span class="status-badge status-pending">
-                                        Pending Signature
+                                    @if (contract.IsReady)
+                                    {
+                                        <span class="status-badge status-ready">
+                                            Ready to sign
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-waiting">
+                                            Waiting for @contract.WaitingFor
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <span class="age @Model.AgeCss(contract.DaysWaiting)">
+                                        @Model.AgeText(contract.DaysWaiting)
                                     </span>
                                 </td>
 
                                 <td class="col-action">
                                     <a asp-page="/DEAN/Contracts"
                                        asp-route-ContractId="@contract.ContractId"
-                                       class="gray-button">
-                                        Review
+                                       class="@(contract.IsReady ? "primary-button-sm" : "gray-button")">
+                                        @(contract.IsReady ? "Review & sign" : "View")
                                     </a>
                                 </td>
                             </tr>
@@ -118,6 +170,15 @@
 
                 </table>
             </div>
+
+            @if (Model.ContractsTotalPending > Model.ContractsAwaitingSignature.Count)
+            {
+                <div class="section-footnote">
+                    Showing @Model.ContractsAwaitingSignature.Count of
+                    @Model.ContractsTotalPending ·
+                    <a asp-page="/DEAN/Contracts" class="section-link">View all</a>
+                </div>
+            }
         }
         else
         {
@@ -131,12 +192,14 @@
     <section class="section-card">
 
         <header class="section-header">
-            <h2>Claims Awaiting Signature</h2>
+            <h2>
+                Claims Awaiting Signature
+                <span class="section-count">@Model.ClaimsTotalPending</span>
+            </h2>
             <a asp-page="/DEAN/Claims" class="section-link">View all</a>
         </header>
 
-        @if (Model.ClaimsAwaitingSignature != null &&
-             Model.ClaimsAwaitingSignature.Any())
+        @if (Model.ClaimsAwaitingSignature.Any())
         {
             <div class="table-wrapper">
                 <table class="data-table">
@@ -148,6 +211,7 @@
                             <th>Contract</th>
                             <th class="col-right">Hours</th>
                             <th>Status</th>
+                            <th>Waiting</th>
                             <th class="col-action"></th>
                         </tr>
                     </thead>
@@ -177,16 +241,31 @@
                                 </td>
 
                                 <td>
-                                    <span class="status-badge status-pending">
-                                        Pending Signature
+                                    @if (claim.IsReady)
+                                    {
+                                        <span class="status-badge status-ready">
+                                            Ready to sign
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-waiting">
+                                            Waiting for @claim.WaitingFor
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <span class="age @Model.AgeCss(claim.DaysWaiting)">
+                                        @Model.AgeText(claim.DaysWaiting)
                                     </span>
                                 </td>
 
                                 <td class="col-action">
                                     <a asp-page="/DEAN/Claims"
                                        asp-route-ClaimId="@claim.ClaimId"
-                                       class="gray-button">
-                                        Review
+                                       class="@(claim.IsReady ? "primary-button-sm" : "gray-button")">
+                                        @(claim.IsReady ? "Review & sign" : "View")
                                     </a>
                                 </td>
                             </tr>
@@ -195,6 +274,15 @@
 
                 </table>
             </div>
+
+            @if (Model.ClaimsTotalPending > Model.ClaimsAwaitingSignature.Count)
+            {
+                <div class="section-footnote">
+                    Showing @Model.ClaimsAwaitingSignature.Count of
+                    @Model.ClaimsTotalPending ·
+                    <a asp-page="/DEAN/Claims" class="section-link">View all</a>
+                </div>
+            }
         }
         else
         {

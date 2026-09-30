@@ -10,7 +10,7 @@ using QuestPDF.Infrastructure;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Services;
 
-public sealed class OfficialDocumentService
+public sealed partial class OfficialDocumentService
 {
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _environment;
@@ -83,6 +83,18 @@ public sealed class OfficialDocumentService
                     claim,
                     publicDocumentsUrl)),
 
+            OfficialDocumentKind.CompletionForm => new GeneratedDocument(
+                $"course-completion-form-CLM-{claim.Id:D6}.pdf",
+                await CreateCompletionFormPdfAsync(
+                    claim,
+                    publicDocumentsUrl)),
+
+            OfficialDocumentKind.AttendanceReport => new GeneratedDocument(
+                $"attendance-report-CLM-{claim.Id:D6}.pdf",
+                await CreateAttendanceReportPdfAsync(
+                    claim,
+                    publicDocumentsUrl)),
+
             _ => null
         };
     }
@@ -111,6 +123,12 @@ public sealed class OfficialDocumentService
                 .ThenInclude(a => a.Course)
             .Include(c => c.CourseAssignment)
                 .ThenInclude(a => a.Lecturer)
+            .Include(c => c.Attendance)
+                .ThenInclude(a => a!.Records)
+            .Include(c => c.Checklist)
+            .Include(c => c.Approvals)
+                .ThenInclude(a => a.ApprovedByAdminAccount)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(c => c.QrCodeToken == token);
 
     // ================================================================
@@ -134,7 +152,7 @@ public sealed class OfficialDocumentService
 
         var rankLabel =
             lecturer.Rank.HasValue
-                ? FormatEnumLabel(lecturer.Rank.Value.ToString())
+                ? RankLabel(lecturer.Rank)
                 : "Not Yet Assigned";
 
         var sessionLabel =
@@ -145,6 +163,9 @@ public sealed class OfficialDocumentService
 
         var campusLabel =
             FormatEnumLabel(assignment.Campus.ToString());
+
+        var departmentLabel =
+            SentenceCase(assignment.Course.Department);
 
         var signatures = await _context.ContractSignatures
             .AsNoTracking()
@@ -239,7 +260,7 @@ public sealed class OfficialDocumentService
                         column,
                         "Article 1",
                         $"UNILAK employs {lecturer.UserName} as External/Internal part time lecturer in the " +
-                        $"faculty of Computing and Information Sciences, Department of {assignment.Course.Department}, " +
+                        $"faculty of Computing and Information Sciences, Department of {departmentLabel}, " +
                         $"Session {sessionLabel}, to teach the course of {assignment.Course.Code} - {assignment.Course.Title}, " +
                         $"Academic year {assignment.AcademicYear}, {semesterLabel} semester, {campusLabel} Campus.");
 
@@ -487,7 +508,7 @@ public sealed class OfficialDocumentService
             });
 
     // ================================================================
-    // SIGNATORY LINE  (one line: name ... Signature ..... Date .....)
+    // SIGNATORY LINES  (one line: name ... Signature ..... Date .....)
     // ================================================================
 
     private void SignatoryLine(
@@ -509,15 +530,30 @@ public sealed class OfficialDocumentService
                     .ToString("dd/MM/yyyy")
                 : null;
 
+        SignatoryLineCore(column, label, signatureImage, signedDate);
+    }
+
+    // Shared by the contract and the completion form.
+    private static void SignatoryLineCore(
+        ColumnDescriptor column,
+        string label,
+        byte[]? signatureImage,
+        string? signedDate,
+        bool boldLabel = false,
+        float topPadding = 6)
+    {
         column.Item()
-            .PaddingTop(6)
+            .PaddingTop(topPadding)
             .ShowEntire() // a signatory line is never split across pages
             .Row(row =>
             {
-                row.AutoItem()
+                var labelSpan = row.AutoItem()
                     .AlignBottom()
                     .Text(label)
                     .FontSize(10);
+
+                if (boldLabel)
+                    labelSpan.Bold();
 
                 row.ConstantItem(4);
 
@@ -546,7 +582,8 @@ public sealed class OfficialDocumentService
     }
 
     // A dotted leader ("……………") with an optional signature image or
-    // date text sitting just above it, like the paper contract.
+    // date text sitting just above it, like the paper documents.
+    // Used inside a FIXED height, so the content must stay short.
     private static void DottedCell(
         IContainer container,
         byte[]? image,
@@ -554,30 +591,7 @@ public sealed class OfficialDocumentService
         container.Layers(layers =>
         {
             layers.Layer()
-                .Svg(size =>
-                {
-                    var inv = CultureInfo.InvariantCulture;
-
-                    var w = size.Width;
-                    var h = size.Height;
-                    var y = (h - 3.5f).ToString("0.##", inv);
-
-                    var dots = new System.Text.StringBuilder();
-
-                    for (var x = 1f; x < w; x += 3.2f)
-                    {
-                        dots.Append(
-                            $"<circle cx=\"{x.ToString("0.##", inv)}\" cy=\"{y}\" r=\"0.55\" fill=\"#333333\" />");
-                    }
-
-                    return
-                        $"<svg xmlns=\"http://www.w3.org/2000/svg\" " +
-                        $"width=\"{w.ToString("0.##", inv)}\" " +
-                        $"height=\"{h.ToString("0.##", inv)}\" " +
-                        $"viewBox=\"0 0 {w.ToString("0.##", inv)} {h.ToString("0.##", inv)}\">" +
-                        dots +
-                        "</svg>";
-                });
+                .Svg(size => BuildDotsSvg(size.Width, size.Height));
 
             layers.PrimaryLayer()
                 .PaddingBottom(4)
@@ -601,123 +615,45 @@ public sealed class OfficialDocumentService
                 });
         });
 
-    // ================================================================
-    // CLAIM LETTER PDF
-    // ================================================================
+    // A dotted field whose height grows with its text (no fixed height),
+    // so long values wrap instead of breaking the layout.
+    private static void DottedField(
+        IContainer container,
+        string? text,
+        float fontSize = 10) =>
+        container.Layers(layers =>
+        {
+            layers.Layer()
+                .Svg(size => BuildDotsSvg(size.Width, size.Height));
 
-    private byte[] CreateClaimLetterPdf(
-        Claim claim,
-        string publicDocumentsUrl)
+            layers.PrimaryLayer()
+                .PaddingTop(2)
+                .PaddingBottom(4)
+                .Text(string.IsNullOrWhiteSpace(text) ? " " : text)
+                .FontSize(fontSize);
+        });
+
+    private static string BuildDotsSvg(float width, float height)
     {
-        var assignment = claim.CourseAssignment;
-        var lecturer = assignment.Lecturer;
+        var inv = CultureInfo.InvariantCulture;
 
-        var qr = CreateQrPng(publicDocumentsUrl);
-        var signature =
-            GetSignatureBytes(
-                lecturer.SignatureFilePath);
+        var y = (height - 3.5f).ToString("0.##", inv);
 
-        var submitted =
-            claim.SubmittedAtUtc ??
-            claim.CreatedAtUtc;
+        var dots = new System.Text.StringBuilder();
 
-        var logo = GetLogoBytes();
+        for (var x = 1f; x < width; x += 3.2f)
+        {
+            dots.Append(
+                $"<circle cx=\"{x.ToString("0.##", inv)}\" cy=\"{y}\" r=\"0.55\" fill=\"#333333\" />");
+        }
 
-        return Document.Create(document =>
-            document.Page(page =>
-            {
-                ConfigurePage(page);
-
-                page.Header()
-                    .Element(c =>
-                        OfficialHeader(
-                            c,
-                            logo,
-                            qr,
-                            "REQUEST FOR PAYMENT OF TEACHING SERVICES RENDERED"));
-
-                page.Content().Column(column =>
-                {
-                    column.Spacing(12);
-
-                    column.Item()
-                        .Text(
-                            submitted.ToString(
-                                "dd MMMM yyyy"));
-
-                    column.Item()
-                        .Text(lecturer.UserName)
-                        .Bold();
-
-                    column.Item()
-                        .Text(
-                            $"Email: {lecturer.Email}");
-
-                    if (!string.IsNullOrWhiteSpace(
-                            lecturer.PhoneNumber))
-                    {
-                        column.Item()
-                            .Text(
-                                $"Tel: {lecturer.PhoneNumber}");
-                    }
-
-                    column.Item()
-                        .PaddingTop(8)
-                        .Text(
-                            "To: The Finance Office, UNILAK");
-
-                    column.Item()
-                        .Text(
-                            "Subject: Request for Payment of Teaching Services Rendered")
-                        .Bold();
-
-                    column.Item()
-                        .Text(
-                            "Dear Sir/Madam,");
-
-                    column.Item()
-                        .Text(
-                            "I am writing to kindly request payment for the teaching services I provided at UNILAK.");
-
-                    column.Item()
-                        .Text(
-                            $"I taught the course {assignment.Course.Code} - {assignment.Course.Title} during the {assignment.AcademicYear} academic year, {assignment.Semester} semester, for a total of {claim.HoursClaimed:N1} teaching hours.");
-
-                    column.Item()
-                        .Text(
-                            "I respectfully request that payment for these services be processed in accordance with the University's financial procedures. This request is supported by the attached signed contract and approved academic records.");
-
-                    column.Item()
-                        .Text(
-                            "Yours faithfully,");
-
-                    if (signature is not null)
-                    {
-                        column.Item()
-                            .Height(48)
-                            .Image(signature)
-                            .FitArea();
-                    }
-
-                    column.Item()
-                        .Text(lecturer.UserName)
-                        .Bold();
-
-                    column.Item()
-                        .PaddingTop(8)
-                        .Text(
-                            $"Claim reference: CLM-{claim.Id:D6}")
-                        .FontSize(9)
-                        .FontColor("60736A");
-                });
-
-                page.Footer()
-                    .AlignCenter()
-                    .Text(
-                        "UNILAK official claim letter")
-                    .FontSize(9);
-            }))
-            .GeneratePdf();
+        return
+            $"<svg xmlns=\"http://www.w3.org/2000/svg\" " +
+            $"width=\"{width.ToString("0.##", inv)}\" " +
+            $"height=\"{height.ToString("0.##", inv)}\" " +
+            $"viewBox=\"0 0 {width.ToString("0.##", inv)} {height.ToString("0.##", inv)}\">" +
+            dots +
+            "</svg>";
     }
 
     // ================================================================
@@ -745,80 +681,6 @@ public sealed class OfficialDocumentService
              .FontSize(compact ? 11.5f : 11)
              .LineHeight(compact ? 1.25f : 1.4f));
     }
-
-    private static void OfficialHeader(
-        IContainer container,
-        byte[]? logo,
-        byte[]? qr,
-        string? title = null) =>
-        container.Column(col =>
-        {
-            col.Item()
-                .Row(row =>
-                {
-                    if (logo is not null)
-                    {
-                        row.ConstantItem(90)
-                            .AlignMiddle()
-                            .Element(e =>
-                            {
-                                e.Width(72)
-                                 .Height(72)
-                                 .Image(logo)
-                                 .FitArea();
-                            });
-                    }
-
-                    row.RelativeItem()
-                        .PaddingLeft(12)
-                        .PaddingRight(12)
-                        .Column(center =>
-                        {
-                            center.Item()
-                                .AlignCenter()
-                                .Text("UNIVERSITY OF LAY ADVENTISTS OF KIGALI")
-                                .Bold()
-                                .FontSize(14)
-                                .FontColor("#000000");
-
-                            center.Item()
-                                .PaddingTop(4)
-                                .AlignCenter()
-                                .Text("P.O. Box 6392 Kigali, Rwanda")
-                                .FontSize(8)
-                                .FontColor("#000000");
-
-                            center.Item()
-                                .PaddingTop(1)
-                                .AlignCenter()
-                                .Text("Phone: +250 (0)731 743 439 / +250 (0)751 743 431")
-                                .FontSize(8)
-                                .FontColor("#000000");
-                        });
-
-                    if (qr is not null)
-                    {
-                        row.ConstantItem(56)
-                            .AlignMiddle()
-                            .Element(e =>
-                            {
-                                e.Width(46)
-                                 .Height(46)
-                                 .Image(qr)
-                                 .FitArea();
-                            });
-                    }
-                });
-
-            if (!string.IsNullOrWhiteSpace(title))
-            {
-                col.Item()
-                    .PaddingTop(10)
-                    .Text(title)
-                    .Bold()
-                    .FontSize(12);
-            }
-        });
 
     private static void Article(
         ColumnDescriptor column,
@@ -939,7 +801,9 @@ public sealed class OfficialDocumentService
 public enum OfficialDocumentKind
 {
     Contract,
-    ClaimLetter
+    ClaimLetter,
+    CompletionForm,
+    AttendanceReport
 }
 
 public sealed record GeneratedDocument(

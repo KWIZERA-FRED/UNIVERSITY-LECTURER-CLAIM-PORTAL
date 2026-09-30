@@ -63,16 +63,7 @@ public class ClaimDocumentsModel : PageModel
         string token,
         string document)
     {
-        var kind =
-            document.Equals(
-                "contract",
-                StringComparison.OrdinalIgnoreCase)
-                ? OfficialDocumentKind.Contract
-                : document.Equals(
-                    "claim-letter",
-                    StringComparison.OrdinalIgnoreCase)
-                    ? OfficialDocumentKind.ClaimLetter
-                    : (OfficialDocumentKind?)null;
+        var kind = ResolveKind(document);
 
         if (kind is null)
             return BadRequest();
@@ -98,6 +89,25 @@ public class ClaimDocumentsModel : PageModel
                 "application/pdf",
                 generated.FileName);
     }
+
+    private static OfficialDocumentKind? ResolveKind(
+        string? document) =>
+        document?.Trim().ToLowerInvariant() switch
+        {
+            "contract" =>
+                OfficialDocumentKind.Contract,
+
+            "claim-letter" =>
+                OfficialDocumentKind.ClaimLetter,
+
+            "completion-form" =>
+                OfficialDocumentKind.CompletionForm,
+
+            "attendance-report" =>
+                OfficialDocumentKind.AttendanceReport,
+
+            _ => null
+        };
 
     private string ResolveBackUrl(int claimId)
     {
