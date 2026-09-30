@@ -1,6 +1,9 @@
+using System.Globalization;
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Academic_Staff_Engagement_Claim_Processing_System.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,9 +12,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
     [Authorize(Roles = "Dean")]
     public class IndexModel : PageModel
     {
-        private const int MaxRowsPerTable = 8;
+        private const int ClosedWindowDays = 30;
+        private const int MaxRowsShown = 300;
 
         private readonly ApplicationDbContext _context;
+
+        private string[] _searchTerms = Array.Empty<string>();
 
         public IndexModel(ApplicationDbContext context)
         {
@@ -20,122 +26,146 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
 
 
         // ============================================================
-        // DASHBOARD STATISTICS
+        // QUERY STRING  (initial state; the browser takes over after load)
         // ============================================================
 
-        // "To sign" = the Dean's turn has actually come.
-        public int ContractsToSignCount { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public string? Filter { get; set; }
 
-        // Pending for the Dean but waiting on an earlier signer.
-        public int ContractsWaitingCount { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public string? Q { get; set; }
 
-        public int ContractsTotalPending { get; set; }
-
-        public int ActiveContractsCount { get; set; }
-
-        public int ClaimsToSignCount { get; set; }
-
-        public int ClaimsWaitingCount { get; set; }
-
-        public int ClaimsTotalPending { get; set; }
-
-        public int CompletedApprovalsCount { get; set; }
-
-        public int TotalReadyCount =>
-            ContractsToSignCount + ClaimsToSignCount;
+        public string ActiveFilter { get; private set; } = "needs-action";
 
 
         // ============================================================
-        // DASHBOARD TABLES
+        // SUMMARY
         // ============================================================
 
-        public List<ContractSignRow> ContractsAwaitingSignature { get; set; }
-            = new();
+        public int ReadyCount { get; private set; }
 
-        public List<ClaimSignRow> ClaimsAwaitingSignature { get; set; }
-            = new();
+        public int WaitingCount { get; private set; }
+
+        public int WithLaterCount { get; private set; }
+
+        public int ClosedCount { get; private set; }
+
+        public int AllCount { get; private set; }
+
+        public int PipelineCount => WaitingCount + WithLaterCount;
+
+        public decimal ReadyValue { get; private set; }
+
+        public string OldestReadyText { get; private set; } = string.Empty;
+
+        public QueueItem? NextAction { get; private set; }
+
+        public string NextActionWaitText { get; private set; } = string.Empty;
 
 
         // ============================================================
-        // CONTRACT ROW
+        // QUEUE + ACTIVITY
         // ============================================================
 
-        public class ContractSignRow
+        // Every open item plus recent closed ones. The browser filters
+        // this list live as the Dean types or switches tab.
+        public List<QueueItem> Items { get; private set; } = new();
+
+        public bool IsTruncated { get; private set; }
+
+        public List<ActivityItem> Activity { get; private set; } = new();
+
+
+        // ============================================================
+        // VIEW MODELS
+        // ============================================================
+
+        public enum QueueKind
         {
-            public int ContractId { get; set; }
+            Claim,
+            Contract
+        }
+
+        // Order matters: it is the display order.
+        public enum QueueBucket
+        {
+            NeedsAction = 0,
+            WaitingOnEarlier = 1,
+            WithLater = 2,
+            Closed = 3
+        }
+
+        public sealed class QueueItem
+        {
+            public QueueKind Kind { get; set; }
+
+            public int Id { get; set; }
+
+            public string Reference { get; set; } = string.Empty;
 
             public string LecturerName { get; set; } = string.Empty;
 
-            public string Department { get; set; } = string.Empty;
+            public string CourseCode { get; set; } = string.Empty;
 
             public string CourseTitle { get; set; } = string.Empty;
 
-            public decimal AllocatedHours { get; set; }
+            public decimal Hours { get; set; }
 
-            public bool IsReady { get; set; }
+            public decimal Amount { get; set; }
 
-            public string? WaitingFor { get; set; }
+            public QueueBucket Bucket { get; set; }
 
-            public DateTime? WaitingSince { get; set; }
+            public string StatusText { get; set; } = string.Empty;
+
+            // done | current | waiting | rejected | info
+            public string PillTone { get; set; } = "info";
+
+            public string WaitText { get; set; } = string.Empty;
+
+            // ds-tone-normal | ds-tone-warn | ds-tone-late
+            public string WaitTone { get; set; } = "ds-tone-normal";
+
+            public DateTime? SinceUtc { get; set; }
+
+            public DateTime LastActivityUtc { get; set; }
 
             public int? DaysWaiting { get; set; }
+
+            public List<WorkflowStep> Journey { get; set; } = new();
+
+            public string ReviewUrl { get; set; } = "#";
         }
 
-
-        // ============================================================
-        // CLAIM ROW
-        // ============================================================
-
-        public class ClaimSignRow
+        public sealed class ActivityItem
         {
-            public int ClaimId { get; set; }
+            public string Verb { get; set; } = string.Empty;
+
+            public string Reference { get; set; } = string.Empty;
 
             public string LecturerName { get; set; } = string.Empty;
 
-            public int ContractId { get; set; }
+            public DateTime AtUtc { get; set; }
 
-            public decimal HoursClaimed { get; set; }
+            public string WhenText { get; set; } = string.Empty;
 
-            public bool IsReady { get; set; }
-
-            public string? WaitingFor { get; set; }
-
-            public DateTime? WaitingSince { get; set; }
-
-            public int? DaysWaiting { get; set; }
+            public bool Positive { get; set; }
         }
 
-
-        // ============================================================
-        // VIEW HELPERS
-        // ============================================================
-
-        public string AgeText(int? days)
+        private enum Outcome
         {
-            if (!days.HasValue)
-                return "—";
-
-            return days.Value switch
-            {
-                0 => "Today",
-                1 => "1 day",
-                _ => $"{days.Value} days"
-            };
+            Pending,
+            Done,
+            Rejected
         }
 
-        public string AgeCss(int? days)
-        {
-            if (!days.HasValue)
-                return "age-none";
-
-            if (days.Value >= 7)
-                return "age-late";
-
-            if (days.Value >= 3)
-                return "age-warn";
-
-            return "age-normal";
-        }
+        private sealed record StepRaw(
+            int Order,
+            string Label,
+            string ShortLabel,
+            Outcome Outcome,
+            DateTime? AtUtc,
+            bool IsDean,
+            string? DoneVerb = null);
 
 
         // ============================================================
@@ -146,58 +176,169 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         {
             int.TryParse(
                 User.FindFirst("UserId")?.Value,
-                out int currentDeanId
-            );
+                out int currentDeanId);
 
-            var now = DateTime.UtcNow;
+            var nowUtc = DateTime.UtcNow;
+            var cutoffUtc = nowUtc.AddDays(-ClosedWindowDays);
+
+            var all = new List<QueueItem>();
+
+            all.AddRange(await LoadContractItemsAsync(nowUtc, cutoffUtc));
+            all.AddRange(await LoadClaimItemsAsync(nowUtc, cutoffUtc));
+
+            // Open items: my turn first, then waiting, then past me;
+            // oldest first inside each group. Closed: newest first.
+            var open = all
+                .Where(i => i.Bucket != QueueBucket.Closed)
+                .OrderBy(i => (int)i.Bucket)
+                .ThenBy(i => i.SinceUtc ?? DateTime.MaxValue);
+
+            var closed = all
+                .Where(i => i.Bucket == QueueBucket.Closed)
+                .OrderByDescending(i => i.LastActivityUtc);
+
+            var ordered = open.Concat(closed).ToList();
+
+            ReadyCount = ordered.Count(i => i.Bucket == QueueBucket.NeedsAction);
+            WaitingCount = ordered.Count(i => i.Bucket == QueueBucket.WaitingOnEarlier);
+            WithLaterCount = ordered.Count(i => i.Bucket == QueueBucket.WithLater);
+            ClosedCount = ordered.Count(i => i.Bucket == QueueBucket.Closed);
+            AllCount = ordered.Count;
+
+            ReadyValue = ordered
+                .Where(i => i.Bucket == QueueBucket.NeedsAction)
+                .Sum(i => i.Amount);
+
+            NextAction = ordered
+                .FirstOrDefault(i => i.Bucket == QueueBucket.NeedsAction);
+
+            if (NextAction is not null)
+            {
+                OldestReadyText = AgeWords(NextAction.DaysWaiting);
+
+                NextActionWaitText =
+                    NextAction.DaysWaiting is null or 0
+                        ? "since today"
+                        : $"for {AgeWords(NextAction.DaysWaiting)}";
+            }
+
+            ActiveFilter = NormalizeFilter(Filter);
+
+            _searchTerms =
+                (Q ?? string.Empty)
+                    .ToLowerInvariant()
+                    .Split(
+                        ' ',
+                        StringSplitOptions.RemoveEmptyEntries |
+                        StringSplitOptions.TrimEntries);
+
+            IsTruncated = ordered.Count > MaxRowsShown;
+            Items = ordered.Take(MaxRowsShown).ToList();
+
+            Activity = await LoadActivityAsync(currentDeanId);
+        }
 
 
-            // ========================================================
-            // CONTRACTS PENDING ON THE DEAN
-            // ========================================================
+        // ============================================================
+        // LIVE-FILTER SUPPORT  (same rules the browser script uses)
+        // ============================================================
 
-            var pendingContracts = await _context.ContractSignatures
+        public string BucketKey(QueueItem item) =>
+            item.Bucket switch
+            {
+                QueueBucket.NeedsAction => "needs",
+                QueueBucket.WaitingOnEarlier => "waiting",
+                QueueBucket.WithLater => "later",
+                _ => "closed"
+            };
+
+        public string SearchKey(QueueItem item) =>
+            $"{item.Reference} {item.LecturerName} {item.CourseCode} {item.CourseTitle}"
+                .ToLowerInvariant();
+
+        // Used so the first paint already shows the right rows,
+        // before the browser script runs.
+        public bool IsVisibleOnLoad(QueueItem item)
+        {
+            var inFilter = ActiveFilter switch
+            {
+                "pipeline" =>
+                    item.Bucket == QueueBucket.WaitingOnEarlier ||
+                    item.Bucket == QueueBucket.WithLater,
+
+                "closed" =>
+                    item.Bucket == QueueBucket.Closed,
+
+                "all" => true,
+
+                _ => item.Bucket == QueueBucket.NeedsAction
+            };
+
+            if (!inFilter)
+                return false;
+
+            var key = SearchKey(item);
+
+            return _searchTerms.All(t =>
+                key.Contains(t, StringComparison.Ordinal));
+        }
+
+
+        // ============================================================
+        // CONTRACTS
+        // ============================================================
+
+        private async Task<List<QueueItem>> LoadContractItemsAsync(
+            DateTime nowUtc,
+            DateTime cutoffUtc)
+        {
+            var ids = await _context.ContractSignatures
                 .AsNoTracking()
-                .Where(cs =>
-                    cs.SignerRole == SignerRole.Dean &&
-                    cs.Decision == SignatureDecision.Pending)
-                .Select(cs => new
+                .Where(s =>
+                    s.SignerRole == SignerRole.Dean &&
+                    (s.Decision == SignatureDecision.Pending ||
+                     (s.SignedAtUtc != null && s.SignedAtUtc >= cutoffUtc) ||
+                     s.Contract.CreatedAtUtc >= cutoffUtc))
+                .Select(s => s.ContractId)
+                .Distinct()
+                .ToListAsync();
+
+            var result = new List<QueueItem>();
+
+            if (ids.Count == 0)
+                return result;
+
+            var contracts = await _context.Contracts
+                .AsNoTracking()
+                .Where(c => ids.Contains(c.Id))
+                .Select(c => new
                 {
-                    cs.ContractId,
-                    cs.SequenceOrder,
+                    c.Id,
+                    c.RatePerHour,
+                    c.CreatedAtUtc,
 
-                    ContractCreatedAtUtc =
-                        cs.Contract.CreatedAtUtc,
-
-                    LecturerName =
-                        cs.Contract.Lecturer.UserName,
-
-                    Department =
-                        cs.Contract.CourseAssignment != null
-                            ? cs.Contract.CourseAssignment.Course.Department
-                            : "—",
+                    Lecturer = c.Lecturer.UserName,
 
                     CourseTitle =
-                        cs.Contract.CourseAssignment != null
-                            ? cs.Contract.CourseAssignment.Course.Title
+                        c.CourseAssignment != null
+                            ? c.CourseAssignment.Course.Title
                             : "—",
 
-                    AllocatedHours =
-                        cs.Contract.CourseAssignment != null
-                            ? cs.Contract.CourseAssignment.AllocatedHours
+                    CourseCode =
+                        c.CourseAssignment != null
+                            ? c.CourseAssignment.Course.Code
+                            : string.Empty,
+
+                    Hours =
+                        c.CourseAssignment != null
+                            ? c.CourseAssignment.AllocatedHours
                             : 0m
                 })
                 .ToListAsync();
 
-            var contractIds =
-                pendingContracts
-                    .Select(c => c.ContractId)
-                    .Distinct()
-                    .ToList();
-
-            var contractSteps = await _context.ContractSignatures
+            var steps = await _context.ContractSignatures
                 .AsNoTracking()
-                .Where(s => contractIds.Contains(s.ContractId))
+                .Where(s => ids.Contains(s.ContractId))
                 .Select(s => new
                 {
                     s.ContractId,
@@ -208,120 +349,91 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                 })
                 .ToListAsync();
 
-            var contractRows = new List<ContractSignRow>();
-
-            foreach (var pending in pendingContracts)
+            foreach (var contract in contracts)
             {
-                var steps =
-                    contractSteps
-                        .Where(s => s.ContractId == pending.ContractId)
-                        .ToList();
-
-                // A declined contract can no longer be signed.
-                if (steps.Any(s => s.Decision == SignatureDecision.Declined))
-                    continue;
-
-                var earlier =
-                    steps
-                        .Where(s => s.SequenceOrder < pending.SequenceOrder)
-                        .ToList();
-
-                var blocking =
-                    earlier
-                        .Where(s => s.Decision != SignatureDecision.Signed)
-                        .OrderBy(s => s.SequenceOrder)
-                        .FirstOrDefault();
-
-                var isReady = blocking is null;
-
-                DateTime? since = null;
-
-                if (isReady)
-                {
-                    var lastSigned =
-                        earlier
-                            .Where(s => s.SignedAtUtc.HasValue)
-                            .Select(s => s.SignedAtUtc!.Value)
-                            .OrderByDescending(d => d)
-                            .Cast<DateTime?>()
-                            .FirstOrDefault();
-
-                    since = lastSigned ?? pending.ContractCreatedAtUtc;
-                }
-
-                int? days =
-                    since.HasValue
-                        ? Math.Max(0, (int)Math.Floor((now - since.Value).TotalDays))
-                        : null;
-
-                contractRows.Add(new ContractSignRow
-                {
-                    ContractId = pending.ContractId,
-                    LecturerName = pending.LecturerName,
-                    Department = FormatDepartment(pending.Department),
-                    CourseTitle = pending.CourseTitle,
-                    AllocatedHours = pending.AllocatedHours,
-                    IsReady = isReady,
-                    WaitingFor = blocking is null
-                        ? null
-                        : SignerLabel(blocking.SignerRole),
-                    WaitingSince = since,
-                    DaysWaiting = days
-                });
-            }
-
-            ContractsTotalPending = contractRows.Count;
-
-            ContractsToSignCount =
-                contractRows.Count(r => r.IsReady);
-
-            ContractsWaitingCount =
-                contractRows.Count - ContractsToSignCount;
-
-            ContractsAwaitingSignature =
-                contractRows
-                    .OrderByDescending(r => r.IsReady)
-                    .ThenBy(r => r.WaitingSince ?? DateTime.MaxValue)
-                    .Take(MaxRowsPerTable)
+                var raw = steps
+                    .Where(s => s.ContractId == contract.Id)
+                    .Select(s => new StepRaw(
+                        s.SequenceOrder,
+                        SignerLabel(s.SignerRole),
+                        SignerShort(s.SignerRole),
+                        s.Decision switch
+                        {
+                            SignatureDecision.Signed => Outcome.Done,
+                            SignatureDecision.Declined => Outcome.Rejected,
+                            _ => Outcome.Pending
+                        },
+                        s.SignedAtUtc,
+                        s.SignerRole == SignerRole.Dean))
                     .ToList();
 
+                var item = Assemble(
+                    QueueKind.Contract,
+                    contract.Id,
+                    contract.Lecturer,
+                    contract.CourseCode,
+                    contract.CourseTitle,
+                    contract.Hours,
+                    contract.Hours * contract.RatePerHour,
+                    contract.CreatedAtUtc,
+                    raw,
+                    nowUtc);
 
-            // ========================================================
-            // CLAIMS PENDING ON THE DEAN
-            // ========================================================
+                if (item.Bucket == QueueBucket.Closed &&
+                    item.LastActivityUtc < cutoffUtc)
+                    continue;
 
-            var pendingClaims = await _context.ClaimApprovals
+                result.Add(item);
+            }
+
+            return result;
+        }
+
+
+        // ============================================================
+        // CLAIMS
+        // ============================================================
+
+        private async Task<List<QueueItem>> LoadClaimItemsAsync(
+            DateTime nowUtc,
+            DateTime cutoffUtc)
+        {
+            var ids = await _context.ClaimApprovals
                 .AsNoTracking()
-                .Where(ca =>
-                    ca.ApprovalRole == ApprovalRole.Dean &&
-                    ca.Decision == ApprovalDecision.Pending &&
-                    ca.Claim.Status != ClaimStatus.Rejected)
-                .Select(ca => new
+                .Where(a =>
+                    a.ApprovalRole == ApprovalRole.Dean &&
+                    (a.Decision == ApprovalDecision.Pending ||
+                     (a.DecidedAtUtc != null && a.DecidedAtUtc >= cutoffUtc) ||
+                     a.Claim.CreatedAtUtc >= cutoffUtc))
+                .Select(a => a.ClaimId)
+                .Distinct()
+                .ToListAsync();
+
+            var result = new List<QueueItem>();
+
+            if (ids.Count == 0)
+                return result;
+
+            var claims = await _context.Claims
+                .AsNoTracking()
+                .Where(c => ids.Contains(c.Id))
+                .Select(c => new
                 {
-                    ca.ClaimId,
-                    ca.SequenceOrder,
+                    c.Id,
+                    c.HoursClaimed,
+                    c.Amount,
+                    c.CreatedAtUtc,
+                    c.SubmittedAtUtc,
 
-                    LecturerName =
-                        ca.Claim.CourseAssignment.Lecturer.UserName,
-
-                    ca.Claim.ContractId,
-
-                    ca.Claim.HoursClaimed,
-
-                    ClaimCreatedAtUtc =
-                        ca.Claim.SubmittedAtUtc ?? ca.Claim.CreatedAtUtc
+                    Lecturer = c.CourseAssignment.Lecturer.UserName,
+                    CourseTitle = c.CourseAssignment.Course.Title,
+                    CourseCode = c.CourseAssignment.Course.Code
                 })
                 .ToListAsync();
 
-            var claimIds =
-                pendingClaims
-                    .Select(c => c.ClaimId)
-                    .Distinct()
-                    .ToList();
-
-            var claimSteps = await _context.ClaimApprovals
+            var steps = await _context.ClaimApprovals
                 .AsNoTracking()
-                .Where(a => claimIds.Contains(a.ClaimId))
+                .Where(a => ids.Contains(a.ClaimId))
                 .Select(a => new
                 {
                     a.ClaimId,
@@ -332,125 +444,389 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                 })
                 .ToListAsync();
 
-            var claimRows = new List<ClaimSignRow>();
-
-            foreach (var pending in pendingClaims)
+            foreach (var claim in claims)
             {
-                var steps =
-                    claimSteps
-                        .Where(s => s.ClaimId == pending.ClaimId)
-                        .ToList();
+                // The lecturer's submission is the first step of the journey.
+                var raw = new List<StepRaw>
+                {
+                    new StepRaw(
+                        0,
+                        "Lecturer",
+                        "Lecturer",
+                        Outcome.Done,
+                        claim.SubmittedAtUtc ?? claim.CreatedAtUtc,
+                        false,
+                        "Submitted")
+                };
 
-                var earlier =
+                raw.AddRange(
                     steps
-                        .Where(s => s.SequenceOrder < pending.SequenceOrder)
-                        .ToList();
+                        .Where(s => s.ClaimId == claim.Id)
+                        .Select(s => new StepRaw(
+                            s.SequenceOrder,
+                            ApproverLabel(s.ApprovalRole),
+                            ApproverShort(s.ApprovalRole),
+                            s.Decision switch
+                            {
+                                ApprovalDecision.Approved => Outcome.Done,
+                                ApprovalDecision.Rejected => Outcome.Rejected,
+                                _ => Outcome.Pending
+                            },
+                            s.DecidedAtUtc,
+                            s.ApprovalRole == ApprovalRole.Dean)));
 
-                var blocking =
-                    earlier
-                        .Where(s => s.Decision != ApprovalDecision.Approved)
-                        .OrderBy(s => s.SequenceOrder)
-                        .FirstOrDefault();
+                var item = Assemble(
+                    QueueKind.Claim,
+                    claim.Id,
+                    claim.Lecturer,
+                    claim.CourseCode,
+                    claim.CourseTitle,
+                    claim.HoursClaimed,
+                    claim.Amount,
+                    claim.CreatedAtUtc,
+                    raw,
+                    nowUtc);
 
-                var isReady = blocking is null;
+                if (item.Bucket == QueueBucket.Closed &&
+                    item.LastActivityUtc < cutoffUtc)
+                    continue;
 
-                DateTime? since = null;
-
-                if (isReady)
-                {
-                    var lastDecided =
-                        earlier
-                            .Where(s => s.DecidedAtUtc.HasValue)
-                            .Select(s => s.DecidedAtUtc!.Value)
-                            .OrderByDescending(d => d)
-                            .Cast<DateTime?>()
-                            .FirstOrDefault();
-
-                    since = lastDecided ?? pending.ClaimCreatedAtUtc;
-                }
-
-                int? days =
-                    since.HasValue
-                        ? Math.Max(0, (int)Math.Floor((now - since.Value).TotalDays))
-                        : null;
-
-                claimRows.Add(new ClaimSignRow
-                {
-                    ClaimId = pending.ClaimId,
-                    LecturerName = pending.LecturerName,
-                    ContractId = pending.ContractId,
-                    HoursClaimed = pending.HoursClaimed,
-                    IsReady = isReady,
-                    WaitingFor = blocking is null
-                        ? null
-                        : ApproverLabel(blocking.ApprovalRole),
-                    WaitingSince = since,
-                    DaysWaiting = days
-                });
+                result.Add(item);
             }
 
-            ClaimsTotalPending = claimRows.Count;
-
-            ClaimsToSignCount =
-                claimRows.Count(r => r.IsReady);
-
-            ClaimsWaitingCount =
-                claimRows.Count - ClaimsToSignCount;
-
-            ClaimsAwaitingSignature =
-                claimRows
-                    .OrderByDescending(r => r.IsReady)
-                    .ThenBy(r => r.WaitingSince ?? DateTime.MaxValue)
-                    .Take(MaxRowsPerTable)
-                    .ToList();
-
-
-            // ========================================================
-            // ACTIVE CONTRACTS
-            // ========================================================
-
-            ActiveContractsCount =
-                await _context.Contracts
-                    .CountAsync(c =>
-                        c.Status == ContractStatus.Active);
-
-
-            // ========================================================
-            // COMPLETED APPROVALS BY THIS DEAN
-            // ========================================================
-
-            int completedContractSignatures =
-                await _context.ContractSignatures
-                    .CountAsync(cs =>
-                        cs.SignedByAdminAccountId == currentDeanId &&
-                        cs.Decision == SignatureDecision.Signed);
-
-            int completedClaimApprovals =
-                await _context.ClaimApprovals
-                    .CountAsync(ca =>
-                        ca.ApprovedByAdminAccountId == currentDeanId &&
-                        ca.Decision == ApprovalDecision.Approved);
-
-            CompletedApprovalsCount =
-                completedContractSignatures +
-                completedClaimApprovals;
+            return result;
         }
 
 
         // ============================================================
-        // LABEL HELPERS
+        // TURN RAW STEPS INTO A QUEUE ITEM
         // ============================================================
 
-        // "InternationalLawEnvironmentAndLandUseLaw"
-        //   -> "International Law Environment and Land Use Law"
-        private static string FormatDepartment(string raw)
+        private QueueItem Assemble(
+            QueueKind kind,
+            int id,
+            string lecturer,
+            string courseCode,
+            string courseTitle,
+            decimal hours,
+            decimal amount,
+            DateTime createdUtc,
+            List<StepRaw> steps,
+            DateTime nowUtc)
         {
-            if (string.IsNullOrWhiteSpace(raw) || raw == "—")
-                return raw;
+            var ordered = steps
+                .OrderBy(s => s.Order)
+                .ToList();
 
-            return System.Text.RegularExpressions.Regex
-                .Replace(raw, "(?<!^)([A-Z])", " $1")
-                .Replace(" And ", " and ");
+            var rejected = ordered
+                .FirstOrDefault(s => s.Outcome == Outcome.Rejected);
+
+            var current = rejected is null
+                ? ordered.FirstOrDefault(s => s.Outcome == Outcome.Pending)
+                : null;
+
+            var dean = ordered.FirstOrDefault(s => s.IsDean);
+
+            var completed = rejected is null && current is null;
+
+            // ---- journey ----
+
+            var journey = new List<WorkflowStep>();
+
+            foreach (var s in ordered)
+            {
+                var state = s.Outcome switch
+                {
+                    Outcome.Done => StepState.Done,
+                    Outcome.Rejected => StepState.Rejected,
+                    _ => ReferenceEquals(s, current)
+                        ? StepState.Current
+                        : StepState.Waiting
+                };
+
+                journey.Add(new WorkflowStep(
+                    s.Label,
+                    s.ShortLabel,
+                    state,
+                    BuildTip(s, state, kind),
+                    s.IsDean));
+            }
+
+            // ---- bucket + wording ----
+
+            QueueBucket bucket;
+            string status;
+            string tone;
+
+            if (rejected is not null)
+            {
+                bucket = QueueBucket.Closed;
+                tone = "rejected";
+                status = kind == QueueKind.Claim
+                    ? $"Rejected by {rejected.Label}"
+                    : $"Declined by {rejected.Label}";
+            }
+            else if (completed)
+            {
+                bucket = QueueBucket.Closed;
+                tone = "done";
+                status = kind == QueueKind.Claim
+                    ? "Fully approved"
+                    : "Fully signed";
+            }
+            else if (current!.IsDean)
+            {
+                bucket = QueueBucket.NeedsAction;
+                tone = "current";
+                status = "Needs your signature";
+            }
+            else if (dean is not null && dean.Outcome == Outcome.Done)
+            {
+                bucket = QueueBucket.WithLater;
+                tone = "info";
+                status = $"With {current.Label}";
+            }
+            else
+            {
+                bucket = QueueBucket.WaitingOnEarlier;
+                tone = "waiting";
+                status = $"Waiting for {current.Label}";
+            }
+
+            // ---- timing ----
+
+            var lastDone = ordered
+                .Where(s => s.Outcome == Outcome.Done && s.AtUtc.HasValue)
+                .Select(s => s.AtUtc!.Value)
+                .DefaultIfEmpty(createdUtc)
+                .Max();
+
+            var lastActivity = ordered
+                .Where(s => s.AtUtc.HasValue)
+                .Select(s => s.AtUtc!.Value)
+                .DefaultIfEmpty(createdUtc)
+                .Append(createdUtc)
+                .Max();
+
+            DateTime? since = null;
+            int? days = null;
+            string waitText;
+            string waitTone = "ds-tone-normal";
+
+            if (bucket == QueueBucket.Closed)
+            {
+                waitText = $"Updated {Ago(lastActivity)}";
+            }
+            else
+            {
+                since = lastDone;
+
+                days = Math.Max(
+                    0,
+                    (int)Math.Floor((nowUtc - lastDone).TotalDays));
+
+                waitText = days == 0
+                    ? "Waiting since today"
+                    : $"Waiting {AgeWords(days)}";
+
+                waitTone = days >= 7
+                    ? "ds-tone-late"
+                    : days >= 3
+                        ? "ds-tone-warn"
+                        : "ds-tone-normal";
+            }
+
+            return new QueueItem
+            {
+                Kind = kind,
+                Id = id,
+
+                Reference = kind == QueueKind.Claim
+                    ? $"CLM-{id:D6}"
+                    : $"CON-{id:D6}",
+
+                LecturerName = lecturer,
+                CourseCode = courseCode,
+                CourseTitle = courseTitle,
+                Hours = hours,
+                Amount = amount,
+
+                Bucket = bucket,
+                StatusText = status,
+                PillTone = tone,
+
+                WaitText = waitText,
+                WaitTone = waitTone,
+                SinceUtc = since,
+                LastActivityUtc = lastActivity,
+                DaysWaiting = days,
+
+                Journey = journey,
+
+                ReviewUrl =
+                    (kind == QueueKind.Claim
+                        ? Url.Page("/DEAN/ClaimDetails", new { claimId = id })
+                        : Url.Page("/DEAN/ContractDetails", new { contractId = id }))
+                    ?? "#"
+            };
+        }
+
+        private static string BuildTip(
+            StepRaw step,
+            StepState state,
+            QueueKind kind)
+        {
+            var label = step.IsDean
+                ? $"{step.Label} (you)"
+                : step.Label;
+
+            var verb = state switch
+            {
+                StepState.Done => step.DoneVerb ??
+                    (kind == QueueKind.Claim ? "Approved" : "Signed"),
+
+                StepState.Rejected =>
+                    kind == QueueKind.Claim ? "Rejected" : "Declined",
+
+                StepState.Current => "Current step",
+
+                _ => "Waiting"
+            };
+
+            var when =
+                (state == StepState.Done || state == StepState.Rejected) &&
+                step.AtUtc.HasValue
+                    ? " · " + step.AtUtc.Value.ToLocalTime()
+                        .ToString("d MMM HH:mm", CultureInfo.InvariantCulture)
+                    : string.Empty;
+
+            return $"{label} · {verb}{when}";
+        }
+
+
+        // ============================================================
+        // RECENT ACTIVITY  (this Dean's last decisions)
+        // ============================================================
+
+        private async Task<List<ActivityItem>> LoadActivityAsync(
+            int deanId)
+        {
+            if (deanId <= 0)
+                return new List<ActivityItem>();
+
+            var contractActs = await _context.ContractSignatures
+                .AsNoTracking()
+                .Where(s =>
+                    s.SignedByAdminAccountId == deanId &&
+                    s.Decision != SignatureDecision.Pending &&
+                    s.SignedAtUtc != null)
+                .OrderByDescending(s => s.SignedAtUtc)
+                .Take(6)
+                .Select(s => new
+                {
+                    s.ContractId,
+                    s.Decision,
+                    s.SignedAtUtc,
+                    Lecturer = s.Contract.Lecturer.UserName
+                })
+                .ToListAsync();
+
+            var claimActs = await _context.ClaimApprovals
+                .AsNoTracking()
+                .Where(a =>
+                    a.ApprovedByAdminAccountId == deanId &&
+                    a.Decision != ApprovalDecision.Pending &&
+                    a.DecidedAtUtc != null)
+                .OrderByDescending(a => a.DecidedAtUtc)
+                .Take(6)
+                .Select(a => new
+                {
+                    a.ClaimId,
+                    a.Decision,
+                    a.DecidedAtUtc,
+                    Lecturer = a.Claim.CourseAssignment.Lecturer.UserName
+                })
+                .ToListAsync();
+
+            var list = new List<ActivityItem>();
+
+            foreach (var c in contractActs)
+            {
+                var at = c.SignedAtUtc!.Value;
+
+                list.Add(new ActivityItem
+                {
+                    Verb = c.Decision == SignatureDecision.Signed
+                        ? "You signed"
+                        : "You declined",
+                    Reference = $"CON-{c.ContractId:D6}",
+                    LecturerName = c.Lecturer,
+                    AtUtc = at,
+                    WhenText = Ago(at),
+                    Positive = c.Decision == SignatureDecision.Signed
+                });
+            }
+
+            foreach (var c in claimActs)
+            {
+                var at = c.DecidedAtUtc!.Value;
+
+                list.Add(new ActivityItem
+                {
+                    Verb = c.Decision == ApprovalDecision.Approved
+                        ? "You approved"
+                        : "You rejected",
+                    Reference = $"CLM-{c.ClaimId:D6}",
+                    LecturerName = c.Lecturer,
+                    AtUtc = at,
+                    WhenText = Ago(at),
+                    Positive = c.Decision == ApprovalDecision.Approved
+                });
+            }
+
+            return list
+                .OrderByDescending(a => a.AtUtc)
+                .Take(6)
+                .ToList();
+        }
+
+
+        // ============================================================
+        // HELPERS
+        // ============================================================
+
+        private static string NormalizeFilter(string? value) =>
+            value?.Trim().ToLowerInvariant() switch
+            {
+                "pipeline" => "pipeline",
+                "closed" => "closed",
+                "all" => "all",
+                _ => "needs-action"
+            };
+
+        private static string AgeWords(int? days) =>
+            days switch
+            {
+                null => "—",
+                0 => "today",
+                1 => "1 day",
+                _ => $"{days} days"
+            };
+
+        // "today", "yesterday", "3 days ago", or a date.
+        private static string Ago(DateTime utc)
+        {
+            var local = utc.ToLocalTime();
+
+            var diff = (DateTime.Now.Date - local.Date).Days;
+
+            return diff switch
+            {
+                <= 0 => "today",
+                1 => "yesterday",
+                < 7 => $"{diff} days ago",
+                _ => local.ToString("d MMM yyyy", CultureInfo.InvariantCulture)
+            };
         }
 
         private static string SignerLabel(SignerRole role) =>
@@ -465,6 +841,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                 _ => role.ToString()
             };
 
+        private static string SignerShort(SignerRole role) =>
+            role switch
+            {
+                SignerRole.Lecturer => "Lecturer",
+                SignerRole.Dean => "Dean",
+                SignerRole.HROfficer => "HR",
+                SignerRole.DVCAR => "DVCAR",
+                SignerRole.ViceChancellor => "VC",
+                SignerRole.ExamOffice => "Exam",
+                _ => role.ToString()
+            };
+
         private static string ApproverLabel(ApprovalRole role) =>
             role switch
             {
@@ -475,6 +863,19 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                 ApprovalRole.HROfficer => "HR Officer",
                 ApprovalRole.ViceChancellor => "Vice Chancellor",
                 ApprovalRole.Management => "Management",
+                _ => role.ToString()
+            };
+
+        private static string ApproverShort(ApprovalRole role) =>
+            role switch
+            {
+                ApprovalRole.HOD => "HOD",
+                ApprovalRole.Dean => "Dean",
+                ApprovalRole.DirectorOfQuality => "Quality",
+                ApprovalRole.DVCAR => "DVCAR",
+                ApprovalRole.HROfficer => "HR",
+                ApprovalRole.ViceChancellor => "VC",
+                ApprovalRole.Management => "Mgmt",
                 _ => role.ToString()
             };
     }

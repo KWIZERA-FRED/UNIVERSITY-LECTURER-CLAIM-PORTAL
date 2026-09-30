@@ -1,0 +1,193 @@
+/* ================================================================
+   WORKFLOW STEPPER — shared across all roles
+   ================================================================
+   Three states, three shapes:
+     done     → filled green, solid connector to next
+     current  → filled blue, dashed blue connector to next
+     future   → outlined grey, dashed grey connectors
+     rejected → filled red, red connector to next
+
+   A future step must NEVER look like a done step.
+   That is the single most important rule in this file.
+   ================================================================ */
+
+.ds-stepper {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+.ds-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    position: relative;
+    min-width: 42px;
+}
+
+
+/* --- Node ----------------------------------------------------- */
+
+.ds-step-node {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background: var(--ds-surface-raised);
+    color: var(--ds-text-muted);
+    border: 2px solid var(--ds-border);
+    transition: background-color var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition);
+}
+
+/* Done — filled green with a check */
+.ds-step--done .ds-step-node {
+    background: var(--ds-success);
+    border-color: var(--ds-success);
+    color: #fff;
+}
+
+/* Current — filled blue, number inside */
+.ds-step--current .ds-step-node {
+    background: var(--ds-action);
+    border-color: var(--ds-action);
+    color: #fff;
+    box-shadow: 0 0 0 3px var(--ds-action-soft);
+}
+
+/* Rejected — filled red */
+.ds-step--rejected .ds-step-node {
+    background: var(--ds-danger);
+    border-color: var(--ds-danger);
+    color: #fff;
+}
+
+/* Future — OUTLINED, hollow, muted. This is the fix. */
+.ds-step--future .ds-step-node,
+.ds-step-node[data-state="future"] {
+    background: transparent;
+    border: 2px solid var(--ds-border);
+    color: var(--ds-text-muted);
+    opacity: 0.75;
+}
+
+/* The Dean step gets a subtle ring so "you" stands out */
+.ds-step--you .ds-step-node {
+    outline: 2px solid var(--ds-action-soft);
+    outline-offset: 2px;
+}
+
+
+/* --- Label ---------------------------------------------------- */
+
+.ds-step-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--ds-text-muted);
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.ds-step--done .ds-step-label {
+    color: var(--ds-success-strong);
+}
+
+.ds-step--current .ds-step-label {
+    color: var(--ds-action-strong, var(--ds-action));
+    font-weight: 700;
+}
+
+.ds-step--rejected .ds-step-label {
+    color: var(--ds-danger);
+}
+
+/* Future labels are quiet — present but never competing */
+.ds-step--future .ds-step-label,
+.ds-step[data-state="future"] .ds-step-label {
+    opacity: 0.6;
+    font-weight: 500;
+}
+
+
+/* --- Connector ------------------------------------------------
+   The connector is the horizontal line between two nodes.
+   Its appearance depends on BOTH the step it leaves and the
+   step it enters.
+   -------------------------------------------------------------- */
+
+.ds-step-connector {
+    position: absolute;
+    top: 10px; /* vertical centre of the node */
+    left: calc(50% + 13px); /* just right of this node */
+    right: calc(-50% + 13px); /* just left of the next node */
+    height: 0;
+    border-top: 2px solid var(--ds-border);
+    opacity: 0.85;
+    pointer-events: none;
+}
+
+    /* Done → Done: solid green */
+    .ds-step-connector[data-state="done"][data-next-state="done"] {
+        border-top: 2px solid var(--ds-success);
+        opacity: 1;
+    }
+
+    /* Done → Current: solid green (handoff into the active step) */
+    .ds-step-connector[data-state="done"][data-next-state="current"] {
+        border-top: 2px solid var(--ds-success);
+        opacity: 1;
+    }
+
+    /* Current → Future: dashed blue (this is the "what happens next" line) */
+    .ds-step-connector[data-state="current"][data-next-state="future"] {
+        border-top: 2px dashed var(--ds-action);
+        opacity: 0.85;
+    }
+
+    /* Future → Future: dashed grey */
+    .ds-step-connector[data-state="future"][data-next-state="future"] {
+        border-top: 2px dashed var(--ds-border);
+        opacity: 0.6;
+    }
+
+    /* Anything → Rejected: red */
+    .ds-step-connector[data-next-state="rejected"] {
+        border-top: 2px solid var(--ds-danger);
+        opacity: 1;
+    }
+
+
+/* --- Tooltips ------------------------------------------------- */
+
+.ds-step-node[data-tip] {
+    position: relative;
+}
+
+    .ds-step-node[data-tip]:hover::after,
+    .ds-step-node[data-tip]:focus-visible::after {
+        content: attr(data-tip);
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 6px 10px;
+        background: var(--ds-heading);
+        color: #fff;
+        font-size: 11.5px;
+        font-weight: 500;
+        white-space: nowrap;
+        border-radius: 4px;
+        z-index: 20;
+        pointer-events: none;
+    }

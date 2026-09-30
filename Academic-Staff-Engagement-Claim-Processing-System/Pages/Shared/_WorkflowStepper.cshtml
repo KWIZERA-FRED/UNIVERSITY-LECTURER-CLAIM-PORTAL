@@ -1,0 +1,70 @@
+@using Academic_Staff_Engagement_Claim_Processing_System.ViewModels
+@model IReadOnlyList<WorkflowStep>
+
+<ol class="ds-stepper" aria-label="Approval journey">
+
+    @for (var i = 0; i < Model.Count; i++)
+    {
+        var step = Model[i];
+        var state = step.State.ToString().ToLowerInvariant();
+
+        var isLast = i == Model.Count - 1;
+
+        // The connector AFTER this step describes the relationship
+        // between this step and the next one. It is dashed when the
+        // next step is not yet done.
+        var nextState = isLast
+            ? state
+            : Model[i + 1].State.ToString().ToLowerInvariant();
+
+        <li class="ds-step ds-step--@state@(step.IsYou ? " ds-step--you" : "")"
+            data-state="@state">
+
+            <span class="ds-step-node"
+                  data-state="@state"
+                  tabindex="0"
+                  data-tip="@step.Tooltip"
+                  aria-label="@step.Tooltip">
+
+                @if (step.State == StepState.Done)
+                {
+                    <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+                        <path d="M2 6.5 L5 9.5 L10 2.8"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round" />
+                    </svg>
+                }
+                else if (step.State == StepState.Rejected)
+                {
+                    <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+                        <path d="M3 3 L9 9 M9 3 L3 9"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round" />
+                    </svg>
+                }
+                else
+                {
+                    @(i + 1)
+                }
+
+            </span>
+
+            <span class="ds-step-label">@step.ShortLabel</span>
+
+            @if (!isLast)
+            {
+                <span class="ds-step-connector"
+                      data-state="@state"
+                      data-next-state="@nextState"
+                      aria-hidden="true"></span>
+            }
+
+        </li>
+    }
+
+</ol>

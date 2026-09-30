@@ -1,668 +1,549 @@
 /* ================================================================
-   UNILAK ASECPS
-   DEAN DASHBOARD
+   UNILAK ASECPS — DEAN DASHBOARD
    ================================================================
-   Action cards (things the Dean must sign) are solid and strong;
-   informational cards are quiet. Tables lead with what is ready
-   to sign and how long it has been waiting.
+   Layout only. Colour, pill, button, stepper and card primitives
+   come from /css/shared/design-system.css.
+
+   DESIGN PRINCIPLES APPLIED
+   1. Data-driven UI         — row weight reflects workflow urgency
+   2. Progressive disclosure — context first, evidence on demand
+   3. Semantic colour        — blue = act, amber = wait, grey = info
+   4. Attention hierarchy    — Level 1 / 2 / 3 visually distinct
+   5. Operational table      — scannable, not decorative
+   6. Invisible details      — copy on hover, tooltips, quiet states
+
+   LAYOUT NOTES
+   - The queue filters live in the browser; each row carries
+     [hidden] when it doesn't match. The [hidden] override below
+     must always win over display: grid / flex.
+   - Needs-action rows are the only ones that earn an accent edge.
+   - Stepper styling lives in design-system.css — this file never
+     touches it.
    ================================================================ */
 
-
-/* ================================================================
-   DESIGN TOKENS
-   ================================================================ */
-
-:root {
-    --primary: #0f2742;
-    --primary-dark: #091c31;
-    --accent: #059669;
-    --accent-dark: #047857;
-    --accent-light: #a7f3d0;
-    --accent-soft: #ecfdf5;
-    --surface: #ffffff;
-    --surface-raised: #fafbfc;
-    --background: #f5f7fb;
-    --border: #e2e8f0;
-    --border-light: #edf1f5;
-    --border-strong: #cbd5e1;
-    --text: #172033;
-    --text-secondary: #475569;
-    --text-muted: #5b6b80;
-    --text-inverse: #ffffff;
-    --warning: #b45309;
-    --warning-bg: #fffbeb;
-    --danger: #b91c1c;
-    --danger-bg: #fef2f2;
-    --danger-border: #fecaca;
-    --info: #2563eb;
-    --info-bg: #eff6ff;
-    /* Action card palette (white text passes contrast on both) */
-    --action-orange: #c2570c;
-    --action-orange-glow: rgba(194, 87, 12, 0.35);
-    --action-purple: #6d28d9;
-    --action-purple-glow: rgba(109, 40, 217, 0.35);
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --radius-xl: 16px;
-    --radius-full: 9999px;
-    --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --transition: 160ms ease;
-    --transition-smooth: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-/* ================================================================
-   PAGE
-   ================================================================ */
-
-.dashboard-page {
+.dd-page {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    color: var(--text);
-    font-family: var(--font-primary);
-    font-size: 14px;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
 }
 
-    .dashboard-page *,
-    .dashboard-page *::before,
-    .dashboard-page *::after {
-        box-sizing: border-box;
+    /* The live filter uses the hidden attribute; make sure it always wins
+   over the display: grid / flex rules below. */
+    .dd-page [hidden] {
+        display: none !important;
     }
 
 
 /* ================================================================
-   PAGE HEADER
+   HEADER — quiet, sets context, never competes with the banner
    ================================================================ */
 
-.page-header {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 4px;
+.dd-header h1 {
+    margin: 0 0 4px;
+    color: var(--ds-heading);
+    font-family: var(--ds-font-display);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    line-height: 1.2;
 }
 
-    .page-header h1 {
-        margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
-        font-size: 26px;
-        font-weight: 800;
-        letter-spacing: -0.6px;
-        line-height: 1.2;
+.dd-header p {
+    margin: 0;
+    color: var(--ds-text-secondary);
+    font-size: 14px;
+}
+
+
+/* ================================================================
+   BANNER — the page's loudest element, restructured for scanning
+   ================================================================ */
+
+.dd-banner-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dd-banner-primary {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.dd-banner-secondary {
+    margin: 0;
+    font-size: 12.5px;
+    opacity: 0.85;
+    line-height: 1.4;
+}
+
+/* The "4 more" link must read as a link even inside a solid banner */
+.dd-banner-link {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    font-weight: 600;
+}
+
+.ds-banner .dd-banner-link {
+    text-decoration: underline !important;
+}
+
+.dd-banner-link:hover {
+    text-decoration-thickness: 2px;
+}
+
+
+/* ================================================================
+   ATTENTION CARDS — Level 1 / 2 / 3
+   ----------------------------------------------------------------
+   Level 1 (action)    → solid, primary (owned by design system)
+   Level 2 (waiting)   → amber fill + amber value + amber edge
+   Level 3 (info)      → info edge, quiet surface
+
+   All three cards share the same internal rhythm (label / value /
+   meta) so the numbers baseline-align even when content differs.
+   ================================================================ */
+
+.dd-attn-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+}
+
+    /* Uniform internal rhythm across all three cards */
+    .dd-attn-grid .ds-attn {
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: 4px;
     }
 
-    .page-header p {
-        margin: 0;
-        color: var(--text-secondary);
-        font-size: 14px;
-        font-weight: 450;
-        line-height: 1.5;
-        max-width: 640px;
+    /* ---- Level 2: waiting on earlier signers ---- */
+    .dd-attn-grid .ds-attn--waiting {
+        background: var(--ds-warning-faint);
+        border-left: 4px solid var(--ds-warning);
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
     }
 
-        .page-header p strong {
-            color: var(--primary);
-            font-weight: 700;
+        .dd-attn-grid .ds-attn--waiting .ds-attn-value {
+            color: var(--ds-warning-strong);
+        }
+
+        .dd-attn-grid .ds-attn--waiting .ds-attn-label {
+            color: var(--ds-warning-strong);
+        }
+
+    /* ---- Level 3: informational ---- */
+    .dd-attn-grid .ds-attn--info {
+        border-left: 4px solid var(--ds-info);
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+    }
+
+    /* A card showing zero is not urgent — dim the whole thing */
+    .dd-attn-grid .ds-attn[data-count="0"] {
+        opacity: 0.65;
+    }
+
+        .dd-attn-grid .ds-attn[data-count="0"] .ds-attn-value {
+            color: var(--ds-text-muted);
         }
 
 
 /* ================================================================
-   STATS GRID
+   TOOLBAR — search left, filters right, one visual band
    ================================================================ */
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.stat-card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 20px 22px;
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    isolation: isolate;
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-    -webkit-tap-highlight-color: transparent;
-    transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
-}
-
-    .stat-card:hover {
-        transform: translateY(-4px);
-    }
-
-    .stat-card:active {
-        transform: translateY(-1px) scale(0.99);
-        transition-duration: 0.08s;
-    }
-
-.stat-icon {
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-full);
-    font-size: 16px;
-    margin-bottom: 16px;
-    flex-shrink: 0;
-    transition: transform var(--transition-smooth);
-}
-
-.stat-card:hover .stat-icon {
-    transform: scale(1.08) rotate(-3deg);
-}
-
-.stat-value {
-    font-family: var(--font-secondary);
-    font-size: 28px;
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.8px;
-    margin-bottom: 6px;
-}
-
-.stat-label {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.1px;
-    line-height: 1.3;
-}
-
-.stat-meta {
-    margin-top: 8px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.35;
-}
-
-
-/* --- Action cards: things the Dean must sign --- */
-
-.stat-card-action {
-    color: #ffffff;
-    border: none;
-}
-
-    .stat-card-action::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 55%);
-        pointer-events: none;
-        z-index: -1;
-    }
-
-    .stat-card-action .stat-icon {
-        background: rgba(255, 255, 255, 0.2);
-        color: #ffffff;
-    }
-
-    .stat-card-action .stat-value,
-    .stat-card-action .stat-label {
-        color: #ffffff;
-    }
-
-    .stat-card-action .stat-meta {
-        color: rgba(255, 255, 255, 0.92);
-    }
-
-.stat-card-action-orange {
-    background: var(--action-orange);
-}
-
-    .stat-card-action-orange:hover {
-        box-shadow: 0 12px 26px -10px var(--action-orange-glow);
-    }
-
-.stat-card-action-purple {
-    background: var(--action-purple);
-}
-
-    .stat-card-action-purple:hover {
-        box-shadow: 0 12px 26px -10px var(--action-purple-glow);
-    }
-
-
-/* --- Quiet cards: information only --- */
-
-.stat-card-quiet {
-    background: var(--surface);
-    border: 1px solid var(--border);
-}
-
-    .stat-card-quiet:hover {
-        border-color: var(--border-strong);
-        box-shadow: 0 8px 20px -12px rgba(15, 39, 66, 0.25);
-    }
-
-    .stat-card-quiet .stat-value {
-        color: var(--primary);
-    }
-
-    .stat-card-quiet .stat-label {
-        color: var(--text-secondary);
-    }
-
-.stat-card-quiet-green .stat-icon {
-    background: var(--accent-soft);
-    color: var(--accent-dark);
-}
-
-.stat-card-quiet-blue .stat-icon {
-    background: var(--info-bg);
-    color: var(--info);
-}
-
-
-/* ================================================================
-   SECTION CARD
-   ================================================================ */
-
-.section-card {
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-}
-
-.section-header {
+.dd-toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    padding: 16px 22px;
-    border-bottom: 1px solid var(--border-light);
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--ds-border-light);
 }
 
-    .section-header h2 {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
-        font-size: 15px;
-        font-weight: 700;
-        letter-spacing: -0.2px;
-        line-height: 1.3;
+    .dd-toolbar .ds-search {
+        flex: 0 1 360px;
+        max-width: 360px;
     }
 
-.section-count {
-    display: inline-flex;
+    .dd-toolbar .ds-chips {
+        flex: 0 0 auto;
+        margin-left: auto;
+    }
+
+/* "All" is a reset, not a filter — dashed edge signals the difference */
+.ds-chip[data-chip="all"]:not(.is-active) {
+    border-style: dashed;
+    color: var(--ds-text-muted);
+}
+
+
+/* ================================================================
+   QUEUE ROWS — operational table
+   ----------------------------------------------------------------
+   Columns:
+     1. Reference + copy + kind tag        (identity)
+     2. Lecturer + course                  (who)
+     3. Amount + hours                     (how much)
+     4. Workflow stepper + status + wait   (where it is)
+     5. Action                             (what to do)
+
+   Only the "needs action" row earns a coloured left edge.
+   Every row is min-height so the list scans evenly.
+   ================================================================ */
+
+.dd-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.dd-row {
+    display: grid;
+    grid-template-columns: 190px /* reference */
+    minmax(170px, 1.1fr) /* who */
+    130px /* value */
+    minmax(340px, 1.7fr) /* journey */
+    140px; /* action */
+    column-gap: 16px;
     align-items: center;
-    justify-content: center;
-    min-width: 22px;
-    height: 22px;
-    padding: 0 7px;
-    border-radius: var(--radius-full);
-    background: #eef2f7;
-    color: var(--text-secondary);
-    font-family: var(--font-primary);
+    min-height: 84px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--ds-border-light);
+    transition: background-color var(--ds-transition);
+}
+
+    .dd-row:last-child {
+        border-bottom: none;
+    }
+
+    .dd-row:not(.dd-row--head):hover {
+        background: var(--ds-surface-raised);
+    }
+
+/* Column header — same grid so the labels sit above their columns */
+.dd-row--head {
+    min-height: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: var(--ds-surface-raised);
+    border-bottom: 1px solid var(--ds-border);
+    color: var(--ds-text-muted);
     font-size: 11.5px;
     font-weight: 700;
-    line-height: 1;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
 }
 
-.section-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-    color: var(--accent-dark);
-    font-size: 12.5px;
-    font-weight: 650;
-    white-space: nowrap;
-    text-decoration: none;
-    transition: color var(--transition);
-}
-
-    .section-link:hover {
-        color: var(--primary);
-        text-decoration: underline;
+    .dd-row--head > span {
+        align-self: center;
     }
 
-.section-footnote {
+/* Level 1 — the only row that earns an accent edge */
+.dd-row--needs {
+    background: var(--ds-action-faint);
+    box-shadow: inset 3px 0 0 var(--ds-action);
+}
+
+    .dd-row--needs:hover {
+        background: var(--ds-action-soft);
+    }
+
+.dd-cell {
+    min-width: 0;
+}
+
+
+/* --- Reference — identity block ------------------------------- */
+
+.dd-ref {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.dd-ref-line {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 12px 22px;
-    border-top: 1px solid var(--border-light);
-    background: var(--surface-raised);
-    color: var(--text-muted);
-    font-size: 12.5px;
+    gap: 4px;
 }
 
-
-/* ================================================================
-   DATA TABLE
-   ================================================================ */
-
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-strong) transparent;
-}
-
-    .table-wrapper::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    .table-wrapper::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .table-wrapper::-webkit-scrollbar-thumb {
-        background: var(--border-strong);
-        border-radius: var(--radius-full);
-    }
-
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-    min-width: 960px;
-}
-
-    .data-table thead {
-        background: var(--surface-raised);
-    }
-
-    .data-table th {
-        padding: 12px 22px;
-        color: var(--text-muted);
-        font-size: 11px;
-        font-weight: 700;
-        text-align: left;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 1px solid var(--border);
-        white-space: nowrap;
-    }
-
-    .data-table td {
-        padding: 14px 22px;
-        color: var(--text-secondary);
-        font-size: 13px;
-        font-weight: 500;
-        border-bottom: 1px solid var(--border-light);
-        vertical-align: middle;
-    }
-
-    .data-table tbody tr {
-        transition: background-color var(--transition);
-    }
-
-        .data-table tbody tr:hover {
-            background: var(--surface-raised);
-        }
-
-        .data-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-    .data-table th.col-right,
-    .data-table td.col-right {
-        text-align: right;
-    }
-
-    .data-table th.col-action,
-    .data-table td.col-action {
-        width: 1%;
-        white-space: nowrap;
-        text-align: right;
-    }
-
-
-/* ================================================================
-   CELL VALUES
-   ================================================================ */
-
-.reference-pill {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 9px;
-    border-radius: var(--radius-sm);
-    background: #eef2f7;
-    color: var(--primary);
-    font-size: 12px;
+.dd-ref-code {
+    color: var(--ds-heading);
+    font-size: 13.5px;
     font-weight: 700;
     letter-spacing: 0.2px;
     font-variant-numeric: tabular-nums;
-    white-space: nowrap;
 }
 
-.lecturer-name {
-    color: var(--primary);
-    font-size: 13px;
-    font-weight: 600;
+
+/* --- Copy button — invisible until hover (desktop) ------------ */
+
+.ds-copy {
+    opacity: 0;
+    transition: opacity var(--ds-transition);
+    cursor: pointer;
 }
 
-.course-title {
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 500;
+    .dd-row:hover .ds-copy,
+    .dd-row:focus-within .ds-copy,
+    .ds-copy:focus-visible {
+        opacity: 1;
+    }
+
+/* Touch devices have no hover — keep it faintly visible */
+@media (hover: none) {
+    .ds-copy {
+        opacity: 0.55;
+    }
 }
 
-.contract-reference {
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
+
+/* --- Identity tags — CONTRACT vs CLAIM ------------------------ */
+
+.ds-tag {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    line-height: 1.4;
 }
 
-.hours-value {
-    color: var(--primary);
-    font-size: 13px;
+/* Contract = informational (blue) — a signature workflow */
+.ds-tag--contract {
+    background: var(--ds-info-soft);
+    color: var(--ds-info-strong);
+}
+
+/* Claim = success (green) — a payment that follows approved work */
+.ds-tag--claim {
+    background: var(--ds-success-soft);
+    color: var(--ds-success-strong);
+}
+
+
+/* --- Lecturer and course — who -------------------------------- */
+
+.dd-who {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.dd-who-name {
+    color: var(--ds-heading);
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.dd-who-course {
+    color: var(--ds-text-muted);
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
+
+/* --- Value — how much ---------------------------------------- */
+
+.dd-value {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.dd-value-amount {
+    color: var(--ds-heading);
+    font-size: 14px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-}
-
-
-/* --- How long an item has been waiting --- */
-
-.age {
-    font-size: 13px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
     white-space: nowrap;
 }
 
-.age-normal {
-    color: var(--text-secondary);
-}
-
-.age-warn {
-    color: var(--warning);
-}
-
-.age-late {
-    color: var(--danger);
-}
-
-.age-none {
-    color: var(--text-muted);
-    font-weight: 500;
-}
-
-
-/* ================================================================
-   STATUS BADGES
-   ================================================================ */
-
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 11px;
-    border-radius: var(--radius-full);
-    font-size: 11.5px;
-    font-weight: 650;
-    line-height: 1;
-    white-space: nowrap;
-    letter-spacing: 0.1px;
-}
-
-.status-ready {
-    color: var(--accent-dark);
-    background: var(--accent-soft);
-}
-
-.status-waiting {
-    color: var(--text-secondary);
-    background: #f1f5f9;
-}
-
-.status-active {
-    color: var(--accent-dark);
-    background: var(--accent-soft);
-}
-
-.status-pending {
-    color: var(--warning);
-    background: var(--warning-bg);
-}
-
-.status-danger {
-    color: var(--danger);
-    background: var(--danger-bg);
-}
-
-.status-neutral {
-    color: var(--text-secondary);
-    background: #f1f5f9;
-}
-
-
-/* ================================================================
-   ROW ACTIONS
-   ================================================================ */
-
-.primary-button-sm {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 34px;
-    padding: 0 16px;
-    border: 1px solid var(--accent-dark);
-    border-radius: var(--radius-sm);
-    background: var(--accent-dark);
-    color: #ffffff;
-    font-family: inherit;
+.dd-value-hours {
+    color: var(--ds-text-muted);
     font-size: 12.5px;
-    font-weight: 650;
-    text-decoration: none;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
 
-    .primary-button-sm:hover {
-        background: #065f46;
-        border-color: #065f46;
-    }
 
-    .primary-button-sm:active {
-        transform: scale(0.99);
-    }
+/* --- Journey — where it is ------------------------------------
+   The stepper's own look lives in design-system.css. This block
+   only arranges the space it occupies inside the row.
+   -------------------------------------------------------------- */
 
-    .primary-button-sm:focus-visible {
-        outline: 2px solid rgba(5, 150, 105, 0.5);
-        outline-offset: 2px;
-    }
-
-.gray-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 34px;
-    padding: 0 16px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: #f1f5f9;
-    color: var(--text-secondary);
-    font-family: inherit;
-    font-size: 12.5px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
-}
-
-    .gray-button:hover {
-        background: #e2e8f0;
-        border-color: var(--border-strong);
-        color: var(--primary);
-    }
-
-    .gray-button:active {
-        transform: scale(0.99);
-    }
-
-    .gray-button:focus-visible {
-        outline: 2px solid rgba(5, 150, 105, 0.4);
-        outline-offset: 2px;
-    }
-
-
-/* ================================================================
-   EMPTY STATE
-   ================================================================ */
-
-.empty-state {
+.dd-journey {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 44px 24px;
+    flex-direction: column;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 2px 0 4px;
+}
+
+.dd-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+/* Wait time is a decision input, not a footnote.
+   Anchored with a left border so it reads as a second fact
+   attached to the status above it, not a stray line. */
+.dd-wait {
+    display: block;
+    padding-left: 10px;
+    border-left: 2px solid var(--ds-border-light);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ds-text-secondary);
+    white-space: nowrap;
+}
+
+    .dd-wait.is-overdue {
+        color: var(--ds-danger);
+        border-left-color: var(--ds-danger);
+    }
+
+        .dd-wait.is-overdue::before {
+            content: "⚠ ";
+            font-size: 11px;
+        }
+
+    /* Map the ViewModel's WaitTone values onto the same visual states */
+    .dd-wait.ds-tone-warn {
+        color: var(--ds-warning-strong);
+        border-left-color: var(--ds-warning);
+    }
+
+    .dd-wait.ds-tone-late {
+        color: var(--ds-danger);
+        border-left-color: var(--ds-danger);
+    }
+
+        .dd-wait.ds-tone-late::before {
+            content: "⚠ ";
+            font-size: 11px;
+        }
+
+
+/* --- Action — what to do -------------------------------------
+   Right-aligned so the eye lands on the verb after reading
+   the row left-to-right.
+   -------------------------------------------------------------- */
+
+.dd-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+/* --- Empty state ---------------------------------------------- */
+
+#dd-empty {
+    padding: 40px 20px;
     text-align: center;
 }
 
-    .empty-state p {
-        margin: 0;
-        color: var(--text-muted);
-        font-size: 13.5px;
-        line-height: 1.55;
-    }
 
+/* --- Footnote — quiet, informational -------------------------- */
 
-/* ================================================================
-   FOCUS ACCESSIBILITY
-   ================================================================ */
-
-.stat-card:focus-visible,
-.section-link:focus-visible {
-    outline: 2px solid rgba(5, 150, 105, 0.5);
-    outline-offset: 2px;
-    border-radius: var(--radius-sm);
+.dd-footnote {
+    padding: 12px 20px;
+    border-top: 1px solid var(--ds-border-light);
+    background: var(--ds-surface-raised);
+    color: var(--ds-text-muted);
+    font-size: 12.5px;
+    text-align: center;
 }
 
+    .dd-footnote:empty {
+        display: none;
+    }
+
 
 /* ================================================================
-   RESPONSIVE — TABLET
+   RESPONSIVE — TABLET  (table becomes cards)
+   ----------------------------------------------------------------
+   Information hierarchy changes rather than shrinking.
+   Identity + action stay top; who and value stack; journey
+   gets full width so the stepper is readable.
    ================================================================ */
 
-@media (max-width: 1150px) {
+@media (max-width: 1100px) {
 
-    .stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .dd-row--head {
+        display: none;
     }
+
+    .dd-row {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "ref     action"
+            "who     who"
+            "value   value"
+            "journey journey";
+        row-gap: 12px;
+        min-height: 0;
+        padding: 16px 20px;
+    }
+
+    .dd-ref {
+        grid-area: ref;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .dd-action {
+        grid-area: action;
+        align-self: start;
+    }
+
+    .dd-who {
+        grid-area: who;
+    }
+
+    .dd-value {
+        grid-area: value;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 12px;
+    }
+
+    .dd-journey {
+        grid-area: journey;
+    }
+
+    .dd-status {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* On tablet, the wait badge sits beside the pill — no left border */
+    .dd-wait {
+        padding-left: 0;
+        border-left: none;
+    }
+
+        .dd-wait.is-overdue,
+        .dd-wait.ds-tone-late {
+            border-left: none;
+        }
 }
 
 
@@ -670,165 +551,78 @@
    RESPONSIVE — MOBILE
    ================================================================ */
 
-@media (max-width: 700px) {
+@media (max-width: 720px) {
 
-    .dashboard-page {
-        gap: 16px;
-    }
-
-    .page-header h1 {
+    .dd-header h1 {
         font-size: 22px;
     }
 
-    .page-header p {
-        font-size: 13px;
-    }
-
-    .stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .dd-attn-grid {
+        grid-template-columns: 1fr;
         gap: 12px;
     }
 
-    .stat-card {
-        padding: 16px 18px;
+    .dd-toolbar {
+        padding: 14px;
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .stat-icon {
-        width: 34px;
-        height: 34px;
-        font-size: 14px;
-        margin-bottom: 12px;
-    }
-
-    .stat-value {
-        font-size: 24px;
-    }
-
-    .section-header {
-        padding: 14px 18px;
-    }
-
-    .section-footnote {
-        padding: 12px 18px;
-    }
-
-    .data-table {
-        min-width: 820px;
-    }
-
-        .data-table th,
-        .data-table td {
-            padding-left: 16px;
-            padding-right: 16px;
+        .dd-toolbar .ds-search {
+            max-width: none;
+            flex: 1 1 auto;
         }
-}
 
+        .dd-toolbar .ds-chips {
+            margin-left: 0;
+        }
 
-/* ================================================================
-   RESPONSIVE — SMALL MOBILE
-   ================================================================ */
-
-@media (max-width: 480px) {
-
-    .page-header h1 {
-        font-size: 20px;
+    .dd-row {
+        padding: 14px;
     }
 
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .stat-card {
-        padding: 16px;
-    }
-
-    .section-header {
+    .dd-footnote {
         padding: 12px 14px;
     }
 
-    .data-table th,
-    .data-table td {
-        padding-left: 14px;
-        padding-right: 14px;
+    .ds-card-header {
+        padding: 14px;
+    }
+
+    .ds-activity-item {
+        padding: 11px 14px;
+    }
+
+    #dd-empty {
+        padding: 32px 14px;
     }
 }
 
 
 /* ================================================================
-   TOUCH DEVICES — press feedback only
-   ================================================================ */
-
-@media (hover: none) {
-
-    .stat-card:hover {
-        transform: none;
-        box-shadow: none;
-    }
-
-        .stat-card:hover .stat-icon {
-            transform: none;
-        }
-
-    .stat-card:active {
-        transform: scale(0.98);
-    }
-}
-
-
-/* ================================================================
-   REDUCED MOTION
-   ================================================================ */
-
-@media (prefers-reduced-motion: reduce) {
-
-    .dashboard-page *,
-    .dashboard-page *::before,
-    .dashboard-page *::after {
-        transition-duration: 0.01ms !important;
-        animation-duration: 0.01ms !important;
-    }
-
-    .stat-card:hover,
-    .stat-card:hover .stat-icon {
-        transform: none;
-    }
-}
-
-
-/* ================================================================
-   PRINT
+   PRINT — decision support only
+   ----------------------------------------------------------------
+   Hide everything the reader cannot act on in print:
+   toolbar, actions, copy buttons, and the banner (which is
+   a live prompt, not a record).
    ================================================================ */
 
 @media print {
 
-    body {
-        background: #ffffff !important;
-    }
-
-    .stat-card {
-        box-shadow: none !important;
-        border: 1px solid #ccc;
-        transform: none !important;
-        background: #ffffff !important;
-    }
-
-        .stat-card .stat-value,
-        .stat-card .stat-label,
-        .stat-card .stat-meta {
-            color: #000000 !important;
-        }
-
-    .table-wrapper {
-        overflow: visible;
-    }
-
-    .data-table {
-        min-width: 0 !important;
-    }
-
-    .gray-button,
-    .primary-button-sm {
+    .dd-toolbar,
+    .dd-action,
+    .ds-copy,
+    .ds-banner {
         display: none !important;
+    }
+
+    .dd-row--needs {
+        box-shadow: none;
+        border-left: 3px solid #000;
+        background: transparent;
+    }
+
+    .dd-row {
+        page-break-inside: avoid;
     }
 }
