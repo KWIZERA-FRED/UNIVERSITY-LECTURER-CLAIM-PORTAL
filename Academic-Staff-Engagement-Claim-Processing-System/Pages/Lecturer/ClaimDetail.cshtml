@@ -3,303 +3,280 @@
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer.ClaimDetailModel
 
 @{
-ViewData["Title"] = "Claim Detail";
-Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
+    ViewData["Title"] = "Claim Detail";
+    Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
 }
 
-@section Styles { <link rel="stylesheet"
-       href="~/css/Lecturer/claim-detail.css"
-       asp-append-version="true" />
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/Lecturer/claim-detail.css"
+          asp-append-version="true" />
 }
 
 <section class="claim-detail-page">
 
+    <header class="page-header">
 
-<header class="page-header">
-
-    <div class="page-header-main">
-        <h1>Claim Detail</h1>
-        <p>Review your claim, signed marks and attendance evidence.</p>
-    </div>
-
-    <a class="back-button" href="/Lecturer/Claims">
-        <i class="bi bi-arrow-left"></i>
-        Back to Claims
-    </a>
-
-</header>
-
-@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-{
-    <div class="page-alert page-alert-error">
-        <i class="bi bi-exclamation-circle-fill"></i>
-        <span>@Model.ErrorMessage</span>
-    </div>
-}
-else if (Model.Claim is not null)
-{
-    var claim = Model.Claim;
-
-    <section class="section-card">
-
-        <header class="section-header">
-            <h2>@claim.Reference</h2>
-            <span class="status-badge @(claim.IsFullyApproved ? "status-active" : claim.IsRejected ? "status-danger" : "status-pending")">
-                @claim.Status
-            </span>
-        </header>
-
-        <div class="detail-grid">
-
-            <div class="detail-item">
-                <span class="detail-label">Course</span>
-                <span class="detail-value">@claim.CourseCode - @claim.CourseTitle</span>
-            </div>
-
-            <div class="detail-item">
-                <span class="detail-label">Contract</span>
-                <span class="detail-value">@claim.ContractReference</span>
-            </div>
-
-            <div class="detail-item">
-                <span class="detail-label">Academic Year</span>
-                <span class="detail-value">@claim.AcademicYear</span>
-            </div>
-
-            <div class="detail-item">
-                <span class="detail-label">Campus</span>
-                <span class="detail-value">@claim.Campus</span>
-            </div>
-
-            <div class="detail-item">
-                <span class="detail-label">Hours Claimed</span>
-                <span class="detail-value">@claim.HoursClaimed.ToString("N1")</span>
-            </div>
-
-            <div class="detail-item">
-                <span class="detail-label">Submitted</span>
-                <span class="detail-value">
-                    @(claim.SubmittedAtUtc.HasValue
-                        ? claim.SubmittedAtUtc.Value.ToString("dd MMM yyyy HH:mm")
-                        : "—")
-                </span>
-            </div>
-
+        <div class="page-header-main">
+            <h1>Claim Detail</h1>
+            <p>Review your claim, submitted marks and attendance evidence.</p>
         </div>
 
-        @if (!string.IsNullOrWhiteSpace(claim.Description))
-        {
-            <div class="detail-notes">
-                <span class="detail-label">Description</span>
-                <p>@claim.Description</p>
-            </div>
-        }
+        <a class="back-button" href="/Lecturer/Claims">
+            <i class="bi bi-arrow-left"></i>
+            Back to Claims
+        </a>
 
-    </section>
+    </header>
 
-    <section class="section-card">
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="page-alert page-alert-error">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
+    else if (Model.Claim is not null)
+    {
+        var claim = Model.Claim;
 
-        <header class="section-header">
-            <h2>Signed Marks</h2>
-        </header>
+        <section class="section-card">
 
-        @if (claim.Marks is not null)
-        {
+            <header class="section-header">
+                <h2>@claim.Reference</h2>
+                <span class="status-badge @(claim.IsFullyApproved ? "status-active" : claim.IsRejected ? "status-danger" : "status-pending")">
+                    @claim.Status
+                </span>
+            </header>
+
             <div class="detail-grid">
 
                 <div class="detail-item">
-                    <span class="detail-label">Submission Reference</span>
-                    <span class="detail-value">@claim.Marks.Reference</span>
+                    <span class="detail-label">Course</span>
+                    <span class="detail-value">@claim.CourseCode - @claim.CourseTitle</span>
                 </div>
 
                 <div class="detail-item">
-                    <span class="detail-label">File</span>
-                    <span class="detail-value">@claim.Marks.FileName</span>
+                    <span class="detail-label">Contract</span>
+                    <span class="detail-value">@claim.ContractReference</span>
                 </div>
 
                 <div class="detail-item">
-                    <span class="detail-label">Status</span>
-                    <span class="detail-value">@claim.Marks.Status</span>
+                    <span class="detail-label">Academic Year</span>
+                    <span class="detail-value">@claim.AcademicYear</span>
                 </div>
 
                 <div class="detail-item">
-                    <span class="detail-label">Signed By</span>
-                    <span class="detail-value">@(claim.Marks.SignedBy ?? "Exam Office")</span>
+                    <span class="detail-label">Campus</span>
+                    <span class="detail-value">@claim.Campus</span>
                 </div>
 
                 <div class="detail-item">
-                    <span class="detail-label">Signed</span>
+                    <span class="detail-label">Hours Claimed</span>
+                    <span class="detail-value">@claim.HoursClaimed.ToString("N1")</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Submitted</span>
                     <span class="detail-value">
-                        @(claim.Marks.SignedAtUtc.HasValue
-                            ? claim.Marks.SignedAtUtc.Value.ToString("dd MMM yyyy HH:mm")
+                        @(claim.SubmittedAtUtc.HasValue
+                            ? claim.SubmittedAtUtc.Value.ToString("dd MMM yyyy HH:mm")
                             : "—")
                     </span>
                 </div>
 
             </div>
-        }
-        else
-        {
-            <div class="empty-state">
-                <p>No signed marks submission is attached to this claim.</p>
-            </div>
-        }
 
-    </section>
+            @if (!string.IsNullOrWhiteSpace(claim.Description))
+            {
+                <div class="detail-notes">
+                    <span class="detail-label">Description</span>
+                    <p>@claim.Description</p>
+                </div>
+            }
 
-    <section class="section-card">
+        </section>
 
-        <header class="section-header">
-            <h2>Attendance Record</h2>
-        </header>
+        <section class="section-card">
 
-        @if (claim.Attendance is not null)
-        {
-            <div class="detail-grid">
+            <header class="section-header">
+                <h2>Signed Marks</h2>
+            </header>
 
-                <div class="detail-item">
-                    <span class="detail-label">MIS Reference</span>
-                    <span class="detail-value">@claim.Attendance.MisReference</span>
+            @if (claim.Marks is not null)
+            {
+                <div class="detail-grid">
+
+                    <div class="detail-item">
+                        <span class="detail-label">Submission Reference</span>
+                        <span class="detail-value">@claim.Marks.Reference</span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">File</span>
+                        <span class="detail-value">@claim.Marks.FileName</span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value">@claim.Marks.Status</span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Signed By</span>
+                        <span class="detail-value">@claim.Marks.SignedBy</span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Signed</span>
+                        <span class="detail-value">
+                            @(claim.Marks.SignedAtUtc.HasValue
+                                ? claim.Marks.SignedAtUtc.Value.ToString("dd MMM yyyy HH:mm")
+                                : "—")
+                        </span>
+                    </div>
+
                 </div>
 
-                <div class="detail-item">
-                    <span class="detail-label">Total Sessions</span>
-                    <span class="detail-value">@claim.Attendance.TotalSessions</span>
+                <div class="section-actions">
+
+                   
+                    <a class="primary-button"
+                       asp-page-handler="Marks"
+                       asp-route-claimId="@claim.Id"
+                       asp-route-download="true">
+                        <i class="bi bi-download"></i>
+                        Download Marks
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>No marks submission is attached to this claim.</p>
+                </div>
+            }
+
+        </section>
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Attendance Record</h2>
+            </header>
+
+            @if (claim.Attendance is not null)
+            {
+                <div class="detail-grid">
+
+                    <div class="detail-item">
+                        <span class="detail-label">MIS Reference</span>
+                        <span class="detail-value">@claim.Attendance.MisReference</span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Total Sessions</span>
+                        <span class="detail-value">@claim.Attendance.TotalSessions</span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Attended Sessions</span>
+                        <span class="detail-value">@claim.Attendance.AttendedSessions</span>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Retrieved</span>
+                        <span class="detail-value">
+                            @(claim.Attendance.RetrievedAtUtc.HasValue
+                                ? claim.Attendance.RetrievedAtUtc.Value.ToString("dd MMM yyyy HH:mm")
+                                : "Not available")
+                        </span>
+                    </div>
+
                 </div>
 
-                <div class="detail-item">
-                    <span class="detail-label">Attended Sessions</span>
-                    <span class="detail-value">@claim.Attendance.AttendedSessions</span>
-                </div>
-
-                <div class="detail-item">
-                    <span class="detail-label">Retrieved</span>
-                    <span class="detail-value">
-                        @(claim.Attendance.RetrievedAtUtc?.ToString("dd MMM yyyy HH:mm") ?? "Not available")
-                    </span>
-                </div>
-
-            </div>
-
-            <div class="table-wrapper">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Session</th>
-                            <th>Attendance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var record in claim.Attendance.Records)
-                        {
-                            <tr>
-                                <td>@record.SessionDate.ToString("dd MMM yyyy")</td>
-                                <td>@record.SessionTitle</td>
-                                <td>
-                                    @if (record.Attended)
-                                    {
-                                        <span class="status-badge status-active">Present</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="status-badge status-danger">Absent</span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <div class="empty-state">
-                <p>No MIS attendance record is attached to this claim.</p>
-            </div>
-        }
-
-    </section>
-
-    <section class="section-card">
-
-        <header class="section-header">
-            <h2>Claim Evidence Access</h2>
-        </header>
-
-        <div class="section-actions">
-            <a class="primary-button"
-               href="/Public/ClaimDocuments?token=@claim.QrCodeToken"
-               target="_blank"
-               rel="noopener noreferrer">
-                <i class="bi bi-qr-code"></i>
-                Open QR Claim View
-            </a>
-        </div>
-
-    </section>
-
-    <section class="section-card">
-
-        <header class="section-header">
-            <h2>Approval Timeline</h2>
-        </header>
-
-        @if (claim.Steps.Any())
-        {
-            <div class="timeline">
-
-                @foreach (var step in claim.Steps)
+                @if (claim.Attendance.Records.Any())
                 {
-                    <div class="timeline-step">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Session</th>
+                                    <th>Attendance</th>
+                                </tr>
+                            </thead>
 
-                        <div class="timeline-role">
-                            @step.RoleLabel
-                        </div>
-
-                        <div class="timeline-content">
-
-                            <div class="timeline-status">
-
-                                <span class="status-badge @step.BadgeClass">
-                                    @step.Decision
-                                </span>
-
-                                @if (step.DecidedAtUtc.HasValue)
+                            <tbody>
+                                @foreach (var record in claim.Attendance.Records)
                                 {
-                                    <span class="timeline-date">
-                                        @step.DecidedAtUtc.Value.ToString("dd MMM yyyy")
-
-                                        @if (!string.IsNullOrWhiteSpace(step.ApproverName))
-                                        {
-                                            <span> · @step.ApproverName</span>
-                                        }
-                                    </span>
+                                    <tr>
+                                        <td>@record.SessionDate.ToString("dd MMM yyyy")</td>
+                                        <td>@record.SessionTitle</td>
+                                        <td>
+                                            @if (record.Attended)
+                                            {
+                                                <span class="status-badge status-active">Present</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge status-danger">Absent</span>
+                                            }
+                                        </td>
+                                    </tr>
                                 }
-
-                            </div>
-
-                            @if (!string.IsNullOrWhiteSpace(step.Comments))
-                            {
-                                <p class="timeline-comments">@step.Comments</p>
-                            }
-
-                        </div>
-
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <p>No attendance sessions have been recorded for this claim.</p>
                     </div>
                 }
 
-            </div>
-        }
-        else
-        {
-            <div class="empty-state">
-                <p>No approval activity has been recorded for this claim yet.</p>
-            </div>
-        }
+                <div class="section-actions">
 
-    </section>
-}
+                    <a class="primary-button"
+                       asp-page-handler="Attendance"
+                       asp-route-claimId="@claim.Id">
+                        <i class="bi bi-download"></i>
+                        Download Attendance Record
+                    </a>
 
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>No MIS attendance record is attached to this claim.</p>
+                </div>
+            }
+
+        </section>
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Claim Evidence Access</h2>
+            </header>
+
+            <div class="section-actions">
+
+                <a class="primary-button"
+                   href="/Public/ClaimDocuments?token=@claim.QrCodeToken"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <i class="bi bi-qr-code"></i>
+                    Open QR Claim View
+                </a>
+
+            </div>
+
+        </section>
+    }
 
 </section>
+

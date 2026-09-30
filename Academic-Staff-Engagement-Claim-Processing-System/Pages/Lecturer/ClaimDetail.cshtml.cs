@@ -1,5 +1,6 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
+using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,10 +12,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer;
 public class ClaimDetailModel : PageModel
 {
     private readonly ApplicationDbContext _context;
+    private readonly OfficialDocumentService _officialDocumentService;
 
-    public ClaimDetailModel(ApplicationDbContext context)
+    public ClaimDetailModel(
+        ApplicationDbContext context,
+        OfficialDocumentService officialDocumentService)
     {
         _context = context;
+        _officialDocumentService = officialDocumentService;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -44,6 +49,10 @@ public class ClaimDetailModel : PageModel
             .AsNoTracking()
             .Include(c => c.CourseAssignment)
                 .ThenInclude(a => a!.Course)
+            .Include(c => c.MarksSubmission)
+                .ThenInclude(m => m!.StorageFile)
+            .Include(c => c.Attendance)
+                .ThenInclude(a => a!.Records)
             .FirstOrDefaultAsync(c =>
                 c.Id == ClaimId &&
                 c.CourseAssignment != null &&
@@ -70,8 +79,6 @@ public class ClaimDetailModel : PageModel
         var isApproved = status.Equals(
             "Approved",
             StringComparison.OrdinalIgnoreCase);
-
-        var isSubmitted = claim.SubmittedAtUtc.HasValue;
 
         Claim = new ClaimDetailsViewModel
         {
@@ -118,94 +125,162 @@ public class ClaimDetailModel : PageModel
             IsFullyApproved =
                 isApproved,
 
-            Marks = new MarksViewModel
-            {
-                Reference = "—",
-                FileName = "—",
-                Status = "Not submitted",
-                SignedBy = "—",
-                SignedAtUtc = null
-            },
+            Marks =
+                claim.MarksSubmission is null
+                    ? null
+                    : new MarksViewModel
+                    {
+                        Reference =
+                            claim.MarksSubmission.SubmissionReference,
 
-            Attendance = new AttendanceViewModel
-            {
-                MisReference = "—",
-                TotalSessions = 0,
-                AttendedSessions = 0,
-                RetrievedAtUtc = null,
-                Records = new List<AttendanceRecordViewModel>()
-            },
+                        FileName =
+                            claim.MarksSubmission.FileName,
 
-            Steps = BuildSteps(
-                isSubmitted,
-                isApproved,
-                isRejected)
+                        Status =
+                            claim.MarksSubmission.Status.ToString(),
+
+                        SignedBy =
+                            claim.MarksSubmission.ReviewedByManagementId.HasValue
+                                ? "Management"
+                                : "Exam Office",
+
+                        SignedAtUtc =
+                            claim.MarksSubmission.SignedAtUtc
+                    },
+
+            Attendance =
+                claim.Attendance is null
+                    ? null
+                    : new AttendanceViewModel
+                    {
+                        MisReference =
+                            claim.Attendance.MisReference,
+
+                        TotalSessions =
+                            claim.Attendance.TotalSessions,
+
+                        AttendedSessions =
+                            claim.Attendance.AttendedSessions,
+
+                        RetrievedAtUtc =
+                            claim.Attendance.RetrievedAtUtc,
+
+                        Records =
+                            claim.Attendance.Records
+                                .OrderBy(r => r.SessionDate)
+                                .Select(r => new AttendanceRecordViewModel
+                                {
+                                    SessionDate =
+                                        r.SessionDate,
+
+                                    SessionTitle =
+                                        r.SessionTitle,
+
+                                    Attended =
+                                        r.Attended
+                                })
+                                .ToList()
+                    }
         };
 
         return Page();
     }
 
-    private static List<ClaimStepViewModel> BuildSteps(
-        bool isSubmitted,
-        bool isApproved,
-        bool isRejected)
+    public async Task<IActionResult> OnGetMarksAsync(
+        int claimId,
+        bool download = false)
     {
-        var decision = isRejected
-            ? "Rejected"
-            : isApproved
-                ? "Approved"
-                : "Pending";
+        var username = User.Identity?.Name;
 
-        var decidedAt = isApproved || isRejected
-            ? DateTime.UtcNow
-            : (DateTime?)null;
+        if (string.IsNullOrWhiteSpace(username))
+            return RedirectToPage("/Login");
 
-        return new List<ClaimStepViewModel>
+        var lecturer = await _context.Lecturers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(l =>
+                l.UserName == username &&
+                l.IsActive);
+
+        if (lecturer is null)
+            return RedirectToPage("/Login");
+
+        var claim = await _context.Claims
+            .AsNoTracking()
+            .Include(c => c.CourseAssignment)
+            .Include(c => c.MarksSubmission)
+                .ThenInclude(m => m!.StorageFile)
+            .FirstOrDefaultAsync(c =>
+                c.Id == claimId &&
+                c.CourseAssignment != null &&
+                c.CourseAssignment.LecturerId == lecturer.Id);
+
+        if (claim?.MarksSubmission?.StorageFile is null)
+            return NotFound();
+
+        var storedFile = claim.MarksSubmission.StorageFile;
+
+        if (download)
         {
-            new()
-            {
-                Name = "Claim Submitted",
-                Decision = isSubmitted ? "Submitted" : "Pending",
-                DecidedAtUtc = null,
-                ApproverName = "Lecturer",
-                RoleLabel = "Lecturer",
-                Comments = string.Empty
-            },
+            return File(
+                storedFile.Content,
+                storedFile.ContentType,
+                claim.MarksSubmission.FileName);
+        }
 
-            new()
-            {
-                Name = "Dean Review",
-                Decision = decision,
-                DecidedAtUtc = decidedAt,
-                ApproverName = "Dean",
-                RoleLabel = "Dean",
-                Comments = string.Empty
-            },
+        return File(
+            storedFile.Content,
+            storedFile.ContentType);
+    }
 
-            new()
-            {
-                Name = "DVCAR Review",
-                Decision = decision,
-                DecidedAtUtc = decidedAt,
-                ApproverName = "DVCAR",
-                RoleLabel = "DVCAR",
-                Comments = string.Empty
-            },
+    public async Task<IActionResult> OnGetAttendanceAsync(
+        int claimId)
+    {
+        var username = User.Identity?.Name;
 
-            new()
-            {
-                Name = "Payment Processing",
-                Decision = isApproved
-                    ? "Approved"
-                    : isRejected
-                        ? "Rejected"
-                        : "Pending",
-                DecidedAtUtc = decidedAt,
-                ApproverName = "Finance",
-                RoleLabel = "Finance",
-                Comments = string.Empty
-            }
-        };
+        if (string.IsNullOrWhiteSpace(username))
+            return RedirectToPage("/Login");
+
+        var lecturer = await _context.Lecturers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(l =>
+                l.UserName == username &&
+                l.IsActive);
+
+        if (lecturer is null)
+            return RedirectToPage("/Login");
+
+        var claim = await _context.Claims
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c =>
+                c.Id == claimId &&
+                c.CourseAssignment != null &&
+                c.CourseAssignment.LecturerId == lecturer.Id);
+
+        if (claim is null)
+            return NotFound();
+
+        var publicDocumentsUrl = Url.Page(
+            "/Public/ClaimDocuments",
+            null,
+            new { token = claim.QrCodeToken },
+            Request.Scheme);
+
+        if (string.IsNullOrWhiteSpace(publicDocumentsUrl))
+            return NotFound();
+
+        var document =
+            await _officialDocumentService.GenerateAsync(
+                claim.QrCodeToken,
+                OfficialDocumentKind.AttendanceReport,
+                publicDocumentsUrl);
+
+        if (document is null)
+            return NotFound();
+
+        return File(
+            document.Content,
+            "application/pdf",
+            document.FileName);
     }
 
     public sealed class ClaimDetailsViewModel
@@ -240,11 +315,9 @@ public class ClaimDetailModel : PageModel
 
         public bool IsRejected { get; init; }
 
-        public MarksViewModel Marks { get; init; } = new();
+        public MarksViewModel? Marks { get; init; }
 
-        public AttendanceViewModel Attendance { get; init; } = new();
-
-        public List<ClaimStepViewModel> Steps { get; init; } = new();
+        public AttendanceViewModel? Attendance { get; init; }
     }
 
     public sealed class MarksViewModel
@@ -280,47 +353,6 @@ public class ClaimDetailModel : PageModel
         public string SessionTitle { get; init; } = string.Empty;
 
         public bool Attended { get; init; }
-
-        public TimeSpan StartTime { get; init; }
-
-        public TimeSpan EndTime { get; init; }
-
-        public decimal Hours { get; init; }
-
-        public string DateDisplay =>
-            SessionDate.ToString("dd MMM yyyy");
-
-        public string TimeDisplay =>
-            $"{StartTime:hh\\:mm} - {EndTime:hh\\:mm}";
-    }
-
-    public sealed class ClaimStepViewModel
-    {
-        public string Name { get; init; } = string.Empty;
-
-        public string Decision { get; init; } = string.Empty;
-
-        public DateTime? DecidedAtUtc { get; init; }
-
-        public string ApproverName { get; init; } = string.Empty;
-
-        public string RoleLabel { get; init; } = string.Empty;
-
-        public string Comments { get; init; } = string.Empty;
-
-        public string BadgeClass
-        {
-            get
-            {
-                return Decision.ToLowerInvariant() switch
-                {
-                    "approved" => "bg-success",
-                    "submitted" => "bg-primary",
-                    "rejected" => "bg-danger",
-                    "pending" => "bg-warning text-dark",
-                    _ => "bg-secondary"
-                };
-            }
-        }
     }
 }
+
