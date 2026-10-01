@@ -1,13 +1,3 @@
-/* ============================================================
-   MANAGEMENT CONTRACTS
-   UNILAK Academic Staff Engagement System
-   Visual parity with the Lecturer contracts page.
-   Refined typographic scale — measured weights, no shouting.
-   ============================================================ */
-
-/* ============================================================
-   DESIGN TOKENS
-   ============================================================ */
 
 :root {
     --primary: #0b2b3c;
@@ -341,11 +331,6 @@
     letter-spacing: 0.02em;
 }
 
-
-/* ============================================================
-   CONTRACT TABLE
-   ============================================================ */
-
 .contracts-table-wrapper {
     overflow-x: auto;
 }
@@ -469,11 +454,6 @@
         box-shadow: var(--shadow-sm);
     }
 
-
-/* ============================================================
-   STATUS BADGES
-   ============================================================ */
-
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -514,11 +494,6 @@
     color: #9f2b2b;
 }
 
-
-/* ============================================================
-   EMPTY STATE
-   ============================================================ */
-
 .empty-state {
     padding: 64px 24px;
     text-align: center;
@@ -556,9 +531,6 @@
 }
 
 
-/* ============================================================
-   SELECTED CONTRACT — HEADER
-   ============================================================ */
 
 .contract-reference-badge {
     display: inline-flex;
@@ -573,11 +545,6 @@
     font-weight: 700;
     letter-spacing: 0.04em;
 }
-
-
-/* ============================================================
-   CONTRACT INFORMATION
-   ============================================================ */
 
 .contract-information-card {
     margin: 22px 26px;
@@ -621,12 +588,6 @@
         font-weight: 500;
         letter-spacing: -0.05px;
     }
-
-
-/* ============================================================
-   SIGNATURE WORKFLOW
-   ============================================================ */
-
 .workflow-card {
     margin: 22px 26px;
     border: 1px solid var(--border-light);
@@ -764,11 +725,6 @@
     letter-spacing: -0.05px;
 }
 
-
-/* ============================================================
-   SIGNATURE PREVIEW
-   ============================================================ */
-
 .signed-information {
     display: flex;
     align-items: flex-start;
@@ -889,10 +845,6 @@
 }
 
 
-/* ============================================================
-   OFFICIAL DOCUMENT
-   ============================================================ */
-
 .document-card {
     margin: 22px 26px;
     border: 1px solid var(--border-light);
@@ -1001,366 +953,46 @@
     }
 
 
-/* ============================================================
-   CONTRACT DOCUMENT — PAPER
-   ============================================================ */
 
-.contract-document {
-    width: min(900px, 100%);
-    min-height: 700px;
-    margin: 0 auto;
-    padding: 60px 70px;
-    box-sizing: border-box;
-    background: var(--surface);
-    border: 1px solid var(--border-strong);
+.contract-document .contract-content-missing {
+    padding: 26px 28px;
+    background: var(--warning-bg);
+    border: 1px solid #f3d38b;
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
-    color: var(--text);
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 14px;
-    line-height: 1.75;
-    overflow-wrap: anywhere;
+    color: #7a4d0d;
+    font-family: var(--font-primary);
 }
 
-
-    /* ============================================================
-   CONTRACT DOCUMENT — TYPOGRAPHY
-   ============================================================ */
-
-    .contract-document h1,
-    .contract-document h2,
-    .contract-document h3,
-    .contract-document h4 {
-        margin-top: 24px;
-        margin-bottom: 12px;
-        color: var(--primary);
-        font-family: Georgia, "Times New Roman", serif;
-    }
-
-        .contract-document h1:first-child,
-        .contract-document h2:first-child,
-        .contract-document h3:first-child,
-        .contract-document h4:first-child {
-            margin-top: 0;
-        }
-
-    .contract-document h1 {
-        margin: 0 0 22px;
-        font-size: 25px;
-        font-weight: 700;
-        line-height: 1.3;
-        text-align: center;
-        letter-spacing: -0.3px;
-    }
-
-    .contract-document h2 {
-        font-size: 19px;
-        font-weight: 700;
-        line-height: 1.35;
-    }
-
-    .contract-document h3 {
+    .contract-document .contract-content-missing h2 {
+        margin: 0 0 10px;
+        color: #7a4d0d;
+        font-family: var(--font-secondary);
         font-size: 16px;
         font-weight: 700;
+        letter-spacing: -0.1px;
+        text-align: left;
     }
 
-    .contract-document h4 {
-        font-size: 14px;
-        font-weight: 700;
-    }
-
-    .contract-document p {
-        margin: 0 0 14px;
-        font-size: 14px;
+    .contract-document .contract-content-missing p {
+        margin: 0 0 10px;
+        color: #7a4d0d;
+        font-size: 13px;
         font-weight: 400;
-        line-height: 1.75;
-        text-align: justify;
+        line-height: 1.6;
+        text-align: left;
     }
 
-        .contract-document p:last-child {
+        .contract-document .contract-content-missing p:last-child {
             margin-bottom: 0;
         }
 
-    .contract-document ul,
-    .contract-document ol {
-        margin: 10px 0 18px;
-        padding-left: 28px;
-    }
-
-    .contract-document li {
-        margin-bottom: 6px;
-    }
-
-    .contract-document hr {
-        margin: 24px 0;
-        border: 0;
-        border-top: 1px solid var(--border-strong);
-    }
-
-    .contract-document strong {
-        color: var(--primary);
-        font-weight: 600;
-    }
-
-    .contract-document img {
-        max-width: 100%;
-        height: auto;
-    }
-
-
-    /* ============================================================
-   CONTRACT DOCUMENT — TABLES
-   ============================================================ */
-
-    .contract-document table {
-        width: 100%;
-        margin: 20px 0 25px;
-        border-collapse: collapse;
-        font-family: Arial, Helvetica, sans-serif;
+    .contract-document .contract-content-missing code {
+        padding: 1px 6px;
+        background: var(--surface);
+        border-radius: 4px;
+        font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
         font-size: 12px;
     }
-
-        .contract-document table th {
-            padding: 10px 12px;
-            background: var(--primary);
-            border: 1px solid var(--primary);
-            color: var(--text-inverse);
-            font-size: 11px;
-            font-weight: 600;
-            text-align: left;
-            letter-spacing: 0.02em;
-        }
-
-        .contract-document table td {
-            padding: 10px 12px;
-            border: 1px solid var(--border-strong);
-            color: var(--text);
-            font-size: 12px;
-            font-weight: 400;
-            vertical-align: top;
-        }
-
-        .contract-document table tbody tr:nth-child(even) td {
-            background: var(--surface-raised);
-        }
-
-
-    /* ============================================================
-   CONTRACT DOCUMENT — GENERATED STRUCTURES
-   ============================================================ */
-
-    .contract-document .contract-header,
-    .contract-document .document-header,
-    .contract-document .university-header {
-        padding-bottom: 16px;
-        margin-bottom: 24px;
-        border-bottom: 2px solid var(--primary);
-        text-align: center;
-    }
-
-    .contract-document .label {
-        display: block;
-        margin-bottom: 5px;
-        color: var(--text-muted);
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-    }
-
-    .contract-document .signature-section,
-    .contract-document .signatures,
-    .contract-document .signature-block {
-        margin-top: 45px;
-        page-break-inside: avoid;
-    }
-
-        .contract-document .signature-section table,
-        .contract-document .signatures table,
-        .contract-document .signature-block table {
-            border: 0;
-        }
-
-            .contract-document .signature-section table td,
-            .contract-document .signatures table td,
-            .contract-document .signature-block table td {
-                padding: 10px 15px;
-                background: transparent;
-                border: 0;
-            }
-
-    .contract-document img.signature,
-    .contract-document .signature img,
-    .contract-document img[class*="signature"] {
-        max-width: 220px;
-        max-height: 85px;
-    }
-
-
-    /* ============================================================
-   CONTRACT DOCUMENT — LIVE SIGNATURE TABLE
-   ============================================================ */
-
-    .contract-document .live-signature-table {
-        margin-top: 28px;
-    }
-
-        .contract-document .live-signature-table .signature-cell {
-            min-width: 160px;
-        }
-
-        .contract-document .live-signature-table .signature-row-signed td {
-            background: var(--success-bg);
-        }
-
-        .contract-document .live-signature-table .signature-row-declined td {
-            background: var(--danger-bg);
-        }
-
-    .contract-document .signature-placeholder,
-    .contract-document .signature-pending {
-        display: none !important;
-    }
-
-
-    /* ============================================================
-   OFFICIAL SIGNATURE TABLE
-   ============================================================ */
-
-    .contract-document .official-signature-section {
-        margin-top: 35px;
-        padding-top: 20px;
-        border-top: 2px solid var(--primary);
-        page-break-inside: avoid;
-    }
-
-        .contract-document .official-signature-section h3 {
-            margin: 0 0 8px;
-            color: var(--primary);
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: -0.2px;
-            text-transform: uppercase;
-        }
-
-    .contract-document .official-signature-introduction {
-        margin: 0 0 16px;
-        color: var(--text-secondary);
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 11px;
-        font-weight: 400;
-    }
-
-    .contract-document .official-signature-table {
-        width: 100%;
-        margin: 0;
-        border-collapse: collapse;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 11px;
-    }
-
-        .contract-document .official-signature-table th,
-        .contract-document .official-signature-table td {
-            padding: 10px 12px;
-            border: 1px solid var(--border-strong);
-            vertical-align: middle;
-        }
-
-        .contract-document .official-signature-table th {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: var(--text-inverse);
-            font-size: 10px;
-            font-weight: 600;
-            text-align: left;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-
-        .contract-document .official-signature-table tbody tr:nth-child(even) td {
-            background: var(--surface-raised);
-        }
-
-    .contract-document .official-signature-cell {
-        width: 25%;
-        text-align: center;
-    }
-
-    .contract-document .official-signature-image {
-        display: block;
-        max-width: 150px;
-        max-height: 55px;
-        margin: 0 auto;
-        object-fit: contain;
-    }
-
-    .contract-document .official-signature-status {
-        display: inline-flex;
-        align-items: center;
-        min-height: 22px;
-        padding: 0 9px;
-        background: var(--warning-bg);
-        color: var(--warning);
-        border-radius: var(--radius-full);
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 10px;
-        font-weight: 600;
-    }
-
-.signature-image-wrapper {
-    margin-bottom: 5px;
-}
-
-.contract-signature-image {
-    display: block;
-    width: auto;
-    max-width: 180px;
-    max-height: 65px;
-    object-fit: contain;
-}
-
-.signature-status {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 8px;
-    border-radius: var(--radius-full);
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 9.5px;
-    font-weight: 600;
-}
-
-    .signature-status.signed {
-        background: var(--success-bg);
-        color: var(--accent-dark);
-    }
-
-    .signature-status.declined {
-        background: var(--danger-bg);
-        color: var(--danger);
-    }
-
-    .signature-status.pending {
-        background: var(--warning-bg);
-        color: var(--warning);
-    }
-
-.signature-missing,
-.signature-placeholder {
-    color: var(--text-muted);
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10px;
-    font-weight: 400;
-}
-
-.signature-date {
-    color: var(--text-secondary);
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10.5px;
-    font-weight: 400;
-    line-height: 1.6;
-}
 
 
 /* ============================================================
@@ -1861,148 +1493,6 @@
         border-radius: var(--radius-full);
     }
 
-.contract-preview-paper {
-    width: min(950px, calc(100% - 48px));
-    min-height: 1200px;
-    margin: 28px auto 0;
-    padding: 70px 78px;
-    box-sizing: border-box;
-    background: var(--surface);
-    border: 1px solid var(--border-strong);
-    box-shadow: var(--shadow-lg);
-    color: var(--text);
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 14px;
-    line-height: 1.8;
-}
-
-    .contract-preview-paper h1,
-    .contract-preview-paper h2,
-    .contract-preview-paper h3,
-    .contract-preview-paper h4 {
-        color: var(--primary);
-        font-family: Georgia, "Times New Roman", serif;
-    }
-
-    .contract-preview-paper h1 {
-        margin: 0 0 24px;
-        font-size: 27px;
-        font-weight: 700;
-        line-height: 1.3;
-        text-align: center;
-        letter-spacing: -0.3px;
-    }
-
-    .contract-preview-paper h2 {
-        margin: 26px 0 13px;
-        font-size: 20px;
-        font-weight: 700;
-        line-height: 1.35;
-    }
-
-    .contract-preview-paper h3 {
-        margin: 21px 0 11px;
-        font-size: 16px;
-        font-weight: 700;
-    }
-
-    .contract-preview-paper h4 {
-        margin: 17px 0 8px;
-        font-size: 14px;
-        font-weight: 700;
-    }
-
-    .contract-preview-paper p {
-        margin: 0 0 15px;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 1.8;
-        text-align: justify;
-    }
-
-    .contract-preview-paper ul,
-    .contract-preview-paper ol {
-        margin: 10px 0 18px;
-        padding-left: 28px;
-    }
-
-    .contract-preview-paper li {
-        margin-bottom: 6px;
-    }
-
-    .contract-preview-paper hr {
-        margin: 25px 0;
-        border: 0;
-        border-top: 1px solid var(--border-strong);
-    }
-
-    .contract-preview-paper strong {
-        color: var(--primary);
-        font-weight: 600;
-    }
-
-    .contract-preview-paper img {
-        max-width: 100%;
-        height: auto;
-    }
-
-    .contract-preview-paper table {
-        width: 100%;
-        margin: 20px 0 25px;
-        border-collapse: collapse;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 12px;
-    }
-
-        .contract-preview-paper table th {
-            padding: 10px 12px;
-            background: var(--primary);
-            border: 1px solid var(--primary);
-            color: var(--text-inverse);
-            font-size: 11px;
-            font-weight: 600;
-            text-align: left;
-        }
-
-        .contract-preview-paper table td {
-            padding: 10px 12px;
-            border: 1px solid var(--border-strong);
-            color: var(--text);
-            font-size: 12px;
-            font-weight: 400;
-            vertical-align: top;
-        }
-
-        .contract-preview-paper table tbody tr:nth-child(even) td {
-            background: var(--surface-raised);
-        }
-
-    .contract-preview-paper .official-signature-section {
-        margin-top: 35px;
-        padding-top: 20px;
-        border-top: 2px solid var(--primary);
-    }
-
-    .contract-preview-paper .official-signature-introduction {
-        margin: 0 0 16px;
-        color: var(--text-secondary);
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 11px;
-        font-weight: 400;
-    }
-
-    .contract-preview-paper .official-signature-cell {
-        text-align: center;
-    }
-
-    .contract-preview-paper .official-signature-image {
-        display: block;
-        max-width: 150px;
-        max-height: 55px;
-        margin: 0 auto;
-        object-fit: contain;
-    }
-
 .contract-preview-footer {
     display: flex;
     align-items: center;
@@ -2056,51 +1546,6 @@ body.contract-preview-open {
 
 
 /* ============================================================
-   MISSING CONTRACT CONTENT
-   ============================================================ */
-
-.contract-document .contract-content-missing {
-    padding: 26px 28px;
-    background: var(--warning-bg);
-    border: 1px solid #f3d38b;
-    border-radius: var(--radius-md);
-    color: #7a4d0d;
-    font-family: var(--font-primary);
-}
-
-    .contract-document .contract-content-missing h2 {
-        margin: 0 0 10px;
-        color: #7a4d0d;
-        font-family: var(--font-secondary);
-        font-size: 16px;
-        font-weight: 700;
-        letter-spacing: -0.1px;
-        text-align: left;
-    }
-
-    .contract-document .contract-content-missing p {
-        margin: 0 0 10px;
-        color: #7a4d0d;
-        font-size: 13px;
-        font-weight: 400;
-        line-height: 1.6;
-        text-align: left;
-    }
-
-        .contract-document .contract-content-missing p:last-child {
-            margin-bottom: 0;
-        }
-
-    .contract-document .contract-content-missing code {
-        padding: 1px 6px;
-        background: var(--surface);
-        border-radius: 4px;
-        font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
-        font-size: 12px;
-    }
-
-
-/* ============================================================
    FOCUS STATES
    ============================================================ */
 
@@ -2150,14 +1595,6 @@ body.contract-preview-open {
 
     .information-item:nth-last-child(-n + 2) {
         border-bottom: 0;
-    }
-
-    .contract-document {
-        padding: 50px;
-    }
-
-    .contract-preview-paper {
-        padding: 60px;
     }
 }
 
@@ -2219,15 +1656,6 @@ body.contract-preview-open {
 
     .signed-meta {
         padding-top: 0;
-    }
-
-    .contract-document {
-        padding: 45px;
-    }
-
-    .contract-preview-paper {
-        width: min(900px, calc(100% - 36px));
-        padding: 55px 50px;
     }
 }
 
@@ -2337,25 +1765,6 @@ body.contract-preview-open {
         padding: 18px;
     }
 
-    .contract-document {
-        min-height: 600px;
-        padding: 35px 28px;
-        font-size: 13px;
-    }
-
-        .contract-document p {
-            font-size: 13px;
-        }
-
-        .contract-document table {
-            font-size: 11px;
-        }
-
-            .contract-document table th,
-            .contract-document table td {
-                padding: 9px 10px;
-            }
-
     .contract-preview {
         padding: 0;
     }
@@ -2364,13 +1773,6 @@ body.contract-preview-open {
         width: 100%;
         height: 100%;
         border-radius: 0;
-    }
-
-    .contract-preview-paper {
-        width: calc(100% - 24px);
-        min-height: 900px;
-        margin-top: 12px;
-        padding: 42px 30px;
     }
 
     .contract-preview-footer {
@@ -2447,22 +1849,6 @@ body.contract-preview-open {
         padding: 12px;
     }
 
-    .contract-document {
-        padding: 30px 22px;
-    }
-
-        .contract-document h1 {
-            font-size: 22px;
-        }
-
-        .contract-document h2 {
-            font-size: 18px;
-        }
-
-        .contract-document p {
-            font-size: 12.5px;
-        }
-
     .contract-preview-header {
         min-height: 68px;
         padding: 12px 14px;
@@ -2478,22 +1864,6 @@ body.contract-preview-open {
         max-width: 180px;
         font-size: 14.5px;
     }
-
-    .contract-preview-paper {
-        padding: 30px 22px;
-    }
-
-        .contract-preview-paper h1 {
-            font-size: 22px;
-        }
-
-        .contract-preview-paper h2 {
-            font-size: 18px;
-        }
-
-        .contract-preview-paper p {
-            font-size: 13px;
-        }
 
     .preview-footer-info span {
         display: none;
@@ -2585,19 +1955,6 @@ body.contract-preview-open {
         border: 0 !important;
         overflow: visible !important;
     }
-
-    .contract-document {
-        width: 100% !important;
-        min-height: auto !important;
-        margin: 0 !important;
-        padding: 20mm !important;
-        border: 0 !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-    }
-
-        .contract-document table,
-        .contract-document tr {
-            page-break-inside: avoid;
-        }
 }
+
+

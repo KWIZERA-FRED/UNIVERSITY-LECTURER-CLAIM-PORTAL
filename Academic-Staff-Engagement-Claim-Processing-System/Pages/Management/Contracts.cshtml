@@ -65,7 +65,12 @@
     <link rel="stylesheet"
           href="~/css/MANAGEMENT/contracts.css"
           asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/shared/contract-document.css"
+          asp-append-version="true" />
 }
+
 
 <section class="contracts-page">
 
@@ -146,6 +151,7 @@
             </div>
 
             <div class="summary-content">
+
                 <span class="summary-label">
                     Contracts Awaiting You
                 </span>
@@ -153,6 +159,7 @@
                 <strong class="summary-value">
                     @totalContracts
                 </strong>
+
             </div>
 
         </div>
@@ -165,6 +172,7 @@
             </div>
 
             <div class="summary-content">
+
                 <span class="summary-label">
                     Pending Signatures
                 </span>
@@ -172,6 +180,7 @@
                 <strong class="summary-value">
                     @(selectedContract is null ? 0 : pendingSteps)
                 </strong>
+
             </div>
 
         </div>
@@ -184,6 +193,7 @@
             </div>
 
             <div class="summary-content">
+
                 <span class="summary-label">
                     Signed Steps
                 </span>
@@ -191,6 +201,7 @@
                 <strong class="summary-value">
                     @(selectedContract is null ? 0 : signedSteps)
                 </strong>
+
             </div>
 
         </div>
@@ -252,15 +263,18 @@
                 <table class="contracts-table">
 
                     <thead>
+
                         <tr>
                             <th>Contract</th>
                             <th>Lecturer</th>
                             <th>Course</th>
                             <th>Status</th>
+
                             <th class="table-action-column">
                                 Action
                             </th>
                         </tr>
+
                     </thead>
 
                     <tbody>
@@ -273,6 +287,7 @@
                             <tr class="@(isSelected ? "selected-row" : "")">
 
                                 <td>
+
                                     <div class="contract-reference-cell">
 
                                         <span class="reference-icon">
@@ -280,6 +295,7 @@
                                         </span>
 
                                         <div>
+
                                             <strong>
                                                 CON-@contract.ContractId.ToString("D6")
                                             </strong>
@@ -287,29 +303,44 @@
                                             <span>
                                                 Lecturer Contract
                                             </span>
+
                                         </div>
 
                                     </div>
+
                                 </td>
 
+
                                 <td>
+
                                     <span class="table-primary-text">
                                         @contract.LecturerName
                                     </span>
+
                                 </td>
 
+
                                 <td>
+
                                     <span class="table-secondary-text">
                                         @contract.CourseTitle
                                     </span>
+
                                 </td>
 
+
                                 <td>
+
                                     <span class="status-badge status-pending">
+
                                         <span class="badge-dot"></span>
+
                                         Pending
+
                                     </span>
+
                                 </td>
+
 
                                 <td class="table-action-column">
 
@@ -577,7 +608,8 @@
                                                             src="@Url.Page(
                                                                 "/Management/Contracts",
                                                                 "Signature",
-                                                                new {
+                                                                new
+                                                                {
                                                                     contractId = selectedContract.ContractId,
                                                                     signatureId = step.SignatureId
                                                                 })"
@@ -594,6 +626,7 @@
                                                 @if (!string.IsNullOrWhiteSpace(step.SignedByName))
                                                 {
                                                     <div>
+
                                                         <span>
                                                             Signed By
                                                         </span>
@@ -601,12 +634,14 @@
                                                         <strong>
                                                             @step.SignedByName
                                                         </strong>
+
                                                     </div>
                                                 }
 
                                                 @if (step.SignedAtUtc.HasValue)
                                                 {
                                                     <div>
+
                                                         <span>
                                                             Signed On
                                                         </span>
@@ -616,6 +651,7 @@
                                                                 .ToLocalTime()
                                                                 .ToString("dd MMM yyyy, HH:mm")
                                                         </strong>
+
                                                     </div>
                                                 }
 
@@ -680,6 +716,8 @@
             </section>
 
 
+            <!-- OFFICIAL CONTRACT DOCUMENT -->
+
             <section class="document-card">
 
                 <div class="document-header">
@@ -695,8 +733,8 @@
                         </h3>
 
                         <p>
-                            This is the official contract content together
-                            with the signatures already recorded in the system.
+                            This is the official contract document with the
+                            recorded electronic signatures.
                         </p>
 
                     </div>
@@ -714,7 +752,9 @@
 
                             <i class="bi bi-arrows-fullscreen"></i>
 
-                            <span>Full Preview</span>
+                            <span>
+                                Full Preview
+                            </span>
 
                         </button>
 
@@ -723,13 +763,32 @@
                 </div>
 
 
-                <div class="contract-document-wrapper">
+                <div class="document-stage">
 
-                    <div class="contract-document">
+                    <article class="contract-document">
 
-                        @Html.Raw(Model.RenderedContractContent)
+                        @if (string.IsNullOrWhiteSpace(Model.RenderedContractContent))
+                        {
+                            <div class="document-empty">
 
-                    </div>
+                                <i class="bi bi-file-earmark-x"></i>
+
+                                <strong>
+                                    Contract content is unavailable.
+                                </strong>
+
+                                <span>
+                                    The contract does not contain generated content.
+                                </span>
+
+                            </div>
+                        }
+                        else
+                        {
+                            @Html.Raw(Model.RenderedContractContent)
+                        }
+
+                    </article>
 
                 </div>
 
@@ -787,6 +846,7 @@
                             </button>
 
                         </form>
+
 
                         <button type="button"
                                 class="decline-button"
@@ -904,7 +964,6 @@
                 </div>
             }
 
-
         </section>
     }
     else
@@ -949,15 +1008,6 @@
 </section>
 
 
-@* ============================================================
-   FULL CONTRACT PREVIEW MODAL
-   ============================================================
-   Rendered only when a contract is selected, and hidden by
-   default via the `hidden` attribute. The Full Preview button
-   toggles the `hidden` attribute off; the Close button and
-   backdrop toggle it back on.
-   ============================================================ *@
-
 @if (selectedContract is not null)
 {
     <div class="contract-preview"
@@ -972,6 +1022,7 @@
              data-preview-close>
         </div>
 
+
         <div class="contract-preview-dialog">
 
             <div class="contract-preview-header">
@@ -983,13 +1034,19 @@
                     </div>
 
                     <div>
-                        <span>Contract Preview</span>
+
+                        <span>
+                            Contract Preview
+                        </span>
+
                         <h2 id="managementContractPreviewTitle">
                             CON-@selectedContract.ContractId.ToString("D6")
                         </h2>
+
                     </div>
 
                 </div>
+
 
                 <button type="button"
                         class="contract-preview-close"
@@ -1002,22 +1059,53 @@
 
             </div>
 
+
             <div class="contract-preview-body">
 
                 <div class="contract-preview-paper">
 
-                    @Html.Raw(Model.RenderedContractContent)
+                    <article class="contract-document">
+
+                        @if (string.IsNullOrWhiteSpace(Model.RenderedContractContent))
+                        {
+                            <div class="document-empty">
+
+                                <i class="bi bi-file-earmark-x"></i>
+
+                                <strong>
+                                    Contract content is unavailable.
+                                </strong>
+
+                                <span>
+                                    The contract does not contain generated content.
+                                </span>
+
+                            </div>
+                        }
+                        else
+                        {
+                            @Html.Raw(Model.RenderedContractContent)
+                        }
+
+                    </article>
 
                 </div>
 
             </div>
 
+
             <div class="contract-preview-footer">
 
                 <div class="preview-footer-info">
+
                     <i class="bi bi-shield-check"></i>
-                    <span>Official contract document</span>
+
+                    <span>
+                        Official contract document
+                    </span>
+
                 </div>
+
 
                 <button type="button"
                         class="secondary-action"
@@ -1038,11 +1126,8 @@
 @section Scripts {
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
 
-            /* =========================================================
-               DECLINE PANEL
-               ========================================================= */
+        document.addEventListener("DOMContentLoaded", function () {
 
             const showDeclinePanel =
                 document.getElementById("showDeclinePanel");
@@ -1055,6 +1140,7 @@
 
             const cancelDecline =
                 document.getElementById("cancelDecline");
+
 
             function openDeclinePanel() {
 
@@ -1073,11 +1159,17 @@
                     document.getElementById("DeclineReason");
 
                 if (textarea) {
+
                     setTimeout(function () {
+
                         textarea.focus();
+
                     }, 200);
+
                 }
+
             }
+
 
             function closeDecline() {
 
@@ -1086,87 +1178,151 @@
                 }
 
                 declinePanel.hidden = true;
+
             }
 
+
             if (showDeclinePanel) {
+
                 showDeclinePanel.addEventListener(
                     "click",
                     openDeclinePanel
                 );
+
             }
 
+
             if (closeDeclinePanel) {
+
                 closeDeclinePanel.addEventListener(
                     "click",
                     closeDecline
                 );
+
             }
 
+
             if (cancelDecline) {
+
                 cancelDecline.addEventListener(
                     "click",
                     closeDecline
                 );
+
             }
 
 
-            /* =========================================================
-               FULL CONTRACT PREVIEW
-               ========================================================= */
-
             const preview =
-                document.getElementById("managementContractPreview");
+                document.getElementById(
+                    "managementContractPreview"
+                );
+
 
             if (preview) {
 
                 function openPreview() {
 
                     preview.hidden = false;
-                    preview.setAttribute("aria-hidden", "false");
 
-                    // Force a paint so the transition plays.
+                    preview.setAttribute(
+                        "aria-hidden",
+                        "false"
+                    );
+
                     void preview.offsetWidth;
 
                     preview.classList.add("is-open");
-                    document.body.classList.add("contract-preview-open");
+
+                    document.body.classList.add(
+                        "contract-preview-open"
+                    );
+
                 }
+
 
                 function closePreview() {
 
-                    preview.classList.remove("is-open");
-                    preview.setAttribute("aria-hidden", "true");
-                    document.body.classList.remove("contract-preview-open");
+                    preview.classList.remove(
+                        "is-open"
+                    );
 
-                    // Wait for the fade-out transition before hiding.
+                    preview.setAttribute(
+                        "aria-hidden",
+                        "true"
+                    );
+
+                    document.body.classList.remove(
+                        "contract-preview-open"
+                    );
+
+
                     window.setTimeout(function () {
-                        if (!preview.classList.contains("is-open")) {
+
+                        if (
+                            !preview.classList.contains(
+                                "is-open"
+                            )
+                        ) {
+
                             preview.hidden = true;
+
                         }
+
                     }, 200);
+
                 }
 
+
                 document
-                    .querySelectorAll("[data-preview-open]")
+                    .querySelectorAll(
+                        "[data-preview-open]"
+                    )
                     .forEach(function (button) {
-                        button.addEventListener("click", openPreview);
+
+                        button.addEventListener(
+                            "click",
+                            openPreview
+                        );
+
                     });
+
 
                 preview
-                    .querySelectorAll("[data-preview-close]")
+                    .querySelectorAll(
+                        "[data-preview-close]"
+                    )
                     .forEach(function (button) {
-                        button.addEventListener("click", closePreview);
+
+                        button.addEventListener(
+                            "click",
+                            closePreview
+                        );
+
                     });
 
-                document.addEventListener("keydown", function (event) {
-                    if (
-                        event.key === "Escape" &&
-                        preview.classList.contains("is-open")
-                    ) {
-                        closePreview();
+
+                document.addEventListener(
+                    "keydown",
+                    function (event) {
+
+                        if (
+                            event.key === "Escape" &&
+                            preview.classList.contains(
+                                "is-open"
+                            )
+                        ) {
+
+                            closePreview();
+
+                        }
+
                     }
-                });
+                );
+
             }
 
         });
+
     </script>
+
 }
