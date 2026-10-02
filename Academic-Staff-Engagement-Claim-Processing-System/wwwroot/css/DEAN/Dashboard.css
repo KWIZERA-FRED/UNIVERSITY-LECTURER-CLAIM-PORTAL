@@ -1,24 +1,15 @@
 /* ================================================================
    UNILAK ASECPS — DEAN DASHBOARD
    ================================================================
-   Layout only. Colour, pill, button, stepper and card primitives
-   come from /css/shared/design-system.css.
+   Layout and page-specific styling.
+   Primitives live in /css/shared/design-system.css.
 
-   DESIGN PRINCIPLES APPLIED
-   1. Data-driven UI         — row weight reflects workflow urgency
-   2. Progressive disclosure — context first, evidence on demand
-   3. Semantic colour        — blue = act, amber = wait, grey = info
-   4. Attention hierarchy    — Level 1 / 2 / 3 visually distinct
-   5. Operational table      — scannable, not decorative
-   6. Invisible details      — copy on hover, tooltips, quiet states
-
-   LAYOUT NOTES
-   - The queue filters live in the browser; each row carries
-     [hidden] when it doesn't match. The [hidden] override below
-     must always win over display: grid / flex.
-   - Needs-action rows are the only ones that earn an accent edge.
-   - Stepper styling lives in design-system.css — this file never
-     touches it.
+   DESIGN LANGUAGE
+   - Neutral page background, white cards with soft shadows
+   - ONE action blue (--ds-action): the primary "Review & sign" button
+   - Accent blue (--ds-accent): filter chips and non-primary state
+   - Workflow cards: blue / amber / muted-grey left edges
+   - Hairlines between rows
    ================================================================ */
 
 .dd-page {
@@ -27,181 +18,253 @@
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
-    /* The live filter uses the hidden attribute; make sure it always wins
-   over the display: grid / flex rules below. */
     .dd-page [hidden] {
         display: none !important;
     }
 
 
 /* ================================================================
-   HEADER — quiet, sets context, never competes with the banner
+   HEADER
    ================================================================ */
 
 .dd-header h1 {
-    margin: 0 0 4px;
+    margin: 0 0 2px;
     color: var(--ds-heading);
     font-family: var(--ds-font-display);
-    font-size: 26px;
-    font-weight: 800;
-    letter-spacing: -0.6px;
-    line-height: 1.2;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    line-height: 1.25;
 }
 
 .dd-header p {
     margin: 0;
     color: var(--ds-text-secondary);
-    font-size: 14px;
+    font-size: 13.5px;
 }
 
 
 /* ================================================================
-   BANNER — the page's loudest element, restructured for scanning
+   MILESTONE STRIP
    ================================================================ */
 
-.dd-banner-body {
+.dd-milestone {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #f3f5f7;
+    border-radius: var(--ds-radius-lg);
+}
+
+.dd-milestone--calm {
+    background: #f3f5f7;
+}
+
+.dd-milestone-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--ds-heading);
+    color: #ffffff;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.dd-milestone--calm .dd-milestone-icon {
+    background: var(--ds-success);
+}
+
+.dd-milestone-text {
     flex: 1 1 auto;
     min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.dd-banner-primary {
     margin: 0;
-    font-size: 14px;
+    font-size: 13.5px;
     line-height: 1.4;
+    color: var(--ds-heading);
+    font-weight: 500;
 }
 
-.dd-banner-secondary {
-    margin: 0;
-    font-size: 12.5px;
-    opacity: 0.85;
-    line-height: 1.4;
-}
+    .dd-milestone-text strong {
+        font-weight: 700;
+    }
 
-/* The "4 more" link must read as a link even inside a solid banner */
-.dd-banner-link {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 2px;
+.dd-milestone-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    border-radius: var(--ds-radius-sm);
+    background: var(--ds-action);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
     font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color var(--ds-transition);
 }
 
-.ds-banner .dd-banner-link {
-    text-decoration: underline !important;
-}
+    .dd-milestone-btn:hover {
+        background: var(--ds-action-strong);
+        color: #ffffff;
+    }
 
-.dd-banner-link:hover {
-    text-decoration-thickness: 2px;
-}
+    .dd-milestone-btn:focus-visible {
+        outline: 2px solid var(--ds-action);
+        outline-offset: 2px;
+    }
 
 
 /* ================================================================
-   ATTENTION CARDS — Level 1 / 2 / 3
-   ----------------------------------------------------------------
-   Level 1 (action)    → solid, primary (owned by design system)
-   Level 2 (waiting)   → amber fill + amber value + amber edge
-   Level 3 (info)      → info edge, quiet surface
-
-   All three cards share the same internal rhythm (label / value /
-   meta) so the numbers baseline-align even when content differs.
+   WORKFLOW CARDS — three tiers
    ================================================================ */
 
-.dd-attn-grid {
+.dd-workflow {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
-    align-items: stretch;
 }
 
-    /* Uniform internal rhythm across all three cards */
-    .dd-attn-grid .ds-attn {
-        display: grid;
-        grid-template-rows: auto auto 1fr;
-        gap: 4px;
+.dd-workflow-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 18px;
+    background: var(--ds-surface);
+    border: 1px solid var(--ds-border-light);
+    border-left: 4px solid var(--ds-border);
+    border-radius: var(--ds-radius-lg);
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--ds-shadow-card, 0 1px 2px rgba(15, 39, 66, 0.06));
+    transition: border-color var(--ds-transition), box-shadow var(--ds-transition);
+    min-width: 0;
+}
+
+    .dd-workflow-card:hover {
+        box-shadow: var(--ds-shadow-hover, 0 2px 8px rgba(15, 39, 66, 0.08));
     }
 
-    /* ---- Level 2: waiting on earlier signers ---- */
-    .dd-attn-grid .ds-attn--waiting {
-        background: var(--ds-warning-faint);
-        border-left: 4px solid var(--ds-warning);
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
+.dd-workflow-card--action {
+    border-left-color: var(--ds-action);
+}
+
+.dd-workflow-card--waiting {
+    border-left-color: var(--ds-warning);
+}
+
+.dd-workflow-card--info {
+    border-left-color: var(--ds-text-muted);
+}
+
+.dd-workflow-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: var(--ds-text-secondary);
+}
+
+    .dd-workflow-label .bi-info-circle {
+        font-size: 11px;
+        color: var(--ds-text-muted);
+        opacity: 0.7;
     }
 
-        .dd-attn-grid .ds-attn--waiting .ds-attn-value {
-            color: var(--ds-warning-strong);
-        }
+.dd-workflow-value {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ds-heading);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+}
 
-        .dd-attn-grid .ds-attn--waiting .ds-attn-label {
-            color: var(--ds-warning-strong);
-        }
+.dd-workflow-card--action .dd-workflow-value {
+    color: var(--ds-action);
+    font-size: 32px;
+    letter-spacing: -0.6px;
+}
 
-    /* ---- Level 3: informational ---- */
-    .dd-attn-grid .ds-attn--info {
-        border-left: 4px solid var(--ds-info);
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
-    }
+.dd-workflow-card--waiting .dd-workflow-value {
+    color: var(--ds-warning-strong);
+    font-size: 28px;
+}
 
-    /* A card showing zero is not urgent — dim the whole thing */
-    .dd-attn-grid .ds-attn[data-count="0"] {
-        opacity: 0.65;
-    }
+.dd-workflow-card--info .dd-workflow-value {
+    color: var(--ds-text-muted);
+    font-size: 28px;
+}
 
-        .dd-attn-grid .ds-attn[data-count="0"] .ds-attn-value {
-            color: var(--ds-text-muted);
-        }
+.dd-workflow-meta {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ds-text-secondary);
+    line-height: 1.4;
+    margin-top: 2px;
+}
 
 
 /* ================================================================
-   TOOLBAR — search left, filters right, one visual band
+   CARD HEADER
+   ================================================================ */
+
+.ds-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--ds-border-light);
+}
+
+    .ds-card-header h2 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ds-heading);
+        letter-spacing: -0.2px;
+    }
+
+
+/* ================================================================
+   TOOLBAR
    ================================================================ */
 
 .dd-toolbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px 20px;
-    padding: 16px 20px;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 20px;
     border-bottom: 1px solid var(--ds-border-light);
 }
 
     .dd-toolbar .ds-search {
-        flex: 0 1 360px;
-        max-width: 360px;
+        flex: 0 1 380px;
+        max-width: 380px;
     }
-
-    .dd-toolbar .ds-chips {
-        flex: 0 0 auto;
-        margin-left: auto;
-    }
-
-/* "All" is a reset, not a filter — dashed edge signals the difference */
-.ds-chip[data-chip="all"]:not(.is-active) {
-    border-style: dashed;
-    color: var(--ds-text-muted);
-}
 
 
 /* ================================================================
-   QUEUE ROWS — operational table
-   ----------------------------------------------------------------
-   Columns:
-     1. Reference + copy + kind tag        (identity)
-     2. Lecturer + course                  (who)
-     3. Amount + hours                     (how much)
-     4. Workflow stepper + status + wait   (where it is)
-     5. Action                             (what to do)
-
-   Only the "needs action" row earns a coloured left edge.
-   Every row is min-height so the list scans evenly.
+   QUEUE TABLE
    ================================================================ */
 
 .dd-list {
@@ -211,14 +274,10 @@
 
 .dd-row {
     display: grid;
-    grid-template-columns: 190px /* reference */
-    minmax(170px, 1.1fr) /* who */
-    130px /* value */
-    minmax(340px, 1.7fr) /* journey */
-    140px; /* action */
+    grid-template-columns: 200px minmax(180px, 1.2fr) 130px minmax(200px, 1fr) 44px;
     column-gap: 16px;
     align-items: center;
-    min-height: 84px;
+    min-height: 60px;
     padding: 12px 20px;
     border-bottom: 1px solid var(--ds-border-light);
     transition: background-color var(--ds-transition);
@@ -228,21 +287,20 @@
         border-bottom: none;
     }
 
-    .dd-row:not(.dd-row--head):hover {
-        background: var(--ds-surface-raised);
-    }
+.dd-row--needs {
+    background: transparent;
+}
 
-/* Column header — same grid so the labels sit above their columns */
 .dd-row--head {
     min-height: 0;
     padding-top: 10px;
     padding-bottom: 10px;
-    background: var(--ds-surface-raised);
+    background: transparent;
     border-bottom: 1px solid var(--ds-border);
     color: var(--ds-text-muted);
-    font-size: 11.5px;
+    font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: 0.6px;
+    letter-spacing: 0.7px;
     text-transform: uppercase;
 }
 
@@ -250,46 +308,69 @@
         align-self: center;
     }
 
-/* Level 1 — the only row that earns an accent edge */
-.dd-row--needs {
-    background: var(--ds-action-faint);
-    box-shadow: inset 3px 0 0 var(--ds-action);
-}
-
-    .dd-row--needs:hover {
-        background: var(--ds-action-soft);
-    }
-
 .dd-cell {
     min-width: 0;
 }
 
 
-/* --- Reference — identity block ------------------------------- */
+/* --- Reference ------------------------------------------------- */
 
 .dd-ref {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
-    gap: 6px;
+    gap: 10px;
+    min-width: 0;
+}
+
+.dd-ref-body {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
 }
 
 .dd-ref-line {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
 }
 
 .dd-ref-code {
     color: var(--ds-heading);
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.2px;
     font-variant-numeric: tabular-nums;
 }
 
+.dd-row--needs .dd-ref-code {
+    font-weight: 800;
+}
 
-/* --- Copy button — invisible until hover (desktop) ------------ */
+
+/* --- Avatar ---------------------------------------------------- */
+
+.dd-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--ds-surface-raised);
+    color: var(--ds-heading);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    border: 1px solid var(--ds-border-light);
+    user-select: none;
+}
+
+
+/* --- Copy button ---------------------------------------------- */
 
 .ds-copy {
     opacity: 0;
@@ -303,152 +384,150 @@
         opacity: 1;
     }
 
-/* Touch devices have no hover — keep it faintly visible */
 @media (hover: none) {
     .ds-copy {
-        opacity: 0.55;
+        opacity: 0.5;
     }
 }
 
 
-/* --- Identity tags — CONTRACT vs CLAIM ------------------------ */
-
-.ds-tag {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    line-height: 1.4;
-}
-
-/* Contract = informational (blue) — a signature workflow */
-.ds-tag--contract {
-    background: var(--ds-info-soft);
-    color: var(--ds-info-strong);
-}
-
-/* Claim = success (green) — a payment that follows approved work */
-.ds-tag--claim {
-    background: var(--ds-success-soft);
-    color: var(--ds-success-strong);
-}
-
-
-/* --- Lecturer and course — who -------------------------------- */
+/* --- Who ------------------------------------------------------- */
 
 .dd-who {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
 }
 
 .dd-who-name {
     color: var(--ds-heading);
-    font-size: 14px;
-    font-weight: 650;
+    font-size: 13.5px;
+    font-weight: 600;
 }
 
 .dd-who-course {
-    color: var(--ds-text-muted);
-    font-size: 12.5px;
-    line-height: 1.45;
+    color: var(--ds-text-secondary);
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 
-/* --- Value — how much ---------------------------------------- */
+/* --- Value ----------------------------------------------------- */
 
 .dd-value {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
 }
 
 .dd-value-amount {
     color: var(--ds-heading);
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
 }
 
 .dd-value-hours {
-    color: var(--ds-text-muted);
-    font-size: 12.5px;
-}
-
-
-/* --- Journey — where it is ------------------------------------
-   The stepper's own look lives in design-system.css. This block
-   only arranges the space it occupies inside the row.
-   -------------------------------------------------------------- */
-
-.dd-journey {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 2px 0 4px;
-}
-
-.dd-status {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-}
-
-/* Wait time is a decision input, not a footnote.
-   Anchored with a left border so it reads as a second fact
-   attached to the status above it, not a stray line. */
-.dd-wait {
-    display: block;
-    padding-left: 10px;
-    border-left: 2px solid var(--ds-border-light);
-    font-size: 12px;
-    font-weight: 600;
     color: var(--ds-text-secondary);
-    white-space: nowrap;
+    font-size: 12px;
 }
 
-    .dd-wait.is-overdue {
-        color: var(--ds-danger);
-        border-left-color: var(--ds-danger);
+
+/* --- Stage ----------------------------------------------------- */
+
+.dd-stage {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.dd-stage-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--ds-surface-raised);
+    color: var(--ds-text-secondary);
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+    .dd-stage-pill::before {
+        content: "";
+        display: inline-block;
+        flex: 0 0 auto;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.55;
     }
 
-        .dd-wait.is-overdue::before {
-            content: "⚠ ";
-            font-size: 11px;
-        }
+.dd-stage-pill--action {
+    background: var(--ds-action-soft);
+    color: var(--ds-action-strong);
+}
 
-    /* Map the ViewModel's WaitTone values onto the same visual states */
-    .dd-wait.ds-tone-warn {
+    .dd-stage-pill--action::before {
+        background: var(--ds-action);
+        opacity: 1;
+    }
+
+.dd-stage-sep {
+    color: var(--ds-text-muted);
+    font-weight: 400;
+    margin: 0 2px;
+}
+
+.dd-stage-wait {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: inherit;
+    opacity: 0.8;
+}
+
+    .dd-stage-wait.ds-tone-warn {
         color: var(--ds-warning-strong);
-        border-left-color: var(--ds-warning);
+        opacity: 1;
     }
 
-    .dd-wait.ds-tone-late {
+    .dd-stage-wait.ds-tone-late {
         color: var(--ds-danger);
-        border-left-color: var(--ds-danger);
+        opacity: 1;
     }
 
-        .dd-wait.ds-tone-late::before {
-            content: "⚠ ";
-            font-size: 11px;
-        }
 
-
-/* --- Action — what to do -------------------------------------
-   Right-aligned so the eye lands on the verb after reading
-   the row left-to-right.
-   -------------------------------------------------------------- */
+/* --- Row action ------------------------------------------------ */
 
 .dd-action {
     display: flex;
     justify-content: flex-end;
 }
+
+.dd-row-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--ds-radius-sm);
+    color: var(--ds-text-muted);
+    background: transparent;
+    text-decoration: none;
+    transition: background-color var(--ds-transition), color var(--ds-transition);
+}
+
+    .dd-row-action:hover {
+        background: var(--ds-surface-raised);
+        color: var(--ds-heading);
+    }
 
 
 /* --- Empty state ---------------------------------------------- */
@@ -459,14 +538,13 @@
 }
 
 
-/* --- Footnote — quiet, informational -------------------------- */
+/* --- Footnote -------------------------------------------------- */
 
 .dd-footnote {
     padding: 12px 20px;
     border-top: 1px solid var(--ds-border-light);
-    background: var(--ds-surface-raised);
-    color: var(--ds-text-muted);
-    font-size: 12.5px;
+    color: var(--ds-text-secondary);
+    font-size: 12px;
     text-align: center;
 }
 
@@ -476,14 +554,14 @@
 
 
 /* ================================================================
-   RESPONSIVE — TABLET  (table becomes cards)
-   ----------------------------------------------------------------
-   Information hierarchy changes rather than shrinking.
-   Identity + action stay top; who and value stack; journey
-   gets full width so the stepper is readable.
+   RESPONSIVE — TABLET
    ================================================================ */
 
 @media (max-width: 1100px) {
+
+    .dd-workflow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
     .dd-row--head {
         display: none;
@@ -495,17 +573,14 @@
             "ref     action"
             "who     who"
             "value   value"
-            "journey journey";
-        row-gap: 12px;
+            "stage   stage";
+        row-gap: 10px;
         min-height: 0;
-        padding: 16px 20px;
+        padding: 14px 20px;
     }
 
     .dd-ref {
         grid-area: ref;
-        flex-direction: row;
-        align-items: center;
-        gap: 10px;
     }
 
     .dd-action {
@@ -524,26 +599,12 @@
         gap: 12px;
     }
 
-    .dd-journey {
-        grid-area: journey;
-    }
-
-    .dd-status {
+    .dd-stage {
+        grid-area: stage;
         flex-direction: row;
         align-items: center;
         gap: 10px;
     }
-
-    /* On tablet, the wait badge sits beside the pill — no left border */
-    .dd-wait {
-        padding-left: 0;
-        border-left: none;
-    }
-
-        .dd-wait.is-overdue,
-        .dd-wait.ds-tone-late {
-            border-left: none;
-        }
 }
 
 
@@ -554,18 +615,24 @@
 @media (max-width: 720px) {
 
     .dd-header h1 {
-        font-size: 22px;
+        font-size: 20px;
     }
 
-    .dd-attn-grid {
+    .dd-milestone {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .dd-milestone-btn {
+        margin-left: 42px;
+    }
+
+    .dd-workflow {
         grid-template-columns: 1fr;
-        gap: 12px;
     }
 
     .dd-toolbar {
-        padding: 14px;
-        flex-direction: column;
-        align-items: stretch;
+        padding: 12px 14px;
     }
 
         .dd-toolbar .ds-search {
@@ -573,38 +640,26 @@
             flex: 1 1 auto;
         }
 
-        .dd-toolbar .ds-chips {
-            margin-left: 0;
-        }
-
     .dd-row {
-        padding: 14px;
+        padding: 12px 14px;
     }
 
     .dd-footnote {
         padding: 12px 14px;
     }
 
-    .ds-card-header {
-        padding: 14px;
-    }
-
-    .ds-activity-item {
-        padding: 11px 14px;
-    }
-
     #dd-empty {
         padding: 32px 14px;
+    }
+
+    .ds-card-header {
+        padding: 14px;
     }
 }
 
 
 /* ================================================================
-   PRINT — decision support only
-   ----------------------------------------------------------------
-   Hide everything the reader cannot act on in print:
-   toolbar, actions, copy buttons, and the banner (which is
-   a live prompt, not a record).
+   PRINT
    ================================================================ */
 
 @media print {
@@ -612,17 +667,56 @@
     .dd-toolbar,
     .dd-action,
     .ds-copy,
-    .ds-banner {
+    .dd-milestone {
         display: none !important;
-    }
-
-    .dd-row--needs {
-        box-shadow: none;
-        border-left: 3px solid #000;
-        background: transparent;
     }
 
     .dd-row {
         page-break-inside: avoid;
     }
+}
+
+
+/* ================================================================
+   FORCE OVERRIDES
+   ----------------------------------------------------------------
+   These come last so nothing above can defeat them. They exist
+   because the base design-system rules for .ds-chip.is-active
+   were winning the cascade on the Dean page. Once confirmed,
+   the corresponding base rules can be cleaned up and these
+   can lose the !important flag.
+   ================================================================ */
+
+/* Active filter chip — accent blue with dark text */
+.dd-page .ds-chip.is-active,
+.dd-page .ds-chip.is-active:visited {
+    background: #66a1ff !important;
+    border-color: #66a1ff !important;
+    color: #0f2742 !important;
+}
+
+    .dd-page .ds-chip.is-active .ds-chip-count {
+        background: rgba(255, 255, 255, 0.7) !important;
+        color: #0f2742 !important;
+    }
+
+/* Tier 2 number — amber */
+.dd-workflow-card--waiting .dd-workflow-value {
+    color: #8e5d00 !important;
+}
+
+/* Tier 3 number — muted grey */
+.dd-workflow-card--info .dd-workflow-value {
+    color: #8a99a8 !important;
+}
+
+/* Tier 3 edge — muted grey, visible */
+.dd-workflow-card--info {
+    border-left-color: #8a99a8 !important;
+}
+
+/* Row hover — visible tint */
+.dd-row:not(.dd-row--head):hover,
+.dd-row--needs:hover {
+    background: #f0f3f7 !important;
 }

@@ -1,6 +1,18 @@
 @using Academic_Staff_Engagement_Claim_Processing_System.ViewModels
 @model IReadOnlyList<WorkflowStep>
 
+@*
+    Stepper — three states, three shapes:
+      done     → filled green with a check
+      current  → filled blue with the step number, ringed
+      future   → outlined grey, muted label
+      rejected → filled red with a cross
+
+    Each connector's appearance depends on the state it leaves
+    AND the state it enters, so the "what comes next" line is
+    visually distinct from the "what already happened" line.
+*@
+
 <ol class="ds-stepper" aria-label="Approval journey">
 
     @for (var i = 0; i < Model.Count; i++)
@@ -8,17 +20,17 @@
         var step = Model[i];
         var state = step.State.ToString().ToLowerInvariant();
 
+        var isFirst = i == 0;
         var isLast = i == Model.Count - 1;
 
-        // The connector AFTER this step describes the relationship
-        // between this step and the next one. It is dashed when the
-        // next step is not yet done.
         var nextState = isLast
             ? state
             : Model[i + 1].State.ToString().ToLowerInvariant();
 
         <li class="ds-step ds-step--@state@(step.IsYou ? " ds-step--you" : "")"
-            data-state="@state">
+            data-state="@state"
+            data-first="@(isFirst ? "true" : "false")"
+            data-last="@(isLast ? "true" : "false")">
 
             <span class="ds-step-node"
                   data-state="@state"

@@ -28,8 +28,6 @@
 
     var c = Model.SelectedContract;
 
-    var isDean = User.IsInRole("Dean");
-
     var steps = Model.SelectedSignatureSteps
         .OrderBy(s => s.SequenceOrder)
         .ToList();
@@ -46,6 +44,10 @@
 }
 
 @section Styles {
+    <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
     <link rel="stylesheet"
           href="~/css/shared/contract-document.css"
           asp-append-version="true" />
@@ -65,21 +67,10 @@
         </div>
 
         <div class="page-header-actions">
-
             <a asp-page="/DEAN/Contracts" class="secondary-button">
                 <i class="bi bi-arrow-left"></i>
                 Back to Contracts
             </a>
-
-            @if (c is not null)
-            {
-                <button type="button"
-                        class="primary-button preview-contract-button">
-                    <i class="bi bi-arrows-fullscreen"></i>
-                    Full Preview
-                </button>
-            }
-
         </div>
 
     </header>
@@ -104,7 +95,14 @@
     {
         <section class="section-card">
             <div class="empty-state">
-                <p>That contract could not be found.</p>
+                <span class="empty-state-icon" aria-hidden="true">
+                    <i class="bi bi-file-earmark-x"></i>
+                </span>
+                <h3>Contract not found</h3>
+                <p>That contract could not be found, or it may have been removed.</p>
+                <a asp-page="/DEAN/Contracts" class="secondary-button">
+                    Back to Contracts
+                </a>
             </div>
         </section>
     }
@@ -150,7 +148,7 @@
         </section>
 
         <!-- ============================================================
-             SIGNATURE WORKFLOW
+             SIGNATURE WORKFLOW — horizontal flow
              ============================================================ -->
 
         @if (totalSteps > 0)
@@ -186,94 +184,131 @@
                 }
                 else
                 {
-                    <div class="workflow-steps">
+                    <div class="signature-flow"
+                         role="list"
+                         aria-label="Signature progress">
 
-                        @foreach (var step in steps)
+                        @for (var i = 0; i < steps.Count; i++)
                         {
+                            var step = steps[i];
+
                             var signed = step.Decision == SignatureDecision.Signed;
                             var declined = step.Decision == SignatureDecision.Declined;
 
-                            var stepClass = signed ? "is-signed"
-                                : declined ? "is-declined"
-                                : step.IsCurrent ? "is-current"
-                                : "is-waiting";
+                            var isLast = i == steps.Count - 1;
 
-                            <div class="workflow-step @stepClass">
+                            var nodeState = signed ? "done"
+                                : declined ? "rejected"
+                                : step.IsCurrent ? "current"
+                                : "future";
 
-                                <span class="workflow-step-icon">
+                            var nextState = isLast
+                                ? nodeState
+                                : steps[i + 1].Decision == SignatureDecision.Signed
+                                    ? "done"
+                                    : steps[i + 1].Decision == SignatureDecision.Declined
+                                        ? "rejected"
+                                        : steps[i + 1].IsCurrent
+                                            ? "current"
+                                            : "future";
+
+                            <div class="signature-flow-step"
+                                 role="listitem"
+                                 data-state="@nodeState">
+
+                                <div class="signature-flow-node"
+                                     data-state="@nodeState"
+                                     aria-label="@step.RoleName — @nodeState">
+
                                     @if (signed)
                                     {
-                                        <i class="bi bi-check-lg"></i>
+                                        <i class="bi bi-check-lg" aria-hidden="true"></i>
                                     }
                                     else if (declined)
                                     {
-                                        <i class="bi bi-x-lg"></i>
+                                        <i class="bi bi-x-lg" aria-hidden="true"></i>
                                     }
                                     else
                                     {
                                         <span>@step.SequenceOrder</span>
                                     }
-                                </span>
 
-                                <span class="workflow-step-role">
+                                </div>
+
+                                <div class="signature-flow-role">
                                     @step.RoleName
-                                </span>
+                                </div>
 
-                                <span class="workflow-step-state">
-                                    @if (signed)
-                                    {
-                                        <span class="status-badge status-active">Signed</span>
-                                    }
-                                    else if (declined)
-                                    {
-                                        <span class="status-badge status-danger">Declined</span>
-                                    }
-                                    else if (step.IsCurrent)
-                                    {
-                                        <span class="status-badge status-pending">Awaiting Action</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="status-badge status-neutral">Waiting</span>
-                                    }
-                                </span>
-
-                                <span class="workflow-step-date">
-                                    @if (step.SignedAtUtc.HasValue)
+                                <div class="signature-flow-meta">
+                                    @if (signed && step.SignedAtUtc.HasValue)
                                     {
                                         @(step.SignedAtUtc.Value
                                             .ToLocalTime()
-                                            .ToString("dd MMM yyyy, HH:mm"))
+                                            .ToString("dd MMM HH:mm"))
+                                    }
+                                    else if (declined)
+                                    {
+                                        <text>Declined</text>
+                                    }
+                                    else if (step.IsCurrent)
+                                    {
+                                        <text>Awaiting</text>
                                     }
                                     else
                                     {
                                         <text>—</text>
                                     }
-                                </span>
+                                </div>
+
+                                @if (!isLast)
+                                {
+                                    <span class="signature-flow-connector"
+                                          data-state="@nodeState"
+                                          data-next-state="@nextState"
+                                          aria-hidden="true"></span>
+                                }
 
                             </div>
-
-                            @if (signed &&
-                                 !string.IsNullOrWhiteSpace(step.SignatureFilePath))
-                            {
-                                <div class="workflow-step-signature">
-                                    <img src="@step.SignatureFilePath"
-                                         alt="@(step.RoleName) signature" />
-                                </div>
-                            }
-
-                            @if (declined &&
-                                 !string.IsNullOrWhiteSpace(step.Comments))
-                            {
-                                <p class="workflow-step-comment">
-                                    <strong>Decline reason:</strong>
-                                    @step.Comments
-                                </p>
-                            }
                         }
 
                     </div>
+
+                    @* Decline reasons — keep visible below the flow *@
+                    @foreach (var step in steps.Where(s =>
+                        s.Decision == SignatureDecision.Declined &&
+                        !string.IsNullOrWhiteSpace(s.Comments)))
+                    {
+                        <div class="detail-notes">
+
+                            <div class="status-warning">
+                                <i class="bi bi-x-circle-fill"></i>
+                                <div>
+                                    <strong>Declined by @step.RoleName</strong>
+                                    <span>@step.Comments</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    }
                 }
+
+            </section>
+        }
+        else
+        {
+            <section class="section-card">
+
+                <header class="section-header">
+                    <h2>Signature Workflow</h2>
+                </header>
+
+                <div class="empty-state empty-state--compact">
+                    <span class="empty-state-icon" aria-hidden="true">
+                        <i class="bi bi-hourglass-split"></i>
+                    </span>
+                    <h3>No signatures yet</h3>
+                    <p>The signature workflow has not been initiated for this contract.</p>
+                </div>
 
             </section>
         }
@@ -287,16 +322,15 @@
             <header class="section-header">
                 <h2>Contract Document</h2>
 
-                @if (isDean)
-                {
-                    <a asp-page="/DEAN/ContractDetails"
-                       asp-page-handler="Download"
-                       asp-route-contractId="@c.ContractId"
-                       class="secondary-button">
-                        <i class="bi bi-download"></i>
-                        Download PDF
-                    </a>
-                }
+                <div class="section-header-actions">
+
+                    <button type="button"
+                            class="secondary-button preview-contract-button">
+                        <i class="bi bi-arrows-fullscreen"></i>
+                        <span>Full preview</span>
+                    </button>
+
+                </div>
             </header>
 
             <div class="document-stage">
@@ -320,24 +354,16 @@
                     <span class="section-meta">Action required</span>
                 </header>
 
-                <div class="decision-actions">
+                <div class="decision-actions" id="decisionActions">
 
-                    <form method="post"
-                          asp-page-handler="Sign"
-                          class="inline-form">
+                    <button type="button"
+                            class="primary-button"
+                            id="showSignPanel">
 
-                        <input type="hidden" name="ContractId" value="@c.ContractId" />
+                        <i class="bi bi-check-circle-fill"></i>
+                        Sign Contract
 
-                        <button type="submit"
-                                class="primary-button"
-                                onclick="return confirm('Sign this contract?');">
-
-                            <i class="bi bi-check-circle-fill"></i>
-                            Sign Contract
-
-                        </button>
-
-                    </form>
+                    </button>
 
                     <button type="button"
                             class="danger-outline-button"
@@ -350,18 +376,55 @@
 
                 </div>
 
-                <div id="declinePanel"
-                     class="reject-panel"
+                <!-- Sign confirmation panel -->
+                <div id="signPanel"
+                     class="confirm-panel"
                      style="display:none;">
 
-                    <div class="reject-panel-header">
+                    <div class="confirm-panel-header">
+                        <strong>Sign this contract?</strong>
+                        <span>Your signature will be recorded and the workflow will advance.</span>
+                    </div>
+
+                    <form method="post"
+                          asp-page-handler="Sign"
+                          class="confirm-form">
+
+                        <input type="hidden" name="ContractId" value="@c.ContractId" />
+
+                        <div class="confirm-actions">
+
+                            <button type="button"
+                                    id="cancelSign"
+                                    class="secondary-button">
+                                Cancel
+                            </button>
+
+                            <button type="submit"
+                                    class="primary-button">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Confirm signature
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <!-- Decline panel -->
+                <div id="declinePanel"
+                     class="confirm-panel confirm-panel--danger"
+                     style="display:none;">
+
+                    <div class="confirm-panel-header">
                         <strong>Decline Contract</strong>
                         <span>Provide a clear reason for declining.</span>
                     </div>
 
                     <form method="post"
                           asp-page-handler="Decline"
-                          class="reject-form">
+                          class="confirm-form">
 
                         <input type="hidden" name="ContractId" value="@c.ContractId" />
 
@@ -377,7 +440,7 @@
                                       required></textarea>
                         </div>
 
-                        <div class="reject-actions">
+                        <div class="confirm-actions">
 
                             <button type="button"
                                     id="cancelDecline"
@@ -386,12 +449,9 @@
                             </button>
 
                             <button type="submit"
-                                    class="danger-button"
-                                    onclick="return confirm('Decline this contract?');">
-
+                                    class="danger-button">
                                 <i class="bi bi-x-circle"></i>
-                                Confirm Decline
-
+                                Confirm decline
                             </button>
 
                         </div>
@@ -407,7 +467,7 @@
             <section class="section-card">
 
                 <header class="section-header">
-                    <h2>Action Currently Blocked</h2>
+                    <h2>Action blocked</h2>
                 </header>
 
                 <div class="detail-notes">
@@ -451,17 +511,6 @@
 
                 <div class="preview-header-actions">
 
-                    @if (isDean)
-                    {
-                        <a asp-page="/DEAN/ContractDetails"
-                           asp-page-handler="Download"
-                           asp-route-contractId="@c.ContractId"
-                           class="secondary-button">
-                            <i class="bi bi-download"></i>
-                            Download PDF
-                        </a>
-                    }
-
                     <button type="button"
                             id="closeContractPreview"
                             class="preview-close"
@@ -490,46 +539,60 @@
     document.addEventListener("DOMContentLoaded", function () {
 
         /* ============================================================
-           Decline panel toggle
+           Decision panel toggles (sign + decline)
            ============================================================ */
 
-        const showDeclinePanel = document.getElementById("showDeclinePanel");
+        const decisionActions = document.getElementById("decisionActions");
+        const signPanel = document.getElementById("signPanel");
         const declinePanel = document.getElementById("declinePanel");
+
+        const showSignPanel = document.getElementById("showSignPanel");
+        const showDeclinePanel = document.getElementById("showDeclinePanel");
+        const cancelSign = document.getElementById("cancelSign");
         const cancelDecline = document.getElementById("cancelDecline");
 
-        function openDeclinePanel() {
-
-            if (!declinePanel) return;
-
-            declinePanel.style.display = "block";
-
-            declinePanel.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest"
-            });
-
-            const textarea = document.getElementById("DeclineReason");
-
-            if (textarea) {
-                setTimeout(function () { textarea.focus(); }, 250);
-            }
-
+        function hideAllPanels() {
+            if (signPanel) signPanel.style.display = "none";
+            if (declinePanel) declinePanel.style.display = "none";
+            if (decisionActions) decisionActions.style.display = "";
         }
 
-        function closeDeclinePanel() {
+        function showPanel(panel) {
+            hideAllPanels();
 
-            if (!declinePanel) return;
+            if (panel) {
+                panel.style.display = "block";
+                panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
 
-            declinePanel.style.display = "none";
+            if (decisionActions) {
+                decisionActions.style.display = "none";
+            }
+        }
 
+        if (showSignPanel) {
+            showSignPanel.addEventListener("click", function () {
+                showPanel(signPanel);
+            });
         }
 
         if (showDeclinePanel) {
-            showDeclinePanel.addEventListener("click", openDeclinePanel);
+            showDeclinePanel.addEventListener("click", function () {
+                showPanel(declinePanel);
+
+                const textarea = document.getElementById("DeclineReason");
+                if (textarea) {
+                    setTimeout(function () { textarea.focus(); }, 250);
+                }
+            });
+        }
+
+        if (cancelSign) {
+            cancelSign.addEventListener("click", hideAllPanels);
         }
 
         if (cancelDecline) {
-            cancelDecline.addEventListener("click", closeDeclinePanel);
+            cancelDecline.addEventListener("click", hideAllPanels);
         }
 
 
@@ -542,23 +605,17 @@
         const previewButtons = document.querySelectorAll(".preview-contract-button");
 
         function openContractPreview() {
-
             if (!previewModal) return;
-
             previewModal.classList.add("is-open");
             previewModal.setAttribute("aria-hidden", "false");
             document.body.classList.add("preview-open");
-
         }
 
         function closeContractPreview() {
-
             if (!previewModal) return;
-
             previewModal.classList.remove("is-open");
             previewModal.setAttribute("aria-hidden", "true");
             document.body.classList.remove("preview-open");
-
         }
 
         previewButtons.forEach(function (button) {
@@ -570,27 +627,19 @@
         }
 
         if (previewModal) {
-
             previewModal.addEventListener("click", function (event) {
-
                 if (event.target.classList.contains("preview-backdrop")) {
                     closeContractPreview();
                 }
-
             });
-
         }
 
         document.addEventListener("keydown", function (event) {
-
             if (event.key === "Escape" &&
                 previewModal &&
                 previewModal.classList.contains("is-open")) {
-
                 closeContractPreview();
-
             }
-
         });
 
     });

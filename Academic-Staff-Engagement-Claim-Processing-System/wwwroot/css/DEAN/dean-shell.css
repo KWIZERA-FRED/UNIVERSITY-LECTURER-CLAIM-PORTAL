@@ -2,8 +2,9 @@
    UNILAK ASECPS
    DEAN PORTAL — SHELL
    ================================================================
-   Dark navy sidebar, transparent topbar that fades on scroll,
-   content scrolls with the page. Matches the HOD shell.
+   Dark navy sidebar with hairline right border. Transparent topbar
+   with a 2px grey bottom border that fades with the bar on scroll.
+   Content scrolls with the page.
    ================================================================ */
 
 
@@ -12,38 +13,49 @@
    ================================================================ */
 
 :root {
+    /* Sidebar surfaces (dark navy) */
     --sidebar-bg: #0f2742;
     --sidebar-bg-hover: rgba(255, 255, 255, 0.06);
     --sidebar-bg-active: rgba(255, 255, 255, 0.10);
     --sidebar-accent: #4ec4a0;
+    --sidebar-border: rgba(255, 255, 255, 0.06);
+    /* Brand accents */
     --primary: #0f2742;
     --primary-dark: #091c31;
     --accent: #059669;
     --accent-dark: #047857;
     --accent-light: #a7f3d0;
     --accent-soft: #ecfdf5;
+    /* Content surfaces */
     --surface: #ffffff;
     --surface-raised: #fafbfc;
     --background: #f5f7fb;
+    /* Borders */
     --border: #e2e8f0;
     --border-light: #edf1f5;
     --border-strong: #cbd5e1;
+    /* Text */
     --text: #172033;
     --text-secondary: #475569;
     --text-muted: #64748b;
     --text-inverse: #ffffff;
+    /* Danger */
     --danger: #dc2626;
     --danger-dark: #b91c1c;
     --danger-bg: #fef2f2;
     --danger-border: #fecaca;
+    /* Radii */
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 14px;
     --radius-full: 9999px;
+    /* Fonts */
     --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    /* Layout */
     --sidebar-width: 230px;
     --navbar-height: 60px;
+    /* Motion */
     --transition: 160ms ease;
 }
 
@@ -99,7 +111,7 @@ a {
 
 
 /* ================================================================
-   SIDEBAR
+   SIDEBAR — dark navy, hairline right border
    ================================================================ */
 
 .dean-sidebar {
@@ -112,6 +124,7 @@ a {
     flex-direction: column;
     padding: 20px 14px;
     background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
     overflow-y: auto;
     overflow-x: hidden;
     z-index: 900;
@@ -134,7 +147,7 @@ a {
 
 
 /* ================================================================
-   BRAND
+   BRAND — white text on navy
    ================================================================ */
 
 .dean-brand {
@@ -187,7 +200,7 @@ a {
 
 
 /* ================================================================
-   SIDEBAR NAV
+   SIDEBAR NAV — white text, translucent hover, green active stripe
    ================================================================ */
 
 .dean-sidebar-nav {
@@ -259,7 +272,7 @@ a {
 
 
 /* ================================================================
-   TOPBAR — transparent, floats over content, fades on scroll
+   TOPBAR — transparent, 2px grey bottom border, fades on scroll
    ================================================================ */
 
 .dean-topbar {
@@ -271,7 +284,7 @@ a {
     align-items: center;
     padding: 0 24px;
     background: transparent;
-    border-bottom: 1px solid transparent;
+    border-bottom: 2px solid var(--border);
     transition: opacity 0.28s ease, transform 0.28s ease;
 }
 

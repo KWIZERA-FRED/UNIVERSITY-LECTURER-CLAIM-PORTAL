@@ -39,6 +39,13 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
 
 
         // ============================================================
+        // NEW: display name — shown in the header greeting.
+        // ============================================================
+
+        public string DisplayName { get; private set; } = "there";
+
+
+        // ============================================================
         // SUMMARY
         // ============================================================
 
@@ -61,6 +68,13 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
         public QueueItem? NextAction { get; private set; }
 
         public string NextActionWaitText { get; private set; } = string.Empty;
+
+        // The second needs-action item, shown on the banner's
+        // secondary line so the Dean can see what comes next.
+        public QueueItem? NextAfterAction { get; private set; }
+
+        // How many items follow the second one (may be zero).
+        public int RemainingAfterNext { get; private set; }
 
 
         // ============================================================
@@ -178,6 +192,21 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                 User.FindFirst("UserId")?.Value,
                 out int currentDeanId);
 
+            // NEW: resolve the logged-in user's display name.
+            // Prefers the cookie identity (set at login), falls back to
+            // the database UserName, then to a generic fallback so the
+            // header never renders as "Welcome back, ".
+            DisplayName =
+                User.Identity?.Name
+                ?? (currentDeanId > 0
+                    ? await _context.AdminAccounts
+                        .AsNoTracking()
+                        .Where(a => a.Id == currentDeanId)
+                        .Select(a => a.UserName)
+                        .FirstOrDefaultAsync()
+                    : null)
+                ?? "there";
+
             var nowUtc = DateTime.UtcNow;
             var cutoffUtc = nowUtc.AddDays(-ClosedWindowDays);
 
@@ -221,6 +250,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN
                         ? "since today"
                         : $"for {AgeWords(NextAction.DaysWaiting)}";
             }
+
+            // Second needs-action item + remaining count.
+            // Uses a fresh Where/Skip pass so the existing NextAction
+            // assignment above is left untouched.
+            NextAfterAction = ordered
+                .Where(i => i.Bucket == QueueBucket.NeedsAction)
+                .Skip(1)
+                .FirstOrDefault();
+
+            RemainingAfterNext = Math.Max(0, ReadyCount - 2);
 
             ActiveFilter = NormalizeFilter(Filter);
 

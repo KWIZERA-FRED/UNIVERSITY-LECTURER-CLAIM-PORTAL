@@ -318,7 +318,7 @@
 
 
 /* ================================================================
-   SECTION CARD
+   SECTION CARD — soft shadow, no border
    ================================================================ */
 
 .section-card {
@@ -338,7 +338,6 @@
     gap: 16px;
     padding: 16px 20px;
     border-bottom: 1px solid var(--ds-border-light);
-    flex-wrap: wrap;
 }
 
     .section-header h2 {
@@ -349,19 +348,6 @@
         font-weight: 700;
         letter-spacing: -0.2px;
         line-height: 1.3;
-    }
-
-.section-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-    .section-header-actions .secondary-button {
-        min-height: 34px;
-        padding: 0 12px;
-        font-size: 12px;
     }
 
 .section-meta {
@@ -784,11 +770,11 @@
 
 
 /* ================================================================
-   WORKFLOW STEPS
+   WORKFLOW STEPS — signature progress
    ----------------------------------------------------------------
-   Aligned with the dashboard stepper: solid green for signed,
-   solid red for declined, solid action blue with ring for the
-   current step, quiet grey for waiting.
+   Matches the dashboard stepper: solid green for signed, solid
+   red for declined, solid action blue with a ring for the current
+   step, quiet grey for waiting.
    ================================================================ */
 
 .workflow-steps {
@@ -983,11 +969,6 @@
 
 /* ================================================================
    DECISION PANEL
-   ----------------------------------------------------------------
-   Two in-page panels (sign + decline) replace native confirm().
-   Only one is open at a time; the action buttons hide while a
-   panel is open so the user cannot trigger the other action by
-   mistake.
    ================================================================ */
 
 .decision-actions {
@@ -995,6 +976,7 @@
     align-items: center;
     gap: 12px;
     padding: 20px;
+    border-bottom: 1px solid var(--ds-border-light);
     flex-wrap: wrap;
 }
 
@@ -1003,41 +985,30 @@
     margin: 0;
 }
 
-.confirm-panel {
+.reject-panel {
     padding: 20px;
-    border-top: 1px solid var(--ds-border-light);
     background: var(--ds-surface-raised);
 }
 
-.confirm-panel--danger {
-    background: var(--ds-danger-soft);
-    border-top-color: rgba(192, 57, 43, 0.2);
-}
-
-.confirm-panel-header {
+.reject-panel-header {
     display: flex;
     flex-direction: column;
     gap: 3px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
 }
 
-    .confirm-panel-header strong {
+    .reject-panel-header strong {
         color: var(--ds-heading);
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 700;
     }
 
-.confirm-panel--danger .confirm-panel-header strong {
-    color: var(--ds-danger);
-}
+    .reject-panel-header span {
+        color: var(--ds-text-muted);
+        font-size: 12px;
+    }
 
-.confirm-panel-header span {
-    color: var(--ds-text-muted);
-    font-size: 12.5px;
-    line-height: 1.5;
-}
-
-.confirm-form {
+.reject-form {
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -1085,16 +1056,15 @@
             box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.12);
         }
 
-.confirm-actions {
+.reject-actions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    flex-wrap: wrap;
 }
 
 
 /* ================================================================
-   EMPTY STATE — icon + heading + body
+   EMPTY STATE — icon + heading + body, matches the dashboard
    ================================================================ */
 
 .empty-state {
@@ -1105,10 +1075,6 @@
     padding: 48px 24px;
     text-align: center;
     gap: 8px;
-}
-
-.empty-state--compact {
-    padding: 32px 24px;
 }
 
 .empty-state-icon {
@@ -1137,10 +1103,6 @@
     font-size: 13px;
     line-height: 1.55;
     max-width: 440px;
-}
-
-.empty-state .secondary-button {
-    margin-top: 10px;
 }
 
 
@@ -1389,14 +1351,6 @@ body.preview-open {
         padding: 14px 16px;
     }
 
-    .section-header-actions {
-        width: 100%;
-    }
-
-        .section-header-actions .secondary-button {
-            flex: 1 1 auto;
-        }
-
     .toolbar {
         padding: 12px 16px;
     }
@@ -1459,19 +1413,18 @@ body.preview-open {
     }
 
     .decision-actions,
-    .confirm-panel {
+    .reject-panel {
         padding-left: 16px;
         padding-right: 16px;
     }
 
-    .confirm-actions {
+    .reject-actions {
         justify-content: stretch;
         flex-direction: column-reverse;
     }
 
-        .confirm-actions .danger-button,
-        .confirm-actions .secondary-button,
-        .confirm-actions .primary-button {
+        .reject-actions .danger-button,
+        .reject-actions .secondary-button {
             width: 100%;
         }
 
@@ -1522,7 +1475,7 @@ body.preview-open {
     .detail-notes,
     .workflow-steps,
     .decision-actions,
-    .confirm-panel {
+    .reject-panel {
         padding-left: 14px;
         padding-right: 14px;
     }
@@ -1600,13 +1553,12 @@ body.preview-open {
     .page-header-actions,
     .contracts-stats,
     .section-header,
-    .section-header-actions,
     .toolbar,
     .detail-grid,
     .detail-notes,
     .workflow-steps,
     .decision-actions,
-    .confirm-panel,
+    .reject-panel,
     .preview-modal,
     .row-action,
     .gray-button {
@@ -1624,175 +1576,5 @@ body.preview-open {
         background: #ffffff !important;
         overflow: visible !important;
         border: 0 !important;
-    }
-}
-/* ================================================================
-   SIGNATURE FLOW — horizontal stepper
-   ================================================================ */
-
-.signature-flow {
-    display: flex;
-    align-items: flex-start;
-    padding: 20px;
-    overflow-x: auto;
-    gap: 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--ds-border) transparent;
-}
-
-    .signature-flow::-webkit-scrollbar {
-        height: 6px;
-    }
-
-    .signature-flow::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .signature-flow::-webkit-scrollbar-thumb {
-        background: var(--ds-border);
-        border-radius: 9999px;
-    }
-
-.signature-flow-step {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    flex: 0 0 auto;
-    min-width: 110px;
-    padding: 0 4px;
-}
-
-.signature-flow-node {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--ds-surface-raised);
-    color: var(--ds-text-muted);
-    font-size: 12px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    line-height: 1;
-    border: 2px solid var(--ds-border);
-    transition: background-color var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition), box-shadow var(--ds-transition);
-}
-
-    .signature-flow-node[data-state="done"] {
-        background: var(--ds-success);
-        border-color: var(--ds-success);
-        color: #ffffff;
-    }
-
-    .signature-flow-node[data-state="current"] {
-        background: var(--ds-action);
-        border-color: var(--ds-action);
-        color: #ffffff;
-        box-shadow: 0 0 0 3px var(--ds-action-soft);
-    }
-
-    .signature-flow-node[data-state="rejected"] {
-        background: var(--ds-danger);
-        border-color: var(--ds-danger);
-        color: #ffffff;
-    }
-
-    .signature-flow-node[data-state="future"] {
-        background: transparent;
-        border-color: var(--ds-border);
-        color: var(--ds-text-muted);
-        opacity: 0.75;
-    }
-
-.signature-flow-role {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--ds-heading);
-    text-align: center;
-    line-height: 1.3;
-    white-space: nowrap;
-}
-
-.signature-flow-step[data-state="future"] .signature-flow-role {
-    color: var(--ds-text-muted);
-    font-weight: 500;
-}
-
-.signature-flow-meta {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--ds-text-muted);
-    text-align: center;
-    line-height: 1.3;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-}
-
-.signature-flow-step[data-state="done"] .signature-flow-meta {
-    color: var(--ds-success-strong);
-}
-
-.signature-flow-step[data-state="current"] .signature-flow-meta {
-    color: var(--ds-action-strong);
-    font-weight: 600;
-}
-
-.signature-flow-step[data-state="rejected"] .signature-flow-meta {
-    color: var(--ds-danger);
-    font-weight: 600;
-}
-
-.signature-flow-connector {
-    position: absolute;
-    top: 13px;
-    left: calc(50% + 18px);
-    right: calc(-50% + 18px);
-    height: 2px;
-    border-radius: 1px;
-    background: var(--ds-border);
-    pointer-events: none;
-}
-
-    .signature-flow-connector[data-state="done"] {
-        background: var(--ds-success);
-        opacity: 1;
-    }
-
-    .signature-flow-connector[data-state="current"] {
-        background: transparent;
-        border-top: 2px dashed var(--ds-action);
-        height: 0;
-        opacity: 0.85;
-    }
-
-    .signature-flow-connector[data-state="future"] {
-        background: transparent;
-        border-top: 2px dashed var(--ds-border);
-        height: 0;
-        opacity: 0.7;
-    }
-
-    .signature-flow-connector[data-state="rejected"] {
-        background: var(--ds-danger);
-        opacity: 1;
-    }
-
-@media (max-width: 700px) {
-
-    .signature-flow {
-        padding: 16px 14px;
-    }
-
-    .signature-flow-step {
-        min-width: 92px;
-    }
-
-    .signature-flow-role {
-        font-size: 12px;
-        white-space: normal;
-        max-width: 90px;
     }
 }

@@ -1,14 +1,890 @@
 /* ================================================================
-   WORKFLOW STEPPER — shared across all roles
+   UNILAK ASECPS — DESIGN SYSTEM
    ================================================================
-   Three states, three shapes:
-     done     → filled green, solid connector to next
-     current  → filled blue, dashed blue connector to next
-     future   → outlined grey, dashed grey connectors
-     rejected → filled red, red connector to next
+   Every visual primitive used by every role page.
+   Tokens, banners, cards, buttons, chips, pills, tags, steppers,
+   empty states, activity lists, snapshot cards.
+   ================================================================ */
 
-   A future step must NEVER look like a done step.
-   That is the single most important rule in this file.
+
+/* ================================================================
+   ROOT TOKENS
+   ================================================================ */
+
+:root {
+    /* Typography */
+    --ds-font-display: 'Poppins', 'Plus Jakarta Sans', system-ui, sans-serif;
+    --ds-font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    /* Text */
+    --ds-heading: #0f2742;
+    --ds-text: #1a2b3c;
+    --ds-text-secondary: #4a5b6d;
+    --ds-text-muted: #8a99a8;
+    /* Surfaces */
+    --ds-page-bg: #f8f9fb;
+    --ds-surface: #ffffff;
+    --ds-surface-raised: #f5f8fb;
+    --ds-border: #d8e0e8;
+    --ds-border-light: #e8eef4;
+    /* Shadows */
+    --ds-shadow-card: 0 1px 2px rgba(15, 39, 66, 0.06), 0 1px 3px rgba(15, 39, 66, 0.04);
+    --ds-shadow-hover: 0 2px 8px rgba(15, 39, 66, 0.08), 0 1px 3px rgba(15, 39, 66, 0.05);
+    /* Action (blue) — used by primary buttons */
+    --ds-action: #1e5fbf;
+    --ds-action-strong: #154a99;
+    --ds-action-soft: #d9e7f8;
+    --ds-action-faint: #eef5fd;
+    /* Accent (light blue) — used by chips, stage pills, strip */
+    --ds-accent: #66a1ff;
+    --ds-accent-strong: #4a86e8;
+    --ds-accent-soft: #e5efff;
+    --ds-accent-faint: #f2f7ff;
+    /* Success (green) */
+    --ds-success: #1a8a4a;
+    --ds-success-soft: #d8f0e0;
+    --ds-success-strong: #106634;
+    /* Warning (amber) */
+    --ds-warning: #c8860b;
+    --ds-warning-faint: #fefaee;
+    --ds-warning-soft: #fdf2d6;
+    --ds-warning-strong: #8e5d00;
+    /* Danger (red) */
+    --ds-danger: #c0392b;
+    --ds-danger-soft: #fbe3e0;
+    /* Info (steel blue) */
+    --ds-info: #2b6cb0;
+    --ds-info-soft: #deeaf9;
+    --ds-info-strong: #1a4a7f;
+    /* Motion */
+    --ds-transition: 150ms ease;
+    /* Radius */
+    --ds-radius-sm: 4px;
+    --ds-radius-md: 8px;
+    --ds-radius-lg: 12px;
+}
+
+
+/* ================================================================
+   BASE
+   ================================================================ */
+
+.ds-page {
+    width: 100%;
+}
+
+.ds-visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+
+/* ================================================================
+   STATUS DOTS
+   ================================================================ */
+
+.ds-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    vertical-align: middle;
+}
+
+.ds-dot--action {
+    background: var(--ds-action);
+}
+
+.ds-dot--waiting {
+    background: var(--ds-warning);
+}
+
+.ds-dot--info {
+    background: var(--ds-text-muted);
+}
+
+.ds-dot--done {
+    background: var(--ds-success);
+}
+
+.ds-dot--rejected {
+    background: var(--ds-danger);
+}
+
+.ds-dot--muted {
+    background: var(--ds-border);
+}
+
+
+/* ================================================================
+   CARD SHELLS — no border, soft shadow only
+   ----------------------------------------------------------------
+   Outer cards (card, snapshot, panel) are surfaces. They float
+   above the page using shadow alone. Inner tiles keep a hairline
+   border because they nest inside the outer card.
+   ================================================================ */
+
+.ds-card,
+.ds-snapshot,
+.ds-panel {
+    background: var(--ds-surface);
+    border: none;
+    border-radius: var(--ds-radius-lg);
+    box-shadow: var(--ds-shadow-card);
+}
+
+.ds-card {
+    overflow: hidden;
+}
+
+.ds-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--ds-border-light);
+}
+
+    .ds-card-header h2 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ds-heading);
+        letter-spacing: -0.2px;
+    }
+
+
+/* ================================================================
+   SNAPSHOT — outer surface
+   ================================================================ */
+
+.ds-snapshot {
+    padding: 20px;
+}
+
+.ds-snapshot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.ds-snapshot-title {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ds-heading);
+    letter-spacing: -0.1px;
+}
+
+.ds-snapshot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.ds-snapshot-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity var(--ds-transition);
+}
+
+    .ds-snapshot-col:hover {
+        opacity: 0.85;
+    }
+
+.ds-snapshot-label {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--ds-text-muted);
+    margin-bottom: 2px;
+}
+
+.ds-snapshot-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ds-heading);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.4px;
+    line-height: 1.1;
+}
+
+    .ds-snapshot-value .ds-dot {
+        width: 9px;
+        height: 9px;
+    }
+
+.ds-snapshot-meta {
+    display: block;
+    font-size: 12px;
+    color: var(--ds-text-secondary);
+    line-height: 1.45;
+    margin-top: 4px;
+}
+
+.ds-snapshot-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+
+/* ================================================================
+   TILE — inner container, keeps its hairline border
+   ================================================================ */
+
+.ds-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    background: var(--ds-surface);
+    border: 1px solid var(--ds-border-light);
+    border-radius: var(--ds-radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color var(--ds-transition), box-shadow var(--ds-transition), transform var(--ds-transition);
+    min-width: 0;
+}
+
+    .ds-tile:hover {
+        border-color: var(--ds-border);
+        box-shadow: 0 1px 3px rgba(15, 39, 66, 0.04);
+    }
+
+.ds-tile-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ds-text-secondary);
+    letter-spacing: 0.1px;
+}
+
+    .ds-tile-label .bi-info-circle {
+        font-size: 11px;
+        color: var(--ds-text-muted);
+        opacity: 0.7;
+    }
+
+.ds-tile-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ds-heading);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.4px;
+}
+
+.ds-tile-meta {
+    display: block;
+    font-size: 12px;
+    color: var(--ds-text-muted);
+    line-height: 1.4;
+}
+
+
+/* ================================================================
+   PANEL — outer surface
+   ================================================================ */
+
+.ds-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+}
+
+.ds-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.ds-panel-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ds-heading);
+    letter-spacing: -0.1px;
+}
+
+    .ds-panel-title .bi-briefcase {
+        font-size: 12px;
+        color: var(--ds-text-muted);
+    }
+
+.ds-stat-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--ds-surface-raised);
+    border-radius: var(--ds-radius-md);
+}
+
+.ds-stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ds-text-secondary);
+    letter-spacing: 0.1px;
+}
+
+.ds-stat-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ds-heading);
+    font-variant-numeric: tabular-nums;
+}
+
+.ds-panel-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 10px 12px;
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-action);
+    color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color var(--ds-transition);
+}
+
+    .ds-panel-link:hover {
+        background: var(--ds-action-strong);
+        color: #ffffff;
+    }
+
+    .ds-panel-link .bi-arrow-right {
+        font-size: 11px;
+    }
+
+
+/* ================================================================
+   LEGACY ATTENTION CARDS
+   ================================================================ */
+
+.ds-attn {
+    display: block;
+    padding: 16px 18px;
+    border-radius: var(--ds-radius-md);
+    border: 1px solid var(--ds-border-light);
+    background: var(--ds-surface);
+    text-decoration: none;
+    color: inherit;
+    transition: transform var(--ds-transition), box-shadow var(--ds-transition);
+}
+
+    .ds-attn:hover {
+        box-shadow: var(--ds-shadow-hover);
+    }
+
+.ds-attn-label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ds-text-secondary);
+    letter-spacing: 0.1px;
+    margin-bottom: 4px;
+}
+
+.ds-attn-value {
+    display: block;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--ds-heading);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+    margin-bottom: 2px;
+}
+
+.ds-attn-meta {
+    display: block;
+    font-size: 12.5px;
+    color: var(--ds-text-muted);
+    line-height: 1.4;
+}
+
+.ds-attn--action {
+    background: var(--ds-action);
+    border-color: var(--ds-action);
+}
+
+    .ds-attn--action .ds-attn-label,
+    .ds-attn--action .ds-attn-value,
+    .ds-attn--action .ds-attn-meta {
+        color: #fff;
+    }
+
+    .ds-attn--action .ds-attn-meta {
+        opacity: 0.85;
+    }
+
+.ds-attn--waiting {
+    background: var(--ds-warning-faint);
+    border-color: var(--ds-border-light);
+}
+
+.ds-attn--info {
+    background: var(--ds-surface);
+    border-color: var(--ds-border-light);
+}
+
+
+/* ================================================================
+   BUTTONS
+   ================================================================ */
+
+.ds-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--ds-radius-sm);
+    border: 1px solid transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--ds-transition), color var(--ds-transition), border-color var(--ds-transition);
+    white-space: nowrap;
+}
+
+    .ds-btn:focus-visible {
+        outline: 2px solid var(--ds-action);
+        outline-offset: 2px;
+    }
+
+.ds-btn--primary {
+    background: var(--ds-action);
+    color: #fff;
+    border-color: var(--ds-action);
+}
+
+    .ds-btn--primary:hover {
+        background: var(--ds-action-strong);
+        border-color: var(--ds-action-strong);
+        color: #fff;
+    }
+
+.ds-btn--quiet {
+    background: transparent;
+    color: var(--ds-text-secondary);
+    border-color: var(--ds-border);
+}
+
+    .ds-btn--quiet:hover {
+        background: var(--ds-surface-raised);
+        color: var(--ds-heading);
+        border-color: var(--ds-border);
+    }
+
+.ds-btn--on-dark {
+    background: #fff;
+    color: var(--ds-action);
+    border-color: #fff;
+}
+
+    .ds-btn--on-dark:hover {
+        background: var(--ds-surface-raised);
+        color: var(--ds-action-strong);
+        border-color: var(--ds-surface-raised);
+    }
+
+
+/* ================================================================
+   SEARCH
+   ================================================================ */
+
+.ds-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+    .ds-search .bi-search {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--ds-text-muted);
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    .ds-search input[type="search"] {
+        flex: 1 1 auto;
+        width: 100%;
+        padding: 9px 12px 9px 34px;
+        border: 1px solid var(--ds-border);
+        border-radius: var(--ds-radius-sm);
+        background: var(--ds-surface);
+        font-family: inherit;
+        font-size: 13px;
+        color: var(--ds-heading);
+        transition: border-color var(--ds-transition), box-shadow var(--ds-transition);
+    }
+
+        .ds-search input[type="search"]::placeholder {
+            color: var(--ds-text-muted);
+        }
+
+        .ds-search input[type="search"]:focus {
+            outline: none;
+            border-color: var(--ds-accent);
+            box-shadow: 0 0 0 3px var(--ds-accent-soft);
+        }
+
+.ds-search-hint {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 2px 6px;
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius-sm);
+    background: var(--ds-surface-raised);
+    color: var(--ds-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    pointer-events: none;
+}
+
+.ds-search input[type="search"]:focus ~ .ds-search-hint,
+.ds-search input[type="search"]:not(:placeholder-shown) ~ .ds-search-hint {
+    opacity: 0;
+    visibility: hidden;
+}
+
+
+/* ================================================================
+   CHIPS
+   ================================================================ */
+
+.ds-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.ds-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 1px solid var(--ds-border);
+    border-radius: 999px;
+    background: var(--ds-surface);
+    color: var(--ds-text-secondary);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    line-height: 1.2;
+    transition: background-color var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition);
+}
+
+    .ds-chip:hover {
+        background: var(--ds-surface-raised);
+        color: var(--ds-heading);
+    }
+
+    .ds-chip.is-active {
+        background: var(--ds-accent);
+        border-color: var(--ds-accent);
+        color: var(--ds-heading);
+    }
+
+.ds-chip-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: rgba(15, 39, 66, 0.06);
+    color: var(--ds-text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.ds-chip.is-active .ds-chip-count {
+    background: rgba(255, 255, 255, 0.65);
+    color: var(--ds-heading);
+}
+
+
+/* ================================================================
+   PILLS
+   ================================================================ */
+
+.ds-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    line-height: 1.4;
+    background: var(--ds-surface-raised);
+    color: var(--ds-text-secondary);
+}
+
+    .ds-pill::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.7;
+    }
+
+.ds-pill--current {
+    background: var(--ds-accent-soft);
+    color: var(--ds-action-strong);
+}
+
+.ds-pill--done {
+    background: var(--ds-success-soft);
+    color: var(--ds-success-strong);
+}
+
+.ds-pill--waiting {
+    background: var(--ds-warning-soft);
+    color: var(--ds-warning-strong);
+}
+
+.ds-pill--rejected {
+    background: var(--ds-danger-soft);
+    color: var(--ds-danger);
+}
+
+.ds-pill--info {
+    background: var(--ds-info-soft);
+    color: var(--ds-info-strong);
+}
+
+
+/* ================================================================
+   TAGS (CONTRACT / CLAIM)
+   ================================================================ */
+
+.ds-tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: var(--ds-radius-sm);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    line-height: 1.4;
+    background: var(--ds-surface-raised);
+    color: var(--ds-text-secondary);
+}
+
+.ds-tag--contract,
+.ds-tag--claim {
+    background: var(--ds-surface-raised);
+    color: var(--ds-text-secondary);
+}
+
+
+/* ================================================================
+   COPY BUTTON
+   ================================================================ */
+
+.ds-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: var(--ds-radius-sm);
+    background: transparent;
+    color: var(--ds-text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color var(--ds-transition), color var(--ds-transition);
+}
+
+    .ds-copy:hover {
+        background: var(--ds-surface-raised);
+        color: var(--ds-action);
+    }
+
+    .ds-copy.is-copied {
+        color: var(--ds-success);
+    }
+
+
+/* ================================================================
+   EMPTY STATE
+   ================================================================ */
+
+.ds-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 8px;
+}
+
+.ds-empty-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--ds-surface-raised);
+    color: var(--ds-text-muted);
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.ds-empty h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ds-heading);
+}
+
+.ds-empty p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--ds-text-secondary);
+    max-width: 420px;
+    line-height: 1.5;
+}
+
+.ds-empty .ds-btn {
+    margin-top: 8px;
+}
+
+
+/* ================================================================
+   ACTIVITY LIST
+   ================================================================ */
+
+.ds-activity {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.ds-activity-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--ds-border-light);
+    font-size: 13px;
+}
+
+    .ds-activity-item:last-child {
+        border-bottom: none;
+    }
+
+.ds-activity-dot {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ds-border);
+}
+
+.ds-activity-dot--done {
+    background: var(--ds-success);
+}
+
+.ds-activity-dot--rejected {
+    background: var(--ds-danger);
+}
+
+.ds-activity-text {
+    flex: 1 1 auto;
+    color: var(--ds-text-secondary);
+    min-width: 0;
+}
+
+    .ds-activity-text strong {
+        color: var(--ds-heading);
+        font-weight: 700;
+    }
+
+.ds-activity-when {
+    flex: 0 0 auto;
+    color: var(--ds-text-muted);
+    font-size: 12px;
+}
+
+
+/* ================================================================
+   WAIT TONES
+   ================================================================ */
+
+.ds-tone-normal {
+    color: var(--ds-text-secondary);
+}
+
+.ds-tone-warn {
+    color: var(--ds-warning-strong);
+}
+
+.ds-tone-late {
+    color: var(--ds-danger);
+}
+
+
+/* ================================================================
+   WORKFLOW STEPPER
    ================================================================ */
 
 .ds-stepper {
@@ -25,73 +901,62 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     flex: 0 0 auto;
     position: relative;
-    min-width: 42px;
+    min-width: 46px;
 }
-
-
-/* --- Node ----------------------------------------------------- */
 
 .ds-step-node {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-    background: var(--ds-surface-raised);
+    background: var(--ds-surface);
     color: var(--ds-text-muted);
     border: 2px solid var(--ds-border);
-    transition: background-color var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition);
+    transition: background-color var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition), box-shadow var(--ds-transition);
 }
 
-/* Done — filled green with a check */
 .ds-step--done .ds-step-node {
     background: var(--ds-success);
     border-color: var(--ds-success);
     color: #fff;
 }
 
-/* Current — filled blue, number inside */
 .ds-step--current .ds-step-node {
-    background: var(--ds-action);
-    border-color: var(--ds-action);
+    background: var(--ds-accent);
+    border-color: var(--ds-accent);
     color: #fff;
-    box-shadow: 0 0 0 3px var(--ds-action-soft);
+    box-shadow: 0 0 0 4px var(--ds-accent-soft);
 }
 
-/* Rejected — filled red */
 .ds-step--rejected .ds-step-node {
     background: var(--ds-danger);
     border-color: var(--ds-danger);
     color: #fff;
 }
 
-/* Future — OUTLINED, hollow, muted. This is the fix. */
 .ds-step--future .ds-step-node,
 .ds-step-node[data-state="future"] {
     background: transparent;
     border: 2px solid var(--ds-border);
     color: var(--ds-text-muted);
-    opacity: 0.75;
+    opacity: 0.7;
 }
 
-/* The Dean step gets a subtle ring so "you" stands out */
 .ds-step--you .ds-step-node {
-    outline: 2px solid var(--ds-action-soft);
-    outline-offset: 2px;
+    outline: 2px solid var(--ds-accent-soft);
+    outline-offset: 3px;
 }
-
-
-/* --- Label ---------------------------------------------------- */
 
 .ds-step-label {
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--ds-text-muted);
     letter-spacing: 0.2px;
@@ -112,63 +977,47 @@
     color: var(--ds-danger);
 }
 
-/* Future labels are quiet — present but never competing */
 .ds-step--future .ds-step-label,
 .ds-step[data-state="future"] .ds-step-label {
     opacity: 0.6;
     font-weight: 500;
 }
 
-
-/* --- Connector ------------------------------------------------
-   The connector is the horizontal line between two nodes.
-   Its appearance depends on BOTH the step it leaves and the
-   step it enters.
-   -------------------------------------------------------------- */
-
 .ds-step-connector {
     position: absolute;
-    top: 10px; /* vertical centre of the node */
-    left: calc(50% + 13px); /* just right of this node */
-    right: calc(-50% + 13px); /* just left of the next node */
+    top: 11px;
+    left: calc(50% + 14px);
+    right: calc(-50% + 14px);
     height: 0;
     border-top: 2px solid var(--ds-border);
-    opacity: 0.85;
+    opacity: 0.9;
     pointer-events: none;
 }
 
-    /* Done → Done: solid green */
     .ds-step-connector[data-state="done"][data-next-state="done"] {
         border-top: 2px solid var(--ds-success);
         opacity: 1;
     }
 
-    /* Done → Current: solid green (handoff into the active step) */
     .ds-step-connector[data-state="done"][data-next-state="current"] {
         border-top: 2px solid var(--ds-success);
         opacity: 1;
     }
 
-    /* Current → Future: dashed blue (this is the "what happens next" line) */
     .ds-step-connector[data-state="current"][data-next-state="future"] {
-        border-top: 2px dashed var(--ds-action);
-        opacity: 0.85;
+        border-top: 2px dashed var(--ds-accent);
+        opacity: 0.9;
     }
 
-    /* Future → Future: dashed grey */
     .ds-step-connector[data-state="future"][data-next-state="future"] {
         border-top: 2px dashed var(--ds-border);
-        opacity: 0.6;
+        opacity: 0.7;
     }
 
-    /* Anything → Rejected: red */
     .ds-step-connector[data-next-state="rejected"] {
         border-top: 2px solid var(--ds-danger);
         opacity: 1;
     }
-
-
-/* --- Tooltips ------------------------------------------------- */
 
 .ds-step-node[data-tip] {
     position: relative;
@@ -187,7 +1036,8 @@
         font-size: 11.5px;
         font-weight: 500;
         white-space: nowrap;
-        border-radius: 4px;
+        border-radius: var(--ds-radius-sm);
         z-index: 20;
         pointer-events: none;
+        box-shadow: 0 2px 8px rgba(15, 39, 66, 0.18);
     }

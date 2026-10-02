@@ -18,35 +18,39 @@
 
 <section class="ds-page dd-page">
 
+    @* ---------------- Header ---------------- *@
+
     <header class="dd-header">
-        <h1>Dean Dashboard</h1>
-        <p>Contracts and claims waiting for your authorization.</p>
+        <h1>Welcome back, @Model.DisplayName</h1>
+        <p>Contracts and claims waiting for your signature.</p>
     </header>
 
 
-    @* ---------------- What should I do next? ---------------- *@
+    @* ---------------- Next action strip ---------------- *@
 
     @if (Model.NextAction is not null)
     {
-        <div class="ds-banner ds-banner--action" role="status">
+        <div class="dd-milestone" role="status">
 
-            <span class="ds-banner-icon" aria-hidden="true">
+            <span class="dd-milestone-icon" aria-hidden="true">
                 <i class="bi bi-pen-fill"></i>
             </span>
 
-            <p>
+            <p class="dd-milestone-text">
                 <strong>@Model.NextAction.Reference</strong>
                 from @Model.NextAction.LecturerName
                 needs your signature —
                 waiting @Model.NextActionWaitText.
                 @if (Model.ReadyCount > 1)
                 {
-                    <text> <strong>@(Model.ReadyCount - 1) more</strong> after it.</text>
+                    <text>
+                        <strong>@(Model.ReadyCount - 1) more</strong> waiting.
+                    </text>
                 }
             </p>
 
             <a href="@Model.NextAction.ReviewUrl"
-               class="ds-btn ds-btn--on-dark">
+               class="dd-milestone-btn">
                 Review &amp; sign
             </a>
 
@@ -54,13 +58,13 @@
     }
     else
     {
-        <div class="ds-banner ds-banner--calm" role="status">
+        <div class="dd-milestone dd-milestone--calm" role="status">
 
-            <span class="ds-banner-icon" aria-hidden="true">
+            <span class="dd-milestone-icon" aria-hidden="true">
                 <i class="bi bi-check2-circle"></i>
             </span>
 
-            <p>
+            <p class="dd-milestone-text">
                 <strong>You're all caught up.</strong>
                 Nothing is waiting for your signature right now.
             </p>
@@ -69,22 +73,28 @@
     }
 
 
-    @* ---------------- Attention: do now / monitor / information ---------------- *@
+    @* ---------------- Workflow cards — three tiers, full width ---------------- *@
 
-    <section class="dd-attn-grid" aria-label="Summary">
+    <section class="dd-workflow" aria-label="Your workflow">
 
         <a asp-page="/DEAN/Index"
            asp-route-filter="needs-action"
            data-filter="needs-action"
-           class="ds-attn ds-attn--action">
+           class="dd-workflow-card dd-workflow-card--action">
 
-            <span class="ds-attn-label">Needs your signature</span>
-            <span class="ds-attn-value">@Model.ReadyCount</span>
+            <span class="dd-workflow-label">
+                Needs your signature
+                <i class="bi bi-info-circle"
+                   aria-hidden="true"
+                   title="Claims where the previous approver has finished and your decision is now required."></i>
+            </span>
 
-            <span class="ds-attn-meta">
+            <span class="dd-workflow-value">@Model.ReadyCount</span>
+
+            <span class="dd-workflow-meta">
                 @if (Model.ReadyCount > 0)
                 {
-                    <text>RWF @Model.ReadyValue.ToString("N0") · oldest waiting @Model.OldestReadyText</text>
+                    <text>Oldest waiting @Model.OldestReadyText</text>
                 }
                 else
                 {
@@ -97,54 +107,53 @@
         <a asp-page="/DEAN/Index"
            asp-route-filter="pipeline"
            data-filter="pipeline"
-           class="ds-attn ds-attn--waiting">
+           class="dd-workflow-card dd-workflow-card--waiting">
 
-            <span class="ds-attn-label">Waiting on earlier signers</span>
-            <span class="ds-attn-value">@Model.WaitingCount</span>
-            <span class="ds-attn-meta">You can act once they finish</span>
+            <span class="dd-workflow-label">
+                Waiting on earlier signers
+                <i class="bi bi-info-circle"
+                   aria-hidden="true"
+                   title="Claims still at an earlier approval stage. You can act once the previous signer finishes."></i>
+            </span>
+
+            <span class="dd-workflow-value">@Model.WaitingCount</span>
+
+            <span class="dd-workflow-meta">
+                You can act once they finish
+            </span>
 
         </a>
 
         <a asp-page="/DEAN/Index"
            asp-route-filter="pipeline"
            data-filter="pipeline"
-           class="ds-attn ds-attn--info">
+           class="dd-workflow-card dd-workflow-card--info">
 
-            <span class="ds-attn-label">With later approvers</span>
-            <span class="ds-attn-value">@Model.WithLaterCount</span>
-            <span class="ds-attn-meta">You've signed — still in progress</span>
+            <span class="dd-workflow-label">
+                With later approvers
+                <i class="bi bi-info-circle"
+                   aria-hidden="true"
+                   title="Claims you have already signed. They are now with a later approver."></i>
+            </span>
+
+            <span class="dd-workflow-value">@Model.WithLaterCount</span>
+
+            <span class="dd-workflow-meta">
+                You've signed — still in progress
+            </span>
 
         </a>
 
     </section>
 
 
-    @* ---------------- Unified queue (filters live in the browser) ---------------- *@
+    @* ---------------- Queue ---------------- *@
 
     <section class="ds-card" id="dd-queue">
 
-        <div class="dd-toolbar">
+        <div class="ds-card-header">
 
-            <form method="get"
-                  asp-page="/DEAN/Index"
-                  id="dd-search-form"
-                  class="ds-search"
-                  role="search">
-
-                <i class="bi bi-search" aria-hidden="true"></i>
-
-                <input type="hidden" name="filter" value="@Model.ActiveFilter" />
-
-                <input type="search"
-                       id="dd-search"
-                       name="q"
-                       value="@Model.Q"
-                       autocomplete="off"
-                       aria-keyshortcuts="/"
-                       placeholder="Search reference, lecturer or course"
-                       aria-label="Search reference, lecturer or course" />
-
-            </form>
+            <h2>The queue</h2>
 
             <nav class="ds-chips" aria-label="Filter the queue">
 
@@ -188,6 +197,33 @@
 
         </div>
 
+        <div class="dd-toolbar">
+
+            <form method="get"
+                  asp-page="/DEAN/Index"
+                  id="dd-search-form"
+                  class="ds-search"
+                  role="search">
+
+                <i class="bi bi-search" aria-hidden="true"></i>
+
+                <input type="hidden" name="filter" value="@Model.ActiveFilter" />
+
+                <input type="search"
+                       id="dd-search"
+                       name="q"
+                       value="@Model.Q"
+                       autocomplete="off"
+                       aria-keyshortcuts="/"
+                       placeholder="Search reference, lecturer or course"
+                       aria-label="Search reference, lecturer or course" />
+
+                <span class="ds-search-hint" aria-hidden="true">Press /</span>
+
+            </form>
+
+        </div>
+
         <div class="dd-list"
              id="dd-list"
              role="list"
@@ -197,7 +233,7 @@
                 <span>Reference</span>
                 <span>Lecturer &amp; course</span>
                 <span>Value</span>
-                <span>Where it is</span>
+                <span>Stage</span>
                 <span></span>
             </div>
 
@@ -209,6 +245,11 @@
                 var isClaim =
                     item.Kind == Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.IndexModel.QueueKind.Claim;
 
+                var initial =
+                    !string.IsNullOrWhiteSpace(item.LecturerName)
+                        ? item.LecturerName.Trim().Substring(0, 1).ToUpperInvariant()
+                        : "?";
+
                 <article class="dd-row @(needsAction ? "dd-row--needs" : "")"
                          role="listitem"
                          data-bucket="@Model.BucketKey(item)"
@@ -217,18 +258,26 @@
 
                     <div class="dd-cell dd-ref">
 
-                        <div class="dd-ref-line">
-                            <span class="dd-ref-code">@item.Reference</span>
+                        <span class="dd-avatar" aria-hidden="true">@initial</span>
 
-                            <button type="button"
-                                    class="ds-copy"
-                                    data-copy="@item.Reference"
-                                    aria-label="Copy reference @item.Reference">
-                                <i class="bi bi-clipboard" aria-hidden="true"></i>
-                            </button>
+                        <div class="dd-ref-body">
+
+                            <div class="dd-ref-line">
+                                <span class="dd-ref-code">@item.Reference</span>
+
+                                <button type="button"
+                                        class="ds-copy"
+                                        data-copy="@item.Reference"
+                                        aria-label="Copy reference @item.Reference">
+                                    <i class="bi bi-clipboard" aria-hidden="true"></i>
+                                </button>
+                            </div>
+
+                            <span class="ds-tag @(isClaim ? "ds-tag--claim" : "ds-tag--contract")">
+                                @(isClaim ? "Claim" : "Contract")
+                            </span>
+
                         </div>
-
-                        <span class="ds-tag">@(isClaim ? "Claim" : "Contract")</span>
 
                     </div>
 
@@ -249,21 +298,19 @@
                         <span class="dd-value-hours">@item.Hours.ToString("0.##") hours</span>
                     </div>
 
-                    <div class="dd-cell dd-journey">
-
-                        <partial name="_WorkflowStepper" model="item.Journey" />
-
-                        <div class="dd-status">
-                            <span class="ds-pill ds-pill--@item.PillTone">@item.StatusText</span>
-                            <span class="dd-wait @item.WaitTone">@item.WaitText</span>
-                        </div>
-
+                    <div class="dd-cell dd-stage">
+                        <span class="dd-stage-pill @(needsAction ? "dd-stage-pill--action" : "")">
+                            @item.StatusText
+                            <span class="dd-stage-sep" aria-hidden="true">·</span>
+                            <span class="dd-stage-wait @item.WaitTone">@item.WaitText</span>
+                        </span>
                     </div>
 
                     <div class="dd-cell dd-action">
                         <a href="@item.ReviewUrl"
-                           class="ds-btn @(needsAction ? "ds-btn--primary" : "ds-btn--quiet")">
-                            @(needsAction ? "Review & sign" : "View")
+                           class="dd-row-action"
+                           aria-label="Open @item.Reference">
+                            <i class="bi bi-chevron-right" aria-hidden="true"></i>
                         </a>
                     </div>
 
@@ -462,8 +509,6 @@
                     }
                 });
 
-                // Chips: counts follow the search so matches in other
-                // tabs are visible without clicking.
                 var url = new URL(window.location.href);
                 url.searchParams.set("filter", tab);
 
@@ -492,7 +537,6 @@
 
                 window.history.replaceState(null, "", url.toString());
 
-                // Empty state, footnote and screen-reader summary.
                 head.hidden = shown === 0;
 
                 if (shown > 0) {
@@ -568,7 +612,6 @@
                 apply();
             }
 
-            // Tabs and summary cards switch instantly (no reload).
             triggers.forEach(function (link) {
 
                 link.addEventListener("click", function (event) {
@@ -582,7 +625,8 @@
 
                     selectTab(link.getAttribute("data-filter"));
 
-                    if (link.classList.contains("ds-attn")) {
+                    if (link.classList.contains("dd-workflow-card") ||
+                        link.classList.contains("dd-milestone-btn")) {
 
                         var reduce = window.matchMedia &&
                             window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -608,22 +652,18 @@
                 }
             });
 
-            // Filter as you type.
             input.addEventListener("input", function () {
                 clearTimeout(timer);
                 timer = setTimeout(apply, 100);
             });
 
-            // Clearing with the search box's own × button.
             input.addEventListener("search", apply);
 
-            // Enter no longer reloads the page.
             form.addEventListener("submit", function (event) {
                 event.preventDefault();
                 apply();
             });
 
-            // Press / anywhere to jump to the search box.
             document.addEventListener("keydown", function (event) {
 
                 var tag = (document.activeElement || {}).tagName || "";

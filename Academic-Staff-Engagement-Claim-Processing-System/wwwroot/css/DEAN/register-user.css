@@ -13,10 +13,10 @@
 :root {
     --primary: #0f2742;
     --primary-dark: #091c31;
-    --accent: #059669;
-    --accent-dark: #047857;
-    --accent-light: #a7f3d0;
-    --accent-soft: #ecfdf5;
+    --accent: #1e5fbf;
+    --accent-dark: #154a99;
+    --accent-light: #d9e7f8;
+    --accent-soft: #eef5fd;
     --surface: #ffffff;
     --surface-raised: #fafbfc;
     --background: #f5f7fb;
@@ -27,8 +27,8 @@
     --text-secondary: #475569;
     --text-muted: #64748b;
     --text-inverse: #ffffff;
-    --success-bg: #ecfdf5;
-    --success-border: #a7f3d0;
+    --success-bg: #eef5fd;
+    --success-border: #c9ddf5;
     --danger: #dc2626;
     --danger-dark: #b91c1c;
     --danger-bg: #fef2f2;
@@ -294,7 +294,7 @@ form {
 
     .form-control:focus {
         border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        box-shadow: 0 0 0 3px rgba(30, 95, 191, 0.1);
     }
 
 select.form-control {
@@ -372,7 +372,7 @@ select.form-control {
 }
 
     .signature-canvas:focus-visible {
-        outline: 2px solid rgba(5, 150, 105, 0.4);
+        outline: 2px solid rgba(30, 95, 191, 0.4);
         outline-offset: -3px;
     }
 
@@ -542,7 +542,7 @@ select.form-control {
 .primary-button:focus-visible,
 .secondary-button:focus-visible,
 .form-control:focus-visible {
-    outline: 2px solid rgba(5, 150, 105, 0.4);
+    outline: 2px solid rgba(30, 95, 191, 0.4);
     outline-offset: 2px;
 }
 
@@ -662,6 +662,6 @@ select.form-control {
     }
 
     .signature-wrapper {
-        border: 1px solid #ccc;
+        border-color: #ccc !important;
     }
 }

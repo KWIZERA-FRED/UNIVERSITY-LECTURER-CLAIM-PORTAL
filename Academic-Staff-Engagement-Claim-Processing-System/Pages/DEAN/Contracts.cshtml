@@ -36,6 +36,10 @@
 
 @section Styles {
     <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
           href="~/css/DEAN/contracts.css"
           asp-append-version="true" />
 }
@@ -65,30 +69,45 @@
         </div>
     }
 
-    <section class="stats-grid">
+    @* ---------------- Contract stats ---------------- *@
 
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-blue">
-                <i class="bi bi-file-earmark-text-fill"></i>
-            </div>
-            <div class="stat-value">@totalContracts</div>
-            <span class="stat-label">Total Contracts</span>
+    <section class="contracts-stats" aria-label="Contract summary">
+
+        <div class="contracts-stat contracts-stat--neutral">
+            <span class="contracts-stat-label">
+                Total Contracts
+            </span>
+            <span class="contracts-stat-value">@totalContracts</span>
+            <span class="contracts-stat-meta">
+                All contracts on record
+            </span>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-orange">
-                <i class="bi bi-hourglass-split"></i>
-            </div>
-            <div class="stat-value">@awaitingDeanCount</div>
-            <span class="stat-label">Awaiting Dean Signature</span>
+        <div class="contracts-stat contracts-stat--action">
+            <span class="contracts-stat-label">
+                Awaiting Dean Signature
+            </span>
+            <span class="contracts-stat-value">@awaitingDeanCount</span>
+            <span class="contracts-stat-meta">
+                @if (awaitingDeanCount > 0)
+                {
+                    <text>Needs your signature</text>
+                }
+                else
+                {
+                    <text>Nothing waiting</text>
+                }
+            </span>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-green">
-                <i class="bi bi-patch-check-fill"></i>
-            </div>
-            <div class="stat-value">@activeContractsCount</div>
-            <span class="stat-label">Active Contracts</span>
+        <div class="contracts-stat contracts-stat--success">
+            <span class="contracts-stat-label">
+                Active Contracts
+            </span>
+            <span class="contracts-stat-value">@activeContractsCount</span>
+            <span class="contracts-stat-meta">
+                Currently in force
+            </span>
         </div>
 
     </section>
@@ -103,13 +122,15 @@
         </header>
 
         <div class="toolbar">
-            <div class="search-box">
-                <i class="bi bi-search"></i>
+            <form class="search-box" role="search" onsubmit="return false;">
+                <i class="bi bi-search" aria-hidden="true"></i>
                 <input type="search"
                        id="contractSearch"
                        placeholder="Search by contract, lecturer, department or course…"
+                       aria-label="Search contracts"
                        autocomplete="off" />
-            </div>
+                <span class="search-hint" aria-hidden="true">Press /</span>
+            </form>
         </div>
 
         @if (Model.Contracts.Any())
@@ -139,6 +160,8 @@
                             var statusLabel = contract.IsDeclined
                                 ? "Declined"
                                 : GetStatusLabel(contract.Status);
+
+                            var isAction = contract.IsAwaitingDean;
 
                             <tr class="contract-row"
                                 data-search="CON-@contract.ContractId.ToString("D6") @contract.LecturerName @contract.Department @contract.CourseTitle">
@@ -170,8 +193,8 @@
                                 <td class="col-action">
                                     <a asp-page="/DEAN/ContractDetails"
                                        asp-route-ContractId="@contract.ContractId"
-                                       class="gray-button">
-                                        Review
+                                       class="row-action @(isAction ? "row-action--primary" : "")">
+                                        @(isAction ? "Review & sign" : "Review")
                                     </a>
                                 </td>
 
@@ -227,6 +250,21 @@
                 noResults.style.display = visible === 0 ? "" : "none";
             }
 
+        });
+
+        // Press / to focus the search box.
+        document.addEventListener("keydown", function (event) {
+
+            var tag = (document.activeElement || {}).tagName || "";
+
+            if (event.key === "/" &&
+                !/^(INPUT|TEXTAREA|SELECT)$/.test(tag) &&
+                !event.ctrlKey && !event.metaKey && !event.altKey) {
+
+                event.preventDefault();
+                contractSearch.focus();
+                contractSearch.select();
+            }
         });
 
     }

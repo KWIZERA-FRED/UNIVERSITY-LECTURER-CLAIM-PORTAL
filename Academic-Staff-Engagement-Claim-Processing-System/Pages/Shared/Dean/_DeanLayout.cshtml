@@ -43,7 +43,7 @@
           href="~/css/DEAN/dean-shell.css"
           asp-append-version="true" />
 
-    @RenderSection("Styles", required: false)
+    @await RenderSectionAsync("Styles", required: false)
 
 </head>
 
@@ -341,7 +341,7 @@
 
     </script>
 
-    @RenderSection("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 
