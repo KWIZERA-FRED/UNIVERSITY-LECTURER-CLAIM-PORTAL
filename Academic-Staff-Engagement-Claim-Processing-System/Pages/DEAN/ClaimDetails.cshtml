@@ -62,7 +62,9 @@
 
             <header class="section-header">
                 <h2>CL@(c.ClaimId.ToString("D3"))</h2>
-                <span class="status-badge status-pending">Pending Dean Approval</span>
+                <span class="status-badge status-pending">
+                    Pending Dean Approval
+                </span>
             </header>
 
             <div class="detail-grid">
@@ -74,12 +76,16 @@
 
                 <div class="detail-item">
                     <span class="detail-label">Contract</span>
-                    <span class="detail-value">C@(c.ContractId.ToString("D3"))</span>
+                    <span class="detail-value">
+                        C@(c.ContractId.ToString("D3"))
+                    </span>
                 </div>
 
                 <div class="detail-item">
                     <span class="detail-label">Hours Claimed</span>
-                    <span class="detail-value">@c.HoursClaimed.ToString("N2") h</span>
+                    <span class="detail-value">
+                        @c.HoursClaimed.ToString("N2") h
+                    </span>
                 </div>
 
                 <div class="detail-item">
@@ -105,7 +111,9 @@
                 }
                 else
                 {
-                    <p class="muted-text">No description was provided for this claim.</p>
+                    <p class="muted-text">
+                        No description was provided for this claim.
+                    </p>
                 }
 
             </div>
@@ -128,6 +136,7 @@
 
                         <div>
                             <strong>Contract Signed</strong>
+
                             <span>
                                 Signed
                                 @(c.ContractSignedAtUtc?.ToString("dd MMM yyyy") ?? "")
@@ -148,6 +157,7 @@
 
                         <div>
                             <strong>Contract Not Signed</strong>
+
                             <span>
                                 The associated contract has not yet reached
                                 the ACTIVE status.
@@ -165,8 +175,10 @@
 
                     <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
                        class="primary-button">
+
                         <i class="bi bi-folder2-open"></i>
                         View Contract &amp; Claim Documents
+
                     </a>
 
                 </div>
@@ -186,8 +198,10 @@
 
                     <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
                        class="secondary-button">
+
                         <i class="bi bi-file-earmark-text"></i>
                         View Claim Documents
+
                     </a>
 
                 </div>
@@ -213,6 +227,7 @@
 
                     <div class="detail-item">
                         <span class="detail-label">File</span>
+
                         <span class="detail-value">
                             @(c.MarksFileName ?? "Signed Marks Submission")
                         </span>
@@ -220,6 +235,7 @@
 
                     <div class="detail-item">
                         <span class="detail-label">Signed By</span>
+
                         <span class="detail-value">
                             @(c.MarksSignedByName ?? "—")
                         </span>
@@ -227,15 +243,19 @@
 
                     <div class="detail-item">
                         <span class="detail-label">Signed</span>
+
                         <span class="detail-value">
                             @(c.MarksSignedAtUtc.HasValue
-                                ? c.MarksSignedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                                ? c.MarksSignedAtUtc.Value
+                                    .ToLocalTime()
+                                    .ToString("dd MMM yyyy HH:mm")
                                 : "—")
                         </span>
                     </div>
 
                     <div class="detail-item">
                         <span class="detail-label">Reference</span>
+
                         <span class="detail-value">
                             @(c.MarksReference ?? "—")
                         </span>
@@ -245,20 +265,16 @@
 
                 <div class="section-actions">
 
-                    <a asp-page-handler="DownloadMarks"
-                       asp-route-claimId="@c.ClaimId"
-                       asp-route-marksId="@c.MarksSubmissionId.Value"
-                       class="secondary-button">
-                        <i class="bi bi-download"></i>
-                        Download Marks
-                    </a>
+                   
 
                 </div>
             }
             else
             {
                 <div class="empty-state">
-                    <p>No signed marks submission was found for this claim.</p>
+                    <p>
+                        No signed marks submission was found for this claim.
+                    </p>
                 </div>
             }
 
@@ -280,6 +296,7 @@
 
                         <div>
                             <strong>Action Currently Blocked</strong>
+
                             <span>
                                 @(c.BlockedReason ??
                                     "An earlier required approval on this claim is still pending.")
@@ -307,7 +324,9 @@
                           asp-page-handler="Approve"
                           class="inline-form">
 
-                        <input type="hidden" asp-for="ClaimId" value="@c.ClaimId" />
+                        <input type="hidden"
+                               asp-for="ClaimId"
+                               value="@c.ClaimId" />
 
                         <button type="submit"
                                 class="primary-button"
@@ -326,16 +345,21 @@
 
                     <div class="reject-panel-header">
                         <strong>Reject Claim</strong>
-                        <span>Provide a clear reason for the rejection.</span>
+                        <span>
+                            Provide a clear reason for the rejection.
+                        </span>
                     </div>
 
                     <form method="post"
                           asp-page-handler="Reject"
                           class="reject-form">
 
-                        <input type="hidden" asp-for="ClaimId" value="@c.ClaimId" />
+                        <input type="hidden"
+                               asp-for="ClaimId"
+                               value="@c.ClaimId" />
 
                         <div class="form-group">
+
                             <label asp-for="RejectReason">
                                 Rejection Reason <span>*</span>
                             </label>
@@ -345,6 +369,7 @@
                                       maxlength="1000"
                                       placeholder="Explain why this claim is being rejected…"
                                       required></textarea>
+
                         </div>
 
                         <div class="reject-actions">
