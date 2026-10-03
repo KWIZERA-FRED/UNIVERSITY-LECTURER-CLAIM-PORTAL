@@ -4,9 +4,25 @@
 @{
     ViewData["Title"] = "My Claims";
     Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
+
+    string GetStatusClass(string status) => status switch
+    {
+        "Approved" => "status-active",
+        "Paid" => "status-paid",
+        "Rejected" => "status-danger",
+        "Submitted" => "status-pending",
+        "Under Review" => "status-pending",
+        _ => "status-neutral"
+    };
+
+    var totalClaims = Model.TotalClaims;
 }
 
 @section Styles {
+    <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
     <link rel="stylesheet"
           href="~/css/Lecturer/claims.css"
           asp-append-version="true" />
@@ -21,10 +37,12 @@
             <p>View your teaching claims and track their approval and payment status.</p>
         </div>
 
-        <a href="/Lecturer/SubmitClaim" class="primary-button">
-            <i class="bi bi-plus-lg"></i>
-            Submit Claim
-        </a>
+        <div class="page-header-actions">
+            <a asp-page="/Lecturer/SubmitClaim" class="primary-button">
+                <i class="bi bi-plus-lg"></i>
+                Submit Claim
+            </a>
+        </div>
 
     </header>
 
@@ -36,78 +54,98 @@
         </div>
     }
 
-    <section class="stats-grid">
+    <section class="claims-stats" aria-label="Claim summary">
 
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-blue">
-                <i class="bi bi-wallet2"></i>
-            </div>
-            <div class="stat-value">@Model.TotalClaims</div>
-            <span class="stat-label">Total Claims</span>
+        <div class="claims-stat claims-stat--neutral">
+            <span class="claims-stat-label">Total Claims</span>
+            <span class="claims-stat-value">@Model.TotalClaims</span>
+            <span class="claims-stat-meta">All claims you have submitted</span>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-orange">
-                <i class="bi bi-hourglass-split"></i>
-            </div>
-            <div class="stat-value">@Model.PendingClaims</div>
-            <span class="stat-label">Pending</span>
+        <div class="claims-stat claims-stat--action">
+            <span class="claims-stat-label">Pending</span>
+            <span class="claims-stat-value">@Model.PendingClaims</span>
+            <span class="claims-stat-meta">
+                @(Model.PendingClaims > 0 ? "In the approval pipeline" : "Nothing waiting")
+            </span>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-green">
-                <i class="bi bi-check-circle-fill"></i>
-            </div>
-            <div class="stat-value">@Model.ApprovedClaims</div>
-            <span class="stat-label">Approved</span>
+        <div class="claims-stat claims-stat--success">
+            <span class="claims-stat-label">Approved</span>
+            <span class="claims-stat-value">@Model.ApprovedClaims</span>
+            <span class="claims-stat-meta">Fully approved claims</span>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-purple">
-                <i class="bi bi-clock-history"></i>
-            </div>
-            <div class="stat-value">@Model.TotalHours.ToString("N1")</div>
-            <span class="stat-label">Total Hours</span>
+        <div class="claims-stat claims-stat--neutral">
+            <span class="claims-stat-label">Total Hours</span>
+            <span class="claims-stat-value">@Model.TotalHours.ToString("N1")</span>
+            <span class="claims-stat-meta">Hours across all claims</span>
         </div>
 
     </section>
 
-    <section class="section-card">
+    <section class="section-card" id="claims-card">
 
         <header class="section-header">
             <h2>Submitted Claims</h2>
+            <span class="section-meta">
+                @totalClaims @(totalClaims == 1 ? "claim" : "claims")
+            </span>
         </header>
 
         @if (Model.Claims.Any())
         {
+            <div class="toolbar">
+
+                <form class="search-box"
+                      role="search"
+                      onsubmit="return false;">
+
+                    <i class="bi bi-search" aria-hidden="true"></i>
+
+                    <input type="search"
+                           id="claimSearch"
+                           placeholder="Search by claim, course or status…"
+                           aria-label="Search claims"
+                           autocomplete="off" />
+
+                    <span class="search-hint" aria-hidden="true">Press /</span>
+
+                </form>
+
+            </div>
+
             <div class="table-wrapper">
                 <table class="data-table">
+
                     <thead>
                         <tr>
                             <th>Claim</th>
                             <th>Course</th>
                             <th>Academic Year</th>
                             <th>Campus</th>
-                            <th>Hours</th>
+                            <th class="col-right">Hours</th>
                             <th>Status</th>
-                            <th></th>
+                            <th class="col-action"></th>
                         </tr>
                     </thead>
-                    <tbody>
+
+                    <tbody id="claimsBody">
                         @foreach (var claim in Model.Claims)
                         {
-                            <tr>
+                            <tr class="claim-row"
+                                data-search="@($"{claim.ClaimNumber} {claim.CourseCode} {claim.CourseName} {claim.AcademicYear} {claim.Campus} {claim.Status}".ToLowerInvariant())">
+
                                 <td>
-                                    <div class="claim-ref">
-                                        <strong>@claim.ClaimNumber</strong>
-                                        <span>Teaching claim</span>
-                                    </div>
+                                    <span class="reference-pill">
+                                        @claim.ClaimNumber
+                                    </span>
                                 </td>
 
                                 <td>
                                     <div class="course-cell">
-                                        <strong>@claim.CourseCode</strong>
-                                        <span>@claim.CourseName</span>
+                                        <span class="course-title">@claim.CourseName</span>
+                                        <span class="course-code">@claim.CourseCode</span>
                                     </div>
                                 </td>
 
@@ -115,15 +153,19 @@
 
                                 <td>@claim.Campus</td>
 
-                                <td>@claim.Hours.ToString("N1")</td>
-
-                                <td>
-                                    <span class="status-badge @claim.StatusClass">
-                                        @claim.Status
+                                <td class="col-right">
+                                    <span class="hours-value">
+                                        @claim.Hours.ToString("N1")
                                     </span>
                                 </td>
 
                                 <td>
+                                    <span class="status-badge @GetStatusClass(claim.Status)">
+                                        @claim.Status
+                                    </span>
+                                </td>
+
+                                <td class="col-action">
                                     <a href="@claim.OpenUrl" class="row-action">
                                         View
                                         <i class="bi bi-arrow-right"></i>
@@ -132,14 +174,23 @@
                             </tr>
                         }
                     </tbody>
+
                 </table>
+            </div>
+
+            <div class="table-empty" id="noResults" hidden>
+                <p>No claims match your search.</p>
             </div>
         }
         else
         {
             <div class="empty-state">
-                <p>No claims yet. Once you submit a claim, it will appear here.</p>
-                <a href="/Lecturer/SubmitClaim" class="primary-button">
+                <span class="empty-state-icon" aria-hidden="true">
+                    <i class="bi bi-wallet2"></i>
+                </span>
+                <h3>No claims yet</h3>
+                <p>Once you submit a claim, it will appear here.</p>
+                <a asp-page="/Lecturer/SubmitClaim" class="primary-button">
                     <i class="bi bi-plus-lg"></i>
                     Submit Your First Claim
                 </a>
@@ -149,3 +200,64 @@
     </section>
 
 </section>
+
+@section Scripts {
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const input = document.getElementById("claimSearch");
+        const noResults = document.getElementById("noResults");
+
+        if (!input) return;
+
+        const rows = Array.prototype.slice.call(
+            document.querySelectorAll(".claim-row"));
+
+        function apply() {
+
+            const query = input.value.trim().toLowerCase();
+            const terms = query.split(/\s+/).filter(Boolean);
+
+            let shown = 0;
+
+            rows.forEach(function (row) {
+
+                const key = (row.dataset.search || "").toLowerCase();
+
+                const match = terms.every(function (t) {
+                    return key.indexOf(t) !== -1;
+                });
+
+                row.hidden = !match;
+
+                if (match) shown++;
+            });
+
+            if (noResults) {
+                noResults.hidden = shown > 0 || rows.length === 0;
+            }
+        }
+
+        input.addEventListener("input", apply);
+        input.addEventListener("search", apply);
+
+        // Press / to focus the search box.
+        document.addEventListener("keydown", function (event) {
+
+            const tag = (document.activeElement || {}).tagName || "";
+
+            if (event.key === "/" &&
+                !/^(INPUT|TEXTAREA|SELECT)$/.test(tag) &&
+                !event.ctrlKey && !event.metaKey && !event.altKey) {
+
+                event.preventDefault();
+                input.focus();
+                input.select();
+            }
+        });
+
+    });
+
+</script>
+}

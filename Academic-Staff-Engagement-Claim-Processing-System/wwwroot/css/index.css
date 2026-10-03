@@ -570,9 +570,16 @@ section {
     aspect-ratio: 16 / 10;
     object-fit: cover;
     object-position: top left;
+    /* Reduced blur to make it somewhat visible */
+    filter: blur(2px);
+    transition: filter 0.5s ease;
 }
 
-/* ---------- Stats ---------- */
+    .browser-image:hover {
+        filter: blur(0px);
+    }
+
+/* ---------- Stats & Gallery ---------- */
 
 .stats {
     padding-top: 3rem;
@@ -598,6 +605,7 @@ section {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
+    margin-bottom: 3rem; /* Space for gallery */
 }
 
 .stat-item {
@@ -644,6 +652,29 @@ section {
     font-size: 0.85rem;
     color: var(--text-muted);
 }
+
+/* Gallery Styles */
+.campus-gallery {
+    max-width: var(--container);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.gallery-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .gallery-img:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+    }
 
 /* ---------- Platform flow diagram ---------- */
 
@@ -749,16 +780,6 @@ section {
     order: 2;
 }
 
-.os-tag {
-    display: inline-block;
-    margin-bottom: 1rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--blue-600);
-}
-
 .os-text h3 {
     margin-bottom: 1rem;
     font-size: 1.7rem;
@@ -772,36 +793,57 @@ section {
     color: var(--text-muted);
 }
 
+/* Updated Card Styling to match reference exactly */
 .os-visual {
-    min-height: 280px;
+    position: relative;
+    min-height: 320px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
+    background: #f8f9fa; /* Very light grey background */
+    border: 1px solid var(--border);
+    overflow: hidden; /* Ensures the shape doesn't spill out */
 }
 
-    .os-visual span {
-        font-size: 5rem;
-        font-weight: 800;
-        letter-spacing: -0.03em;
-        color: rgba(255, 255, 255, 0.9);
+    /* The 3D Shape */
+    .os-visual .shape {
+        position: absolute;
+        bottom: -30px;
+        right: -30px;
+        width: 240px;
+        height: 240px;
+        transition: transform 0.5s ease;
+        /* Soft 3D shadow effect */
+        box-shadow: inset -15px -15px 30px rgba(0,0,0,0.15), inset 15px 15px 30px rgba(255,255,255,0.6);
     }
 
-.os-visual--blue {
-    background: linear-gradient(135deg, #2f6fd6, #194ca0);
+    .os-visual:hover .shape {
+        transform: scale(1.05) rotate(5deg);
+    }
+
+/* Blue Shape */
+.os-visual--blue .shape {
+    background: linear-gradient(135deg, #60a5fa, #2563eb);
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
 }
 
-.os-visual--green {
-    background: linear-gradient(135deg, #16a34a, #0f6b32);
+/* Green Shape */
+.os-visual--green .shape {
+    background: linear-gradient(135deg, #4ade80, #16a34a);
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
 }
 
-.os-visual--gold {
-    background: linear-gradient(135deg, #cf9f1c, #94700a);
+/* Gold Shape */
+.os-visual--gold .shape {
+    background: linear-gradient(135deg, #fbbf24, #b45309);
+    border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
 }
 
-.os-visual--navy {
-    background: linear-gradient(135deg, #1b3566, #0c1a36);
+/* Navy Shape */
+.os-visual--navy .shape {
+    background: linear-gradient(135deg, #1e3a8a, #0c1a36);
+    border-radius: 30% 70% 30% 70% / 70% 30% 70% 30%;
 }
 
 /* ---------- Capabilities grid ---------- */
@@ -1284,7 +1326,7 @@ section {
     }
 
     .os-visual {
-        min-height: 200px;
+        min-height: 250px;
     }
 
     .os-list {
@@ -1304,6 +1346,14 @@ section {
     .footer-content {
         grid-template-columns: 1fr;
         gap: 2rem;
+    }
+
+    .campus-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .gallery-img {
+        height: 250px;
     }
 }
 

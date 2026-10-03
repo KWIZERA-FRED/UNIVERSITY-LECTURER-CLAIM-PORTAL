@@ -8,6 +8,10 @@
 
 @section Styles {
     <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
           href="~/css/Lecturer/submit-claim.css"
           asp-append-version="true" />
 }
@@ -21,33 +25,31 @@
 
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
-        <div class="claim-alert claim-alert-error">
-            <span class="claim-alert-icon">
-                <i class="bi bi-exclamation-circle"></i>
-            </span>
-
+        <div class="page-alert page-alert-error">
+            <i class="bi bi-exclamation-circle-fill"></i>
             <span>@Model.ErrorMessage</span>
         </div>
     }
 
-    <section class="claim-form-card">
+    <section class="section-card">
 
-        <header class="claim-section-header">
+        <header class="section-header">
             <h2>Teaching Claim Details</h2>
         </header>
 
         <form method="post">
 
-            <div class="claim-form-body">
+            <div class="form-body">
 
                 <div class="form-grid">
 
                     <div class="form-group form-group-full">
 
-                        <label for="course">Course</label>
+                        <label for="course">Course <span>*</span></label>
 
                         <select asp-for="SelectedCourseAssignmentId"
                                 id="course"
+                                class="form-control"
                                 onchange="updateClaimVerification()">
 
                             <option value="">Select course</option>
@@ -78,6 +80,7 @@
                                type="number"
                                min="0"
                                step="0.5"
+                               class="form-control"
                                readonly />
 
                     </div>
@@ -88,87 +91,86 @@
 
                         <input id="lecturer"
                                value="@Model.LecturerName"
+                               class="form-control"
                                readonly />
 
                     </div>
 
                 </div>
 
-                <section class="mis-verification">
+                <div class="form-divider"></div>
 
-                    <h3>Claim Evidence Verification</h3>
+                <div class="form-section">
 
-                    <div class="mis-status-grid">
+                    <h3 class="form-section-title">Claim Evidence Verification</h3>
 
-                        <div class="status-item">
+                    <div class="verification-grid">
 
-                            <div class="status-item-label">
+                        <div class="verification-item">
+
+                            <span class="verification-label">
                                 Marks Submission
-                            </div>
+                            </span>
 
-                            <div class="status-value"
-                                 id="marks-submitted-status">
+                            <span class="status-value"
+                                  id="marks-submitted-status">
 
                                 <i class="bi bi-dash-circle"></i>
-
                                 Select a course
 
-                            </div>
+                            </span>
 
                         </div>
 
-                        <div class="status-item">
+                        <div class="verification-item">
 
-                            <div class="status-item-label">
+                            <span class="verification-label">
                                 Exam Office Signature
-                            </div>
+                            </span>
 
-                            <div class="status-value"
-                                 id="marks-signed-status">
+                            <span class="status-value"
+                                  id="marks-signed-status">
 
                                 <i class="bi bi-dash-circle"></i>
-
                                 Select a course
 
-                            </div>
+                            </span>
 
                         </div>
 
-                        <div class="status-item">
+                        <div class="verification-item">
 
-                            <div class="status-item-label">
+                            <span class="verification-label">
                                 MIS Attendance
-                            </div>
+                            </span>
 
-                            <div class="status-value status-information"
-                                 id="attendance-status">
+                            <span class="status-value status-information"
+                                  id="attendance-status">
 
                                 <i class="bi bi-cloud-arrow-down"></i>
-
                                 Retrieved when claim is submitted
 
-                            </div>
+                            </span>
 
                         </div>
 
                     </div>
 
-                </section>
+                </div>
 
             </div>
 
-            <div class="claim-form-actions">
+            <footer class="form-actions">
 
                 <button type="submit"
-                        class="submit-claim-button">
+                        class="primary-button">
 
                     <i class="bi bi-file-earmark-check"></i>
-
                     Generate Claim
 
                 </button>
 
-            </div>
+            </footer>
 
         </form>
 
@@ -214,7 +216,7 @@
         hoursInput.value = hours || "";
 
         submittedElement.className =
-            "status-value" + (submitted ? "" : " status-negative");
+            "status-value " + (submitted ? "status-positive" : "status-negative");
 
         submittedElement.innerHTML =
             submitted
@@ -222,7 +224,7 @@
                 : '<i class="bi bi-x-circle-fill"></i> Not submitted';
 
         signedElement.className =
-            "status-value" + (signed ? "" : " status-negative");
+            "status-value " + (signed ? "status-positive" : "status-negative");
 
         signedElement.innerHTML =
             signed

@@ -141,7 +141,7 @@ public class ContractDetailsModel : PageModel
         if (contract is null)
             return false;
 
-        var signatureSteps =
+        var signatures =
             await _context.ContractSignatures
                 .AsNoTracking()
                 .Include(s => s.SignedByAdminAccount)
@@ -152,26 +152,88 @@ public class ContractDetailsModel : PageModel
                 .ThenBy(s => s.SignerRole)
                 .ToListAsync();
 
+        // ========================================================
+        // WORKFLOW STEPS (same logic as the Dean review page)
+        // ========================================================
+
+        var hasDeclined =
+            signatures.Any(s =>
+                s.Decision == SignatureDecision.Declined);
+
+        var allSigned =
+            signatures.Count > 0 &&
+            signatures.All(s =>
+                s.Decision == SignatureDecision.Signed);
+
+        ContractSignature? currentStep = null;
+
+        if (hasDeclined)
+        {
+            currentStep =
+                signatures.FirstOrDefault(s =>
+                    s.Decision == SignatureDecision.Declined);
+        }
+        else if (!allSigned)
+        {
+            currentStep =
+                signatures.FirstOrDefault(s =>
+                    s.Decision == SignatureDecision.Pending);
+        }
+
+        var steps =
+            signatures
+                .Select(s => new SignatureStepRow
+                {
+                    SequenceOrder = s.SequenceOrder,
+                    SignerRole = s.SignerRole,
+                    RoleName = FormatSignerRole(s.SignerRole),
+                    Decision = s.Decision,
+                    SignedAtUtc = s.SignedAtUtc,
+                    Comments = s.Comments,
+                    IsCurrent =
+                        currentStep != null &&
+                        s.Id == currentStep.Id
+                })
+                .ToList();
+
         var signedByLecturer =
-            signatureSteps.Any(s =>
+            signatures.Any(s =>
                 s.SignerRole == SignerRole.Lecturer &&
                 s.Decision == SignatureDecision.Signed);
 
-        var signerStatuses =
-            signatureSteps
-                .Select(s => new SignerStatusRow
-                {
-                    Role = s.SignerRole,
-                    SequenceOrder = s.SequenceOrder,
-                    Decision = s.Decision,
-                    SignedAtUtc = s.SignedAtUtc,
-                    SignatureFilePath = s.SignatureFilePath,
-                    SignerDisplayName =
-                        s.SignerRole == SignerRole.Lecturer
-                            ? LecturerName
-                            : s.SignedByAdminAccount?.UserName
-                })
-                .ToList();
+        var isClosed =
+            contract.Status is
+                ContractStatus.Expired or
+                ContractStatus.Terminated;
+
+        var isFullySigned =
+            contract.Status == ContractStatus.Active;
+
+        var declinedStep =
+            steps.FirstOrDefault(s =>
+                s.Decision == SignatureDecision.Declined);
+
+        // ========================================================
+        // CAN THE LECTURER SIGN NOW?
+        // ========================================================
+
+        var canSign =
+            !signedByLecturer &&
+            !isClosed &&
+            !isFullySigned &&
+            declinedStep is null;
+
+        string? blockedReason = null;
+
+        if (!canSign && !signedByLecturer)
+        {
+            blockedReason =
+                declinedStep is not null
+                    ? $"This contract was declined by {declinedStep.RoleName} and can no longer be signed."
+                    : isClosed
+                        ? "This contract is closed and can no longer be signed."
+                        : null;
+        }
 
         // Contract.Content is the immutable snapshot stored when the
         // contract was generated. Its signature block is rebuilt from
@@ -179,7 +241,7 @@ public class ContractDetailsModel : PageModel
         var liveContent =
             ContractSignatureMarkup.ApplyLiveSignatures(
                 contract.Content ?? string.Empty,
-                signatureSteps,
+                signatures,
                 LecturerName);
 
         Details =
@@ -204,23 +266,30 @@ public class ContractDetailsModel : PageModel
                 AllocatedHours =
                     contract.CourseAssignment?.AllocatedHours ?? 0,
 
+                CreatedAtUtc = contract.CreatedAtUtc,
+
                 Content = liveContent,
                 Status = contract.Status,
                 IsSignedByLecturer = signedByLecturer,
-
-                IsClosed =
-                    contract.Status is
-                        ContractStatus.Expired or
-                        ContractStatus.Terminated,
-
-                IsFullySigned =
-                    contract.Status == ContractStatus.Active,
-
-                SignerStatuses = signerStatuses
+                IsClosed = isClosed,
+                IsFullySigned = isFullySigned,
+                CanSign = canSign,
+                BlockedReason = blockedReason,
+                Steps = steps
             };
 
         return true;
     }
+
+    private static string FormatSignerRole(SignerRole role) => role switch
+    {
+        SignerRole.Lecturer => "Lecturer",
+        SignerRole.Dean => "Dean",
+        SignerRole.HROfficer => "HR Officer",
+        SignerRole.DVCAR => "DVCAR",
+        SignerRole.ViceChancellor => "Vice Chancellor",
+        _ => role.ToString()
+    };
 
     // ============================================================
     // VIEW MODELS
@@ -242,6 +311,8 @@ public class ContractDetailsModel : PageModel
 
         public decimal AllocatedHours { get; init; }
 
+        public DateTime CreatedAtUtc { get; init; }
+
         public string Content { get; init; } = string.Empty;
 
         public ContractStatus Status { get; init; }
@@ -252,21 +323,27 @@ public class ContractDetailsModel : PageModel
 
         public bool IsFullySigned { get; init; }
 
-        public List<SignerStatusRow> SignerStatuses { get; init; } = new();
+        public bool CanSign { get; init; }
+
+        public string? BlockedReason { get; init; }
+
+        public List<SignatureStepRow> Steps { get; init; } = new();
     }
 
-    public sealed class SignerStatusRow
+    public sealed class SignatureStepRow
     {
-        public SignerRole Role { get; init; }
-
         public int SequenceOrder { get; init; }
+
+        public SignerRole SignerRole { get; init; }
+
+        public string RoleName { get; init; } = string.Empty;
 
         public SignatureDecision Decision { get; init; }
 
         public DateTime? SignedAtUtc { get; init; }
 
-        public string? SignerDisplayName { get; init; }
+        public string? Comments { get; init; }
 
-        public string? SignatureFilePath { get; init; }
+        public bool IsCurrent { get; init; }
     }
 }

@@ -1,682 +1,671 @@
-/* ================================================================
-   UNILAK ASECPS
-   LECTURER CLAIM DETAIL
-   ================================================================
-   Minimal & professional. Matches the Dashboard style.
-   ================================================================ */
-
-
-/* ================================================================
-   DESIGN TOKENS
-   ================================================================ */
-
-:root {
-    --primary: #0f2742;
-    --primary-light: #183b60;
-    --primary-dark: #091c31;
-    --accent: #059669;
-    --accent-dark: #047857;
-    --accent-light: #a7f3d0;
-    --accent-soft: #ecfdf5;
-    --surface: #ffffff;
-    --surface-raised: #fafbfc;
-    --background: #f5f7fb;
-    --border: #e2e8f0;
-    --border-light: #edf1f5;
-    --border-strong: #cbd5e1;
-    --text: #172033;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
-    --text-inverse: #ffffff;
-    --success: #059669;
-    --success-bg: #ecfdf5;
-    --success-border: #a7f3d0;
-    --warning: #b45309;
-    --warning-bg: #fffbeb;
-    --warning-border: #fde68a;
-    --danger: #dc2626;
-    --danger-dark: #b91c1c;
-    --danger-bg: #fef2f2;
-    --danger-border: #fecaca;
-    --purple: #7c3aed;
-    --purple-bg: #f5f3ff;
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-full: 9999px;
-    --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --transition: 160ms ease;
-    --transition-smooth: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-/* ================================================================
-   PAGE SHELL
-   ================================================================ */
 
 .claim-detail-page {
-    width: 100%;
-    max-width: 900px;
+    width: min(100%, 1180px);
     margin: 0 auto;
-    padding: 28px clamp(24px, 3vw, 48px) 50px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    color: var(--text);
-    font-family: var(--font-primary);
-    font-size: 14px;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    padding: 28px 24px 56px;
 }
 
-    .claim-detail-page *,
-    .claim-detail-page *::before,
-    .claim-detail-page *::after {
-        box-sizing: border-box;
-    }
 
-    .claim-detail-page a {
-        color: inherit;
-    }
-
-
-/* ================================================================
+/* ============================================================
    PAGE HEADER
-   ================================================================ */
+   ============================================================ */
 
-.page-header {
+.claim-detail-page .page-header {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 4px;
+    gap: 24px;
+    margin-bottom: 24px;
 }
 
-.page-header-main {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+.claim-detail-page .page-header-main {
     min-width: 0;
 }
 
-.page-header h1 {
-    margin: 0;
-    color: var(--primary);
-    font-family: var(--font-secondary);
-    font-size: 26px;
-    font-weight: 800;
-    letter-spacing: -0.6px;
-    line-height: 1.2;
-}
-
-.page-header p {
-    margin: 0;
-    color: var(--text-muted);
-    font-size: 13px;
-    font-weight: 450;
-    line-height: 1.5;
-    max-width: 640px;
-}
-
-
-/* ================================================================
-   BACK BUTTON
-   ================================================================ */
-
-.back-button {
+.claim-detail-page .page-eyebrow {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 7px;
-    flex-shrink: 0;
-    min-height: 34px;
-    padding: 0 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--surface);
-    color: var(--text-secondary);
-    font-size: 11.5px;
-    font-weight: 500;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background var(--transition), border-color var(--transition), color var(--transition);
-}
-
-    .back-button:hover {
-        background: var(--accent-soft);
-        border-color: var(--accent-light);
-        color: var(--accent-dark);
-    }
-
-    .back-button i {
-        font-size: 12px;
-    }
-
-
-/* ================================================================
-   ALERTS
-   ================================================================ */
-
-.page-alert {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    border: 1px solid;
-    border-radius: var(--radius-sm);
-    font-size: 12.5px;
-    line-height: 1.5;
-}
-
-    .page-alert i {
-        font-size: 14px;
-        flex-shrink: 0;
-    }
-
-.page-alert-error {
-    background: var(--danger-bg);
-    border-color: var(--danger-border);
-    color: var(--danger-dark);
-}
-
-    .page-alert-error i {
-        color: var(--danger);
-    }
-
-
-/* ================================================================
-   SECTION CARD
-   ================================================================ */
-
-.section-card {
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-}
-
-.section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 16px 22px;
-    border-bottom: 1px solid var(--border-light);
-}
-
-    .section-header h2 {
-        margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
-        font-size: 14px;
-        font-weight: 700;
-        letter-spacing: -0.2px;
-        line-height: 1.3;
-    }
-
-
-/* ================================================================
-   DETAIL GRID
-   ================================================================ */
-
-.detail-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0;
-    padding: 6px 22px;
-}
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border-light);
-}
-
-    .detail-item:nth-last-child(-n + 2) {
-        border-bottom: none;
-    }
-
-.detail-label {
-    color: var(--text-muted);
-    font-size: 10px;
+    margin-bottom: 8px;
+    color: var(--color-primary, #0b2545);
+    font-size: 0.76rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    line-height: 1.4;
 }
 
-.detail-value {
-    color: var(--text);
-    font-size: 12.5px;
-    font-weight: 500;
+.claim-detail-page .page-header h1 {
+    margin: 0;
+    color: var(--color-text-primary, #172033);
+    font-size: clamp(1.65rem, 2.5vw, 2.15rem);
+    font-weight: 750;
+    line-height: 1.15;
+}
+
+.claim-detail-page .page-header p {
+    max-width: 680px;
+    margin: 8px 0 0;
+    color: var(--color-text-secondary, #667085);
+    font-size: 0.94rem;
+    line-height: 1.6;
+}
+
+.claim-detail-page .page-header-actions {
+    flex: 0 0 auto;
+}
+
+
+/* ============================================================
+   ALERT
+   ============================================================ */
+
+.claim-detail-page .page-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
     line-height: 1.5;
+}
+
+.claim-detail-page .page-alert-error {
+    color: #8b1e1e;
+    background: #fff4f4;
+    border: 1px solid #f2cccc;
+}
+
+.claim-detail-page .page-alert i {
+    flex: 0 0 auto;
+    margin-top: 2px;
+}
+
+
+/* ============================================================
+   SECTION CARDS
+   ============================================================ */
+
+.claim-detail-page .section-card {
+    margin-bottom: 18px;
+    padding: 22px 24px;
+    background: var(--color-surface, #ffffff);
+    border: 1px solid var(--color-border, #e8ebf0);
+    border-radius: 14px;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.045);
+}
+
+    .claim-detail-page .section-card:last-child {
+        margin-bottom: 0;
+    }
+
+.claim-detail-page .section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+    .claim-detail-page .section-header > div {
+        min-width: 0;
+    }
+
+.claim-detail-page .section-kicker {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-muted, #7b8494);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.claim-detail-page .section-header h2 {
+    margin: 0;
+    color: var(--color-text-primary, #172033);
+    font-size: 1.08rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.claim-detail-page .section-meta {
+    flex: 0 0 auto;
+    padding-top: 3px;
+    color: var(--color-text-muted, #7b8494);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   DETAIL GRID
+   ============================================================ */
+
+.claim-detail-page .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    overflow: hidden;
+    border-top: 1px solid var(--color-border, #e8ebf0);
+}
+
+.claim-detail-page .detail-item {
+    min-width: 0;
+    padding: 15px 18px 15px 0;
+    border-bottom: 1px solid var(--color-border, #e8ebf0);
+}
+
+    .claim-detail-page .detail-item:nth-child(3n + 2),
+    .claim-detail-page .detail-item:nth-child(3n + 3) {
+        padding-left: 18px;
+        border-left: 1px solid var(--color-border, #e8ebf0);
+    }
+
+.claim-detail-page .detail-label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-muted, #7b8494);
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.claim-detail-page .detail-value {
+    display: block;
+    color: var(--color-text-primary, #172033);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.claim-detail-page .detail-value-break {
     overflow-wrap: anywhere;
 }
 
 
-/* ================================================================
-   DETAIL NOTES (Description block)
-   ================================================================ */
+/* ============================================================
+   DESCRIPTION
+   ============================================================ */
 
-.detail-notes {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 16px 22px 20px;
-    border-top: 1px solid var(--border-light);
+.claim-detail-page .detail-notes {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--color-border, #e8ebf0);
 }
 
-    .detail-notes p {
-        margin: 0;
-        color: var(--text-secondary);
-        font-size: 12.5px;
-        font-weight: 400;
-        line-height: 1.65;
+    .claim-detail-page .detail-notes p {
+        max-width: 850px;
+        margin: 7px 0 0;
+        color: var(--color-text-secondary, #667085);
+        font-size: 0.9rem;
+        line-height: 1.7;
+        white-space: pre-line;
     }
 
 
-/* ================================================================
+/* ============================================================
    STATUS BADGES
-   ================================================================ */
+   ============================================================ */
 
-.status-badge {
+.claim-detail-page .status-badge {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    width: fit-content;
+    min-height: 26px;
     padding: 4px 10px;
-    border-radius: var(--radius-full);
-    font-size: 10px;
-    font-weight: 650;
-    line-height: 1;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.2;
     white-space: nowrap;
-    flex-shrink: 0;
-    letter-spacing: 0.2px;
 }
 
-.status-active {
-    color: var(--accent-dark);
-    background: var(--accent-soft);
+.claim-detail-page .status-active {
+    color: #166534;
+    background: #ecfdf3;
 }
 
-.status-pending {
-    color: var(--warning);
-    background: var(--warning-bg);
+.claim-detail-page .status-pending {
+    color: #8a5a00;
+    background: #fff8e6;
 }
 
-.status-danger {
-    color: var(--danger);
-    background: var(--danger-bg);
-}
-
-.status-neutral {
-    color: var(--text-secondary);
-    background: #f1f5f9;
+.claim-detail-page .status-danger {
+    color: #a61b1b;
+    background: #fff0f0;
 }
 
 
-/* ================================================================
-   DATA TABLE
-   ================================================================ */
+/* ============================================================
+   EVIDENCE OVERVIEW
+   ============================================================ */
 
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-strong) transparent;
+.claim-detail-page .evidence-overview {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
 }
 
-    .table-wrapper::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    .table-wrapper::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .table-wrapper::-webkit-scrollbar-thumb {
-        background: var(--border-strong);
-        border-radius: var(--radius-full);
-    }
-
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
+.claim-detail-page .evidence-item {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+    padding: 15px;
+    background: #fafbfc;
+    border: 1px solid var(--color-border, #e8ebf0);
+    border-radius: 11px;
 }
 
-    .data-table thead {
-        background: var(--surface-raised);
-    }
+.claim-detail-page .evidence-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    color: var(--color-primary, #0b2545);
+    background: #f0f4f8;
+    border-radius: 9px;
+    font-size: 1rem;
+}
 
-    .data-table th {
-        padding: 12px 22px;
-        color: var(--text-muted);
-        font-size: 10px;
+.claim-detail-page .evidence-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    flex: 1;
+}
+
+    .claim-detail-page .evidence-content strong {
+        color: var(--color-text-primary, #172033);
+        font-size: 0.86rem;
         font-weight: 700;
+    }
+
+    .claim-detail-page .evidence-content span {
+        color: var(--color-text-secondary, #667085);
+        font-size: 0.77rem;
+        line-height: 1.4;
+    }
+
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+
+.claim-detail-page .table-wrapper {
+    margin-top: 20px;
+    overflow-x: auto;
+    border: 1px solid var(--color-border, #e8ebf0);
+    border-radius: 10px;
+}
+
+.claim-detail-page .data-table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+}
+
+    .claim-detail-page .data-table th {
+        padding: 11px 14px;
+        color: var(--color-text-muted, #7b8494);
+        background: #f8f9fb;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
         text-align: left;
         text-transform: uppercase;
-        letter-spacing: 0.6px;
-        border-bottom: 1px solid var(--border);
         white-space: nowrap;
     }
 
-    .data-table td {
-        padding: 14px 22px;
-        color: var(--text-secondary);
-        font-size: 12px;
-        font-weight: 500;
-        border-bottom: 1px solid var(--border-light);
-        vertical-align: middle;
+    .claim-detail-page .data-table td {
+        padding: 12px 14px;
+        color: var(--color-text-primary, #172033);
+        border-top: 1px solid var(--color-border, #e8ebf0);
+        font-size: 0.84rem;
+        line-height: 1.45;
     }
 
-    .data-table tbody tr {
-        transition: background-color var(--transition);
+    .claim-detail-page .data-table tbody tr:hover {
+        background: #fafbfc;
     }
 
-        .data-table tbody tr:hover {
-            background: var(--surface-raised);
-        }
 
-        .data-table tbody tr:last-child td {
-            border-bottom: none;
-        }
+/* ============================================================
+   INFORMATION PANEL
+   ============================================================ */
 
-
-/* ================================================================
-   SECTION ACTIONS
-   ================================================================ */
-
-.section-actions {
+.claim-detail-page .status-information {
     display: flex;
-    align-items: center;
-    padding: 16px 22px 20px;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    color: #17436b;
+    background: #f1f7fc;
+    border: 1px solid #d8e8f5;
+    border-radius: 10px;
 }
 
+    .claim-detail-page .status-information > i {
+        flex: 0 0 auto;
+        margin-top: 2px;
+        font-size: 1rem;
+    }
 
-/* ================================================================
-   PRIMARY BUTTON
-   ================================================================ */
+    .claim-detail-page .status-information > div {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
 
-.primary-button {
+    .claim-detail-page .status-information strong {
+        font-size: 0.84rem;
+        font-weight: 700;
+    }
+
+    .claim-detail-page .status-information span {
+        color: #526b80;
+        font-size: 0.81rem;
+        line-height: 1.5;
+    }
+
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+.claim-detail-page .section-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.claim-detail-page .primary-button,
+.claim-detail-page .secondary-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-height: 38px;
-    padding: 0 18px;
-    border: 1px solid var(--accent);
-    border-radius: var(--radius-sm);
-    background: var(--accent);
-    color: var(--text-inverse);
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
+    min-height: 40px;
+    padding: 9px 15px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.2;
     text-decoration: none;
-    cursor: pointer;
-    transition: background var(--transition), border-color var(--transition), transform var(--transition);
+    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-    .primary-button:hover {
-        background: var(--accent-dark);
-        border-color: var(--accent-dark);
-        color: var(--text-inverse);
-    }
-
-    .primary-button:active {
-        transform: scale(0.99);
-    }
-
-    .primary-button i {
-        font-size: 14px;
-    }
-
-
-/* ================================================================
-   TIMELINE
-   ================================================================ */
-
-.timeline {
-    display: flex;
-    flex-direction: column;
-    padding: 6px 22px;
+.claim-detail-page .primary-button {
+    color: #ffffff;
+    background: var(--color-primary, #0b2545);
+    border: 1px solid var(--color-primary, #0b2545);
 }
 
-.timeline-step {
-    display: grid;
-    grid-template-columns: 160px minmax(0, 1fr);
-    gap: 20px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border-light);
+.claim-detail-page .secondary-button {
+    color: var(--color-text-primary, #172033);
+    background: #ffffff;
+    border: 1px solid var(--color-border, #dfe3e8);
 }
 
-    .timeline-step:last-child {
-        border-bottom: none;
-    }
-
-.timeline-role {
-    color: var(--primary);
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.5;
+.claim-detail-page .primary-button:hover {
+    background: #153b63;
+    border-color: #153b63;
+    color: #ffffff;
 }
 
-.timeline-content {
-    min-width: 0;
+.claim-detail-page .secondary-button:hover {
+    background: #f7f8fa;
+    border-color: #cfd5dd;
+    color: var(--color-text-primary, #172033);
 }
 
-.timeline-status {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+.claim-detail-page .primary-button:active,
+.claim-detail-page .secondary-button:active {
+    transform: translateY(1px);
 }
 
-.timeline-date {
-    color: var(--text-muted);
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.5;
-}
-
-.timeline-comments {
-    margin: 8px 0 0;
-    color: var(--text-secondary);
-    font-size: 12px;
-    line-height: 1.6;
-}
-
-
-/* ================================================================
-   EMPTY STATE
-   ================================================================ */
-
-.empty-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 24px;
-    text-align: center;
-}
-
-    .empty-state p {
-        margin: 0;
-        color: var(--text-muted);
-        font-size: 12px;
-        font-weight: 500;
-        line-height: 1.55;
-        max-width: 440px;
-    }
-
-
-/* ================================================================
-   FOCUS ACCESSIBILITY
-   ================================================================ */
-
-.back-button:focus-visible,
-.primary-button:focus-visible {
-    outline: 2px solid rgba(5, 150, 105, 0.35);
+.claim-detail-page .primary-button:focus-visible,
+.claim-detail-page .secondary-button:focus-visible {
+    outline: 3px solid rgba(11, 37, 69, 0.22);
     outline-offset: 2px;
 }
 
 
-/* ================================================================
+/* ============================================================
+   EMPTY STATES
+   ============================================================ */
+
+.claim-detail-page .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 34px 20px;
+    text-align: center;
+}
+
+.claim-detail-page .empty-state--compact {
+    padding: 26px 20px 20px;
+}
+
+.claim-detail-page .empty-state-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+    color: var(--color-text-muted, #7b8494);
+    background: #f5f6f8;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.claim-detail-page .empty-state h3 {
+    margin: 0;
+    color: var(--color-text-primary, #172033);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.claim-detail-page .empty-state p {
+    max-width: 440px;
+    margin: 6px 0 0;
+    color: var(--color-text-secondary, #667085);
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
    RESPONSIVE — TABLET
-   ================================================================ */
+   ============================================================ */
 
-@media (max-width: 700px) {
+@media (max-width: 900px) {
 
     .claim-detail-page {
-        padding: 22px 18px 40px;
-        gap: 16px;
+        padding: 24px 20px 48px;
     }
 
-    .page-header {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 14px;
-    }
-
-        .page-header h1 {
-            font-size: 22px;
+        .claim-detail-page .page-header {
+            align-items: flex-start;
         }
 
-        .page-header p {
-            font-size: 12.5px;
+        .claim-detail-page .detail-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-    .detail-grid {
-        grid-template-columns: 1fr;
-        padding: 4px 18px;
-    }
-
-    .detail-item {
-        padding: 12px 0;
-    }
-
-        .detail-item:nth-last-child(-n + 2) {
-            border-bottom: 1px solid var(--border-light);
+        .claim-detail-page .detail-item:nth-child(3n + 2),
+        .claim-detail-page .detail-item:nth-child(3n + 3) {
+            padding-left: 0;
+            border-left: 0;
         }
 
-        .detail-item:last-child {
-            border-bottom: none;
+        .claim-detail-page .detail-item:nth-child(2n) {
+            padding-left: 18px;
+            border-left: 1px solid var(--color-border, #e8ebf0);
         }
 
-    .detail-notes {
-        padding: 14px 18px 18px;
-    }
-
-    .section-header {
-        padding: 14px 18px;
-    }
-
-    .section-actions {
-        padding: 14px 18px 18px;
-    }
-
-    .data-table th,
-    .data-table td {
-        padding-left: 18px;
-        padding-right: 18px;
-    }
-
-    .timeline {
-        padding: 4px 18px;
-    }
-
-    .timeline-step {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    .timeline-role {
-        font-size: 11.5px;
-    }
+        .claim-detail-page .evidence-overview {
+            grid-template-columns: 1fr;
+        }
 }
 
 
-/* ================================================================
-   RESPONSIVE — SMALL MOBILE
-   ================================================================ */
+/* ============================================================
+   RESPONSIVE — MOBILE
+   ============================================================ */
 
-@media (max-width: 420px) {
+@media (max-width: 640px) {
 
     .claim-detail-page {
-        padding: 18px 12px 32px;
+        padding: 20px 14px 40px;
     }
 
-    .page-header h1 {
-        font-size: 20px;
-    }
+        .claim-detail-page .page-header {
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
 
-    .back-button {
-        width: 100%;
-    }
+        .claim-detail-page .page-header-actions {
+            width: 100%;
+        }
 
-    .section-header {
-        padding: 12px 14px;
-    }
+            .claim-detail-page .page-header-actions .secondary-button {
+                width: 100%;
+            }
 
-    .section-actions {
-        padding: 12px 14px 16px;
-    }
+        .claim-detail-page .section-card {
+            padding: 18px 16px;
+            margin-bottom: 14px;
+            border-radius: 12px;
+        }
 
-    .primary-button {
-        width: 100%;
-    }
+        .claim-detail-page .section-header {
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
 
-    .detail-grid {
-        padding: 4px 14px;
-    }
+            .claim-detail-page .section-header h2 {
+                font-size: 1rem;
+            }
 
-    .detail-notes {
-        padding: 12px 14px 16px;
-    }
+        .claim-detail-page .section-meta {
+            font-size: 0.72rem;
+            text-align: right;
+        }
 
-    .data-table th,
-    .data-table td {
-        padding-left: 14px;
-        padding-right: 14px;
-    }
+        .claim-detail-page .detail-grid {
+            grid-template-columns: 1fr;
+        }
 
-    .timeline {
-        padding: 4px 14px;
-    }
+        .claim-detail-page .detail-item,
+        .claim-detail-page .detail-item:nth-child(2n),
+        .claim-detail-page .detail-item:nth-child(3n + 2),
+        .claim-detail-page .detail-item:nth-child(3n + 3) {
+            padding: 12px 0;
+            border-left: 0;
+        }
+
+            .claim-detail-page .detail-item:first-child {
+                padding-top: 0;
+            }
+
+            .claim-detail-page .detail-item:last-child {
+                border-bottom: 0;
+                padding-bottom: 0;
+            }
+
+        .claim-detail-page .evidence-item {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .claim-detail-page .evidence-content {
+            flex: 1 1 calc(100% - 58px);
+        }
+
+        .claim-detail-page .evidence-item .status-badge {
+            margin-left: 51px;
+        }
+
+        .claim-detail-page .section-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .claim-detail-page .section-actions .primary-button,
+            .claim-detail-page .section-actions .secondary-button {
+                width: 100%;
+            }
+
+        .claim-detail-page .status-information {
+            padding: 13px 14px;
+        }
 }
 
 
-/* ================================================================
+/* ============================================================
    REDUCED MOTION
-   ================================================================ */
+   ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
 
-    .claim-detail-page *,
-    .claim-detail-page *::before,
-    .claim-detail-page *::after {
-        transition: none !important;
-        animation: none !important;
+    .claim-detail-page .primary-button,
+    .claim-detail-page .secondary-button {
+        transition: none;
     }
 }
 
 
-/* ================================================================
+/* ============================================================
    PRINT
-   ================================================================ */
+   ============================================================ */
 
 @media print {
 
-    .back-button,
-    .section-actions {
-        display: none;
+    .claim-detail-page {
+        width: 100%;
+        padding: 0;
     }
 
-    .section-card {
-        box-shadow: none;
-    }
+        .claim-detail-page .page-header-actions,
+        .claim-detail-page .section-actions {
+            display: none !important;
+        }
+
+        .claim-detail-page .section-card {
+            margin-bottom: 16px;
+            padding: 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 0;
+            box-shadow: none;
+            break-inside: avoid;
+        }
+
+        .claim-detail-page .status-badge {
+            border: 1px solid currentColor;
+            background: transparent;
+        }
+
+        .claim-detail-page .table-wrapper {
+            overflow: visible;
+            border-radius: 0;
+        }
+
+        .claim-detail-page .data-table {
+            min-width: 0;
+        }
 }
+
+

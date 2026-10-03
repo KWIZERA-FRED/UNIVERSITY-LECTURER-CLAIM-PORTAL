@@ -1,6 +1,7 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -64,10 +65,10 @@ public class ClaimDetailModel : PageModel
             return Page();
         }
 
-        var publicUrl = Url.Page(
-            "/Lecturer/ClaimDocuments",
+        var publicDocumentsUrl = Url.Page(
+            "/Public/ClaimDocuments",
             null,
-            new { claimId = claim.Id },
+            new { token = claim.QrCodeToken },
             Request.Scheme);
 
         var status = claim.Status.ToString();
@@ -86,8 +87,7 @@ public class ClaimDetailModel : PageModel
 
             Reference = $"CLM-{claim.Id:D6}",
 
-            ContractReference =
-                $"CON-{claim.ContractId:D6}",
+            ContractReference = $"CON-{claim.ContractId:D6}",
 
             CourseCode =
                 claim.CourseAssignment?.Course?.Code ?? "—",
@@ -114,16 +114,22 @@ public class ClaimDetailModel : PageModel
                 claim.SubmittedAtUtc,
 
             PublicDocumentsUrl =
-                publicUrl,
+                publicDocumentsUrl,
 
             QrCodeToken =
                 claim.QrCodeToken ?? string.Empty,
 
+            IsFullyApproved =
+                isApproved,
+
             IsRejected =
                 isRejected,
 
-            IsFullyApproved =
-                isApproved,
+            HasMarks =
+                claim.MarksSubmission is not null,
+
+            HasAttendance =
+                claim.Attendance is not null,
 
             Marks =
                 claim.MarksSubmission is null
@@ -315,6 +321,10 @@ public class ClaimDetailModel : PageModel
 
         public bool IsRejected { get; init; }
 
+        public bool HasMarks { get; init; }
+
+        public bool HasAttendance { get; init; }
+
         public MarksViewModel? Marks { get; init; }
 
         public AttendanceViewModel? Attendance { get; init; }
@@ -355,4 +365,3 @@ public class ClaimDetailModel : PageModel
         public bool Attended { get; init; }
     }
 }
-

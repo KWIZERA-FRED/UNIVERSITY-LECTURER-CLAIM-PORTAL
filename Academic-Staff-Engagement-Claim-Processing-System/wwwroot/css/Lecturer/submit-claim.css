@@ -1,57 +1,11 @@
 /* ================================================================
-   UNILAK ASECPS
-   LECTURER SUBMIT CLAIM
+   UNILAK ASECPS — LECTURER — SUBMIT CLAIM
    ================================================================
-   Minimal & professional. Matches the Contracts page style.
+   Same design as the Dean pages.
+   Tokens come from /css/shared/design-system.css.
+   Soft shadow on the card, hairlines between sections,
+   one action blue for the primary action.
    ================================================================ */
-
-
-/* ================================================================
-   DESIGN TOKENS
-   ================================================================ */
-
-:root {
-    --primary: #0f2742;
-    --primary-light: #183b60;
-    --primary-dark: #091c31;
-    --accent: #059669;
-    --accent-dark: #047857;
-    --accent-light: #a7f3d0;
-    --accent-soft: #ecfdf5;
-    --surface: #ffffff;
-    --surface-raised: #fafbfc;
-    --background: #f5f7fb;
-    --border: #e2e8f0;
-    --border-light: #edf1f5;
-    --border-strong: #cbd5e1;
-    --text: #172033;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
-    --text-inverse: #ffffff;
-    --success: #059669;
-    --success-bg: #ecfdf5;
-    --success-border: #a7f3d0;
-    --warning: #b45309;
-    --warning-bg: #fffbeb;
-    --warning-border: #fde68a;
-    --danger: #dc2626;
-    --danger-dark: #b91c1c;
-    --danger-bg: #fef2f2;
-    --danger-border: #fecaca;
-    --info: #2563eb;
-    --info-bg: #eff6ff;
-    --info-border: #bfdbfe;
-    --shadow-xs: 0 1px 2px rgba(15, 39, 66, 0.04);
-    --shadow-sm: 0 1px 3px rgba(15, 39, 66, 0.05);
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --radius-full: 9999px;
-    --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --transition: 160ms ease;
-    --transition-smooth: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-}
 
 
 /* ================================================================
@@ -62,17 +16,16 @@
     width: 100%;
     max-width: 900px;
     margin: 0 auto;
-    padding: 28px clamp(24px, 3vw, 48px) 50px;
+    padding: 0 24px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    color: var(--text);
-    font-family: var(--font-primary);
+    gap: 16px;
+    color: var(--ds-text);
+    font-family: var(--ds-font-body);
     font-size: 14px;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
     .submit-claim-page *,
@@ -83,7 +36,8 @@
 
     .submit-claim-page button,
     .submit-claim-page input,
-    .submit-claim-page select {
+    .submit-claim-page select,
+    .submit-claim-page textarea {
         font: inherit;
     }
 
@@ -95,25 +49,25 @@
 .page-header {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     margin-bottom: 4px;
 }
 
     .page-header h1 {
         margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
-        font-size: 26px;
-        font-weight: 800;
-        letter-spacing: -0.6px;
-        line-height: 1.2;
+        color: var(--ds-heading);
+        font-family: var(--ds-font-display);
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.4px;
+        line-height: 1.25;
     }
 
     .page-header p {
         margin: 0;
-        color: var(--text-muted);
-        font-size: 13px;
-        font-weight: 450;
+        color: var(--ds-text-secondary);
+        font-size: 13.5px;
+        font-weight: 500;
         line-height: 1.5;
         max-width: 640px;
     }
@@ -123,62 +77,61 @@
    ALERTS
    ================================================================ */
 
-.claim-alert {
+.page-alert {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     padding: 12px 16px;
     border: 1px solid;
-    border-radius: var(--radius-sm);
-    font-size: 12.5px;
+    border-radius: var(--ds-radius-md);
+    font-size: 13px;
     line-height: 1.5;
 }
 
-.claim-alert-icon {
-    width: 28px;
-    height: 28px;
-    flex: 0 0 28px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-sm);
-    font-size: 14px;
+    .page-alert i {
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+.page-alert-error {
+    background: var(--ds-danger-soft);
+    border-color: rgba(192, 57, 43, 0.25);
+    color: var(--ds-danger);
 }
 
-.claim-alert-error {
-    background: var(--danger-bg);
-    border-color: var(--danger-border);
-    color: var(--danger-dark);
-}
-
-    .claim-alert-error .claim-alert-icon {
-        background: var(--surface);
-        color: var(--danger);
+    .page-alert-error i {
+        color: var(--ds-danger);
     }
 
 
 /* ================================================================
-   FORM CARD
+   SECTION CARD
    ================================================================ */
 
-.claim-form-card {
+.section-card {
     display: flex;
     flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    background: var(--ds-surface);
+    border: none;
+    border-radius: var(--ds-radius-lg);
+    box-shadow: var(--ds-shadow-card, 0 1px 2px rgba(15, 39, 66, 0.06));
     overflow: hidden;
 }
 
-.claim-section-header {
-    padding: 16px 22px;
-    border-bottom: 1px solid var(--border-light);
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--ds-border-light);
+    flex-wrap: wrap;
 }
 
-    .claim-section-header h2 {
+    .section-header h2 {
         margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
+        color: var(--ds-heading);
+        font-family: var(--ds-font-display);
         font-size: 14px;
         font-weight: 700;
         letter-spacing: -0.2px;
@@ -187,156 +140,225 @@
 
 
 /* ================================================================
-   FORM BODY
+   FORM
    ================================================================ */
 
-.claim-form-body {
-    padding: 22px;
+.submit-claim-page form {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+}
+
+.form-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-section-title {
+    margin: 0;
+    color: var(--ds-heading);
+    font-family: var(--ds-font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.1px;
+    line-height: 1.3;
+}
+
+.form-divider {
+    height: 1px;
+    background: var(--ds-border-light);
 }
 
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    gap: 14px;
 }
 
 .form-group {
-    min-width: 0;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .form-group-full {
     grid-column: 1 / -1;
 }
 
-.form-group > label {
+.form-group label {
     display: block;
     margin-bottom: 6px;
-    color: var(--text-secondary);
+    color: var(--ds-text-secondary);
     font-size: 11.5px;
     font-weight: 600;
     line-height: 1.4;
 }
 
-.form-group select,
-.form-group input {
+    .form-group label span {
+        color: var(--ds-danger);
+    }
+
+
+/* ================================================================
+   FORM CONTROLS
+   ================================================================ */
+
+.form-control {
     width: 100%;
     min-height: 40px;
     padding: 9px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius-sm);
     outline: none;
-    background: var(--surface);
-    color: var(--text);
-    font-family: var(--font-primary);
-    font-size: 12.5px;
+    background: var(--ds-surface);
+    color: var(--ds-heading);
+    font-family: inherit;
+    font-size: 13px;
     line-height: 1.4;
-    transition: border-color var(--transition), box-shadow var(--transition);
+    transition: border-color var(--ds-transition), box-shadow var(--ds-transition);
 }
 
-.form-group select {
+    .form-control::placeholder {
+        color: var(--ds-text-muted);
+    }
+
+    .form-control:hover:not([readonly]) {
+        border-color: var(--ds-border-strong, #cbd5e1);
+    }
+
+    .form-control:focus {
+        border-color: var(--ds-action);
+        box-shadow: 0 0 0 3px var(--ds-action-soft);
+    }
+
+    .form-control[readonly] {
+        background: var(--ds-surface-raised);
+        color: var(--ds-text-secondary);
+        cursor: default;
+    }
+
+select.form-control {
     cursor: pointer;
     appearance: auto;
 }
 
-    .form-group select:hover,
-    .form-group input:hover:not([readonly]) {
-        border-color: var(--border-strong);
-    }
-
-    .form-group select:focus,
-    .form-group input:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-    }
-
-.form-group input[readonly] {
-    background: var(--surface-raised);
-    color: var(--text-secondary);
-    cursor: default;
-}
-
 
 /* ================================================================
-   MIS VERIFICATION
+   EVIDENCE VERIFICATION
    ================================================================ */
 
-.mis-verification {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding: 18px;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
-    background: var(--surface-raised);
-}
-
-    .mis-verification h3 {
-        margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
-        font-size: 12.5px;
-        font-weight: 700;
-        letter-spacing: -0.1px;
-        line-height: 1.3;
-    }
-
-.mis-status-grid {
+.verification-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
+    padding: 4px 0;
 }
 
-.status-item {
+.verification-item {
     display: flex;
     flex-direction: column;
     gap: 6px;
     min-width: 0;
+    padding: 14px 16px;
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-surface-raised);
 }
 
-.status-item-label {
-    color: var(--text-muted);
+.verification-label {
+    color: var(--ds-text-muted);
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+    line-height: 1.4;
 }
 
 .status-value {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: var(--text-secondary);
-    font-size: 12px;
+    color: var(--ds-text-secondary);
+    font-size: 13px;
     font-weight: 500;
     line-height: 1.4;
 }
 
     .status-value i {
-        font-size: 13px;
+        font-size: 14px;
         flex-shrink: 0;
-        color: var(--text-muted);
+        color: var(--ds-text-muted);
     }
 
-    .status-value.status-information i {
-        color: var(--info);
+    .status-value.status-information {
+        color: var(--ds-action-strong);
     }
+
+        .status-value.status-information i {
+            color: var(--ds-action);
+        }
+
+    .status-value.status-positive {
+        color: var(--ds-success-strong);
+        font-weight: 600;
+    }
+
+        .status-value.status-positive i {
+            color: var(--ds-success);
+        }
 
     .status-value.status-negative {
-        color: var(--danger-dark);
+        color: var(--ds-danger);
+        font-weight: 600;
     }
 
         .status-value.status-negative i {
-            color: var(--danger);
+            color: var(--ds-danger);
         }
 
-    /* Success state — triggered by JS class update */
-    .status-value:not(.status-negative):not(.status-information) i.bi-check-circle-fill {
-        color: var(--accent);
+
+/* ================================================================
+   BUTTONS
+   ================================================================ */
+
+.primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+    min-height: 38px;
+    padding: 0 16px;
+    border: 1px solid var(--ds-action);
+    border-radius: var(--ds-radius-sm);
+    background: var(--ds-action);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition), transform var(--ds-transition);
+}
+
+    .primary-button:hover {
+        background: var(--ds-action-strong);
+        border-color: var(--ds-action-strong);
+        color: #ffffff;
+    }
+
+    .primary-button:active {
+        transform: scale(0.99);
+    }
+
+    .primary-button i {
+        font-size: 13px;
     }
 
 
@@ -344,55 +366,24 @@
    FORM ACTIONS
    ================================================================ */
 
-.claim-form-actions {
+.form-actions {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
-    align-items: center;
-    padding: 16px 22px;
-    border-top: 1px solid var(--border-light);
-    background: var(--surface);
+    gap: 10px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--ds-border-light);
+    background: var(--ds-surface);
 }
-
-.submit-claim-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 38px;
-    padding: 0 18px;
-    border: 1px solid var(--accent);
-    border-radius: var(--radius-sm);
-    background: var(--accent);
-    color: var(--text-inverse);
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background var(--transition), border-color var(--transition), transform var(--transition);
-}
-
-    .submit-claim-button:hover {
-        background: var(--accent-dark);
-        border-color: var(--accent-dark);
-    }
-
-    .submit-claim-button:active {
-        transform: scale(0.99);
-    }
-
-    .submit-claim-button i {
-        font-size: 14px;
-    }
 
 
 /* ================================================================
    FOCUS ACCESSIBILITY
    ================================================================ */
 
-.submit-claim-page button:focus-visible,
-.submit-claim-page select:focus-visible,
-.submit-claim-page input:focus-visible {
-    outline: 2px solid rgba(5, 150, 105, 0.35);
+.primary-button:focus-visible,
+.form-control:focus-visible {
+    outline: 2px solid var(--ds-action);
     outline-offset: 2px;
 }
 
@@ -401,34 +392,51 @@
    RESPONSIVE — TABLET
    ================================================================ */
 
+@media (max-width: 800px) {
+
+    .verification-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ================================================================
+   RESPONSIVE — MOBILE
+   ================================================================ */
+
 @media (max-width: 700px) {
 
     .submit-claim-page {
-        padding: 22px 18px 40px;
-        gap: 16px;
+        padding: 0 16px;
     }
 
     .page-header h1 {
-        font-size: 22px;
+        font-size: 20px;
+    }
+
+    .section-header {
+        padding: 14px 16px;
     }
 
     .form-grid {
         grid-template-columns: 1fr;
-        gap: 14px;
     }
 
     .form-group-full {
         grid-column: auto;
     }
 
-    .mis-status-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
+    .form-body {
+        padding: 16px;
     }
 
-    .claim-form-body {
-        padding: 18px;
+    .form-actions {
+        padding: 14px 16px;
     }
+
+        .form-actions .primary-button {
+            width: 100%;
+        }
 }
 
 
@@ -436,36 +444,21 @@
    RESPONSIVE — SMALL MOBILE
    ================================================================ */
 
-@media (max-width: 420px) {
+@media (max-width: 480px) {
 
     .submit-claim-page {
-        padding: 18px 12px 32px;
+        padding: 0 12px;
     }
 
     .page-header h1 {
-        font-size: 20px;
+        font-size: 19px;
     }
 
-    .claim-section-header,
-    .claim-form-actions {
+    .section-header,
+    .form-body,
+    .form-actions {
         padding-left: 14px;
         padding-right: 14px;
-    }
-
-    .claim-form-body {
-        padding: 14px;
-    }
-
-    .mis-verification {
-        padding: 14px;
-    }
-
-    .claim-form-actions {
-        justify-content: stretch;
-    }
-
-    .submit-claim-button {
-        width: 100%;
     }
 }
 
@@ -479,8 +472,8 @@
     .submit-claim-page *,
     .submit-claim-page *::before,
     .submit-claim-page *::after {
-        transition: none !important;
-        animation: none !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
     }
 }
 
@@ -491,11 +484,14 @@
 
 @media print {
 
-    .claim-form-card {
-        box-shadow: none;
+    .page-alert,
+    .form-actions {
+        display: none !important;
     }
 
-    .claim-form-actions {
-        display: none;
+    .section-card {
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
     }
 }

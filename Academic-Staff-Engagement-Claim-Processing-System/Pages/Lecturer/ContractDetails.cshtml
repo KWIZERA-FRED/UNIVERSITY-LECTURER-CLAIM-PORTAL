@@ -5,9 +5,9 @@
 @{
     Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
 
-    var contract = Model.Details!;
+    var c = Model.Details!;
 
-    ViewData["Title"] = contract.Reference;
+    ViewData["Title"] = "Contract Details";
 
     string GetStatusClass(ContractStatus status) => status switch
     {
@@ -29,48 +29,19 @@
         _ => status.ToString()
     };
 
-    string GetDecisionClass(SignatureDecision decision) => decision switch
-    {
-        SignatureDecision.Signed => "signature-signed",
-        SignatureDecision.Declined => "signature-declined",
-        _ => "signature-pending"
-    };
+    var steps = c.Steps
+        .OrderBy(s => s.SequenceOrder)
+        .ToList();
 
-    string GetDecisionText(SignatureDecision decision) => decision switch
-    {
-        SignatureDecision.Signed => "Signed",
-        SignatureDecision.Declined => "Declined",
-        _ => "Pending"
-    };
+    var totalSteps = steps.Count;
 
-    string GetSignerIconClass(SignatureDecision decision) => decision switch
-    {
-        SignatureDecision.Signed => "signer-icon-signed",
-        SignatureDecision.Declined => "signer-icon-declined",
-        _ => "signer-icon-pending"
-    };
+    var signedSteps = steps.Count(s =>
+        s.Decision == SignatureDecision.Signed);
 
-    string GetSignerIcon(SignatureDecision decision) => decision switch
-    {
-        SignatureDecision.Signed => "bi-check-lg",
-        SignatureDecision.Declined => "bi-x-lg",
-        _ => "bi-clock"
-    };
+    var allSigned = totalSteps > 0 && signedSteps == totalSteps;
 
-    string GetSignerRoleLabel(SignerRole role) => role switch
-    {
-        SignerRole.Lecturer => "Lecturer",
-        SignerRole.Dean => "Dean of Faculty",
-        SignerRole.HROfficer => "Human Resource Officer",
-        SignerRole.DVCAR => "DVCAR",
-        SignerRole.ViceChancellor => "Vice Chancellor",
-        _ => role.ToString()
-    };
-
-    var needsAction =
-        !contract.IsSignedByLecturer &&
-        !contract.IsClosed &&
-        !contract.IsFullySigned;
+    var anyDeclined = steps.Any(s =>
+        s.Decision == SignatureDecision.Declined);
 }
 
 @section Styles {
@@ -89,32 +60,26 @@
 
 <section class="contract-details-page">
 
-    @* ---------------- Back link + header ---------------- *@
-
-    <a asp-page="/Lecturer/Contracts" class="back-link">
-        <i class="bi bi-arrow-left" aria-hidden="true"></i>
-        <span>Back to My Contracts</span>
-    </a>
-
     <header class="page-header">
+
         <div class="page-header-main">
-            <h1>Contract @contract.Reference</h1>
-            <p>Review the terms of your contract and complete your signature.</p>
+            <h1>Contract Details</h1>
+            <p>Review your contract and complete your signature.</p>
         </div>
 
-        <div class="contract-status @GetStatusClass(contract.Status)">
-            <span class="status-dot"></span>
-            @GetStatusLabel(contract.Status)
+        <div class="page-header-actions">
+            <a asp-page="/Lecturer/Contracts" class="secondary-button">
+                <i class="bi bi-arrow-left"></i>
+                Back to Contracts
+            </a>
         </div>
+
     </header>
-
-
-    @* ---------------- Alerts ---------------- *@
 
     @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
     {
         <div class="page-alert page-alert-success">
-            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+            <i class="bi bi-check-circle-fill"></i>
             <span>@Model.SuccessMessage</span>
         </div>
     }
@@ -122,233 +87,501 @@
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {
         <div class="page-alert page-alert-error">
-            <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>
+            <i class="bi bi-exclamation-circle-fill"></i>
             <span>@Model.ErrorMessage</span>
         </div>
     }
 
-
-    @* ---------------- Summary ---------------- *@
+    <!-- ============================================================
+         CONTRACT SUMMARY
+         ============================================================ -->
 
     <section class="section-card">
 
-        <div class="contract-detail-grid">
+        <header class="section-header">
+            <h2>@c.Reference</h2>
+            <span class="status-badge @GetStatusClass(c.Status)">
+                @GetStatusLabel(c.Status)
+            </span>
+        </header>
 
-            <div class="contract-detail-item">
-                <span class="detail-label">Contract Reference</span>
-                <span class="detail-value">@contract.Reference</span>
-            </div>
+        <div class="detail-grid">
 
-            <div class="contract-detail-item">
+            <div class="detail-item">
                 <span class="detail-label">Course Code</span>
-                <span class="detail-value">@contract.CourseCode</span>
+                <span class="detail-value">@c.CourseCode</span>
             </div>
 
-            <div class="contract-detail-item">
+            <div class="detail-item">
                 <span class="detail-label">Course</span>
-                <span class="detail-value">@contract.CourseTitle</span>
+                <span class="detail-value">@c.CourseTitle</span>
             </div>
 
-            <div class="contract-detail-item">
+            <div class="detail-item">
                 <span class="detail-label">Academic Year</span>
-                <span class="detail-value">@contract.AcademicYear</span>
+                <span class="detail-value">@c.AcademicYear</span>
             </div>
 
-            <div class="contract-detail-item">
+            <div class="detail-item">
                 <span class="detail-label">Campus</span>
-                <span class="detail-value">@contract.Campus</span>
+                <span class="detail-value">@c.Campus</span>
             </div>
 
-            <div class="contract-detail-item">
+            <div class="detail-item">
                 <span class="detail-label">Allocated Hours</span>
-                <span class="detail-value">@contract.AllocatedHours.ToString("N1")</span>
+                <span class="detail-value">@c.AllocatedHours.ToString("N2")</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Issued</span>
+                <span class="detail-value">@c.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy")</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Signatures</span>
+                <span class="detail-value">@signedSteps / @totalSteps signed</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Your Signature</span>
+                <span class="detail-value">@(c.IsSignedByLecturer ? "Signed" : "Pending")</span>
             </div>
 
         </div>
 
     </section>
 
-    @if (contract.IsFullySigned)
+    <!-- ============================================================
+         SIGNATURE WORKFLOW — horizontal flow
+         ============================================================ -->
+
+    @if (totalSteps > 0)
     {
-        <div class="fully-signed-banner">
-            <div class="fully-signed-icon">
-                <i class="bi bi-check-circle-fill"></i>
-            </div>
+        <section class="section-card">
 
-            <div>
-                <strong>Contract fully approved</strong>
-                <span>All required signatures have been completed.</span>
-            </div>
-        </div>
-    }
+            <header class="section-header">
+                <h2>Signature Workflow</h2>
+                <span class="section-meta">
+                    @signedSteps / @totalSteps signed
+                </span>
+            </header>
 
-
-    @* ---------------- Contract document ---------------- *@
-
-    <section class="section-card contract-section">
-
-        <div class="section-heading">
-            <div class="section-heading-icon">
-                <i class="bi bi-file-earmark-text"></i>
-            </div>
-
-            <div>
-                <h2>Contract Document</h2>
-                <p>Review the terms and details of your contract.</p>
-            </div>
-        </div>
-
-        <article class="contract-document">
-            @Html.Raw(contract.Content)
-        </article>
-
-    </section>
-
-
-    @* ---------------- Signature progress ---------------- *@
-
-    <section class="section-card contract-section">
-
-        <div class="section-heading">
-            <div class="section-heading-icon">
-                <i class="bi bi-diagram-3"></i>
-            </div>
-
-            <div>
-                <h2>Signature Progress</h2>
-                <p>Track the approval and signing progress.</p>
-            </div>
-        </div>
-
-        <div class="signature-timeline">
-
-            @foreach (var group in contract.SignerStatuses
-                .GroupBy(s => s.SequenceOrder)
-                .OrderBy(g => g.Key))
+            @if (allSigned && !anyDeclined)
             {
-                <div class="signature-step">
+                <div class="detail-notes">
 
-                    <div class="step-number">@group.Key</div>
+                    <div class="status-information">
 
-                    <div class="step-content">
+                        <i class="bi bi-check-circle-fill"></i>
 
-                        @foreach (var signer in group)
-                        {
-                            var roleLabel = GetSignerRoleLabel(signer.Role);
-
-                            var signerName = !string.IsNullOrWhiteSpace(signer.SignerDisplayName)
-                                ? signer.SignerDisplayName
-                                : roleLabel;
-
-                            <div class="signer-row">
-
-                                <div class="signer-information">
-
-                                    <div class="signer-icon @GetSignerIconClass(signer.Decision)">
-                                        <i class="bi @GetSignerIcon(signer.Decision)"></i>
-                                    </div>
-
-                                    <div class="signer-details">
-
-                                        <span class="signer-role">@roleLabel</span>
-
-                                        <span class="signer-status-text">@signerName</span>
-
-                                        @if (signer.Decision == SignatureDecision.Signed &&
-                                             signer.SignedAtUtc.HasValue)
-                                        {
-                                            @if (!string.IsNullOrWhiteSpace(signer.SignatureFilePath))
-                                            {
-                                                <div class="signature-preview">
-                                                    <span>Signature</span>
-                                                    <img src="@signer.SignatureFilePath"
-                                                         alt="Electronic signature" />
-                                                </div>
-                                            }
-
-                                            <span class="signer-signed-text">
-                                                Signed @(signer.SignedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy, HH:mm"))
-                                            </span>
-                                        }
-                                        else if (signer.Decision == SignatureDecision.Declined)
-                                        {
-                                            <span class="signer-declined-text">Signature declined</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="signer-status-text">Awaiting signature</span>
-                                        }
-
-                                    </div>
-
-                                </div>
-
-                                <div class="signer-status">
-                                    <span class="signature-badge @GetDecisionClass(signer.Decision)">
-                                        @GetDecisionText(signer.Decision)
-                                    </span>
-                                </div>
-
-                            </div>
-                        }
-
-                        @if (group.Count() > 1)
-                        {
-                            <div class="parallel-note">
-                                <i class="bi bi-info-circle"></i>
-                                <span>These approval roles are part of the same signing stage.</span>
-                            </div>
-                        }
+                        <div>
+                            <strong>All signatures complete</strong>
+                            <span>
+                                Signed by all @totalSteps authorities.
+                                The contract is now active.
+                            </span>
+                        </div>
 
                     </div>
-                </div>
-            }
 
-        </div>
-
-    </section>
-
-
-    @* ---------------- Actions ---------------- *@
-
-    <section class="section-card contract-actions">
-
-        <div class="contract-action-information">
-
-            @if (contract.IsSignedByLecturer)
-            {
-                <div class="you-signed-badge">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>You have signed this contract.</span>
-                </div>
-            }
-            else if (contract.IsClosed)
-            {
-                <div class="you-signed-badge">
-                    <i class="bi bi-lock-fill"></i>
-                    <span>This contract is closed and can no longer be signed.</span>
                 </div>
             }
             else
             {
-                <div>
-                    <strong>Action required</strong>
-                    <span>Please review the contract before confirming your signature.</span>
+                <div class="signature-flow"
+                     role="list"
+                     aria-label="Signature progress">
+
+                    @for (var i = 0; i < steps.Count; i++)
+                    {
+                        var step = steps[i];
+
+                        var signed = step.Decision == SignatureDecision.Signed;
+                        var declined = step.Decision == SignatureDecision.Declined;
+
+                        var isLast = i == steps.Count - 1;
+
+                        var nodeState = signed ? "done"
+                            : declined ? "rejected"
+                            : step.IsCurrent ? "current"
+                            : "future";
+
+                        var nextState = isLast
+                            ? nodeState
+                            : steps[i + 1].Decision == SignatureDecision.Signed
+                                ? "done"
+                                : steps[i + 1].Decision == SignatureDecision.Declined
+                                    ? "rejected"
+                                    : steps[i + 1].IsCurrent
+                                        ? "current"
+                                        : "future";
+
+                        <div class="signature-flow-step"
+                             role="listitem"
+                             data-state="@nodeState">
+
+                            <div class="signature-flow-node"
+                                 data-state="@nodeState"
+                                 aria-label="@step.RoleName — @nodeState">
+
+                                @if (signed)
+                                {
+                                    <i class="bi bi-check-lg" aria-hidden="true"></i>
+                                }
+                                else if (declined)
+                                {
+                                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                }
+                                else
+                                {
+                                    <span>@step.SequenceOrder</span>
+                                }
+
+                            </div>
+
+                            <div class="signature-flow-role">
+                                @step.RoleName
+                            </div>
+
+                            <div class="signature-flow-meta">
+                                @if (signed && step.SignedAtUtc.HasValue)
+                                {
+                                    @(step.SignedAtUtc.Value
+                                        .ToLocalTime()
+                                        .ToString("dd MMM HH:mm"))
+                                }
+                                else if (declined)
+                                {
+                                    <text>Declined</text>
+                                }
+                                else if (step.IsCurrent)
+                                {
+                                    <text>Awaiting</text>
+                                }
+                                else
+                                {
+                                    <text>—</text>
+                                }
+                            </div>
+
+                            @if (!isLast)
+                            {
+                                <span class="signature-flow-connector"
+                                      data-state="@nodeState"
+                                      data-next-state="@nextState"
+                                      aria-hidden="true"></span>
+                            }
+
+                        </div>
+                    }
+
                 </div>
+
+                @* Decline reasons — keep visible below the flow *@
+                @foreach (var step in steps.Where(s =>
+                    s.Decision == SignatureDecision.Declined &&
+                    !string.IsNullOrWhiteSpace(s.Comments)))
+                {
+                    <div class="detail-notes">
+
+                        <div class="status-warning">
+                            <i class="bi bi-x-circle-fill"></i>
+                            <div>
+                                <strong>Declined by @step.RoleName</strong>
+                                <span>@step.Comments</span>
+                            </div>
+                        </div>
+
+                    </div>
+                }
             }
 
-        </div>
+        </section>
+    }
+    else
+    {
+        <section class="section-card">
 
-        @if (needsAction)
-        {
-            <form method="post" asp-page-handler="Sign" asp-route-id="@contract.Id">
-                <button type="submit" class="sign-contract-button">
-                    <i class="bi bi-pen"></i>
-                    <span>Sign Contract</span>
+            <header class="section-header">
+                <h2>Signature Workflow</h2>
+            </header>
+
+            <div class="empty-state empty-state--compact">
+                <span class="empty-state-icon" aria-hidden="true">
+                    <i class="bi bi-hourglass-split"></i>
+                </span>
+                <h3>No signatures yet</h3>
+                <p>The signature workflow has not been initiated for this contract.</p>
+            </div>
+
+        </section>
+    }
+
+    <!-- ============================================================
+         CONTRACT DOCUMENT
+         ============================================================ -->
+
+    <section class="section-card">
+
+        <header class="section-header">
+            <h2>Contract Document</h2>
+
+            <div class="section-header-actions">
+
+                <button type="button"
+                        class="secondary-button preview-contract-button">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                    <span>Full preview</span>
                 </button>
-            </form>
-        }
+
+            </div>
+        </header>
+
+        <div class="document-stage">
+            <article class="contract-document">
+                @Html.Raw(c.Content)
+            </article>
+        </div>
 
     </section>
 
+    <!-- ============================================================
+         LECTURER DECISION
+         ============================================================ -->
+
+    @if (c.CanSign)
+    {
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Your Signature</h2>
+                <span class="section-meta">Action required</span>
+            </header>
+
+            <div class="decision-actions" id="decisionActions">
+
+                <button type="button"
+                        class="primary-button"
+                        id="showSignPanel">
+
+                    <i class="bi bi-check-circle-fill"></i>
+                    Sign Contract
+
+                </button>
+
+            </div>
+
+            <!-- Sign confirmation panel -->
+            <div id="signPanel"
+                 class="confirm-panel"
+                 style="display:none;">
+
+                <div class="confirm-panel-header">
+                    <strong>Sign this contract?</strong>
+                    <span>Your signature will be recorded and the workflow will advance.</span>
+                </div>
+
+                <form method="post"
+                      asp-page-handler="Sign"
+                      asp-route-id="@c.Id"
+                      class="confirm-form">
+
+                    <div class="confirm-actions">
+
+                        <button type="button"
+                                id="cancelSign"
+                                class="secondary-button">
+                            Cancel
+                        </button>
+
+                        <button type="submit"
+                                class="primary-button">
+                            <i class="bi bi-check-circle-fill"></i>
+                            Confirm signature
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+    }
+    else if (c.IsSignedByLecturer)
+    {
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Your Signature</h2>
+            </header>
+
+            <div class="detail-notes">
+
+                <div class="status-information">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    <div>
+                        <strong>You have signed this contract</strong>
+                        <span>The contract continues through its approval workflow.</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+    }
+    else if (!string.IsNullOrWhiteSpace(c.BlockedReason))
+    {
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Action blocked</h2>
+            </header>
+
+            <div class="detail-notes">
+
+                <div class="status-warning">
+
+                    <i class="bi bi-lock-fill"></i>
+
+                    <div>
+                        <span>@c.BlockedReason</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+    }
+
 </section>
+
+<div id="contractPreviewModal"
+     class="preview-modal"
+     aria-hidden="true">
+
+    <div class="preview-backdrop"></div>
+
+    <div class="preview-dialog"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="contractPreviewTitle">
+
+        <header class="preview-header">
+
+            <h2 id="contractPreviewTitle">
+                @c.Reference
+            </h2>
+
+            <div class="preview-header-actions">
+
+                <button type="button"
+                        id="closeContractPreview"
+                        class="preview-close"
+                        aria-label="Close preview">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+
+            </div>
+
+        </header>
+
+        <div class="preview-body">
+            <article class="contract-preview-paper">
+                @Html.Raw(c.Content)
+            </article>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        /* ============================================================
+           Sign panel toggle
+           ============================================================ */
+
+        const decisionActions = document.getElementById("decisionActions");
+        const signPanel = document.getElementById("signPanel");
+        const showSignPanel = document.getElementById("showSignPanel");
+        const cancelSign = document.getElementById("cancelSign");
+
+        function hideSignPanel() {
+            if (signPanel) signPanel.style.display = "none";
+            if (decisionActions) decisionActions.style.display = "";
+        }
+
+        function openSignPanel() {
+            if (!signPanel) return;
+            signPanel.style.display = "block";
+            signPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            if (decisionActions) decisionActions.style.display = "none";
+        }
+
+        if (showSignPanel) {
+            showSignPanel.addEventListener("click", openSignPanel);
+        }
+
+        if (cancelSign) {
+            cancelSign.addEventListener("click", hideSignPanel);
+        }
+
+
+        /* ============================================================
+           Contract preview modal
+           ============================================================ */
+
+        const previewModal = document.getElementById("contractPreviewModal");
+        const closePreviewButton = document.getElementById("closeContractPreview");
+        const previewButtons = document.querySelectorAll(".preview-contract-button");
+
+        function openContractPreview() {
+            if (!previewModal) return;
+            previewModal.classList.add("is-open");
+            previewModal.setAttribute("aria-hidden", "false");
+            document.body.classList.add("preview-open");
+        }
+
+        function closeContractPreview() {
+            if (!previewModal) return;
+            previewModal.classList.remove("is-open");
+            previewModal.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("preview-open");
+        }
+
+        previewButtons.forEach(function (button) {
+            button.addEventListener("click", openContractPreview);
+        });
+
+        if (closePreviewButton) {
+            closePreviewButton.addEventListener("click", closeContractPreview);
+        }
+
+        if (previewModal) {
+            previewModal.addEventListener("click", function (event) {
+                if (event.target.classList.contains("preview-backdrop")) {
+                    closeContractPreview();
+                }
+            });
+        }
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" &&
+                previewModal &&
+                previewModal.classList.contains("is-open")) {
+                closeContractPreview();
+            }
+        });
+
+    });
+
+</script>
+}
