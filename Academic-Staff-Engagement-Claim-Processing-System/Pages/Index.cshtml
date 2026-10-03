@@ -3,7 +3,7 @@
 
 @{
     Layout = null;
-    ViewData["Title"] = "UNILAK Contract & Claim Hub";
+    ViewData["Title"] = "UNILAK Contracts & Claims Hub";
 }
 
 <!DOCTYPE html>
@@ -19,9 +19,12 @@
     <meta name="description"
           content="UNILAK Academic Staff Engagement & Claim Processing System" />
 
-    <title>@ViewData["Title"]</title>
+    <title>UNILAK Contracts & Claims Hub</title>
 
-    <!-- Marks the page as JS-enabled so reveal styles only hide content when scripts can also show it -->
+    <link rel="icon"
+          type="image/png"
+          href="~/images/UNILAK_LOGO.jpg" />
+
     <script>
         document.documentElement.classList.add("js");
     </script>
@@ -127,7 +130,7 @@
     <main class="page">
 
         <!-- =================================================
-             HERO — text left, product screenshot right
+             HERO
              ================================================= -->
 
         <section class="hero">
@@ -176,7 +179,6 @@
                         </div>
 
                         <div class="browser-bar">
-                            <!-- Updated Text Here -->
                             <span class="browser-url">UNILAK Portal &middot; Lecturer Portal</span>
                         </div>
 
@@ -231,7 +233,6 @@
 
             </div>
 
-            <!-- New Image Gallery -->
             <div class="campus-gallery ax-reveal">
                 <img src="~/images/UNILAK-KIGALI_CAMPUS.jpg" alt="UNILAK Kigali Campus" class="gallery-img" />
                 <img src="~/images/Professors_induction.jpg" alt="UNILAK Professors Induction" class="gallery-img" />
@@ -292,7 +293,7 @@
 
 
         <!-- =================================================
-             COMPREHENSIVE STAFF MANAGEMENT — alternating rows
+             COMPREHENSIVE STAFF MANAGEMENT — cards
              ================================================= -->
 
         <section class="os"
@@ -314,73 +315,60 @@
 
             <div class="os-list">
 
-                <article class="os-row ax-reveal">
-
-                    <div class="os-text">
-                        <h3>Staff Engagements</h3>
-                        <p>
-                            Manage lecturer appointments, course
-                            assignments, and engagement records
-                            through a centralized workflow.
-                        </p>
-                    </div>
-
-                    <!-- Added the shape div inside -->
+                <article class="os-row reveal-card">
                     <div class="os-visual os-visual--blue">
+                        <div class="os-content">
+                            <h3>Staff Engagements</h3>
+                            <p>
+                                Manage lecturer appointments, course
+                                assignments, and engagement records
+                                through a centralized workflow.
+                            </p>
+                        </div>
                         <div class="shape"></div>
                     </div>
-
                 </article>
 
-                <article class="os-row os-row--reverse ax-reveal">
-
-                    <div class="os-text">
-                        <h3>Attendance Tracking</h3>
-                        <p>
-                            Record and monitor teaching attendance
-                            and completed teaching hours for
-                            academic sessions.
-                        </p>
-                    </div>
-
+                <article class="os-row reveal-card">
                     <div class="os-visual os-visual--green">
+                        <div class="os-content">
+                            <h3>Attendance Tracking</h3>
+                            <p>
+                                Record and monitor teaching attendance
+                                and completed teaching hours for
+                                academic sessions.
+                            </p>
+                        </div>
                         <div class="shape"></div>
                     </div>
-
                 </article>
 
-                <article class="os-row ax-reveal">
-
-                    <div class="os-text">
-                        <h3>Digital Contracts</h3>
-                        <p>
-                            Generate, manage, review, and access
-                            academic staff contracts through a
-                            structured digital signing workflow.
-                        </p>
-                    </div>
-
+                <article class="os-row reveal-card">
                     <div class="os-visual os-visual--gold">
+                        <div class="os-content">
+                            <h3>Digital Contracts</h3>
+                            <p>
+                                Generate, manage, review, and access
+                                academic staff contracts through a
+                                structured digital signing workflow.
+                            </p>
+                        </div>
                         <div class="shape"></div>
                     </div>
-
                 </article>
 
-                <article class="os-row os-row--reverse ax-reveal">
-
-                    <div class="os-text">
-                        <h3>Payment Claims</h3>
-                        <p>
-                            Submit, review, approve, and track
-                            academic staff payment claims with
-                            greater transparency.
-                        </p>
-                    </div>
-
+                <article class="os-row reveal-card">
                     <div class="os-visual os-visual--navy">
+                        <div class="os-content">
+                            <h3>Payment Claims</h3>
+                            <p>
+                                Submit, review, approve, and track
+                                academic staff payment claims with
+                                greater transparency.
+                            </p>
+                        </div>
                         <div class="shape"></div>
                     </div>
-
                 </article>
 
             </div>
@@ -481,7 +469,7 @@
 
 
         <!-- =================================================
-             ROLES — split section with checklist
+             ROLES
              ================================================= -->
 
         <section class="roles"
@@ -722,79 +710,90 @@
     </footer>
 
     <!-- =================================================
-         SCROLL REVEAL
-         Adds .is-in when an .ax-reveal element is about to enter
-         the viewport, then .is-done once the fade has finished.
+         SCROLL REVEAL & DRAG-IN ANIMATION
          ================================================= -->
 
     <script>
+        /* =================================================
+           1. GENERAL SCROLL REVEAL (.ax-reveal)
+           ================================================= */
         (function () {
             var items = document.querySelectorAll(".ax-reveal");
+            if (!items.length) return;
 
-            if (!items.length) {
-                return;
-            }
-
-            // Older browsers: just show everything.
             if (!("IntersectionObserver" in window)) {
-                items.forEach(function (el) {
-                    el.classList.remove("ax-reveal");
-                });
+                items.forEach(function (el) { el.classList.remove("ax-reveal"); });
                 return;
             }
 
-            // After the fade finishes, mark the element as done so its own
-            // hover transitions work again. The reveal classes stay in place,
-            // so the browser never has to re-render the element (no end snap).
             function settle(el) {
                 var finished = false;
-
                 function finish() {
-                    if (finished) {
-                        return;
-                    }
+                    if (finished) return;
                     finished = true;
                     el.removeEventListener("transitionend", onEnd);
                     el.classList.add("is-done");
                 }
-
                 function onEnd(e) {
-                    if (e.target === el && e.propertyName === "opacity") {
-                        finish();
-                    }
+                    if (e.target === el && e.propertyName === "opacity") finish();
                 }
-
                 el.addEventListener("transitionend", onEnd);
-
-                // Safety net in case transitionend never fires.
-                setTimeout(finish, 1500);
+                setTimeout(finish, 2000);
             }
 
-            // Start slightly BEFORE the element enters the screen so it is
-            // already fading as it scrolls into view (feels smoother).
             var observer = new IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
-                    if (!entry.isIntersecting) {
-                        return;
-                    }
-
+                    if (!entry.isIntersecting) return;
                     var el = entry.target;
                     el.classList.add("is-in");
                     settle(el);
                     observer.unobserve(el);
                 });
-            }, {
-                threshold: 0,
-                rootMargin: "0px 0px 40px 0px"
-            });
+            }, { threshold: 0, rootMargin: "0px 0px 40px 0px" });
 
-            // Wait until the hidden state has been painted once, then observe.
             requestAnimationFrame(function () {
                 requestAnimationFrame(function () {
-                    items.forEach(function (el) {
-                        observer.observe(el);
-                    });
+                    items.forEach(function (el) { observer.observe(el); });
                 });
+            });
+        })();
+
+        /* =================================================
+           2. DRAG-IN ANIMATION FOR FEATURE CARDS (.reveal-card)
+           Dedicated observer + JS stagger so each card waits
+           its turn before dragging in.
+           ================================================= */
+        (function () {
+            var cards = document.querySelectorAll(".reveal-card");
+            if (!cards.length) return;
+
+            if (!("IntersectionObserver" in window)) {
+                cards.forEach(function (c) { c.classList.add("is-in"); });
+                return;
+            }
+
+            var cardObserver = new IntersectionObserver(function (entries, obs) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) return;
+
+                    var card = entry.target;
+                    var index = parseInt(card.dataset.revealIndex || "0", 10);
+                    var delay = index * 350; // 350ms stagger between cards
+
+                    setTimeout(function () {
+                        card.classList.add("is-in");
+                    }, delay);
+
+                    obs.unobserve(card);
+                });
+            }, {
+                threshold: 0.15,
+                rootMargin: "0px 0px -40px 0px"
+            });
+
+            cards.forEach(function (card, i) {
+                card.dataset.revealIndex = i;
+                cardObserver.observe(card);
             });
         })();
     </script>

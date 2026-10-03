@@ -32,7 +32,7 @@
     --reveal-duration: 0.85s;
     --reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --reveal-stagger: 0.1s;
-    /* ---- Workflow cards (slow one-after-another entrance) ---- */
+    /* ---- Workflow cards ---- */
     --step-duration: 1.2s;
     --step-stagger: 0.35s;
     --step-distance: 36px;
@@ -134,8 +134,6 @@ ul {
     --reveal-delay: 0.15s;
 }
 
-/* Staggered entrance inside grids
-   (the workflow cards have their own slower cascade further down) */
 .stats-grid > .ax-reveal:nth-child(2),
 .capabilities-grid > .ax-reveal:nth-child(2),
 .roles-list > .ax-reveal:nth-child(2) {
@@ -168,7 +166,6 @@ ul {
     --reveal-delay: calc(var(--reveal-stagger) * 7);
 }
 
-/* Individual feature rows get a slightly bigger rise */
 .os-row.ax-reveal {
     --reveal-distance: 56px;
 }
@@ -177,7 +174,6 @@ ul {
     --reveal-distance: 40px;
 }
 
-/* Header drops in on page load */
 @keyframes header-in {
     from {
         opacity: 0;
@@ -214,7 +210,7 @@ ul {
     }
 }
 
-/* ---------- Buttons (pill style) ---------- */
+/* ---------- Buttons ---------- */
 
 .btn {
     display: inline-flex;
@@ -570,7 +566,6 @@ section {
     aspect-ratio: 16 / 10;
     object-fit: cover;
     object-position: top left;
-    /* Reduced blur to make it somewhat visible */
     filter: blur(2px);
     transition: filter 0.5s ease;
 }
@@ -605,7 +600,7 @@ section {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
-    margin-bottom: 3rem; /* Space for gallery */
+    margin-bottom: 3rem;
 }
 
 .stat-item {
@@ -653,7 +648,6 @@ section {
     color: var(--text-muted);
 }
 
-/* Gallery Styles */
 .campus-gallery {
     max-width: var(--container);
     margin: 0 auto;
@@ -759,91 +753,171 @@ section {
     color: #c5d2ee;
 }
 
-/* ---------- Feature rows ---------- */
+/* =====================================================
+   Feature cards — DRAG-IN ANIMATION
+   Each card starts far off-screen (alternating sides).
+   The JS adds .is-in after a staggered delay.
+   ===================================================== */
 
 .os-list {
     max-width: var(--container);
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 5rem;
+    gap: 3rem;
 }
 
 .os-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    gap: 4rem;
+    display: block;
 }
 
-.os-row--reverse .os-text {
-    order: 2;
+.reveal-card {
+    opacity: 0;
+    transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
 }
 
-.os-text h3 {
-    margin-bottom: 1rem;
-    font-size: 1.7rem;
-    font-weight: 600;
-    line-height: 1.3;
-    color: var(--navy-900);
+/* Odd cards (1st, 3rd, ...) drag in from the LEFT */
+.os-list .reveal-card:nth-child(odd) {
+    transform: translateX(-220px);
 }
 
-.os-text p {
-    font-size: 1.02rem;
-    color: var(--text-muted);
+/* Even cards (2nd, 4th, ...) drag in from the RIGHT */
+.os-list .reveal-card:nth-child(even) {
+    transform: translateX(220px);
 }
 
-/* Updated Card Styling to match reference exactly */
+/* Landed state */
+.reveal-card.is-in {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Text inside the card fades in after the card has landed */
+.reveal-card .os-content {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease 0.5s, transform 0.7s ease 0.5s;
+}
+
+.reveal-card.is-in .os-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* The card visual */
 .os-visual {
     position: relative;
     min-height: 320px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    padding: 3.5rem;
     border-radius: var(--radius-lg);
-    background: #f8f9fa; /* Very light grey background */
+    background: #f8f9fa;
     border: 1px solid var(--border);
-    overflow: hidden; /* Ensures the shape doesn't spill out */
+    overflow: hidden;
 }
 
-    /* The 3D Shape */
-    .os-visual .shape {
-        position: absolute;
-        bottom: -30px;
-        right: -30px;
-        width: 240px;
-        height: 240px;
-        transition: transform 0.5s ease;
-        /* Soft 3D shadow effect */
-        box-shadow: inset -15px -15px 30px rgba(0,0,0,0.15), inset 15px 15px 30px rgba(255,255,255,0.6);
+.os-content {
+    position: relative;
+    z-index: 2;
+    max-width: 55%;
+}
+
+    .os-content h3 {
+        margin-bottom: 1rem;
+        font-size: 1.8rem;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--navy-900);
     }
 
-    .os-visual:hover .shape {
-        transform: scale(1.05) rotate(5deg);
+    .os-content p {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        line-height: 1.7;
     }
 
-/* Blue Shape */
+.os-visual .shape {
+    position: absolute;
+    bottom: -40px;
+    right: -40px;
+    width: 280px;
+    height: 280px;
+    transition: transform 0.5s ease;
+    box-shadow: inset -15px -15px 30px rgba(0, 0, 0, 0.15), inset 15px 15px 30px rgba(255, 255, 255, 0.6);
+    z-index: 1;
+}
+
+.os-visual:hover .shape {
+    transform: scale(1.05) rotate(5deg);
+}
+
 .os-visual--blue .shape {
     background: linear-gradient(135deg, #60a5fa, #2563eb);
     border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
 }
 
-/* Green Shape */
 .os-visual--green .shape {
     background: linear-gradient(135deg, #4ade80, #16a34a);
     border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
 }
 
-/* Gold Shape */
 .os-visual--gold .shape {
     background: linear-gradient(135deg, #fbbf24, #b45309);
     border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
 }
 
-/* Navy Shape */
 .os-visual--navy .shape {
     background: linear-gradient(135deg, #1e3a8a, #0c1a36);
     border-radius: 30% 70% 30% 70% / 70% 30% 70% 30%;
+}
+
+/* Responsive: reduce drag distance on mobile */
+@media (max-width: 768px) {
+    .os-visual {
+        padding: 2rem;
+        min-height: 280px;
+    }
+
+    .os-content {
+        max-width: 100%;
+    }
+
+    .os-visual .shape {
+        width: 180px;
+        height: 180px;
+        bottom: -20px;
+        right: -20px;
+        opacity: 0.4;
+    }
+
+    .os-list .reveal-card:nth-child(odd) {
+        transform: translateX(-80px);
+    }
+
+    .os-list .reveal-card:nth-child(even) {
+        transform: translateX(80px);
+    }
+
+    .reveal-card.is-in {
+        transform: translateX(0);
+    }
+}
+
+/* Accessibility: disable drag-in for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .reveal-card,
+    .reveal-card.is-in,
+    .reveal-card .os-content,
+    .reveal-card.is-in .os-content {
+        transform: none !important;
+        transition: opacity 0.6s ease !important;
+    }
+
+    .reveal-card {
+        opacity: 1;
+    }
 }
 
 /* ---------- Capabilities grid ---------- */
@@ -984,7 +1058,6 @@ section {
 .workflow-step {
     position: relative;
     overflow: hidden;
-    /* Extra bottom padding keeps the text clear of the faded area */
     padding: 1.8rem 1.3rem 4.4rem;
     text-align: center;
     background: #fff;
@@ -992,8 +1065,6 @@ section {
     border-radius: var(--radius-md);
 }
 
-    /* Bottom fade: the card dissolves into the section background
-       (rgb 246,248,252 = var(--surface-alt)), border included. */
     .workflow-step::after {
         content: "";
         position: absolute;
@@ -1030,10 +1101,6 @@ section {
     color: var(--text-muted);
 }
 
-/* ---- Workflow cards: slow one-after-another entrance ----
-   Uses a keyframe animation (not the shared transition) so the
-   script's "settle" timer can never cut the cascade short. */
-
 @keyframes workflow-in {
     from {
         opacity: 0;
@@ -1064,7 +1131,6 @@ section {
         animation: workflow-in var(--step-duration) var(--reveal-ease) var(--step-delay, 0s) both;
     }
 
-/* 01 -> 02 -> 03 -> 04 -> 05 */
 .js .workflow > .workflow-step.ax-reveal:nth-child(1) {
     --step-delay: 0s;
 }
@@ -1085,7 +1151,6 @@ section {
     --step-delay: calc(var(--step-stagger) * 4);
 }
 
-/* Tablet (3 columns): the second row restarts its own cascade */
 @media (max-width: 1024px) {
     .js .workflow > .workflow-step.ax-reveal:nth-child(4) {
         --step-delay: 0s;
@@ -1096,14 +1161,12 @@ section {
     }
 }
 
-/* Phones (1 column): cards arrive as you scroll, no extra waiting */
 @media (max-width: 600px) {
     .js .workflow > .workflow-step.ax-reveal:nth-child(n) {
         --step-delay: 0s;
     }
 }
 
-/* Reduced motion: gentle fade only, no slide */
 @media (prefers-reduced-motion: reduce) {
     .js .workflow-step.ax-reveal.is-in {
         animation-name: workflow-fade;
@@ -1319,10 +1382,6 @@ section {
     .os-row,
     .roles-container {
         grid-template-columns: 1fr;
-    }
-
-    .os-row--reverse .os-text {
-        order: 0;
     }
 
     .os-visual {
