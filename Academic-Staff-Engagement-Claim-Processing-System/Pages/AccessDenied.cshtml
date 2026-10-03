@@ -1,0 +1,180 @@
+@page
+@model AccessDeniedModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Access Denied";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] | UNILAK</title>
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+            background: #f4f8fb;
+            font-family: var(--ds-font-body);
+            color: var(--ds-text);
+        }
+
+        .denied-card {
+            width: 100%;
+            max-width: 480px;
+            padding: 40px 36px;
+            background: var(--ds-surface);
+            border: none;
+            border-radius: var(--ds-radius-lg);
+            box-shadow: var(--ds-shadow-card, 0 1px 2px rgba(15, 39, 66, 0.06));
+            text-align: center;
+        }
+
+        .denied-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--ds-danger-soft);
+            color: var(--ds-danger);
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .denied-card h1 {
+            margin: 0 0 10px;
+            font-family: var(--ds-font-display);
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--ds-heading);
+            letter-spacing: -0.4px;
+        }
+
+        .denied-card p {
+            margin: 0 0 24px;
+            color: var(--ds-text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .denied-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .ds-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 38px;
+            padding: 0 18px;
+            border-radius: var(--ds-radius-sm);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background var(--ds-transition, 150ms ease),
+                        border-color var(--ds-transition, 150ms ease),
+                        color var(--ds-transition, 150ms ease);
+        }
+
+        .ds-btn--primary {
+            background: var(--ds-action);
+            border: 1px solid var(--ds-action);
+            color: #ffffff;
+        }
+
+        .ds-btn--primary:hover {
+            background: var(--ds-action-strong);
+            border-color: var(--ds-action-strong);
+            color: #ffffff;
+        }
+
+        .ds-btn--quiet {
+            background: transparent;
+            border: 1px solid var(--ds-border);
+            color: var(--ds-text-secondary);
+        }
+
+        .ds-btn--quiet:hover {
+            background: var(--ds-surface-raised);
+            color: var(--ds-heading);
+            border-color: var(--ds-border);
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="denied-card">
+
+        <div class="denied-icon" aria-hidden="true">
+            <i class="bi bi-shield-lock-fill"></i>
+        </div>
+
+        <h1>Access Denied</h1>
+
+        <p>
+            Your account does not have permission to open this page.
+            If you believe this is a mistake, sign in with the
+            correct account or contact the system administrator.
+        </p>
+
+        <div class="denied-actions">
+
+            <a href="/"
+               class="ds-btn ds-btn--quiet">
+                <i class="bi bi-house-door" aria-hidden="true"></i>
+                <span>Home</span>
+            </a>
+
+            <a href="/Login"
+               class="ds-btn ds-btn--primary">
+                <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+                <span>Sign In</span>
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

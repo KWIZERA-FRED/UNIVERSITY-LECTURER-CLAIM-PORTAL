@@ -23,6 +23,11 @@
 
     <title>@ViewData["Title"]</title>
 
+    <!-- Marks the page as JS-enabled so entrance animations can wait until the page has loaded -->
+    <script>
+        document.documentElement.classList.add("js");
+    </script>
+
     <link
         rel="icon"
         type="image/png"
@@ -38,7 +43,7 @@
         crossorigin />
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
 
     <link
@@ -55,6 +60,10 @@
 <body>
 
     <div class="login-page">
+
+        <!-- =================================================
+             NAVBAR
+             ================================================= -->
 
         <nav class="navbar">
 
@@ -142,176 +151,382 @@
         </nav>
 
 
-        <main class="login-main">
+        <div class="login-split">
 
-            <div class="login-container">
+            <!-- =================================================
+                 LEFT PANEL — brand, message and product preview
+                 ================================================= -->
 
-                <section class="login-card">
+            <aside class="login-aside">
 
-                    <header class="login-header">
+                <a
+                    href="/"
+                    class="aside-brand"
+                    aria-label="UNILAK Portal Home">
 
-                        <div class="login-logo">
+                    <span class="aside-brand-logo">
 
-                            <i class="bi bi-shield-lock-fill"></i>
+                        <img
+                            src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                            alt="UNILAK Logo" />
 
-                        </div>
+                    </span>
 
-                        <h1>
-                            Welcome Back
-                        </h1>
+                    <span class="aside-brand-name">
+                        UNILAK Portal
+                    </span>
 
-                        <p>
-                            Sign in to access the UNILAK Academic Staff Engagement Portal.
-                        </p>
-
-                    </header>
+                </a>
 
 
-                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-                    {
-                        <div
-                            class="error-message"
-                            role="alert">
+                <div class="aside-copy">
 
-                            <i class="bi bi-exclamation-circle-fill"></i>
+                    <h2>
+                        Engagements, Contracts and Claims in One Platform
+                    </h2>
 
-                            <span>
-                                @Model.ErrorMessage
+                    <p>
+                        Sign in to manage teaching engagements, digital
+                        contracts, attendance and payment claims across
+                        the university.
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="aside-visual"
+                    aria-hidden="true">
+
+                    <div class="pipeline">
+
+                        <div class="pipeline-head">
+
+                            <span class="pipeline-icon">
+                                <i class="bi bi-diagram-3-fill"></i>
+                            </span>
+
+                            <span class="pipeline-title">
+                                Signing pipeline
+                            </span>
+
+                            <span class="pipeline-meta">
+                                Stage 3 of 5
                             </span>
 
                         </div>
-                    }
+
+                        <div class="pipeline-bar">
+                            <span></span>
+                        </div>
+
+                        <ul class="pipeline-list">
+
+                            <li class="stage stage--done">
+                                <span class="stage-dot"><i class="bi bi-check-lg"></i></span>
+                                <span class="stage-name">Engagement</span>
+                                <span class="stage-status">Registered</span>
+                            </li>
+
+                            <li class="stage stage--done">
+                                <span class="stage-dot"><i class="bi bi-check-lg"></i></span>
+                                <span class="stage-name">Contract</span>
+                                <span class="stage-status">Signed</span>
+                            </li>
+
+                            <li class="stage stage--active">
+                                <span class="stage-dot"></span>
+                                <span class="stage-name">Attendance</span>
+                                <span class="stage-status">In progress</span>
+                            </li>
+
+                            <li class="stage stage--pending">
+                                <span class="stage-dot"></span>
+                                <span class="stage-name">Claim</span>
+                                <span class="stage-status">Pending</span>
+                            </li>
+
+                            <li class="stage stage--pending">
+                                <span class="stage-dot"></span>
+                                <span class="stage-name">Approval</span>
+                                <span class="stage-status">Pending</span>
+                            </li>
+
+                        </ul>
+
+                        <div class="pipeline-stripes"></div>
+
+                    </div>
+
+                    <span class="chip chip--contracts">
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                        Digital Contracts
+                    </span>
+
+                    <span class="chip chip--attendance">
+                        <i class="bi bi-clock-history"></i>
+                        Attendance
+                    </span>
+
+                    <span class="chip chip--claims">
+                        <i class="bi bi-cash-coin"></i>
+                        Payment Claims
+                    </span>
+
+                    <span class="chip chip--approvals">
+                        <i class="bi bi-patch-check-fill"></i>
+                        Approvals
+                    </span>
+
+                    <span class="chip chip--action">
+                        <i class="bi bi-cursor-fill"></i>
+                        Review &amp; sign
+                    </span>
+
+                </div>
 
 
-                    <form method="post">
+                <p class="aside-footer">
+                    &copy; @DateTime.Now.Year
+                    University of Lay Adventists of Kigali.
+                    All rights reserved.
+                </p>
 
-                        <div class="form-group">
+            </aside>
 
-                            <label
-                                asp-for="Username"
-                                class="form-label">
 
-                                Username
+            <!-- =================================================
+                 RIGHT SIDE — login card
+                 ================================================= -->
 
-                            </label>
+            <main class="login-side">
 
-                            <div class="input-wrapper">
+                <div class="login-container">
 
-                                <i
-                                    class="bi bi-person input-icon">
-                                </i>
+                    <div
+                        class="frame-hatch frame-hatch--top"
+                        aria-hidden="true">
+                    </div>
 
-                                <input
-                                    asp-for="Username"
-                                    placeholder="Enter your username"
-                                    autocomplete="username" />
+                    <div class="card-frame">
+
+                        <section class="login-card">
+
+                            <span class="screw screw--tl" aria-hidden="true"></span>
+                            <span class="screw screw--tr" aria-hidden="true"></span>
+
+                            <div class="card-body">
+
+                                <header class="login-header">
+
+                                    <div class="login-logo">
+
+                                        <img
+                                            src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                                            alt="UNILAK" />
+
+                                    </div>
+
+                                    <h1>
+                                        Login to
+                                        <span>UNILAK Portal</span>
+                                    </h1>
+
+                                    <p>
+                                        Sign in to access the UNILAK Academic Staff Engagement Portal.
+                                    </p>
+
+                                </header>
+
+
+                                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                                {
+                                    <div
+                                        class="error-message"
+                                        role="alert">
+
+                                        <i class="bi bi-exclamation-circle-fill"></i>
+
+                                        <span>
+                                            @Model.ErrorMessage
+                                        </span>
+
+                                    </div>
+                                }
+
+
+                                <form method="post">
+
+                                    <div class="form-group">
+
+                                        <label
+                                            asp-for="Username"
+                                            class="form-label">
+
+                                            Username
+
+                                        </label>
+
+                                        <div class="input-wrapper">
+
+                                            <input
+                                                asp-for="Username"
+                                                placeholder="Enter your username"
+                                                autocomplete="username" />
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="form-group">
+
+                                        <label
+                                            asp-for="Password"
+                                            class="form-label">
+
+                                            Password
+
+                                        </label>
+
+                                        <div class="input-wrapper">
+
+                                            <input
+                                                asp-for="Password"
+                                                id="passwordInput"
+                                                type="password"
+                                                placeholder="Enter your password"
+                                                autocomplete="current-password" />
+
+                                            <button
+                                                type="button"
+                                                class="password-toggle"
+                                                id="passwordToggle"
+                                                aria-label="Show password"
+                                                title="Show password">
+
+                                                <i
+                                                    class="bi bi-eye"
+                                                    id="passwordToggleIcon">
+                                                </i>
+
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <button
+                                        type="submit"
+                                        class="login-button">
+
+                                        <span>
+                                            Sign In
+                                        </span>
+
+                                    </button>
+
+                                </form>
 
                             </div>
 
-                        </div>
 
+                            <div class="card-foot">
 
-                        <div class="form-group">
-
-                            <label
-                                asp-for="Password"
-                                class="form-label">
-
-                                Password
-
-                            </label>
-
-                            <div class="input-wrapper">
-
-                                <i
-                                    class="bi bi-lock input-icon">
-                                </i>
-
-                                <input
-                                    asp-for="Password"
-                                    id="passwordInput"
-                                    type="password"
-                                    placeholder="Enter your password"
-                                    autocomplete="current-password" />
-
-                                <button
-                                    type="button"
-                                    class="password-toggle"
-                                    id="passwordToggle"
-                                    aria-label="Show password"
-                                    title="Show password">
-
-                                    <i
-                                        class="bi bi-eye"
-                                        id="passwordToggleIcon">
-                                    </i>
-
-                                </button>
+                                <p>
+                                    Don't have an account?
+                                    <strong>Contact your administrator</strong>
+                                </p>
 
                             </div>
 
-                        </div>
+                        </section>
 
+                    </div>
 
-                        <button
-                            type="submit"
-                            class="login-button">
+                    <p class="login-note">
+                        Access is limited to authorized UNILAK staff.
+                    </p>
 
-                            <span>
-                                Sign In
-                            </span>
+                    <div
+                        class="frame-hatch frame-hatch--bottom"
+                        aria-hidden="true">
+                    </div>
 
-                        </button>
+                </div>
 
-                    </form>
+            </main>
 
-
-                    <a
-                        href="/"
-                        class="back-link">
-
-                        <i class="bi bi-arrow-left"></i>
-
-                        <span>
-                            Back to Home
-                        </span>
-
-                    </a>
-
-                </section>
-
-            </div>
-
-        </main>
-
-
-        <footer class="footer">
-
-            <div>
-
-                <strong>
-                    UNILAK Portal
-                </strong>
-
-                <span>
-                    · Academic Staff Engagement &amp; Claim Processing System
-                </span>
-
-            </div>
-
-            <div class="footer-security">
-
-                <i class="bi bi-shield-check"></i>
-
-                <span>
-                    Secure Academic Management Platform
-                </span>
-
-            </div>
-
-        </footer>
+        </div>
 
     </div>
+
+
+    <!-- =================================================
+         START ANIMATIONS ONCE THE PAGE HAS FULLY LOADED
+         (fonts, icons and images are ready, so no dropped frames)
+         ================================================= -->
+
+    <script>
+
+        (function () {
+
+            var page =
+                document.querySelector(
+                    ".login-page"
+                );
+
+            if (!page) {
+                return;
+            }
+
+            function start() {
+
+                requestAnimationFrame(
+                    function () {
+
+                        requestAnimationFrame(
+                            function () {
+
+                                page.classList.add(
+                                    "is-ready"
+                                );
+
+                            }
+                        );
+
+                    }
+                );
+
+            }
+
+            if (document.readyState === "complete") {
+
+                start();
+
+            } else {
+
+                window.addEventListener(
+                    "load",
+                    start
+                );
+
+            }
+
+            // Safety net so the page never stays paused
+            setTimeout(
+                function () {
+                    page.classList.add(
+                        "is-ready"
+                    );
+                },
+                3000
+            );
+
+        })();
+
+    </script>
 
 
     <script>

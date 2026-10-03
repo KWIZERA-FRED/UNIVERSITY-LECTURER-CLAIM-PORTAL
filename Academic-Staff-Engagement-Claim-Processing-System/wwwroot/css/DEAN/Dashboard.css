@@ -235,7 +235,7 @@
     }
 
 /* ================================================================
-   WORKFLOW CARDS
+   WORKFLOW CARDS — no left accent edge
    ================================================================ */
 
 .dd-workflow {
@@ -251,7 +251,6 @@
     padding: 16px 18px;
     background: var(--ds-surface, #fff);
     border: 1px solid var(--ds-border-light, #dce4ed);
-    border-left: 4px solid var(--ds-border, #d7e0e8);
     border-radius: var(--ds-radius-lg, 9px);
     text-decoration: none;
     color: inherit;
@@ -264,16 +263,12 @@
         box-shadow: var(--ds-shadow-hover, 0 5px 16px rgba(15, 39, 66, .07));
     }
 
-.dd-workflow-card--action {
-    border-left-color: var(--ds-action, #2a7f5e);
-}
-
-.dd-workflow-card--waiting {
-    border-left-color: var(--ds-warning, #c78a20);
-}
-
+/* Variant classes are kept so nothing breaks in markup, but they no
+   longer apply a left-edge accent. */
+.dd-workflow-card--action,
+.dd-workflow-card--waiting,
 .dd-workflow-card--info {
-    border-left-color: var(--ds-text-muted, #8a99a8);
+    border-left-color: var(--ds-border-light, #dce4ed);
 }
 
 .dd-workflow-label {
@@ -1282,10 +1277,6 @@
 /* ================================================================
    FORCE OVERRIDES
    ================================================================ */
-
-.dd-workflow-card--info {
-    border-left-color: #8a99a8 !important;
-}
 
 .dd-row:not(.dd-row--head):hover,
 .dd-row--needs:hover {

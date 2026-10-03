@@ -8,6 +8,10 @@
 
 @section Styles {
     <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
           href="~/css/DEAN/claims.css"
           asp-append-version="true" />
 }
@@ -17,7 +21,7 @@
     <header class="page-header">
         <div class="page-header-main">
             <h1>Claims</h1>
-            <p>Review lecturer payment claims awaiting your signature.</p>
+            <p>Review lecturer payment claims awaiting your approval.</p>
         </div>
     </header>
 
@@ -37,23 +41,52 @@
         </div>
     }
 
-    <section class="section-card">
+    <section class="section-card" id="claims-card">
 
         <header class="section-header">
-            <h2>Claims Awaiting Your Signature</h2>
+            <h2>Awaiting your approval</h2>
             <span class="section-meta">
-                @Model.PendingClaims.Count @(Model.PendingClaims.Count == 1 ? "claim" : "claims")
+                @Model.PendingClaims.Count
+                @(Model.PendingClaims.Count == 1 ? "claim" : "claims")
             </span>
         </header>
 
         @if (Model.PendingClaims.Count == 0)
         {
             <div class="empty-state">
-                <p>No claims awaiting your signature.</p>
+                <span class="empty-state-icon" aria-hidden="true">
+                    <i class="bi bi-inbox"></i>
+                </span>
+                <h3>No claims awaiting your approval</h3>
+                <p>
+                    Everything assigned to you has been processed.
+                    New claims will appear here once the previous
+                    approver has finished their step.
+                </p>
             </div>
         }
         else
         {
+            <div class="toolbar">
+
+                <form class="search-box"
+                      role="search"
+                      onsubmit="return false;">
+
+                    <i class="bi bi-search" aria-hidden="true"></i>
+
+                    <input type="search"
+                           id="claimSearch"
+                           placeholder="Search by claim, lecturer or contract…"
+                           aria-label="Search claims"
+                           autocomplete="off" />
+
+                    <span class="search-hint" aria-hidden="true">Press /</span>
+
+                </form>
+
+            </div>
+
             <div class="table-wrapper">
                 <table class="data-table">
 
@@ -90,14 +123,16 @@
                                 </td>
 
                                 <td class="col-right">
-                                    <span class="hours-value">@row.HoursClaimed.ToString("N2")</span>
+                                    <span class="hours-value">
+                                        @row.HoursClaimed.ToString("N2")
+                                    </span>
                                 </td>
 
                                 <td class="col-action">
                                     <a asp-page="/DEAN/ClaimDetails"
                                        asp-route-claimId="@row.ClaimId"
-                                       class="gray-button">
-                                        Review
+                                       class="row-action row-action--primary">
+                                        Review &amp; approve
                                     </a>
                                 </td>
 
@@ -106,6 +141,10 @@
                     </tbody>
 
                 </table>
+            </div>
+
+            <div class="table-empty" id="noResults" style="display:none;">
+                <p>No claims match your search.</p>
             </div>
         }
 
@@ -116,7 +155,60 @@
 @section Scripts {
 <script>
 
-    const noResults = document.getElementById("noResults");
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const input = document.getElementById("claimSearch");
+        const noResults = document.getElementById("noResults");
+
+        if (!input) return;
+
+        const rows = Array.prototype.slice.call(
+            document.querySelectorAll(".claim-row"));
+
+        function apply() {
+
+            const query = input.value.trim().toLowerCase();
+            const terms = query.split(/\s+/).filter(Boolean);
+
+            let shown = 0;
+
+            rows.forEach(function (row) {
+
+                const key = (row.dataset.search || "").toLowerCase();
+
+                const match = terms.every(function (t) {
+                    return key.indexOf(t) !== -1;
+                });
+
+                row.style.display = match ? "" : "none";
+
+                if (match) shown++;
+            });
+
+            if (noResults) {
+                noResults.style.display = shown === 0 ? "" : "none";
+            }
+        }
+
+        input.addEventListener("input", apply);
+        input.addEventListener("search", apply);
+
+        // Press / to focus the search box.
+        document.addEventListener("keydown", function (event) {
+
+            const tag = (document.activeElement || {}).tagName || "";
+
+            if (event.key === "/" &&
+                !/^(INPUT|TEXTAREA|SELECT)$/.test(tag) &&
+                !event.ctrlKey && !event.metaKey && !event.altKey) {
+
+                event.preventDefault();
+                input.focus();
+                input.select();
+            }
+        });
+
+    });
 
 </script>
 }

@@ -1,10 +1,9 @@
-﻿
-@page
+﻿@page
 @model IndexModel
 
 @{
     Layout = null;
-    ViewData["Title"] = "UNILAK Staff Engagement Portal";
+    ViewData["Title"] = "UNILAK Contract & Claim Hub";
 }
 
 <!DOCTYPE html>
@@ -12,59 +11,56 @@
 
 <head>
 
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
 
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+          content="width=device-width, initial-scale=1.0" />
 
     <meta name="description"
-          content="UNILAK Academic Staff Engagement & Claim Processing System">
+          content="UNILAK Academic Staff Engagement & Claim Processing System" />
 
     <title>@ViewData["Title"]</title>
 
+    <!-- Marks the page as JS-enabled so reveal styles only hide content when scripts can also show it -->
+    <script>
+        document.documentElement.classList.add("js");
+    </script>
+
     <link rel="preconnect"
-          href="https://fonts.googleapis.com">
+          href="https://fonts.googleapis.com" />
 
     <link rel="preconnect"
           href="https://fonts.gstatic.com"
-          crossorigin>
+          crossorigin />
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
-
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet" />
 
     <link rel="stylesheet"
           href="~/css/index.css"
-          asp-append-version="true">
+          asp-append-version="true" />
 
 </head>
 
 <body>
 
-    <!-- =====================================================
-         NAVIGATION
-         ===================================================== -->
+    <!-- =================================================
+         NAVBAR
+         ================================================= -->
 
-    <nav class="navbar">
+    <header class="site-header">
 
-        <div class="navbar-container">
+        <nav class="navbar">
 
-            <div class="navbar-left">
+            <a href="/"
+               class="navbar-brand"
+               aria-label="UNILAK Portal Home">
 
-                <a href="/"
-                   class="logo-link"
-                   aria-label="UNILAK Portal Home">
+                <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
+                     alt="UNILAK Logo"
+                     class="navbar-logo" />
 
-                    <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
-                         alt="UNILAK Logo"
-                         class="navbar-logo">
-
-                </a>
-
-                <a href="/"
-                   class="navbar-brand">
+                <span class="navbar-brand-text">
 
                     <span class="navbar-brand-title">
                         UNILAK Portal
@@ -74,123 +70,120 @@
                         Academic Staff Engagement System
                     </span>
 
-                </a>
+                </span>
 
-            </div>
+            </a>
 
+            <input type="checkbox"
+                   id="nav-toggle"
+                   class="nav-toggle-input"
+                   aria-hidden="true" />
 
             <ul class="navbar-nav">
 
-                <li>
+                <li class="has-dropdown">
 
-                    <a href="/"
-                       class="nav-link active">
-
-                        <i class="bi bi-house-door-fill"></i>
-
-                        <span>
-                            Home
-                        </span>
-
+                    <a href="#platform" class="nav-link">
+                        Platform
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
                     </a>
+
+                    <ul class="dropdown">
+                        <li><a href="#platform">One System</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#capabilities">Capabilities</a></li>
+                    </ul>
 
                 </li>
 
-
                 <li>
-
-                    <a href="#features"
-                       class="nav-link">
-
-                        <i class="bi bi-grid-fill"></i>
-
-                        <span>
-                            Features
-                        </span>
-
-                    </a>
-
+                    <a href="#workflow" class="nav-link">Workflow</a>
                 </li>
 
+                <li>
+                    <a href="#roles" class="nav-link">Roles</a>
+                </li>
 
                 <li>
-
-                    <a href="/Login"
-                       class="nav-btn-login">
-
-                        <i class="bi bi-box-arrow-in-right"></i>
-
-                        <span>
-                            Sign In
-                        </span>
-
-                    </a>
-
+                    <a href="/" class="nav-link">Home</a>
                 </li>
 
             </ul>
 
-        </div>
+            <a href="/Login" class="nav-btn">Sign In</a>
 
-    </nav>
+            <label for="nav-toggle"
+                   class="nav-toggle"
+                   aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
 
+        </nav>
 
-    <!-- =====================================================
-         HERO
-         ===================================================== -->
+    </header>
 
-    <main>
+    <main class="page">
+
+        <!-- =================================================
+             HERO — text left, product screenshot right
+             ================================================= -->
 
         <section class="hero">
 
-            <div class="hero-overlay"></div>
+            <div class="hero-container">
 
-            <div class="hero-content">
+                <div class="hero-text ax-reveal">
 
-                <h1 class="hero-title">
+                    <h1 class="hero-title">
+                        Every Engagement.
+                        <br />
+                        One Platform.
+                        <br />
+                        One Record.
+                    </h1>
 
-                    Lecturer Engagement
+                    <p class="hero-subtitle">
+                        Streamline academic staff engagements, attendance
+                        tracking, contracts, and payment claims through
+                        one secure and centralized university platform.
+                    </p>
 
-                    <span>
-                        &amp; Claim Management
-                    </span>
+                    <div class="hero-buttons">
 
-                </h1>
-
-
-                <p class="hero-subtitle">
-
-                    Streamline academic staff engagements, attendance
-                    tracking, contracts, and payment claims through
-                    one secure and centralized university platform.
-
-                </p>
-
-
-                <div class="hero-buttons">
-
-                    <a href="/Login"
-                       class="btn btn-primary">
-
-                        <i class="bi bi-box-arrow-in-right"></i>
-
-                        <span>
+                        <a href="/Login" class="btn btn-primary">
                             Staff Login
-                        </span>
+                        </a>
 
-                    </a>
+                        <a href="#platform" class="btn btn-outline">
+                            Why one record
+                        </a>
 
+                    </div>
 
-                    <a href="#features"
-                       class="btn btn-secondary">
+                </div>
 
-                        <i class="bi bi-arrow-down-circle"></i>
+                <div class="hero-visual ax-reveal">
 
-                        <span>
-                            Explore Platform
-                        </span>
+                    <div class="browser">
 
-                    </a>
+                        <div class="browser-top">
+                            <span class="browser-dots">
+                                <i></i><i></i><i></i>
+                            </span>
+                            <span class="browser-tab"></span>
+                        </div>
+
+                        <div class="browser-bar">
+                            <span class="browser-url">UNILAK Portal &middot; Dean Portal</span>
+                        </div>
+
+                        <img src="~/images/dean-portal-preview.png"
+                             alt="UNILAK Dean Portal dashboard showing contracts and claims waiting for signature"
+                             class="browser-image" />
+
+                    </div>
 
                 </div>
 
@@ -200,65 +193,39 @@
 
 
         <!-- =================================================
-             TRUST STRIP
+             STATS STRIP
              ================================================= -->
 
-        <section class="trust-strip"
-                 aria-label="Platform capabilities">
+        <section class="stats">
 
-            <div class="trust-container">
+            <p class="stats-heading ax-reveal">
+                Supporting the UNILAK academic community
+            </p>
 
-                <span class="trust-label">
-                    Secure Academic Workflow
-                </span>
+            <div class="stats-grid">
 
+                <div class="stat-item ax-reveal">
+                    <div class="stat-icon stat-icon--action">01</div>
+                    <div>
+                        <div class="stat-value">42</div>
+                        <div class="stat-label">Active staff</div>
+                    </div>
+                </div>
 
-                <div class="trust-items">
+                <div class="stat-item ax-reveal">
+                    <div class="stat-icon stat-icon--success">02</div>
+                    <div>
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Faculties</div>
+                    </div>
+                </div>
 
-                    <span class="trust-item">
-
-                        <i class="bi bi-person-lock"></i>
-
-                        Role-Based Access
-
-                    </span>
-
-
-                    <span class="trust-divider"></span>
-
-
-                    <span class="trust-item">
-
-                        <i class="bi bi-file-earmark-check"></i>
-
-                        Digital Contracts
-
-                    </span>
-
-
-                    <span class="trust-divider"></span>
-
-
-                    <span class="trust-item">
-
-                        <i class="bi bi-activity"></i>
-
-                        Approval Tracking
-
-                    </span>
-
-
-                    <span class="trust-divider"></span>
-
-
-                    <span class="trust-item">
-
-                        <i class="bi bi-database-check"></i>
-
-                        Centralized Records
-
-                    </span>
-
+                <div class="stat-item ax-reveal">
+                    <div class="stat-icon stat-icon--gold">03</div>
+                    <div>
+                        <div class="stat-value">120</div>
+                        <div class="stat-label">Contracts processed</div>
+                    </div>
                 </div>
 
             </div>
@@ -267,20 +234,66 @@
 
 
         <!-- =================================================
-             FEATURES
+             ONE SYSTEM — flow diagram
              ================================================= -->
 
-        <section class="features"
-                 id="features">
+        <section class="platform"
+                 id="platform">
 
-            <div class="section-header">
-
-                <span class="section-label">
-                    PLATFORM
-                </span>
+            <div class="section-header ax-reveal">
 
                 <h2>
-                    Core Platform Features
+                    One System for Everything
+                </h2>
+
+                <p>
+                    Engagements, contracts, attendance, and claims share
+                    one data model, so every payment can be traced back
+                    to a verified teaching record.
+                </p>
+
+            </div>
+
+            <div class="flow ax-reveal">
+
+                <div class="flow-row flow-row--four">
+
+                    <div class="flow-node">Engagements</div>
+                    <div class="flow-node">Contracts</div>
+                    <div class="flow-node">Attendance</div>
+                    <div class="flow-node">Claims</div>
+
+                </div>
+
+                <div class="flow-arrow" aria-hidden="true"></div>
+
+                <div class="flow-core">
+                    <span class="flow-core-title">Signing &amp; Approval Record</span>
+                    <span class="flow-core-text">Every signature. One source of truth.</span>
+                </div>
+
+                <div class="flow-arrow" aria-hidden="true"></div>
+
+                <div class="flow-node flow-node--outline">
+                    Reports &amp; Institutional Oversight
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             COMPREHENSIVE STAFF MANAGEMENT — alternating rows
+             ================================================= -->
+
+        <section class="os"
+                 id="features">
+
+            <div class="section-header ax-reveal">
+
+                <h2>
+                    Comprehensive Academic Staff Management
                 </h2>
 
                 <p>
@@ -291,129 +304,248 @@
 
             </div>
 
+            <div class="os-list">
 
-            <div class="features-grid">
+                <article class="os-row ax-reveal">
 
-
-                <article class="feature-card">
-
-                    <div class="feature-icon">
-
-                        <i class="bi bi-person-workspace"></i>
-
+                    <div class="os-text">
+                        <span class="os-tag">Engagements</span>
+                        <h3>Staff Engagements</h3>
+                        <p>
+                            Manage lecturer appointments, course
+                            assignments, and engagement records
+                            through a centralized workflow.
+                        </p>
                     </div>
 
-                    <h3>
-                        Staff Engagements
-                    </h3>
-
-                    <p>
-                        Manage lecturer appointments, course
-                        assignments, and engagement records
-                        through a centralized workflow.
-                    </p>
-
-                    <a href="/Login"
-                       class="feature-link">
-
-                        Manage Engagements
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </a>
+                    <div class="os-visual os-visual--blue">
+                        <span>01</span>
+                    </div>
 
                 </article>
 
+                <article class="os-row os-row--reverse ax-reveal">
 
-                <article class="feature-card">
-
-                    <div class="feature-icon">
-
-                        <i class="bi bi-calendar-check-fill"></i>
-
+                    <div class="os-text">
+                        <span class="os-tag">Attendance</span>
+                        <h3>Attendance Tracking</h3>
+                        <p>
+                            Record and monitor teaching attendance
+                            and completed teaching hours for
+                            academic sessions.
+                        </p>
                     </div>
 
-                    <h3>
-                        Attendance Tracking
-                    </h3>
-
-                    <p>
-                        Record and monitor teaching attendance
-                        and completed teaching hours for
-                        academic sessions.
-                    </p>
-
-                    <a href="/Login"
-                       class="feature-link">
-
-                        Track Attendance
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </a>
+                    <div class="os-visual os-visual--green">
+                        <span>02</span>
+                    </div>
 
                 </article>
 
+                <article class="os-row ax-reveal">
 
-                <article class="feature-card">
-
-                    <div class="feature-icon">
-
-                        <i class="bi bi-file-earmark-text-fill"></i>
-
+                    <div class="os-text">
+                        <span class="os-tag">Contracts</span>
+                        <h3>Digital Contracts</h3>
+                        <p>
+                            Generate, manage, review, and access
+                            academic staff contracts through a
+                            structured digital signing workflow.
+                        </p>
                     </div>
 
-                    <h3>
-                        Digital Contracts
-                    </h3>
-
-                    <p>
-                        Generate, manage, review, and access
-                        academic staff contracts through a
-                        structured digital signing workflow.
-                    </p>
-
-                    <a href="/Login"
-                       class="feature-link">
-
-                        View Contracts
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </a>
+                    <div class="os-visual os-visual--gold">
+                        <span>03</span>
+                    </div>
 
                 </article>
 
+                <article class="os-row os-row--reverse ax-reveal">
 
-                <article class="feature-card">
-
-                    <div class="feature-icon">
-
-                        <i class="bi bi-cash-coin"></i>
-
+                    <div class="os-text">
+                        <span class="os-tag">Claims</span>
+                        <h3>Payment Claims</h3>
+                        <p>
+                            Submit, review, approve, and track
+                            academic staff payment claims with
+                            greater transparency.
+                        </p>
                     </div>
 
-                    <h3>
-                        Payment Claims
-                    </h3>
-
-                    <p>
-                        Submit, review, approve, and track
-                        academic staff payment claims with
-                        greater transparency.
-                    </p>
-
-                    <a href="/Login"
-                       class="feature-link">
-
-                        Manage Claims
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </a>
+                    <div class="os-visual os-visual--navy">
+                        <span>04</span>
+                    </div>
 
                 </article>
 
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CAPABILITIES GRID
+             ================================================= -->
+
+        <section class="capabilities"
+                 id="capabilities">
+
+            <div class="section-header ax-reveal">
+
+                <h2>
+                    Powerful Platform Capabilities
+                </h2>
+
+                <p>
+                    Every capability runs on the same core and the
+                    same data, so staff and administrators always
+                    work from one consistent record.
+                </p>
+
+            </div>
+
+            <div class="capabilities-grid">
+
+                <article class="capability-card ax-reveal">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                    </div>
+                    <h3>Engagement Records</h3>
+                    <p>Register staff and assign teaching engagements per course and academic session.</p>
+                </article>
+
+                <article class="capability-card ax-reveal">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                    </div>
+                    <h3>Teaching Hours</h3>
+                    <p>Monitor completed teaching hours so claims reflect work actually delivered.</p>
+                </article>
+
+                <article class="capability-card ax-reveal">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg>
+                    </div>
+                    <h3>Digital Contracts</h3>
+                    <p>Convert engagement details into structured academic contracts ready for review.</p>
+                </article>
+
+                <article class="capability-card ax-reveal">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4"/></svg>
+                    </div>
+                    <h3>Payment Claims</h3>
+                    <p>Submit and track remuneration claims from submission through final approval.</p>
+                </article>
+
+                <article class="capability-card ax-reveal">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 11-11a2.1 2.1 0 0 0-3-3L5 16z"/><path d="M14 7l3 3"/></svg>
+                    </div>
+                    <h3>Sequential Signing</h3>
+                    <p>Route contracts and claims through each approver in order, with clear signing status.</p>
+                </article>
+
+                <article class="capability-card ax-reveal">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                    </div>
+                    <h3>Role-Based Portals</h3>
+                    <p>Each role signs in to a dedicated portal showing only the work that needs its attention.</p>
+                </article>
+
+                <article class="capability-card ax-reveal">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h14M5 18h9"/></svg>
+                    </div>
+                    <h3>Action Queue</h3>
+                    <p>See what needs your signature, what is in the pipeline, and what is already closed.</p>
+                </article>
+
+                <article class="capability-card ax-reveal">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M2 20h20"/></svg>
+                    </div>
+                    <h3>Institutional Oversight</h3>
+                    <p>Give management a consolidated view of approvals and verified payment claims.</p>
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ROLES — split section with checklist
+             ================================================= -->
+
+        <section class="roles"
+                 id="roles">
+
+            <div class="roles-container">
+
+                <div class="roles-intro ax-reveal">
+
+                    <span class="os-tag">Audience</span>
+
+                    <h2>
+                        Built for the UNILAK Community
+                    </h2>
+
+                    <p>
+                        A unified platform designed to support
+                        academic staff and the university
+                        administration throughout the engagement
+                        lifecycle.
+                    </p>
+
+                    <a href="/Login" class="btn btn-primary">
+                        Sign In to Portal
+                    </a>
+
+                </div>
+
+                <div class="roles-list">
+
+                    <article class="role-card ax-reveal">
+                        <span class="check" aria-hidden="true">&#10003;</span>
+                        <div>
+                            <h3>Academic Staff</h3>
+                            <p>
+                                View course engagements, manage
+                                digital contracts, record teaching
+                                activities, and track remuneration
+                                claims from one place.
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="role-card ax-reveal">
+                        <span class="check" aria-hidden="true">&#10003;</span>
+                        <div>
+                            <h3>Department &amp; Faculty Administration</h3>
+                            <p>
+                                Manage staff, course assignments,
+                                engagements, contracts, attendance,
+                                and claim verification workflows.
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="role-card ax-reveal">
+                        <span class="check" aria-hidden="true">&#10003;</span>
+                        <div>
+                            <h3>University Management</h3>
+                            <p>
+                                Review institutional workflows,
+                                authorize engagements, monitor
+                                approvals, and oversee verified
+                                academic payment claims.
+                            </p>
+                        </div>
+                    </article>
+
+                </div>
 
             </div>
 
@@ -424,13 +556,10 @@
              HOW IT WORKS
              ================================================= -->
 
-        <section class="how-it-works">
+        <section class="how-it-works"
+                 id="workflow">
 
-            <div class="section-header">
-
-                <span class="section-label">
-                    WORKFLOW
-                </span>
+            <div class="section-header ax-reveal">
 
                 <h2>
                     How the Platform Works
@@ -444,213 +573,52 @@
 
             </div>
 
-
             <div class="workflow">
 
-
-                <div class="workflow-step">
-
-                    <div class="workflow-number">
-                        01
-                    </div>
-
-                    <h3>
-                        Engagement
-                    </h3>
-
+                <div class="workflow-step ax-reveal">
+                    <div class="workflow-number">01</div>
+                    <h3>Engagement</h3>
                     <p>
                         Academic staff are registered and
                         assigned teaching engagements.
                     </p>
-
                 </div>
 
-
-                <div class="workflow-step">
-
-                    <div class="workflow-number">
-                        02
-                    </div>
-
-                    <h3>
-                        Contract
-                    </h3>
-
+                <div class="workflow-step ax-reveal">
+                    <div class="workflow-number">02</div>
+                    <h3>Contract</h3>
                     <p>
                         Engagement details are converted
                         into a digital academic contract.
                     </p>
-
                 </div>
 
-
-                <div class="workflow-step">
-
-                    <div class="workflow-number">
-                        03
-                    </div>
-
-                    <h3>
-                        Attendance
-                    </h3>
-
+                <div class="workflow-step ax-reveal">
+                    <div class="workflow-number">03</div>
+                    <h3>Attendance</h3>
                     <p>
                         Teaching activities and completed
                         hours are recorded and monitored.
                     </p>
-
                 </div>
 
-
-                <div class="workflow-step">
-
-                    <div class="workflow-number">
-                        04
-                    </div>
-
-                    <h3>
-                        Claim
-                    </h3>
-
+                <div class="workflow-step ax-reveal">
+                    <div class="workflow-number">04</div>
+                    <h3>Claim</h3>
                     <p>
                         Verified teaching activity supports
                         the submission of payment claims.
                     </p>
-
                 </div>
 
-
-                <div class="workflow-step">
-
-                    <div class="workflow-number">
-                        05
-                    </div>
-
-                    <h3>
-                        Approval
-                    </h3>
-
+                <div class="workflow-step ax-reveal">
+                    <div class="workflow-number">05</div>
+                    <h3>Approval</h3>
                     <p>
                         Claims proceed through the required
                         institutional review and approval process.
                     </p>
-
                 </div>
-
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             USERS
-             ================================================= -->
-
-        <section class="audience">
-
-            <div class="section-header">
-
-                <span class="section-label">
-                    USERS
-                </span>
-
-                <h2>
-                    Built for the UNILAK Community
-                </h2>
-
-                <p>
-                    A unified platform designed to support
-                    academic staff and the university
-                    administration throughout the engagement
-                    lifecycle.
-                </p>
-
-            </div>
-
-
-            <div class="audience-grid">
-
-
-                <article class="audience-card">
-
-                    <div class="audience-icon">
-
-                        <i class="bi bi-mortarboard-fill"></i>
-
-                    </div>
-
-
-                    <div>
-
-                        <h3>
-                            Academic Staff
-                        </h3>
-
-                        <p>
-                            View course engagements, manage
-                            digital contracts, record teaching
-                            activities, and track remuneration
-                            claims from one place.
-                        </p>
-
-                    </div>
-
-                </article>
-
-
-                <article class="audience-card">
-
-                    <div class="audience-icon">
-
-                        <i class="bi bi-building-gear"></i>
-
-                    </div>
-
-
-                    <div>
-
-                        <h3>
-                            Department &amp; Faculty Administration
-                        </h3>
-
-                        <p>
-                            Manage staff, course assignments,
-                            engagements, contracts, attendance,
-                            and claim verification workflows.
-                        </p>
-
-                    </div>
-
-                </article>
-
-
-                <article class="audience-card">
-
-                    <div class="audience-icon">
-
-                        <i class="bi bi-person-gear"></i>
-
-                    </div>
-
-
-                    <div>
-
-                        <h3>
-                            University Management
-                        </h3>
-
-                        <p>
-                            Review institutional workflows,
-                            authorize engagements, monitor
-                            approvals, and oversee verified
-                            academic payment claims.
-                        </p>
-
-                    </div>
-
-                </article>
-
 
             </div>
 
@@ -663,15 +631,7 @@
 
         <section class="cta">
 
-            <div class="cta-content">
-
-
-                <div class="cta-icon">
-
-                    <i class="bi bi-shield-lock-fill"></i>
-
-                </div>
-
+            <div class="cta-content ax-reveal">
 
                 <div class="cta-text">
 
@@ -687,16 +647,8 @@
 
                 </div>
 
-
-                <a href="/Login"
-                   class="btn btn-cta">
-
-                    <span>
-                        Sign In to Portal
-                    </span>
-
-                    <i class="bi bi-arrow-right"></i>
-
+                <a href="/Login" class="btn btn-light btn-cta">
+                    Sign In to Portal
                 </a>
 
             </div>
@@ -706,64 +658,146 @@
     </main>
 
 
-    <!-- =====================================================
+    <!-- =================================================
          FOOTER
-         ===================================================== -->
+         ================================================= -->
 
     <footer class="footer">
 
-        <div class="footer-content">
-
+        <div class="footer-content ax-reveal">
 
             <div class="footer-brand">
 
                 <img src="~/images/PNG_LOGO-_UNILAK-removebg-preview.png"
                      alt="UNILAK Logo"
-                     class="footer-logo">
-
+                     class="footer-logo" />
 
                 <div>
 
-                    <h3>
-                        UNILAK Portal
-                    </h3>
+                    <h3>UNILAK Portal</h3>
 
                     <p>
                         Academic Staff Engagement &amp;
-                        Claim Processing System
+                        Claim Processing System. A secure academic
+                        management platform for the University of
+                        Lay Adventists of Kigali.
                     </p>
 
                 </div>
 
             </div>
 
-
-            <div class="footer-right">
-
-                <p>
-                    © @DateTime.Now.Year
-                    University of Lay Adventists of Kigali
-                </p>
-
-
-                <p class="footer-text">
-
-                    <i class="bi bi-shield-check"></i>
-
-                    <span>
-                        Secure Academic Management Platform
-                    </span>
-
-                </p>
-
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <a href="/">Home</a>
+                <a href="#platform">Platform</a>
+                <a href="#features">Features</a>
+                <a href="#workflow">Workflow</a>
             </div>
+
+            <div class="footer-col">
+                <h4>Portal</h4>
+                <a href="/Login">Staff Login</a>
+                <a href="#roles">Roles</a>
+                <a href="#capabilities">Capabilities</a>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+
+            <p>
+                &copy; @DateTime.Now.Year
+                University of Lay Adventists of Kigali.
+                All rights reserved.
+            </p>
+
+            <p class="footer-text">
+                Secure Academic Management Platform
+            </p>
 
         </div>
 
     </footer>
 
+    <!-- =================================================
+         SCROLL REVEAL
+         Adds .is-in when an .ax-reveal element is about to enter
+         the viewport, then .is-done once the fade has finished.
+         ================================================= -->
+
+    <script>
+        (function () {
+            var items = document.querySelectorAll(".ax-reveal");
+
+            if (!items.length) {
+                return;
+            }
+
+            // Older browsers: just show everything.
+            if (!("IntersectionObserver" in window)) {
+                items.forEach(function (el) {
+                    el.classList.remove("ax-reveal");
+                });
+                return;
+            }
+
+            // After the fade finishes, mark the element as done so its own
+            // hover transitions work again. The reveal classes stay in place,
+            // so the browser never has to re-render the element (no end snap).
+            function settle(el) {
+                var finished = false;
+
+                function finish() {
+                    if (finished) {
+                        return;
+                    }
+                    finished = true;
+                    el.removeEventListener("transitionend", onEnd);
+                    el.classList.add("is-done");
+                }
+
+                function onEnd(e) {
+                    if (e.target === el && e.propertyName === "opacity") {
+                        finish();
+                    }
+                }
+
+                el.addEventListener("transitionend", onEnd);
+
+                // Safety net in case transitionend never fires.
+                setTimeout(finish, 1500);
+            }
+
+            // Start slightly BEFORE the element enters the screen so it is
+            // already fading as it scrolls into view (feels smoother).
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
+
+                    var el = entry.target;
+                    el.classList.add("is-in");
+                    settle(el);
+                    observer.unobserve(el);
+                });
+            }, {
+                threshold: 0,
+                rootMargin: "0px 0px 40px 0px"
+            });
+
+            // Wait until the hidden state has been painted once, then observe.
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    items.forEach(function (el) {
+                        observer.observe(el);
+                    });
+                });
+            });
+        })();
+    </script>
 
 </body>
 
 </html>
-

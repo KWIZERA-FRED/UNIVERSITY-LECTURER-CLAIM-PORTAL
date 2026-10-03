@@ -8,6 +8,10 @@
 
 @section Styles {
     <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
           href="~/css/DEAN/claims.css"
           asp-append-version="true" />
 }
@@ -50,13 +54,24 @@
     {
         <section class="section-card">
             <div class="empty-state">
+                <span class="empty-state-icon" aria-hidden="true">
+                    <i class="bi bi-file-earmark-x"></i>
+                </span>
+                <h3>Claim not found</h3>
                 <p>That claim could not be found, or is not awaiting Dean approval.</p>
+                <a asp-page="/DEAN/Claims" class="secondary-button">
+                    Back to Claims
+                </a>
             </div>
         </section>
     }
     else
     {
         var c = Model.SelectedClaim;
+
+        <!-- ============================================================
+             CLAIM SUMMARY
+             ============================================================ -->
 
         <section class="section-card">
 
@@ -91,6 +106,10 @@
 
         </section>
 
+        <!-- ============================================================
+             CLAIM DESCRIPTION
+             ============================================================ -->
+
         <section class="section-card">
 
             <header class="section-header">
@@ -112,12 +131,17 @@
 
         </section>
 
+        <!-- ============================================================
+             EVIDENCE — Contract, Claim Letter, Marks
+             ============================================================ -->
+
         <section class="section-card">
 
             <header class="section-header">
-                <h2>Contract</h2>
+                <h2>Evidence</h2>
             </header>
 
+            <!-- Contract status -->
             @if (c.ContractSigned)
             {
                 <div class="detail-notes">
@@ -127,7 +151,7 @@
                         <i class="bi bi-check-circle-fill"></i>
 
                         <div>
-                            <strong>Contract Signed</strong>
+                            <strong>Contract signed</strong>
                             <span>
                                 Signed
                                 @(c.ContractSignedAtUtc?.ToString("dd MMM yyyy") ?? "")
@@ -147,7 +171,7 @@
                         <i class="bi bi-exclamation-triangle-fill"></i>
 
                         <div>
-                            <strong>Contract Not Signed</strong>
+                            <strong>Contract not signed</strong>
                             <span>
                                 The associated contract has not yet reached
                                 the ACTIVE status.
@@ -159,67 +183,20 @@
                 </div>
             }
 
-            @if (!string.IsNullOrWhiteSpace(c.QrCodeToken))
-            {
-                <div class="section-actions">
-
-                    <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
-                       class="primary-button">
-                        <i class="bi bi-folder2-open"></i>
-                        View Contract &amp; Claim Documents
-                    </a>
-
-                </div>
-            }
-
-        </section>
-
-        <section class="section-card">
-
-            <header class="section-header">
-                <h2>Claim Letter</h2>
-            </header>
-
-            @if (!string.IsNullOrWhiteSpace(c.QrCodeToken))
-            {
-                <div class="section-actions">
-
-                    <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
-                       class="secondary-button">
-                        <i class="bi bi-file-earmark-text"></i>
-                        View Claim Documents
-                    </a>
-
-                </div>
-            }
-            else
-            {
-                <div class="empty-state">
-                    <p>No claim document token is available.</p>
-                </div>
-            }
-
-        </section>
-
-        <section class="section-card">
-
-            <header class="section-header">
-                <h2>Marks Submission</h2>
-            </header>
-
+            <!-- Marks submission -->
             @if (c.MarksSigned && c.MarksSubmissionId.HasValue)
             {
                 <div class="detail-grid">
 
                     <div class="detail-item">
-                        <span class="detail-label">File</span>
+                        <span class="detail-label">Marks file</span>
                         <span class="detail-value">
                             @(c.MarksFileName ?? "Signed Marks Submission")
                         </span>
                     </div>
 
                     <div class="detail-item">
-                        <span class="detail-label">Signed By</span>
+                        <span class="detail-label">Signed by</span>
                         <span class="detail-value">
                             @(c.MarksSignedByName ?? "—")
                         </span>
@@ -242,34 +219,54 @@
                     </div>
 
                 </div>
+            }
+            else
+            {
+                <div class="empty-state empty-state--compact">
+                    <span class="empty-state-icon" aria-hidden="true">
+                        <i class="bi bi-clipboard-x"></i>
+                    </span>
+                    <h3>No marks submission</h3>
+                    <p>No signed marks submission was found for this claim.</p>
+                </div>
+            }
 
+            <!-- Document link -->
+            @if (!string.IsNullOrWhiteSpace(c.QrCodeToken))
+            {
                 <div class="section-actions">
 
-                    <a asp-page-handler="DownloadMarks"
-                       asp-route-claimId="@c.ClaimId"
-                       asp-route-marksId="@c.MarksSubmissionId.Value"
+                    <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
                        class="secondary-button">
-                        <i class="bi bi-download"></i>
-                        Download Marks
+                        <i class="bi bi-folder2-open"></i>
+                        <span>View contract &amp; claim documents</span>
                     </a>
 
                 </div>
             }
             else
             {
-                <div class="empty-state">
-                    <p>No signed marks submission was found for this claim.</p>
+                <div class="empty-state empty-state--compact">
+                    <span class="empty-state-icon" aria-hidden="true">
+                        <i class="bi bi-link-45deg"></i>
+                    </span>
+                    <h3>No document link</h3>
+                    <p>No document token is available for this claim.</p>
                 </div>
             }
 
         </section>
+
+        <!-- ============================================================
+             DEAN DECISION
+             ============================================================ -->
 
         @if (!c.IsThisRolesTurn)
         {
             <section class="section-card">
 
                 <header class="section-header">
-                    <h2>Dean Action Blocked</h2>
+                    <h2>Action blocked</h2>
                 </header>
 
                 <div class="detail-notes">
@@ -279,7 +276,6 @@
                         <i class="bi bi-lock-fill"></i>
 
                         <div>
-                            <strong>Action Currently Blocked</strong>
                             <span>
                                 @(c.BlockedReason ??
                                     "An earlier required approval on this claim is still pending.")
@@ -301,37 +297,77 @@
                     <span class="section-meta">Action required</span>
                 </header>
 
-                <div class="decision-actions">
+                <div class="decision-actions" id="decisionActions">
+
+                    <button type="button"
+                            class="primary-button"
+                            id="showApprovePanel">
+
+                        <i class="bi bi-check-circle-fill"></i>
+                        Approve Claim
+
+                    </button>
+
+                    <button type="button"
+                            class="danger-outline-button"
+                            id="showRejectPanel">
+
+                        <i class="bi bi-x-circle"></i>
+                        Reject Claim
+
+                    </button>
+
+                </div>
+
+                <!-- Approve confirmation panel -->
+                <div id="approvePanel"
+                     class="confirm-panel"
+                     style="display:none;">
+
+                    <div class="confirm-panel-header">
+                        <strong>Approve this claim?</strong>
+                        <span>Your approval will be recorded and the claim will advance to the next stage.</span>
+                    </div>
 
                     <form method="post"
                           asp-page-handler="Approve"
-                          class="inline-form">
+                          class="confirm-form">
 
                         <input type="hidden" asp-for="ClaimId" value="@c.ClaimId" />
 
-                        <button type="submit"
-                                class="primary-button"
-                                onclick="return confirm('Approve this claim?');">
+                        <div class="confirm-actions">
 
-                            <i class="bi bi-check-circle-fill"></i>
-                            Approve Claim
+                            <button type="button"
+                                    id="cancelApprove"
+                                    class="secondary-button">
+                                Cancel
+                            </button>
 
-                        </button>
+                            <button type="submit"
+                                    class="primary-button">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Confirm approval
+                            </button>
+
+                        </div>
 
                     </form>
 
                 </div>
 
-                <div class="reject-panel">
+                <!-- Reject panel -->
+                <div id="rejectPanel"
+                     class="confirm-panel confirm-panel--danger"
+                     style="display:none;">
 
-                    <div class="reject-panel-header">
+                    <div class="confirm-panel-header">
                         <strong>Reject Claim</strong>
                         <span>Provide a clear reason for the rejection.</span>
                     </div>
 
                     <form method="post"
                           asp-page-handler="Reject"
-                          class="reject-form">
+                          class="confirm-form">
 
                         <input type="hidden" asp-for="ClaimId" value="@c.ClaimId" />
 
@@ -347,15 +383,18 @@
                                       required></textarea>
                         </div>
 
-                        <div class="reject-actions">
+                        <div class="confirm-actions">
+
+                            <button type="button"
+                                    id="cancelReject"
+                                    class="secondary-button">
+                                Cancel
+                            </button>
 
                             <button type="submit"
-                                    class="danger-button"
-                                    onclick="return confirm('Reject this claim?');">
-
+                                    class="danger-button">
                                 <i class="bi bi-x-circle"></i>
-                                Reject Claim
-
+                                Confirm rejection
                             </button>
 
                         </div>
@@ -369,3 +408,71 @@
     }
 
 </section>
+
+@section Scripts {
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        /* ============================================================
+           Decision panel toggles (approve + reject)
+           Only one is open at a time.
+           ============================================================ */
+
+        const decisionActions = document.getElementById("decisionActions");
+        const approvePanel = document.getElementById("approvePanel");
+        const rejectPanel = document.getElementById("rejectPanel");
+
+        const showApprovePanel = document.getElementById("showApprovePanel");
+        const showRejectPanel = document.getElementById("showRejectPanel");
+        const cancelApprove = document.getElementById("cancelApprove");
+        const cancelReject = document.getElementById("cancelReject");
+
+        function hideAllPanels() {
+            if (approvePanel) approvePanel.style.display = "none";
+            if (rejectPanel) rejectPanel.style.display = "none";
+            if (decisionActions) decisionActions.style.display = "";
+        }
+
+        function showPanel(panel) {
+            hideAllPanels();
+
+            if (panel) {
+                panel.style.display = "block";
+                panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+
+            if (decisionActions) {
+                decisionActions.style.display = "none";
+            }
+        }
+
+        if (showApprovePanel) {
+            showApprovePanel.addEventListener("click", function () {
+                showPanel(approvePanel);
+            });
+        }
+
+        if (showRejectPanel) {
+            showRejectPanel.addEventListener("click", function () {
+                showPanel(rejectPanel);
+
+                const textarea = document.getElementById("RejectReason");
+                if (textarea) {
+                    setTimeout(function () { textarea.focus(); }, 250);
+                }
+            });
+        }
+
+        if (cancelApprove) {
+            cancelApprove.addEventListener("click", hideAllPanels);
+        }
+
+        if (cancelReject) {
+            cancelReject.addEventListener("click", hideAllPanels);
+        }
+
+    });
+
+</script>
+}
