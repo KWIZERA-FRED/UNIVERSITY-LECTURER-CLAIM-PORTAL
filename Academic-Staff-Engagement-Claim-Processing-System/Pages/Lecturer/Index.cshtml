@@ -290,7 +290,8 @@
                 {
                     var statusKey = contract.Status.ToString().ToLowerInvariant();
 
-                    <a href="/Lecturer/Contracts/Details/@contract.Id"
+                    <a asp-page="/Lecturer/ContractDetails"
+                       asp-route-id="@contract.Id"
                        class="queue-row"
                        data-kind="contract"
                        data-status="@statusKey"

@@ -1,0 +1,495 @@
+
+/* ================================================================
+   UNILAK ASECPS — LECTURER — CONTRACT DETAILS
+   ================================================================
+   Tokens come from /css/shared/design-system.css.
+   The contract document itself is styled by
+   /css/shared/contract-document.css.
+   ================================================================ */
+
+.contract-details-page {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: var(--ds-text);
+    font-family: var(--ds-font-body);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+    .contract-details-page *,
+    .contract-details-page *::before,
+    .contract-details-page *::after {
+        box-sizing: border-box;
+    }
+
+
+/* ---------------- Back link ---------------- */
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    color: var(--ds-text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--ds-transition);
+}
+
+    .back-link:hover {
+        color: var(--ds-action);
+    }
+
+
+/* ---------------- Page header ---------------- */
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.page-header-main h1 {
+    margin: 0 0 4px;
+    font-family: var(--ds-font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ds-heading);
+}
+
+.page-header-main p {
+    margin: 0;
+    color: var(--ds-text-secondary);
+}
+
+
+/* ---------------- Alerts ---------------- */
+
+.page-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--ds-radius-md);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.page-alert-success {
+    background: var(--ds-success-soft);
+    color: var(--ds-success-strong);
+}
+
+.page-alert-error {
+    background: var(--ds-danger-soft);
+    color: var(--ds-danger);
+}
+
+
+/* ---------------- Status ---------------- */
+
+.contract-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.status-active {
+    background: var(--ds-success-soft);
+    color: var(--ds-success-strong);
+}
+
+.status-pending {
+    background: var(--ds-warning-soft);
+    color: var(--ds-warning-strong);
+}
+
+.status-danger {
+    background: var(--ds-danger-soft);
+    color: var(--ds-danger);
+}
+
+.status-neutral {
+    background: var(--ds-border-light);
+    color: var(--ds-text-secondary);
+}
+
+
+/* ---------------- Cards ---------------- */
+
+.section-card {
+    background: var(--ds-surface);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius-lg);
+    box-shadow: var(--ds-shadow-card);
+    overflow: hidden;
+}
+
+.contract-section {
+    padding: 20px 24px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+    .section-heading h2 {
+        margin: 0;
+        font-family: var(--ds-font-display);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ds-heading);
+    }
+
+    .section-heading p {
+        margin: 2px 0 0;
+        color: var(--ds-text-secondary);
+        font-size: 13px;
+    }
+
+.section-heading-icon {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-action-faint);
+    color: var(--ds-action);
+    font-size: 16px;
+}
+
+
+/* ---------------- Summary grid ---------------- */
+
+.contract-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.contract-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--ds-border-light);
+}
+
+.detail-label {
+    color: var(--ds-text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.detail-value {
+    color: var(--ds-heading);
+    font-weight: 600;
+}
+
+
+/* ---------------- Fully signed banner ---------------- */
+
+.fully-signed-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-success-soft);
+    color: var(--ds-success-strong);
+}
+
+    .fully-signed-banner strong,
+    .fully-signed-banner span {
+        display: block;
+    }
+
+.fully-signed-icon {
+    font-size: 22px;
+}
+
+
+/* ---------------- Signature timeline ---------------- */
+
+.signature-timeline {
+    display: flex;
+    flex-direction: column;
+}
+
+.signature-step {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-top: 1px solid var(--ds-border-light);
+}
+
+    .signature-step:first-child {
+        border-top: 0;
+    }
+
+.step-number {
+    flex: 0 0 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ds-action-faint);
+    color: var(--ds-action);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.step-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.signer-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.signer-information {
+    display: flex;
+    gap: 12px;
+    min-width: 0;
+}
+
+.signer-icon {
+    flex: 0 0 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 14px;
+}
+
+.signer-icon-signed {
+    background: var(--ds-success-soft);
+    color: var(--ds-success-strong);
+}
+
+.signer-icon-declined {
+    background: var(--ds-danger-soft);
+    color: var(--ds-danger);
+}
+
+.signer-icon-pending {
+    background: var(--ds-warning-soft);
+    color: var(--ds-warning-strong);
+}
+
+.signer-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.signer-role {
+    color: var(--ds-heading);
+    font-weight: 600;
+}
+
+.signer-status-text,
+.signer-signed-text {
+    color: var(--ds-text-secondary);
+    font-size: 13px;
+}
+
+.signer-declined-text {
+    color: var(--ds-danger);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.signature-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 6px 0;
+    color: var(--ds-text-muted);
+    font-size: 11px;
+}
+
+    .signature-preview img {
+        max-width: 180px;
+        max-height: 70px;
+        object-fit: contain;
+        padding: 6px 10px;
+        border: 1px solid var(--ds-border-light);
+        border-radius: var(--ds-radius-sm);
+        background: #ffffff;
+    }
+
+.signature-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.signature-signed {
+    background: var(--ds-success-soft);
+    color: var(--ds-success-strong);
+}
+
+.signature-declined {
+    background: var(--ds-danger-soft);
+    color: var(--ds-danger);
+}
+
+.signature-pending {
+    background: var(--ds-warning-soft);
+    color: var(--ds-warning-strong);
+}
+
+.parallel-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ds-text-muted);
+    font-size: 12px;
+}
+
+
+/* ---------------- Actions ---------------- */
+
+.contract-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px 24px;
+}
+
+.contract-action-information strong,
+.contract-action-information span {
+    display: block;
+}
+
+.contract-action-information span {
+    color: var(--ds-text-secondary);
+    font-size: 13px;
+}
+
+.you-signed-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ds-success-strong);
+    font-weight: 600;
+}
+
+.sign-contract-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 1px solid var(--ds-action);
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-action);
+    color: #ffffff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--ds-transition);
+}
+
+    .sign-contract-button:hover {
+        background: var(--ds-action-strong);
+        border-color: var(--ds-action-strong);
+    }
+
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 800px) {
+
+    .contract-details-page {
+        padding: 0 16px;
+    }
+
+    .contract-detail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+
+    .contract-details-page {
+        padding: 0 12px;
+    }
+
+    .contract-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .contract-section {
+        padding: 16px;
+    }
+
+    .signer-row {
+        flex-direction: column;
+    }
+
+    .sign-contract-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+
+/* ---------------- Print ---------------- */
+
+@media print {
+
+    .back-link,
+    .contract-actions {
+        display: none !important;
+    }
+
+    .contract-details-page {
+        max-width: none;
+        padding: 0;
+    }
+
+    .section-card {
+        border: 0;
+        box-shadow: none;
+    }
+}
