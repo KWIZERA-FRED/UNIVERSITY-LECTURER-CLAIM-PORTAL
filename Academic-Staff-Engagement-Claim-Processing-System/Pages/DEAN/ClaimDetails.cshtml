@@ -57,8 +57,13 @@
                 <span class="empty-state-icon" aria-hidden="true">
                     <i class="bi bi-file-earmark-x"></i>
                 </span>
+
                 <h3>Claim not found</h3>
-                <p>That claim could not be found, or is not awaiting Dean approval.</p>
+
+                <p>
+                    That claim could not be found, or is not awaiting Dean approval.
+                </p>
+
                 <a asp-page="/DEAN/Claims" class="secondary-button">
                     Back to Claims
                 </a>
@@ -77,7 +82,10 @@
 
             <header class="section-header">
                 <h2>CL@(c.ClaimId.ToString("D3"))</h2>
-                <span class="status-badge status-pending">Pending Dean Approval</span>
+
+                <span class="status-badge status-pending">
+                    Pending Dean Approval
+                </span>
             </header>
 
             <div class="detail-grid">
@@ -89,12 +97,16 @@
 
                 <div class="detail-item">
                     <span class="detail-label">Contract</span>
-                    <span class="detail-value">C@(c.ContractId.ToString("D3"))</span>
+                    <span class="detail-value">
+                        C@(c.ContractId.ToString("D3"))
+                    </span>
                 </div>
 
                 <div class="detail-item">
                     <span class="detail-label">Hours Claimed</span>
-                    <span class="detail-value">@c.HoursClaimed.ToString("N2") h</span>
+                    <span class="detail-value">
+                        @c.HoursClaimed.ToString("N2") h
+                    </span>
                 </div>
 
                 <div class="detail-item">
@@ -124,7 +136,9 @@
                 }
                 else
                 {
-                    <p class="muted-text">No description was provided for this claim.</p>
+                    <p class="muted-text">
+                        No description was provided for this claim.
+                    </p>
                 }
 
             </div>
@@ -132,7 +146,7 @@
         </section>
 
         <!-- ============================================================
-             EVIDENCE — Contract, Claim Letter, Marks
+             EVIDENCE
              ============================================================ -->
 
         <section class="section-card">
@@ -142,6 +156,7 @@
             </header>
 
             <!-- Contract status -->
+
             @if (c.ContractSigned)
             {
                 <div class="detail-notes">
@@ -152,6 +167,7 @@
 
                         <div>
                             <strong>Contract signed</strong>
+
                             <span>
                                 Signed
                                 @(c.ContractSignedAtUtc?.ToString("dd MMM yyyy") ?? "")
@@ -172,6 +188,7 @@
 
                         <div>
                             <strong>Contract not signed</strong>
+
                             <span>
                                 The associated contract has not yet reached
                                 the ACTIVE status.
@@ -183,20 +200,66 @@
                 </div>
             }
 
-            <!-- Marks submission -->
+            <!-- Contract and claim documents -->
+
+            @if (!string.IsNullOrWhiteSpace(c.QrCodeToken))
+            {
+                <div class="section-actions">
+
+                    <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
+                       class="primary-button">
+
+                        <i class="bi bi-folder2-open"></i>
+                        View Contract &amp; Claim Documents
+
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state empty-state--compact">
+
+                    <span class="empty-state-icon" aria-hidden="true">
+                        <i class="bi bi-link-45deg"></i>
+                    </span>
+
+                    <h3>No document link</h3>
+
+                    <p>
+                        No document token is available for this claim.
+                    </p>
+
+                </div>
+            }
+
+        </section>
+
+        <!-- ============================================================
+             MARKS SUBMISSION
+             ============================================================ -->
+
+        <section class="section-card">
+
+            <header class="section-header">
+                <h2>Marks Submission</h2>
+            </header>
+
             @if (c.MarksSigned && c.MarksSubmissionId.HasValue)
             {
                 <div class="detail-grid">
 
                     <div class="detail-item">
-                        <span class="detail-label">Marks file</span>
+                        <span class="detail-label">File</span>
+
                         <span class="detail-value">
                             @(c.MarksFileName ?? "Signed Marks Submission")
                         </span>
                     </div>
 
                     <div class="detail-item">
-                        <span class="detail-label">Signed by</span>
+                        <span class="detail-label">Signed By</span>
+
                         <span class="detail-value">
                             @(c.MarksSignedByName ?? "—")
                         </span>
@@ -204,15 +267,19 @@
 
                     <div class="detail-item">
                         <span class="detail-label">Signed</span>
+
                         <span class="detail-value">
                             @(c.MarksSignedAtUtc.HasValue
-                                ? c.MarksSignedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                                ? c.MarksSignedAtUtc.Value
+                                    .ToLocalTime()
+                                    .ToString("dd MMM yyyy HH:mm")
                                 : "—")
                         </span>
                     </div>
 
                     <div class="detail-item">
                         <span class="detail-label">Reference</span>
+
                         <span class="detail-value">
                             @(c.MarksReference ?? "—")
                         </span>
@@ -223,35 +290,17 @@
             else
             {
                 <div class="empty-state empty-state--compact">
+
                     <span class="empty-state-icon" aria-hidden="true">
                         <i class="bi bi-clipboard-x"></i>
                     </span>
+
                     <h3>No marks submission</h3>
-                    <p>No signed marks submission was found for this claim.</p>
-                </div>
-            }
 
-            <!-- Document link -->
-            @if (!string.IsNullOrWhiteSpace(c.QrCodeToken))
-            {
-                <div class="section-actions">
+                    <p>
+                        No signed marks submission was found for this claim.
+                    </p>
 
-                    <a href="/Public/ClaimDocuments?token=@c.QrCodeToken"
-                       class="secondary-button">
-                        <i class="bi bi-folder2-open"></i>
-                        <span>View contract &amp; claim documents</span>
-                    </a>
-
-                </div>
-            }
-            else
-            {
-                <div class="empty-state empty-state--compact">
-                    <span class="empty-state-icon" aria-hidden="true">
-                        <i class="bi bi-link-45deg"></i>
-                    </span>
-                    <h3>No document link</h3>
-                    <p>No document token is available for this claim.</p>
                 </div>
             }
 
@@ -276,6 +325,8 @@
                         <i class="bi bi-lock-fill"></i>
 
                         <div>
+                            <strong>Action currently blocked</strong>
+
                             <span>
                                 @(c.BlockedReason ??
                                     "An earlier required approval on this claim is still pending.")
@@ -320,20 +371,29 @@
                 </div>
 
                 <!-- Approve confirmation panel -->
+
                 <div id="approvePanel"
                      class="confirm-panel"
                      style="display:none;">
 
                     <div class="confirm-panel-header">
+
                         <strong>Approve this claim?</strong>
-                        <span>Your approval will be recorded and the claim will advance to the next stage.</span>
+
+                        <span>
+                            Your approval will be recorded and the claim
+                            will advance to the next stage.
+                        </span>
+
                     </div>
 
                     <form method="post"
                           asp-page-handler="Approve"
                           class="confirm-form">
 
-                        <input type="hidden" asp-for="ClaimId" value="@c.ClaimId" />
+                        <input type="hidden"
+                               asp-for="ClaimId"
+                               value="@c.ClaimId" />
 
                         <div class="confirm-actions">
 
@@ -345,8 +405,10 @@
 
                             <button type="submit"
                                     class="primary-button">
+
                                 <i class="bi bi-check-circle-fill"></i>
                                 Confirm approval
+
                             </button>
 
                         </div>
@@ -355,23 +417,32 @@
 
                 </div>
 
-                <!-- Reject panel -->
+                <!-- Reject confirmation panel -->
+
                 <div id="rejectPanel"
                      class="confirm-panel confirm-panel--danger"
                      style="display:none;">
 
                     <div class="confirm-panel-header">
+
                         <strong>Reject Claim</strong>
-                        <span>Provide a clear reason for the rejection.</span>
+
+                        <span>
+                            Provide a clear reason for the rejection.
+                        </span>
+
                     </div>
 
                     <form method="post"
                           asp-page-handler="Reject"
                           class="confirm-form">
 
-                        <input type="hidden" asp-for="ClaimId" value="@c.ClaimId" />
+                        <input type="hidden"
+                               asp-for="ClaimId"
+                               value="@c.ClaimId" />
 
                         <div class="form-group">
+
                             <label asp-for="RejectReason">
                                 Rejection Reason <span>*</span>
                             </label>
@@ -381,6 +452,7 @@
                                       maxlength="1000"
                                       placeholder="Explain why this claim is being rejected…"
                                       required></textarea>
+
                         </div>
 
                         <div class="confirm-actions">
@@ -393,8 +465,10 @@
 
                             <button type="submit"
                                     class="danger-button">
+
                                 <i class="bi bi-x-circle"></i>
                                 Confirm rejection
+
                             </button>
 
                         </div>
@@ -414,11 +488,6 @@
 
     document.addEventListener("DOMContentLoaded", function () {
 
-        /* ============================================================
-           Decision panel toggles (approve + reject)
-           Only one is open at a time.
-           ============================================================ */
-
         const decisionActions = document.getElementById("decisionActions");
         const approvePanel = document.getElementById("approvePanel");
         const rejectPanel = document.getElementById("rejectPanel");
@@ -429,17 +498,31 @@
         const cancelReject = document.getElementById("cancelReject");
 
         function hideAllPanels() {
-            if (approvePanel) approvePanel.style.display = "none";
-            if (rejectPanel) rejectPanel.style.display = "none";
-            if (decisionActions) decisionActions.style.display = "";
+
+            if (approvePanel) {
+                approvePanel.style.display = "none";
+            }
+
+            if (rejectPanel) {
+                rejectPanel.style.display = "none";
+            }
+
+            if (decisionActions) {
+                decisionActions.style.display = "";
+            }
         }
 
         function showPanel(panel) {
+
             hideAllPanels();
 
             if (panel) {
                 panel.style.display = "block";
-                panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+                panel.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
             }
 
             if (decisionActions) {
@@ -455,12 +538,17 @@
 
         if (showRejectPanel) {
             showRejectPanel.addEventListener("click", function () {
+
                 showPanel(rejectPanel);
 
                 const textarea = document.getElementById("RejectReason");
+
                 if (textarea) {
-                    setTimeout(function () { textarea.focus(); }, 250);
+                    setTimeout(function () {
+                        textarea.focus();
+                    }, 250);
                 }
+
             });
         }
 
@@ -476,3 +564,4 @@
 
 </script>
 }
+
