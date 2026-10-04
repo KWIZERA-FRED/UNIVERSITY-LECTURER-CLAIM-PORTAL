@@ -8,6 +8,10 @@
 
 @section Styles {
     <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
           href="~/css/Lecturer/submit-marks.css"
           asp-append-version="true" />
 }
@@ -21,29 +25,23 @@
 
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {
-        <div class="marks-alert marks-alert-error">
-            <span class="marks-alert-icon">
-                <i class="bi bi-exclamation-circle"></i>
-            </span>
-
+        <div class="page-alert page-alert-error" role="alert">
+            <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>
             <span>@Model.ErrorMessage</span>
         </div>
     }
 
     @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
     {
-        <div class="marks-alert marks-alert-success">
-            <span class="marks-alert-icon">
-                <i class="bi bi-check-circle"></i>
-            </span>
-
+        <div class="page-alert page-alert-success" role="status">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
             <span>@Model.SuccessMessage</span>
         </div>
     }
 
-    <section class="marks-form-card">
+    <section class="section-card">
 
-        <header class="marks-section-header">
+        <header class="section-header">
             <h2>Marks Submission</h2>
         </header>
 
@@ -51,16 +49,17 @@
 
             @Html.AntiForgeryToken()
 
-            <div class="marks-form-body">
+            <div class="form-body">
 
                 <div class="form-grid">
 
                     <div class="form-group form-group-full">
 
-                        <label asp-for="CourseAssignmentId">Course</label>
+                        <label asp-for="CourseAssignmentId">Course <span>*</span></label>
 
                         <select asp-for="CourseAssignmentId"
-                                id="courseAssignment">
+                                id="courseAssignment"
+                                class="form-control">
 
                             <option value="0">Select course</option>
 
@@ -83,10 +82,11 @@
 
                     <div class="form-group">
 
-                        <label>Academic Year</label>
+                        <label for="academicYear">Academic Year</label>
 
                         <input type="text"
                                id="academicYear"
+                               class="form-control"
                                readonly
                                placeholder="—" />
 
@@ -94,10 +94,11 @@
 
                     <div class="form-group">
 
-                        <label>Semester</label>
+                        <label for="semester">Semester</label>
 
                         <input type="text"
                                id="semester"
+                               class="form-control"
                                readonly
                                placeholder="—" />
 
@@ -105,10 +106,11 @@
 
                     <div class="form-group">
 
-                        <label>Session</label>
+                        <label for="session">Session</label>
 
                         <input type="text"
                                id="session"
+                               class="form-control"
                                readonly
                                placeholder="—" />
 
@@ -116,10 +118,11 @@
 
                     <div class="form-group">
 
-                        <label>Campus</label>
+                        <label for="campus">Campus</label>
 
                         <input type="text"
                                id="campus"
+                               class="form-control"
                                readonly
                                placeholder="—" />
 
@@ -127,37 +130,46 @@
 
                 </div>
 
-                <div class="form-group upload-form-group">
+                <div class="form-divider"></div>
 
-                    <label asp-for="MarksFile">Marks Excel Sheet</label>
+                <div class="form-section">
 
-                    <div class="upload-area"
-                         onclick="document.getElementById('marksFile').click();">
+                    <h3 class="form-section-title">Marks Sheet</h3>
 
-                        <div class="upload-icon">
-                            <i class="bi bi-file-earmark-excel"></i>
+                    <div class="form-group">
+
+                        <label asp-for="MarksFile">Marks Excel Sheet <span>*</span></label>
+
+                        <div class="upload-area"
+                             id="uploadArea"
+                             onclick="document.getElementById('marksFile').click();">
+
+                            <div class="upload-icon" aria-hidden="true">
+                                <i class="bi bi-file-earmark-excel"></i>
+                            </div>
+
+                            <div class="upload-title">
+                                Upload Excel Marks Sheet
+                            </div>
+
+                            <div class="upload-description">
+                                Select the completed .xlsx file from your computer.
+                            </div>
+
+                            <div class="file-input">
+
+                                <input asp-for="MarksFile"
+                                       id="marksFile"
+                                       type="file"
+                                       accept=".xlsx"
+                                       onclick="event.stopPropagation();"
+                                       onchange="showFileName(this)" />
+
+                            </div>
+
+                            <div id="fileName" class="upload-file-name"></div>
+
                         </div>
-
-                        <div class="upload-title">
-                            Upload Excel Marks Sheet
-                        </div>
-
-                        <div class="upload-description">
-                            Select the completed .xlsx file from your computer.
-                        </div>
-
-                        <div class="file-input">
-
-                            <input asp-for="MarksFile"
-                                   id="marksFile"
-                                   type="file"
-                                   accept=".xlsx"
-                                   onclick="event.stopPropagation();"
-                                   onchange="showFileName(this)" />
-
-                        </div>
-
-                        <div id="fileName"></div>
 
                     </div>
 
@@ -165,14 +177,14 @@
 
             </div>
 
-            <div class="marks-form-actions">
+            <footer class="form-actions">
 
-                <button type="submit" class="submit-marks-button">
+                <button type="submit" class="primary-button">
                     <i class="bi bi-cloud-arrow-up"></i>
                     Submit Marks
                 </button>
 
-            </div>
+            </footer>
 
         </form>
 
@@ -185,11 +197,18 @@
     <script>
         function showFileName(input) {
             const fileName = document.getElementById("fileName");
+            const area = document.getElementById("uploadArea");
 
             if (input.files && input.files.length > 0) {
-                fileName.textContent = "Selected: " + input.files[0].name;
+                fileName.innerHTML =
+                    '<i class="bi bi-check-circle-fill"></i> ' +
+                    "Selected: " + input.files[0].name;
+
+                if (area) area.classList.add("has-file");
             } else {
                 fileName.textContent = "";
+
+                if (area) area.classList.remove("has-file");
             }
         }
 

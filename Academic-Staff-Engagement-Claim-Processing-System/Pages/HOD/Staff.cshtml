@@ -47,37 +47,27 @@
     <section class="stats-grid">
 
         <div class="stat-card">
-            <div class="stat-icon stat-icon-blue">
-                <i class="bi bi-people-fill"></i>
-            </div>
+            <span class="stat-label">Total lecturers</span>
             <div class="stat-value">@Model.Lecturers.Count</div>
-            <span class="stat-label">Total Lecturers</span>
+            <span class="stat-meta">In your faculty</span>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon stat-icon-green">
-                <i class="bi bi-person-check-fill"></i>
-            </div>
-            <div class="stat-value">@Model.Lecturers.Count(x => x.IsActive)</div>
-            <span class="stat-label">Active Lecturers</span>
+            <span class="stat-label">Active lecturers</span>
+            <div class="stat-value stat-value--ok">@Model.Lecturers.Count(x => x.IsActive)</div>
+            <span class="stat-meta">Currently active accounts</span>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon stat-icon-purple">
-                <i class="bi bi-journal-bookmark-fill"></i>
-            </div>
+            <span class="stat-label">Active assignments</span>
             <div class="stat-value">@Model.Lecturers.Sum(x => x.ActiveAssignmentCount)</div>
-            <span class="stat-label">Active Assignments</span>
+            <span class="stat-meta">Courses in progress</span>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon stat-icon-orange">
-                <i class="bi bi-hourglass-split"></i>
-            </div>
-            <div class="stat-value">
-                @Model.Lecturers.Sum(x => x.Assignments.Count(a => !a.IsApproved && a.IsActive))
-            </div>
-            <span class="stat-label">Awaiting Approval</span>
+            <span class="stat-label">Needs HOD approval</span>
+            <div class="stat-value stat-value--warn">@Model.Lecturers.Sum(x => x.Assignments.Count(a => !a.IsApproved && a.IsActive))</div>
+            <span class="stat-meta">Course assignments not yet approved</span>
         </div>
 
     </section>
@@ -248,11 +238,6 @@
 
     </section>
 
-    <!-- ============================================================
-         Courses overlay — one modal per lecturer, hidden by default.
-         Data is rendered server-side; JS only toggles visibility.
-         ============================================================ -->
-
     @foreach (var lecturer in Model.Lecturers.Where(l => l.Assignments.Any()))
     {
         <div class="modal-overlay"
@@ -279,10 +264,24 @@
 
                 </header>
 
+                <div class="modal-toolbar">
+
+                    <div class="search-box modal-search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="search"
+                               class="modal-search-input"
+                               data-lecturer-id="@lecturer.Id"
+                               placeholder="Search course, year or semester…"
+                               autocomplete="off"
+                               oninput="filterCoursesModal('@lecturer.Id', this.value)" />
+                    </div>
+
+                </div>
+
                 <div class="modal-body modal-body-flush">
 
                     <div class="table-wrapper">
-                        <table class="data-table">
+                        <table class="data-table" id="coursesTable-@lecturer.Id">
                             <thead>
                                 <tr>
                                     <th>Course</th>
@@ -297,7 +296,12 @@
                             <tbody>
                                 @foreach (var assignment in lecturer.Assignments)
                                 {
-                                    <tr>
+                                    var modalSearchKey =
+                                        $"{assignment.CourseCode} {assignment.CourseTitle} {assignment.AcademicYear} {assignment.Semester}"
+                                            .ToLowerInvariant();
+
+                                    <tr class="course-row"
+                                        data-search="@modalSearchKey">
                                         <td>
                                             <div class="course-cell">
                                                 <span class="course-code">@assignment.CourseCode</span>
@@ -312,11 +316,17 @@
                                         <td>
                                             @if (assignment.IsApproved)
                                             {
-                                                <span class="status-badge status-active">Approved</span>
+                                                <span class="status-badge status-active"
+                                                      title="This assignment has been approved by the HOD.">
+                                                    Approved
+                                                </span>
                                             }
                                             else
                                             {
-                                                <span class="status-badge status-pending">Pending</span>
+                                                <span class="status-badge status-pending"
+                                                      title="This assignment has not yet been approved by the HOD.">
+                                                    Needs HOD approval
+                                                </span>
                                             }
                                         </td>
 
@@ -378,6 +388,12 @@
                                 }
                             </tbody>
                         </table>
+
+                        <div class="modal-empty"
+                             id="coursesEmpty-@lecturer.Id"
+                             hidden>
+                            No courses match your search.
+                        </div>
                     </div>
 
                 </div>
@@ -398,10 +414,6 @@
 
         </div>
     }
-
-    <!-- ============================================================
-         Edit Assignment modal
-         ============================================================ -->
 
     <div class="modal-overlay"
          id="editAssignmentModal"
@@ -512,10 +524,6 @@
 
 <script>
 
-    /* ============================================================
-       Modal helpers — one function to open/close ANY overlay
-       ============================================================ */
-
     function openModal(id) {
 
         const modal = document.getElementById(id);
@@ -535,7 +543,13 @@
 
         modal.classList.remove("show");
 
-        /* Only release the scroll lock if no other modal is open */
+        const searchInput = modal.querySelector(".modal-search-input");
+
+        if (searchInput) {
+            searchInput.value = "";
+            filterCoursesModal(searchInput.dataset.lecturerId, "");
+        }
+
         if (!document.querySelector(".modal-overlay.show")) {
             document.body.classList.remove("modal-open");
         }
@@ -554,10 +568,35 @@
         openModal("coursesModal-" + lecturerId);
     }
 
+    function filterCoursesModal(lecturerId, value) {
 
-    /* ============================================================
-       Edit assignment modal
-       ============================================================ */
+        const table = document.getElementById("coursesTable-" + lecturerId);
+        const empty = document.getElementById("coursesEmpty-" + lecturerId);
+
+        if (!table) return;
+
+        const term = (value || "").toLowerCase().trim();
+        const rows = table.querySelectorAll("tbody tr.course-row");
+
+        let shown = 0;
+
+        rows.forEach(function (row) {
+
+            const key = row.dataset.search || "";
+
+            const matches = !term || key.indexOf(term) !== -1;
+
+            row.style.display = matches ? "" : "none";
+
+            if (matches) shown++;
+
+        });
+
+        if (empty) {
+            empty.hidden = shown > 0;
+        }
+
+    }
 
     function openEditModal(
         assignmentId,
@@ -586,11 +625,6 @@
 
     }
 
-
-    /* ============================================================
-       Confirm helpers
-       ============================================================ */
-
     function confirmRemoveAssignment(courseCode) {
 
         return confirm(
@@ -609,11 +643,6 @@
 
     }
 
-
-    /* ============================================================
-       Escape closes any open modal
-       ============================================================ */
-
     document.addEventListener("keydown", function (event) {
 
         if (event.key !== "Escape") return;
@@ -627,11 +656,6 @@
         document.body.classList.remove("modal-open");
 
     });
-
-
-    /* ============================================================
-       Live search
-       ============================================================ */
 
     const searchInput = document.getElementById("staffSearch");
 

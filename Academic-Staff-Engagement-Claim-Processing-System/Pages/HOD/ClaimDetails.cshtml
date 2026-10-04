@@ -1,5 +1,6 @@
 @page
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ClaimDetailsModel
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
     Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
@@ -56,7 +57,21 @@
 
             <header class="section-header">
                 <h2>CL@(claim.ClaimId.ToString("D3"))</h2>
-                <span class="status-badge status-pending">Pending HOD Review</span>
+
+                @if (Model.IsActionable)
+                {
+                    <span class="status-badge status-pending">Awaiting your review</span>
+                }
+                else if (Model.HodAlreadyApproved)
+                {
+                    <span class="status-badge status-active">You approved this</span>
+                }
+                else
+                {
+                    <span class="status-badge status-neutral">
+                        With @Model.CurrentApproverLabel
+                    </span>
+                }
             </header>
 
             <div class="detail-grid">
@@ -77,8 +92,22 @@
                 </div>
 
                 <div class="detail-item">
-                    <span class="detail-label">Approval Step</span>
-                    <span class="detail-value">HOD</span>
+                    <span class="detail-label">Current Step</span>
+
+                    @if (Model.IsActionable)
+                    {
+                        <span class="detail-value">HOD (you)</span>
+                    }
+                    else if (Model.HodAlreadyApproved && Model.HodApprovedAtUtc.HasValue)
+                    {
+                        <span class="detail-value">
+                            You approved @Model.HodApprovedAtUtc.Value.ToLocalTime().ToString("d MMM yyyy")
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="detail-value">@Model.CurrentApproverLabel</span>
+                    }
                 </div>
 
             </div>
@@ -275,27 +304,86 @@
             <section class="section-card">
 
                 <header class="section-header">
-                    <h2>HOD Action Blocked</h2>
+                    <h2>No action required</h2>
                 </header>
 
                 <div class="detail-notes">
 
-                    <div class="status-warning">
+                    @if (Model.HodAlreadyApproved && Model.HodApprovedAtUtc.HasValue)
+                    {
+                        <div class="status-information">
 
-                        <i class="bi bi-lock-fill"></i>
+                            <i class="bi bi-check-circle-fill"></i>
 
-                        <div>
+                            <div>
 
-                            <strong>Action Currently Blocked</strong>
+                                <strong>You already approved this claim.</strong>
 
-                            <span>
-                                @(claim.BlockedReason ??
-                                    "An earlier required approval on this claim is still pending.")
-                            </span>
+                                <span>
+                                    You approved it on
+                                    @Model.HodApprovedAtUtc.Value.ToLocalTime().ToString("d MMMM yyyy 'at' HH:mm").
+                                    It is now with <strong>@Model.CurrentApproverLabel</strong>.
+                                </span>
+
+                            </div>
 
                         </div>
+                    }
+                    else if (Model.CurrentApprover == ApprovalRole.HOD)
+                    {
+                        <div class="status-warning">
 
-                    </div>
+                            <i class="bi bi-hourglass-split"></i>
+
+                            <div>
+
+                                <strong>Waiting on an earlier step.</strong>
+
+                                <span>
+                                    An earlier required approval on this claim is still pending.
+                                    You can act once it reaches your step.
+                                </span>
+
+                            </div>
+
+                        </div>
+                    }
+                    else if (Model.CurrentApprover is not null)
+                    {
+                        <div class="status-information">
+
+                            <i class="bi bi-arrow-right-circle"></i>
+
+                            <div>
+
+                                <strong>This claim is with @Model.CurrentApproverLabel.</strong>
+
+                                <span>
+                                    It is not currently waiting for HOD approval. No action is required from you.
+                                </span>
+
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="status-warning">
+
+                            <i class="bi bi-info-circle-fill"></i>
+
+                            <div>
+
+                                <strong>Not currently awaiting approval.</strong>
+
+                                <span>
+                                    This claim has no pending approval step. It may have been completed or withdrawn.
+                                </span>
+
+                            </div>
+
+                        </div>
+                    }
 
                 </div>
 
@@ -475,7 +563,7 @@
     else
     {
         <div class="empty-state">
-            <p>That claim could not be found, or is not awaiting HOD approval.</p>
+            <p>That claim could not be loaded.</p>
         </div>
     }
 

@@ -628,6 +628,21 @@
                 </div>
 
 
+                @if (!string.IsNullOrWhiteSpace(Model.LinkMessage))
+                {
+                    <div class="status-information" role="status">
+
+                        <i class="bi bi-check-circle"
+                           aria-hidden="true"></i>
+
+                        <div>
+                            <strong>Link regenerated</strong>
+                            <span>@Model.LinkMessage</span>
+                        </div>
+
+                    </div>
+                }
+
                 <div class="section-actions">
 
                     <a class="primary-button"
@@ -639,6 +654,21 @@
                         Open Claim Evidence
 
                     </a>
+
+                    <form method="post"
+                          asp-page-handler="RegenerateLink"
+                          asp-route-claimId="@claim.Id"
+                          onsubmit="return confirm('Regenerate the claim link? The current link and any printed QR codes will stop working.');">
+
+                        <button type="submit"
+                                class="secondary-button">
+
+                            <i class="bi bi-arrow-repeat"></i>
+                            Regenerate Link
+
+                        </button>
+
+                    </form>
 
                 </div>
             }

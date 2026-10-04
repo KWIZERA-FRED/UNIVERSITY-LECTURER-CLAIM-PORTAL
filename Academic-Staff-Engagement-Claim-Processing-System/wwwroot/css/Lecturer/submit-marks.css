@@ -1,49 +1,11 @@
 /* ================================================================
-   UNILAK ASECPS
-   LECTURER SUBMIT MARKS
+   UNILAK ASECPS — LECTURER — SUBMIT MARKS
    ================================================================
-   Minimal & professional. Matches the Dashboard & Contracts style.
+   Same design as the Dean pages.
+   Tokens come from /css/shared/design-system.css.
+   Soft shadow on the card, hairlines between sections,
+   one action blue for the primary action.
    ================================================================ */
-
-
-/* ================================================================
-   DESIGN TOKENS
-   ================================================================ */
-
-:root {
-    --primary: #0f2742;
-    --primary-light: #183b60;
-    --primary-dark: #091c31;
-    --accent: #059669;
-    --accent-dark: #047857;
-    --accent-light: #a7f3d0;
-    --accent-soft: #ecfdf5;
-    --surface: #ffffff;
-    --surface-raised: #fafbfc;
-    --background: #f5f7fb;
-    --border: #e2e8f0;
-    --border-light: #edf1f5;
-    --border-strong: #cbd5e1;
-    --text: #172033;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
-    --text-inverse: #ffffff;
-    --success: #059669;
-    --success-bg: #ecfdf5;
-    --success-border: #a7f3d0;
-    --danger: #dc2626;
-    --danger-dark: #b91c1c;
-    --danger-bg: #fef2f2;
-    --danger-border: #fecaca;
-    --shadow-xs: 0 1px 2px rgba(15, 39, 66, 0.04);
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --radius-full: 9999px;
-    --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --transition: 160ms ease;
-}
 
 
 /* ================================================================
@@ -54,17 +16,16 @@
     width: 100%;
     max-width: 900px;
     margin: 0 auto;
-    padding: 28px clamp(24px, 3vw, 48px) 50px;
+    padding: 0 24px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    color: var(--text);
-    font-family: var(--font-primary);
+    gap: 16px;
+    color: var(--ds-text);
+    font-family: var(--ds-font-body);
     font-size: 14px;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
     .submit-marks-page *,
@@ -75,7 +36,8 @@
 
     .submit-marks-page button,
     .submit-marks-page input,
-    .submit-marks-page select {
+    .submit-marks-page select,
+    .submit-marks-page textarea {
         font: inherit;
     }
 
@@ -87,25 +49,25 @@
 .page-header {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     margin-bottom: 4px;
 }
 
     .page-header h1 {
         margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
-        font-size: 26px;
-        font-weight: 800;
-        letter-spacing: -0.6px;
-        line-height: 1.2;
+        color: var(--ds-heading);
+        font-family: var(--ds-font-display);
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.4px;
+        line-height: 1.25;
     }
 
     .page-header p {
         margin: 0;
-        color: var(--text-muted);
-        font-size: 13px;
-        font-weight: 450;
+        color: var(--ds-text-secondary);
+        font-size: 13.5px;
+        font-weight: 500;
         line-height: 1.5;
         max-width: 640px;
     }
@@ -115,73 +77,71 @@
    ALERTS
    ================================================================ */
 
-.marks-alert {
+.page-alert {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     padding: 12px 16px;
     border: 1px solid;
-    border-radius: var(--radius-sm);
-    font-size: 12.5px;
+    border-radius: var(--ds-radius-md);
+    font-size: 13px;
     line-height: 1.5;
 }
 
-.marks-alert-icon {
-    width: 28px;
-    height: 28px;
-    flex: 0 0 28px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-}
-
-.marks-alert-error {
-    background: var(--danger-bg);
-    border-color: var(--danger-border);
-    color: var(--danger-dark);
-}
-
-    .marks-alert-error .marks-alert-icon {
-        background: var(--surface);
-        color: var(--danger);
+    .page-alert i {
+        font-size: 14px;
+        flex-shrink: 0;
     }
 
-.marks-alert-success {
-    background: var(--success-bg);
-    border-color: var(--success-border);
-    color: var(--accent-dark);
+.page-alert-error {
+    background: var(--ds-danger-soft);
+    border-color: rgba(192, 57, 43, 0.25);
+    color: var(--ds-danger);
 }
 
-    .marks-alert-success .marks-alert-icon {
-        background: var(--surface);
-        color: var(--accent);
+    .page-alert-error i {
+        color: var(--ds-danger);
+    }
+
+.page-alert-success {
+    background: var(--ds-action-faint);
+    border-color: rgba(30, 95, 191, 0.25);
+    color: var(--ds-action-strong);
+}
+
+    .page-alert-success i {
+        color: var(--ds-action);
     }
 
 
 /* ================================================================
-   FORM CARD
+   SECTION CARD
    ================================================================ */
 
-.marks-form-card {
+.section-card {
     display: flex;
     flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    background: var(--ds-surface);
+    border: none;
+    border-radius: var(--ds-radius-lg);
+    box-shadow: var(--ds-shadow-card, 0 1px 2px rgba(15, 39, 66, 0.06));
     overflow: hidden;
 }
 
-.marks-section-header {
-    padding: 16px 22px;
-    border-bottom: 1px solid var(--border-light);
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--ds-border-light);
+    flex-wrap: wrap;
 }
 
-    .marks-section-header h2 {
+    .section-header h2 {
         margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
+        color: var(--ds-heading);
+        font-family: var(--ds-font-display);
         font-size: 14px;
         font-weight: 700;
         letter-spacing: -0.2px;
@@ -190,77 +150,113 @@
 
 
 /* ================================================================
-   FORM BODY
+   FORM
    ================================================================ */
 
-.marks-form-body {
-    padding: 22px;
+.submit-marks-page form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-body {
+    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-section-title {
+    margin: 0;
+    color: var(--ds-heading);
+    font-family: var(--ds-font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.1px;
+    line-height: 1.3;
+}
+
+.form-divider {
+    height: 1px;
+    background: var(--ds-border-light);
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    gap: 14px;
 }
 
 .form-group {
-    min-width: 0;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .form-group-full {
     grid-column: 1 / -1;
 }
 
-.form-group > label {
+.form-group label {
     display: block;
     margin-bottom: 6px;
-    color: var(--text-secondary);
+    color: var(--ds-text-secondary);
     font-size: 11.5px;
     font-weight: 600;
     line-height: 1.4;
 }
 
-.form-group select,
-.form-group input {
+    .form-group label span {
+        color: var(--ds-danger);
+    }
+
+
+/* ================================================================
+   FORM CONTROLS
+   ================================================================ */
+
+.form-control {
     width: 100%;
     min-height: 40px;
     padding: 9px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius-sm);
     outline: none;
-    background: var(--surface);
-    color: var(--text);
-    font-family: var(--font-primary);
-    font-size: 12.5px;
+    background: var(--ds-surface);
+    color: var(--ds-heading);
+    font-family: inherit;
+    font-size: 13px;
     line-height: 1.4;
-    transition: border-color var(--transition), box-shadow var(--transition);
+    transition: border-color var(--ds-transition), box-shadow var(--ds-transition);
 }
 
-.form-group select {
+    .form-control::placeholder {
+        color: var(--ds-text-muted);
+    }
+
+    .form-control:hover:not([readonly]) {
+        border-color: var(--ds-border-strong, #cbd5e1);
+    }
+
+    .form-control:focus {
+        border-color: var(--ds-action);
+        box-shadow: 0 0 0 3px var(--ds-action-soft);
+    }
+
+    .form-control[readonly] {
+        background: var(--ds-surface-raised);
+        color: var(--ds-text-secondary);
+        cursor: default;
+    }
+
+select.form-control {
     cursor: pointer;
     appearance: auto;
-}
-
-    .form-group select:hover,
-    .form-group input:hover:not([readonly]) {
-        border-color: var(--border-strong);
-    }
-
-    .form-group select:focus,
-    .form-group input:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-    }
-
-.form-group input[readonly] {
-    background: var(--surface-raised);
-    color: var(--text-secondary);
-    cursor: default;
 }
 
 
@@ -268,133 +264,166 @@
    UPLOAD AREA
    ================================================================ */
 
-.upload-form-group {
-    margin-top: 4px;
-}
-
 .upload-area {
-    padding: 28px 22px;
-    border: 1.5px dashed var(--border-strong);
-    border-radius: var(--radius-md);
-    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 28px 20px;
+    border: 1px dashed var(--ds-border-strong, #cbd5e1);
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-surface-raised);
     text-align: center;
     cursor: pointer;
-    transition: border-color var(--transition), background var(--transition);
+    transition: border-color var(--ds-transition), background var(--ds-transition);
 }
 
     .upload-area:hover {
-        border-color: var(--accent);
-        background: var(--accent-soft);
+        border-color: var(--ds-action);
+        background: var(--ds-action-faint);
+    }
+
+    .upload-area.has-file {
+        border-style: solid;
+        border-color: rgba(30, 95, 191, 0.35);
+        background: var(--ds-action-faint);
     }
 
 .upload-icon {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 12px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 4px;
     border-radius: 50%;
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-size: 22px;
+    background: var(--ds-surface);
+    color: var(--ds-action);
+    font-size: 20px;
+    box-shadow: var(--ds-shadow-card, 0 1px 2px rgba(15, 39, 66, 0.06));
 }
 
 .upload-title {
-    color: var(--primary);
-    font-family: var(--font-secondary);
-    font-size: 13px;
+    color: var(--ds-heading);
+    font-size: 14px;
     font-weight: 700;
-    line-height: 1.4;
+    line-height: 1.3;
 }
 
 .upload-description {
-    max-width: 420px;
-    margin: 4px auto 14px;
-    color: var(--text-muted);
-    font-size: 11.5px;
-    line-height: 1.55;
+    color: var(--ds-text-secondary);
+    font-size: 12.5px;
+    line-height: 1.5;
 }
 
 .file-input {
-    display: flex;
-    justify-content: center;
+    margin-top: 8px;
+    max-width: 100%;
 }
 
-    .file-input input {
-        max-width: 340px;
-        padding: 7px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        background: var(--surface);
-        color: var(--text-secondary);
-        font-family: var(--font-primary);
-        font-size: 11px;
+    .file-input input[type="file"] {
+        max-width: 100%;
+        color: var(--ds-text-secondary);
+        font-size: 12.5px;
         cursor: pointer;
     }
 
-#fileName {
-    min-height: 16px;
-    margin-top: 8px;
-    color: var(--accent-dark);
-    font-size: 11px;
+        .file-input input[type="file"]::file-selector-button {
+            margin-right: 12px;
+            padding: 8px 14px;
+            border: 1px solid var(--ds-border);
+            border-radius: var(--ds-radius-sm);
+            background: var(--ds-surface);
+            color: var(--ds-text-secondary);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition);
+        }
+
+            .file-input input[type="file"]::file-selector-button:hover {
+                background: var(--ds-surface-raised);
+                color: var(--ds-heading);
+            }
+
+.upload-file-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 18px;
+    color: var(--ds-action-strong);
+    font-size: 12.5px;
     font-weight: 600;
+    overflow-wrap: anywhere;
 }
+
+    .upload-file-name i {
+        color: var(--ds-action);
+    }
+
+
+/* ================================================================
+   BUTTONS
+   ================================================================ */
+
+.primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+    min-height: 38px;
+    padding: 0 16px;
+    border: 1px solid var(--ds-action);
+    border-radius: var(--ds-radius-sm);
+    background: var(--ds-action);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition), transform var(--ds-transition);
+}
+
+    .primary-button:hover {
+        background: var(--ds-action-strong);
+        border-color: var(--ds-action-strong);
+        color: #ffffff;
+    }
+
+    .primary-button:active {
+        transform: scale(0.99);
+    }
+
+    .primary-button i {
+        font-size: 13px;
+    }
 
 
 /* ================================================================
    FORM ACTIONS
    ================================================================ */
 
-.marks-form-actions {
+.form-actions {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
-    align-items: center;
-    padding: 16px 22px;
-    border-top: 1px solid var(--border-light);
-    background: var(--surface);
+    gap: 10px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--ds-border-light);
+    background: var(--ds-surface);
 }
-
-.submit-marks-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 38px;
-    padding: 0 18px;
-    border: 1px solid var(--accent);
-    border-radius: var(--radius-sm);
-    background: var(--accent);
-    color: var(--text-inverse);
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background var(--transition), border-color var(--transition), transform var(--transition);
-}
-
-    .submit-marks-button:hover {
-        background: var(--accent-dark);
-        border-color: var(--accent-dark);
-    }
-
-    .submit-marks-button:active {
-        transform: scale(0.99);
-    }
-
-    .submit-marks-button i {
-        font-size: 14px;
-    }
 
 
 /* ================================================================
    FOCUS ACCESSIBILITY
    ================================================================ */
 
-.submit-marks-page button:focus-visible,
-.submit-marks-page select:focus-visible,
-.submit-marks-page input:focus-visible {
-    outline: 2px solid rgba(5, 150, 105, 0.35);
+.primary-button:focus-visible,
+.form-control:focus-visible {
+    outline: 2px solid var(--ds-action);
     outline-offset: 2px;
 }
 
@@ -403,29 +432,51 @@
    RESPONSIVE — TABLET
    ================================================================ */
 
+@media (max-width: 800px) {
+
+    .upload-area {
+        padding: 22px 16px;
+    }
+}
+
+
+/* ================================================================
+   RESPONSIVE — MOBILE
+   ================================================================ */
+
 @media (max-width: 700px) {
 
     .submit-marks-page {
-        padding: 22px 18px 40px;
-        gap: 16px;
+        padding: 0 16px;
     }
 
     .page-header h1 {
-        font-size: 22px;
+        font-size: 20px;
+    }
+
+    .section-header {
+        padding: 14px 16px;
     }
 
     .form-grid {
         grid-template-columns: 1fr;
-        gap: 14px;
     }
 
     .form-group-full {
         grid-column: auto;
     }
 
-    .marks-form-body {
-        padding: 18px;
+    .form-body {
+        padding: 16px;
     }
+
+    .form-actions {
+        padding: 14px 16px;
+    }
+
+        .form-actions .primary-button {
+            width: 100%;
+        }
 }
 
 
@@ -433,40 +484,21 @@
    RESPONSIVE — SMALL MOBILE
    ================================================================ */
 
-@media (max-width: 420px) {
+@media (max-width: 480px) {
 
     .submit-marks-page {
-        padding: 18px 12px 32px;
+        padding: 0 12px;
     }
 
     .page-header h1 {
-        font-size: 20px;
+        font-size: 19px;
     }
 
-    .marks-section-header,
-    .marks-form-actions {
+    .section-header,
+    .form-body,
+    .form-actions {
         padding-left: 14px;
         padding-right: 14px;
-    }
-
-    .marks-form-body {
-        padding: 14px;
-    }
-
-    .upload-area {
-        padding: 22px 14px;
-    }
-
-    .file-input input {
-        width: 100%;
-    }
-
-    .marks-form-actions {
-        justify-content: stretch;
-    }
-
-    .submit-marks-button {
-        width: 100%;
     }
 }
 
@@ -480,8 +512,8 @@
     .submit-marks-page *,
     .submit-marks-page *::before,
     .submit-marks-page *::after {
-        transition: none !important;
-        animation: none !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
     }
 }
 
@@ -492,15 +524,14 @@
 
 @media print {
 
-    .marks-form-card {
-        box-shadow: none;
+    .page-alert,
+    .form-actions {
+        display: none !important;
     }
 
-    .marks-form-actions {
-        display: none;
-    }
-
-    .upload-area {
-        border: 1px solid var(--border);
+    .section-card {
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
     }
 }

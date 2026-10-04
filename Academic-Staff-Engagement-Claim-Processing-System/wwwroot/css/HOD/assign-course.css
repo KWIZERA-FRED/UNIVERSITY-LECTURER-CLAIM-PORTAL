@@ -1,282 +1,204 @@
-/* ================================================================
-   UNILAK ASECPS
-   HOD — ASSIGN COURSE
-   ================================================================ */
-
-
-/* ================================================================
-   DESIGN TOKENS
-   ================================================================ */
-
-:root {
-    --primary: #0f2742;
-    --primary-dark: #091c31;
-    --accent: #059669;
-    --accent-dark: #047857;
-    --accent-light: #a7f3d0;
-    --accent-soft: #ecfdf5;
-    --surface: #ffffff;
-    --surface-raised: #fafbfc;
-    --background: #f5f7fb;
-    --border: #e2e8f0;
-    --border-light: #edf1f5;
-    --border-strong: #cbd5e1;
-    --text: #172033;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
-    --text-inverse: #ffffff;
-    --success-bg: #ecfdf5;
-    --success-border: #a7f3d0;
-    --danger: #dc2626;
-    --danger-dark: #b91c1c;
-    --danger-bg: #fef2f2;
-    --danger-border: #fecaca;
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --radius-full: 9999px;
-    --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --transition: 160ms ease;
-}
-
-
-/* ================================================================
-   PAGE SHELL
-   ================================================================ */
-
-.assign-page {
+.hod-content .assign-page {
     width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 28px clamp(24px, 3vw, 48px) 50px;
-    box-sizing: border-box;
+    max-width: none;
+    margin: 0;
+    padding: 0 0 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    color: var(--text);
-    font-family: var(--font-primary);
-    font-size: 14px;
-    line-height: 1.55;
+    color: var(--ds-text, #1a2b3c);
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 13.5px;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
 }
 
-    .assign-page *,
-    .assign-page *::before,
-    .assign-page *::after {
+    .hod-content .assign-page *,
+    .hod-content .assign-page *::before,
+    .hod-content .assign-page *::after {
         box-sizing: border-box;
     }
 
-    .assign-page button,
-    .assign-page input,
-    .assign-page select,
-    .assign-page textarea {
+    .hod-content .assign-page button,
+    .hod-content .assign-page input,
+    .hod-content .assign-page select,
+    .hod-content .assign-page textarea {
         font: inherit;
     }
 
-
-/* ================================================================
-   PAGE HEADER
-   ================================================================ */
-
-.page-header {
+.hod-content .page-header {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 4px;
+    gap: 4px;
 }
 
-    .page-header h1 {
+    .hod-content .page-header h1 {
         margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
+        color: var(--ds-heading, #0f2742);
+        font-family: "Poppins", sans-serif;
         font-size: 26px;
-        font-weight: 800;
-        letter-spacing: -0.6px;
+        font-weight: 700;
+        letter-spacing: -0.4px;
         line-height: 1.2;
+        overflow-wrap: anywhere;
     }
 
-    .page-header p {
+    .hod-content .page-header p {
         margin: 0;
-        color: var(--text-muted);
-        font-size: 13px;
-        font-weight: 450;
-        line-height: 1.5;
         max-width: 640px;
+        color: var(--ds-text-muted, #8a99a8);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
     }
 
-
-/* ================================================================
-   ALERTS
-   ================================================================ */
-
-.page-alert {
+.hod-content .page-alert {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 16px;
+    padding: 11px 14px;
     border: 1px solid;
-    border-radius: var(--radius-sm);
+    border-radius: var(--ds-radius-sm, 6px);
     font-size: 12.5px;
     line-height: 1.5;
 }
 
-    .page-alert i {
-        font-size: 14px;
+    .hod-content .page-alert i {
+        font-size: 13px;
         flex-shrink: 0;
     }
 
-.page-alert-error {
-    background: var(--danger-bg);
-    border-color: var(--danger-border);
-    color: var(--danger-dark);
+.hod-content .page-alert-error {
+    background: var(--ds-danger-soft, #fbe3e0);
+    border-color: #eec4bd;
+    color: var(--ds-danger, #c0392b);
 }
 
-    .page-alert-error i {
-        color: var(--danger);
+    .hod-content .page-alert-error i {
+        color: var(--ds-danger, #c0392b);
     }
 
-
-/* ================================================================
-   SECTION CARD
-   ================================================================ */
-
-.section-card {
+.hod-content .section-card {
     display: flex;
     flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    background: var(--ds-surface, #ffffff);
+    border: 1px solid var(--ds-border-light, #e8eef4);
+    border-radius: var(--ds-radius-md, 8px);
     overflow: hidden;
 }
 
-.section-header {
-    padding: 16px 22px;
-    border-bottom: 1px solid var(--border-light);
+.hod-content .section-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--ds-border-light, #e8eef4);
 }
 
-    .section-header h2 {
+    .hod-content .section-header h2 {
         margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
-        font-size: 14px;
+        color: var(--ds-heading, #0f2742);
+        font-family: "Poppins", sans-serif;
+        font-size: 13.5px;
         font-weight: 700;
-        letter-spacing: -0.2px;
+        letter-spacing: -0.15px;
         line-height: 1.3;
     }
 
-
-/* ================================================================
-   FORM
-   ================================================================ */
-
-.assignment-card form,
-form {
+.hod-content .section-card form {
     display: flex;
     flex-direction: column;
 }
 
-.form-body {
-    padding: 22px;
+.hod-content .form-body {
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 20px;
 }
 
-.form-grid {
+.hod-content .form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
 }
 
-.form-group {
+.hod-content .form-group {
     display: flex;
     flex-direction: column;
     min-width: 0;
 }
 
-.form-group-full {
+.hod-content .form-group-full {
     grid-column: 1 / -1;
 }
 
-.form-group label {
+.hod-content .form-group label {
     display: block;
-    margin-bottom: 6px;
-    color: var(--text-secondary);
+    margin-bottom: 5px;
+    color: var(--ds-text-secondary, #4a5b6d);
     font-size: 11.5px;
     font-weight: 600;
     line-height: 1.4;
 }
 
-    .form-group label span {
-        color: var(--danger);
+    .hod-content .form-group label span {
+        color: var(--ds-danger, #c0392b);
     }
 
-
-/* ================================================================
-   FORM CONTROLS
-   ================================================================ */
-
-.form-control {
+.hod-content .form-control {
     width: 100%;
-    min-height: 40px;
-    padding: 9px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--ds-border, #d8e0e8);
+    border-radius: var(--ds-radius-sm, 6px);
     outline: none;
-    background: var(--surface);
-    color: var(--text);
+    background: var(--ds-surface, #ffffff);
+    color: var(--ds-heading, #0f2742);
     font-family: inherit;
     font-size: 12.5px;
-    transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
 }
 
-    .form-control::placeholder {
-        color: var(--text-muted);
+    .hod-content .form-control::placeholder {
+        color: var(--ds-text-muted, #8a99a8);
     }
 
-    .form-control:hover {
-        border-color: var(--border-strong);
+    .hod-content .form-control:hover {
+        border-color: var(--ds-border, #d8e0e8);
     }
 
-    .form-control:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    .hod-content .form-control:focus {
+        border-color: var(--ds-action, #1e5fbf);
+        box-shadow: 0 0 0 3px var(--ds-action-soft, #d9e7f8);
     }
 
-    .form-control[readonly] {
-        background: var(--surface-raised);
-        color: var(--text-secondary);
+    .hod-content .form-control[readonly] {
+        background: var(--ds-surface-raised, #f5f8fb);
+        color: var(--ds-text-secondary, #4a5b6d);
         cursor: default;
     }
 
-        .form-control[readonly]:hover,
-        .form-control[readonly]:focus {
-            border-color: var(--border);
+        .hod-content .form-control[readonly]:hover,
+        .hod-content .form-control[readonly]:focus {
+            border-color: var(--ds-border, #d8e0e8);
             box-shadow: none;
         }
 
-select.form-control {
+.hod-content select.form-control {
     cursor: pointer;
     appearance: auto;
 }
 
-
-/* ================================================================
-   RATE SUMMARY
-   ================================================================ */
-
-.summary {
+.hod-content .summary {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    padding: 18px 22px;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
-    background: var(--surface-raised);
+    padding: 16px 18px;
+    border: 1px solid var(--ds-border-light, #e8eef4);
+    border-radius: var(--ds-radius-md, 8px);
+    background: var(--ds-surface-raised, #f5f8fb);
 }
 
-.summary-item {
+.hod-content .summary-item {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -284,8 +206,8 @@ select.form-control {
     padding: 0 4px;
 }
 
-.summary-label {
-    color: var(--text-muted);
+.hod-content .summary-label {
+    color: var(--ds-text-muted, #8a99a8);
     font-size: 10.5px;
     font-weight: 700;
     letter-spacing: 0.6px;
@@ -293,191 +215,163 @@ select.form-control {
     line-height: 1.3;
 }
 
-.summary-value {
-    color: var(--primary);
-    font-family: var(--font-secondary);
+.hod-content .summary-value {
+    color: var(--ds-heading, #0f2742);
+    font-family: "Poppins", sans-serif;
     font-size: 20px;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.1;
     letter-spacing: -0.4px;
+    font-variant-numeric: tabular-nums;
 }
 
-.summary-value-accent {
-    color: var(--accent-dark);
+.hod-content .summary-value-accent {
+    color: var(--ds-action, #1e5fbf);
 }
 
-.summary-divider {
+.hod-content .summary-divider {
     width: 1px;
     height: 36px;
-    background: var(--border);
+    background: var(--ds-border-light, #e8eef4);
 }
 
-
-/* ================================================================
-   FORM ACTIONS
-   ================================================================ */
-
-.form-actions {
+.hod-content .form-actions {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 10px;
-    padding: 16px 22px;
-    border-top: 1px solid var(--border-light);
-    background: var(--surface);
+    padding: 14px 18px;
+    border-top: 1px solid var(--ds-border-light, #e8eef4);
+    background: var(--ds-surface-raised, #f5f8fb);
 }
 
-
-/* ================================================================
-   BUTTONS
-   ================================================================ */
-
-.primary-button,
-.secondary-button {
+.hod-content .primary-button,
+.hod-content .secondary-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 7px;
     flex-shrink: 0;
-    min-height: 38px;
-    padding: 0 18px;
-    border-radius: var(--radius-sm);
+    min-height: 36px;
+    padding: 0 16px;
+    border-radius: var(--ds-radius-sm, 6px);
     font-family: inherit;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 600;
     text-decoration: none;
+    white-space: nowrap;
     cursor: pointer;
-    transition: background var(--transition), border-color var(--transition), transform var(--transition);
+    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
-.primary-button {
-    border: 1px solid var(--accent);
-    background: var(--accent);
-    color: var(--text-inverse);
+.hod-content .primary-button {
+    border: 1px solid var(--ds-action, #1e5fbf);
+    background: var(--ds-action, #1e5fbf);
+    color: #ffffff;
 }
 
-    .primary-button:hover {
-        background: var(--accent-dark);
-        border-color: var(--accent-dark);
-        color: var(--text-inverse);
+    .hod-content .primary-button:hover {
+        background: var(--ds-action-strong, #154a99);
+        border-color: var(--ds-action-strong, #154a99);
+        color: #ffffff;
     }
 
-    .primary-button:active {
-        transform: scale(0.99);
-    }
-
-.secondary-button {
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-secondary);
+.hod-content .secondary-button {
+    border: 1px solid var(--ds-border, #d8e0e8);
+    background: var(--ds-surface, #ffffff);
+    color: var(--ds-text-secondary, #4a5b6d);
 }
 
-    .secondary-button:hover {
-        background: var(--surface-raised);
-        border-color: var(--border-strong);
-        color: var(--text);
+    .hod-content .secondary-button:hover {
+        background: var(--ds-surface-raised, #f5f8fb);
+        border-color: var(--ds-border, #d8e0e8);
+        color: var(--ds-heading, #0f2742);
     }
 
-    .primary-button i,
-    .secondary-button i {
-        font-size: 13px;
+    .hod-content .primary-button i,
+    .hod-content .secondary-button i {
+        font-size: 12.5px;
     }
 
-
-    /* ================================================================
-   FOCUS ACCESSIBILITY
-   ================================================================ */
-
-    .primary-button:focus-visible,
-    .secondary-button:focus-visible,
-    .form-control:focus-visible {
-        outline: 2px solid rgba(5, 150, 105, 0.4);
+    .hod-content .primary-button:focus-visible,
+    .hod-content .secondary-button:focus-visible,
+    .hod-content .form-control:focus-visible {
+        outline: 2px solid var(--ds-action, #1e5fbf);
         outline-offset: 2px;
     }
 
+@media (max-width: 990px) {
 
-/* ================================================================
-   RESPONSIVE — TABLET
-   ================================================================ */
-
-@media (max-width: 800px) {
-
-    .assign-page {
-        padding: 22px 18px 40px;
-    }
-
-    .page-header h1 {
-        font-size: 22px;
-    }
-
-    .form-grid {
+    .hod-content .form-grid {
         grid-template-columns: 1fr;
     }
 
-    .form-group-full {
+    .hod-content .form-group-full {
         grid-column: auto;
-    }
-
-    .form-body {
-        padding: 18px;
-    }
-
-    .form-actions {
-        flex-direction: column-reverse;
-        align-items: stretch;
-        padding: 14px 18px;
-    }
-
-    .primary-button,
-    .secondary-button {
-        width: 100%;
     }
 }
 
+@media (max-width: 720px) {
 
-/* ================================================================
-   RESPONSIVE — SMALL MOBILE
-   ================================================================ */
+    .hod-content .assign-page {
+        gap: 16px;
+        padding-bottom: 18px;
+    }
+
+    .hod-content .page-header h1 {
+        font-size: 22px;
+    }
+
+    .hod-content .page-header p {
+        font-size: 12.5px;
+    }
+
+    .hod-content .form-body {
+        padding: 16px;
+    }
+
+    .hod-content .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        padding: 12px 16px;
+    }
+
+        .hod-content .form-actions .primary-button,
+        .hod-content .form-actions .secondary-button {
+            width: 100%;
+        }
+}
 
 @media (max-width: 520px) {
 
-    .assign-page {
-        padding: 18px 12px 32px;
-    }
-
-    .page-header h1 {
+    .hod-content .page-header h1 {
         font-size: 20px;
     }
 
-    .summary {
+    .hod-content .summary {
         grid-template-columns: 1fr;
-        row-gap: 14px;
+        row-gap: 12px;
         padding: 14px 16px;
     }
 
-    .summary-divider {
+    .hod-content .summary-divider {
         display: none;
     }
 
-    .summary-value {
+    .hod-content .summary-value {
         font-size: 18px;
     }
 
-    .form-body {
+    .hod-content .form-body {
         padding: 14px;
     }
 }
 
-
-/* ================================================================
-   REDUCED MOTION
-   ================================================================ */
-
 @media (prefers-reduced-motion: reduce) {
 
-    *,
-    *::before,
-    *::after {
+    .hod-content .assign-page *,
+    .hod-content .assign-page *::before,
+    .hod-content .assign-page *::after {
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
     }

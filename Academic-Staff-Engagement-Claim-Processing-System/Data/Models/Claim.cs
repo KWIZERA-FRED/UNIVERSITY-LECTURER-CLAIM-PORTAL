@@ -64,7 +64,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 
         [Required]
         [MaxLength(64)]
-        public string QrCodeToken { get; set; } = Guid.NewGuid().ToString("N");
+        public string QrCodeToken { get; set; } = SecureToken.Create();
 
         public DateTime? SubmittedAtUtc { get; private set; }
 
@@ -94,6 +94,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
             CourseAssignmentId = courseAssignmentId;
             ContractId = contractId;
             Amount = amount;
+        }
+
+        // Replaces the QR / public-link token. Any link or printed QR code
+        // carrying the old token stops working immediately.
+        public void RegenerateQrToken()
+        {
+            QrCodeToken = SecureToken.Create();
+            UpdatedAtUtc = DateTime.UtcNow;
         }
 
         public void Submit()

@@ -1,323 +1,370 @@
 @page
-@model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ContractsModel
-
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.ContractsModel
 
 @{
-Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
-ViewData["Title"] = "Contracts";
+    Layout = "~/Pages/Shared/DEAN/_DeanLayout.cshtml";
+    ViewData["Title"] = "Contracts";
 
+    string GetStatusClass(ContractStatus status) => status switch
+    {
+        ContractStatus.Active => "status-active",
+        ContractStatus.PendingSignature => "status-pending",
+        ContractStatus.Expired => "status-neutral",
+        ContractStatus.Terminated => "status-danger",
+        ContractStatus.Renewed => "status-active",
+        _ => "status-neutral"
+    };
 
-string GetStatusClass(ContractStatus status) => status switch
-{
-    ContractStatus.Active => "status-active",
-    ContractStatus.PendingSignature => "status-pending",
-    ContractStatus.Expired => "status-neutral",
-    ContractStatus.Terminated => "status-danger",
-    ContractStatus.Renewed => "status-active",
-    _ => "status-neutral"
-};
+    string GetStatusLabel(ContractStatus status) => status switch
+    {
+        ContractStatus.PendingSignature => "Pending Signature",
+        ContractStatus.Active => "Active",
+        ContractStatus.Expired => "Expired",
+        ContractStatus.Terminated => "Terminated",
+        ContractStatus.Renewed => "Renewed",
+        _ => status.ToString()
+    };
 
-string GetStatusLabel(ContractStatus status) => status switch
-{
-    ContractStatus.PendingSignature => "Pending Signature",
-    ContractStatus.Active => "Active",
-    ContractStatus.Expired => "Expired",
-    ContractStatus.Terminated => "Terminated",
-    ContractStatus.Renewed => "Renewed",
-    _ => status.ToString()
-};
+    string SignerLabel(SignerRole role) => role switch
+    {
+        SignerRole.Lecturer => "Lecturer",
+        SignerRole.Dean => "Dean",
+        SignerRole.HROfficer => "HR Officer",
+        SignerRole.DVCAR => "DVCAR",
+        SignerRole.ViceChancellor => "Vice Chancellor",
+        SignerRole.ExamOffice => "Exam Office",
+        _ => role.ToString()
+    };
 
-var totalContracts = Model.Contracts.Count;
+    var totalContracts = Model.Contracts.Count;
 
-var fullySignedContracts = Model.Contracts.Count(c =>
-    c.TotalSteps > 0 &&
-    c.SignedSteps == c.TotalSteps);
+    var awaitingDeanCount = Model.Contracts.Count(c => c.IsAwaitingDean);
 
-var pendingContracts = Model.Contracts.Count(c =>
-    c.TotalSteps == 0 ||
-    c.SignedSteps < c.TotalSteps);
-
-
+    var activeContractsCount =
+        Model.Contracts.Count(c => c.Status == ContractStatus.Active);
 }
 
-@section Styles { <link rel="stylesheet"
-       href="~/css/HOD/contracts.css"
-       asp-append-version="true" />
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/DEAN/contracts.css"
+          asp-append-version="true" />
 }
 
 <section class="contracts-page">
 
-
-<header class="page-header">
-
-    <div class="page-header-main">
-        <h1>Contracts</h1>
-        <p>
-            Review academic staff contracts across your faculty
-            and monitor their electronic signature progress.
-        </p>
-    </div>
-
-    <a asp-page="/HOD/AssignCourse"
-       class="primary-button">
-        <i class="bi bi-plus-lg"></i>
-        Assign Course
-    </a>
-
-</header>
-
-@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-{
-    <div class="page-alert page-alert-error">
-        <i class="bi bi-exclamation-circle-fill"></i>
-        <span>@Model.ErrorMessage</span>
-    </div>
-}
-
-<section class="stats-grid">
-
-    <div class="stat-card">
-        <div class="stat-icon stat-icon-blue">
-            <i class="bi bi-file-earmark-text-fill"></i>
+    <header class="page-header">
+        <div class="page-header-main">
+            <h1>Contracts</h1>
+            <p>Review lecturer contracts and monitor the signing workflow.</p>
         </div>
-        <div class="stat-value">@totalContracts</div>
-        <span class="stat-label">Faculty Contracts</span>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon stat-icon-green">
-            <i class="bi bi-patch-check-fill"></i>
-        </div>
-        <div class="stat-value">@fullySignedContracts</div>
-        <span class="stat-label">Fully Signed</span>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon stat-icon-orange">
-            <i class="bi bi-hourglass-split"></i>
-        </div>
-        <div class="stat-value">@pendingContracts</div>
-        <span class="stat-label">Pending Signatures</span>
-    </div>
-
-</section>
-
-<section class="section-card">
-
-    <header class="section-header">
-        <h2>Faculty Contracts</h2>
-
-        <span class="section-meta">
-            @Model.Contracts.Count
-            @(Model.Contracts.Count == 1 ? "contract" : "contracts")
-        </span>
     </header>
 
-    <div class="toolbar">
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="page-alert page-alert-success">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@Model.SuccessMessage</span>
+        </div>
+    }
 
-        <div class="search-box">
-            <i class="bi bi-search"></i>
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="page-alert page-alert-error">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
 
-            <input type="search"
-                   id="contractSearch"
-                   placeholder="Search by contract, lecturer, course or year…"
-                   autocomplete="off" />
+    @* ---------------- Contract stats ---------------- *@
+
+    <section class="contracts-stats" aria-label="Contract summary">
+
+        <div class="contracts-stat contracts-stat--neutral">
+            <span class="contracts-stat-label">
+                Total Contracts
+            </span>
+            <span class="contracts-stat-value">@totalContracts</span>
+            <span class="contracts-stat-meta">
+                All contracts on record
+            </span>
         </div>
 
-    </div>
+        <div class="contracts-stat contracts-stat--action">
+            <span class="contracts-stat-label">
+                Awaiting Dean Signature
+            </span>
+            <span class="contracts-stat-value">@awaitingDeanCount</span>
+            <span class="contracts-stat-meta">
+                @if (awaitingDeanCount > 0)
+                {
+                    <text>Needs your signature</text>
+                }
+                else
+                {
+                    <text>Nothing waiting</text>
+                }
+            </span>
+        </div>
 
-    @if (Model.Contracts.Count > 0)
-    {
-        <div class="table-wrapper">
+        <div class="contracts-stat contracts-stat--success">
+            <span class="contracts-stat-label">
+                Active Contracts
+            </span>
+            <span class="contracts-stat-value">@activeContractsCount</span>
+            <span class="contracts-stat-meta">
+                Currently in force
+            </span>
+        </div>
 
-            <table class="data-table"
-                   id="contractsTable">
+    </section>
 
-                <thead>
-                    <tr>
-                        <th>Contract</th>
-                        <th>Lecturer</th>
-                        <th>Course</th>
-                        <th class="col-right">Academic Year</th>
-                        <th>Progress</th>
-                        <th>Status</th>
-                        <th class="col-action"></th>
-                    </tr>
-                </thead>
+    <section class="section-card">
 
-                <tbody>
+        <header class="section-header">
+            <h2>Contract Register</h2>
+            <span class="section-meta">
+                @totalContracts @(totalContracts == 1 ? "contract" : "contracts")
+            </span>
+        </header>
 
-                    @foreach (var contract in Model.Contracts)
-                    {
-                        var progress = contract.TotalSteps > 0
-                            ? Math.Round(
-                                (double)contract.SignedSteps /
-                                contract.TotalSteps *
-                                100)
-                            : 0;
+        <div class="toolbar">
+            <form class="search-box" role="search" onsubmit="return false;">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input type="search"
+                       id="contractSearch"
+                       placeholder="Search by contract, lecturer, department or course…"
+                       aria-label="Search contracts"
+                       autocomplete="off" />
+                <span class="search-hint" aria-hidden="true">Press /</span>
+            </form>
+        </div>
 
-                        <tr class="contract-row"
-                            data-search="@contract.Reference @contract.LecturerName @contract.CourseTitle @contract.AcademicYear">
+        @if (Model.Contracts.Any())
+        {
+            <div class="table-wrapper">
+                <table class="data-table">
 
-                            <td>
-                                <span class="reference-pill">
-                                    @contract.Reference
-                                </span>
-                            </td>
+                    <thead>
+                        <tr>
+                            <th>Contract</th>
+                            <th>Lecturer</th>
+                            <th>Department</th>
+                            <th>Course</th>
+                            <th>Progress</th>
+                            <th>Version</th>
+                            <th>Status</th>
+                            <th class="col-action"></th>
+                        </tr>
+                    </thead>
 
-                            <td>
-                                <span class="lecturer-name">
-                                    @contract.LecturerName
-                                </span>
-                            </td>
+                    <tbody>
+                        @foreach (var contract in Model.Contracts)
+                        {
+                            var statusClass = contract.IsDeclined
+                                ? "status-danger"
+                                : GetStatusClass(contract.Status);
 
-                            <td>
-                                <span class="course-title">
-                                    @contract.CourseTitle
-                                </span>
-                            </td>
+                            var statusLabel = contract.IsDeclined
+                                ? "Declined"
+                                : GetStatusLabel(contract.Status);
 
-                            <td class="col-right">
-                                <span class="year-value">
-                                    @contract.AcademicYear
-                                </span>
-                            </td>
+                            var isAction = contract.IsAwaitingDean;
 
-                            <td>
-                                <div class="progress-cell">
+                            // ---- Progress ring math ----
 
-                                    <span class="progress-text">
-                                        @contract.SignedSteps /
-                                        @contract.TotalSteps
+                            var signedSteps = contract.SignedSteps;
+                            var totalSteps = contract.TotalSteps;
+
+                            var pct = totalSteps > 0
+                                ? (int)Math.Round((double)signedSteps / totalSteps * 100)
+                                : 0;
+
+                            // Circumference normalised to 100 for trivial offset math.
+                            // SVG stroke-dasharray is set to 100 in CSS; offset = 100 - pct.
+                            var dashOffset = (100 - pct).ToString(
+                                "0.##",
+                                System.Globalization.CultureInfo.InvariantCulture);
+
+                            // ---- Current signer label ----
+
+                            string stepLabel;
+
+                            if (contract.IsDeclined)
+                            {
+                                stepLabel = "Declined";
+                            }
+                            else if (totalSteps == 0)
+                            {
+                                stepLabel = "Not started";
+                            }
+                            else if (signedSteps >= totalSteps)
+                            {
+                                stepLabel = "Fully signed";
+                            }
+                            else if (contract.IsAwaitingDean)
+                            {
+                                stepLabel = "Awaiting Dean";
+                            }
+                            else
+                            {
+                                stepLabel = "In progress";
+                            }
+
+                            <tr class="contract-row"
+                                data-search="CON-@contract.ContractId.ToString("D6") @contract.LecturerName @contract.Department @contract.CourseTitle">
+
+                                <td>
+                                    <span class="reference-pill">
+                                        CON-@contract.ContractId.ToString("D6")
                                     </span>
+                                </td>
 
-                                    @if (progress > 0)
-                                    {
-                                        <div class="progress-track"
-                                             role="progressbar"
-                                             aria-valuenow="@progress"
-                                             aria-valuemin="0"
-                                             aria-valuemax="100"
-                                             aria-label="Contract signature progress">
+                                <td>
+                                    <span class="lecturer-name">@contract.LecturerName</span>
+                                </td>
 
-                                            <div class="progress-bar"
-                                                 style="width:@progress%">
-                                            </div>
+                                <td>@contract.Department</td>
+
+                                <td>
+                                    <span class="course-title">@contract.CourseTitle</span>
+                                </td>
+
+                                <td>
+                                    <div class="progress-ring-cell">
+
+                                        <div class="progress-ring"
+                                             role="img"
+                                             aria-label="@signedSteps of @totalSteps signatures complete">
+
+                                            <svg viewBox="0 0 40 40"
+                                                 width="40"
+                                                 height="40"
+                                                 aria-hidden="true">
+
+                                                <circle class="progress-ring-track"
+                                                        cx="20"
+                                                        cy="20"
+                                                        r="16" />
+
+                                                <circle class="progress-ring-value"
+                                                        cx="20"
+                                                        cy="20"
+                                                        r="16"
+                                                        style="stroke-dashoffset:@dashOffset" />
+
+                                            </svg>
+
+                                            <span class="progress-ring-label">
+                                                @pct<span class="progress-ring-percent">%</span>
+                                            </span>
 
                                         </div>
-                                    }
-                                    else
-                                    {
-                                        <span class="progress-empty">
-                                            Not started
-                                        </span>
-                                    }
 
-                                </div>
-                            </td>
+                                        <div class="progress-ring-meta">
 
-                            <td>
-                                <span class="status-badge @GetStatusClass(contract.Status)">
-                                    @GetStatusLabel(contract.Status)
-                                </span>
-                            </td>
+                                            <span class="progress-ring-count">
+                                                @signedSteps / @totalSteps
+                                            </span>
 
-                            <td class="col-action">
+                                            <span class="progress-ring-step @(signedSteps >= totalSteps && totalSteps > 0 ? "progress-ring-step--done" : "")">
+                                                @stepLabel
+                                            </span>
 
-                                <a asp-page="/HOD/ContractDetails"
-                                   asp-route-id="@contract.Id"
-                                   class="gray-button">
-                                    View
-                                    <i class="bi bi-arrow-right"></i>
-                                </a>
+                                        </div>
 
-                            </td>
+                                    </div>
+                                </td>
 
-                        </tr>
-                    }
+                                <td>
+                                    <span class="version-badge">@contract.Version</span>
+                                </td>
 
-                </tbody>
+                                <td>
+                                    <span class="status-badge @statusClass">@statusLabel</span>
+                                </td>
 
-            </table>
+                                <td class="col-action">
+                                    <a asp-page="/DEAN/ContractDetails"
+                                       asp-route-ContractId="@contract.ContractId"
+                                       class="row-action @(isAction ? "row-action--primary" : "")">
+                                        @(isAction ? "Review & sign" : "Review")
+                                    </a>
+                                </td>
 
-        </div>
+                            </tr>
+                        }
+                    </tbody>
 
-        <div class="table-empty"
-             id="noResults"
-             style="display:none;">
+                </table>
+            </div>
 
-            <p>No contracts match your search.</p>
+            <div class="table-empty" id="noResults" style="display:none;">
+                <p>No contracts match your search.</p>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <p>No contracts available.</p>
+            </div>
+        }
 
-        </div>
-    }
-    else
-    {
-        <div class="empty-state">
-
-            <p>No contracts found in your faculty.</p>
-
-            <a asp-page="/HOD/AssignCourse"
-               class="primary-button">
-                <i class="bi bi-plus-lg"></i>
-                Assign Course
-            </a>
-
-        </div>
-    }
-
-</section>
-
+    </section>
 
 </section>
 
 @section Scripts {
-
 <script>
-    const contractSearch =
-        document.getElementById("contractSearch");
 
-    const noResults =
-        document.getElementById("noResults");
+    const contractSearch = document.getElementById("contractSearch");
+    const noResults = document.getElementById("noResults");
 
     if (contractSearch) {
 
         contractSearch.addEventListener("input", function () {
 
-            const term =
-                this.value.toLowerCase().trim();
-
-            const rows =
-                document.querySelectorAll(".contract-row");
+            const term = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll(".contract-row");
 
             let visible = 0;
 
             rows.forEach(function (row) {
 
-                const haystack =
-                    (row.dataset.search || "").toLowerCase();
+                const haystack = (row.dataset.search || "").toLowerCase();
+                const match = term === "" || haystack.includes(term);
 
-                const match =
-                    term === "" ||
-                    haystack.includes(term);
+                row.style.display = match ? "" : "none";
 
-                row.style.display =
-                    match ? "" : "none";
-
-                if (match) {
-                    visible++;
-                }
+                if (match) visible++;
 
             });
 
             if (noResults) {
-                noResults.style.display =
-                    visible === 0 ? "" : "none";
+                noResults.style.display = visible === 0 ? "" : "none";
             }
 
         });
 
-    }
-</script>
+        document.addEventListener("keydown", function (event) {
 
+            var tag = (document.activeElement || {}).tagName || "";
+
+            if (event.key === "/" &&
+                !/^(INPUT|TEXTAREA|SELECT)$/.test(tag) &&
+                !event.ctrlKey && !event.metaKey && !event.altKey) {
+
+                event.preventDefault();
+                contractSearch.focus();
+                contractSearch.select();
+            }
+        });
+
+    }
+
+</script>
 }

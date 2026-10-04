@@ -1,431 +1,353 @@
-/* ================================================================
-   UNILAK ASECPS — HOD REGISTER LECTURERS
-   ================================================================ */
-
-
-:root {
-    --primary: #0f2742;
-    --primary-dark: #091c31;
-    --accent: #059669;
-    --accent-dark: #047857;
-    --accent-light: #a7f3d0;
-    --accent-soft: #ecfdf5;
-    --surface: #ffffff;
-    --surface-raised: #fafbfc;
-    --background: #f5f7fb;
-    --border: #e2e8f0;
-    --border-light: #edf1f5;
-    --border-strong: #cbd5e1;
-    --text: #172033;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
-    --text-inverse: #ffffff;
-    --success-bg: #ecfdf5;
-    --success-border: #a7f3d0;
-    --danger: #dc2626;
-    --danger-dark: #b91c1c;
-    --danger-bg: #fef2f2;
-    --danger-border: #fecaca;
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --radius-full: 9999px;
-    --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --transition: 160ms ease;
-}
-
-
-/* ================================================================
-   PAGE SHELL
-   ================================================================ */
-
-.register-page {
+.hod-content .register-page {
     width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 28px clamp(24px, 3vw, 48px) 50px;
-    box-sizing: border-box;
+    max-width: none;
+    margin: 0;
+    padding: 0 0 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    color: var(--text);
-    font-family: var(--font-primary);
-    font-size: 14px;
-    line-height: 1.55;
+    color: var(--ds-text, #1a2b3c);
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 13.5px;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
 }
 
-    .register-page *,
-    .register-page *::before,
-    .register-page *::after {
+    .hod-content .register-page *,
+    .hod-content .register-page *::before,
+    .hod-content .register-page *::after {
         box-sizing: border-box;
     }
 
-    .register-page button,
-    .register-page input,
-    .register-page select,
-    .register-page textarea {
+    .hod-content .register-page button,
+    .hod-content .register-page input,
+    .hod-content .register-page select,
+    .hod-content .register-page textarea {
         font: inherit;
     }
 
-
-/* ================================================================
-   PAGE HEADER
-   ================================================================ */
-
-.page-header {
+.hod-content .page-header {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 4px;
+    gap: 4px;
 }
 
-    .page-header h1 {
+    .hod-content .page-header h1 {
         margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
+        color: var(--ds-heading, #0f2742);
+        font-family: "Poppins", sans-serif;
         font-size: 26px;
-        font-weight: 800;
-        letter-spacing: -0.6px;
+        font-weight: 700;
+        letter-spacing: -0.4px;
         line-height: 1.2;
+        overflow-wrap: anywhere;
     }
 
-    .page-header p {
+    .hod-content .page-header p {
         margin: 0;
-        color: var(--text-muted);
-        font-size: 13px;
-        font-weight: 450;
-        line-height: 1.5;
         max-width: 640px;
+        color: var(--ds-text-muted, #8a99a8);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
     }
 
-
-/* ================================================================
-   ALERTS
-   ================================================================ */
-
-.page-alert {
+.hod-content .page-alert {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 16px;
+    padding: 11px 14px;
     border: 1px solid;
-    border-radius: var(--radius-sm);
+    border-radius: var(--ds-radius-sm, 6px);
     font-size: 12.5px;
     line-height: 1.5;
 }
 
-    .page-alert i {
-        font-size: 14px;
+    .hod-content .page-alert i {
+        font-size: 13px;
         flex-shrink: 0;
     }
 
-.page-alert-success {
-    background: var(--success-bg);
-    border-color: var(--success-border);
-    color: var(--accent-dark);
+.hod-content .page-alert-success {
+    background: var(--ds-success-soft, #d8f0e0);
+    border-color: #b6e0c3;
+    color: var(--ds-success-strong, #106634);
 }
 
-    .page-alert-success i {
-        color: var(--accent);
+    .hod-content .page-alert-success i {
+        color: var(--ds-success, #1a8a4a);
     }
 
-.page-alert-error {
-    background: var(--danger-bg);
-    border-color: var(--danger-border);
-    color: var(--danger-dark);
+.hod-content .page-alert-error {
+    background: var(--ds-danger-soft, #fbe3e0);
+    border-color: #eec4bd;
+    color: var(--ds-danger, #c0392b);
 }
 
-    .page-alert-error i {
-        color: var(--danger);
+    .hod-content .page-alert-error i {
+        color: var(--ds-danger, #c0392b);
     }
 
-
-/* ================================================================
-   SECTION CARD (results)
-   ================================================================ */
-
-.section-card {
+.hod-content .section-card {
     display: flex;
     flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    background: var(--ds-surface, #ffffff);
+    border: 1px solid var(--ds-border-light, #e8eef4);
+    border-radius: var(--ds-radius-md, 8px);
     overflow: hidden;
 }
 
-.section-header {
-    padding: 16px 22px;
-    border-bottom: 1px solid var(--border-light);
+.hod-content .section-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--ds-border-light, #e8eef4);
 }
 
-    .section-header h2 {
+    .hod-content .section-header h2 {
         margin: 0;
-        color: var(--primary);
-        font-family: var(--font-secondary);
-        font-size: 14px;
+        color: var(--ds-heading, #0f2742);
+        font-family: "Poppins", sans-serif;
+        font-size: 13.5px;
         font-weight: 700;
-        letter-spacing: -0.2px;
+        letter-spacing: -0.15px;
         line-height: 1.3;
     }
 
-.results-list {
+.hod-content .results-list {
     display: flex;
     flex-direction: column;
 }
 
-.result-row {
+.hod-content .result-row {
     display: flex;
     align-items: flex-start;
     gap: 6px;
-    padding: 10px 22px;
-    border-bottom: 1px solid var(--border-light);
-    color: var(--text-secondary);
-    font-size: 12px;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--ds-border-light, #e8eef4);
+    color: var(--ds-text-secondary, #4a5b6d);
+    font-size: 12.5px;
     line-height: 1.5;
 }
 
-    .result-row:last-child {
+    .hod-content .result-row:last-child {
         border-bottom: none;
     }
 
-    .result-row i {
-        color: var(--accent);
+    .hod-content .result-row i {
+        color: var(--ds-text-muted, #8a99a8);
         font-size: 16px;
         line-height: 1;
         margin-top: -2px;
         flex-shrink: 0;
     }
 
-
-/* ================================================================
-   FORM
-   ================================================================ */
-
-#registerForm {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-#lecturerContainer {
+.hod-content #registerForm {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-
-/* ================================================================
-   LECTURER CARD
-   ================================================================ */
-
-.lecturer-card {
+.hod-content #lecturerContainer {
     display: flex;
     flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    gap: 16px;
+}
+
+.hod-content .lecturer-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--ds-surface, #ffffff);
+    border: 1px solid var(--ds-border-light, #e8eef4);
+    border-radius: var(--ds-radius-md, 8px);
     overflow: hidden;
 }
 
-.lecturer-card-header {
+.hod-content .lecturer-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
-    padding: 14px 22px;
-    border-bottom: 1px solid var(--border-light);
+    gap: 12px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--ds-border-light, #e8eef4);
 }
 
-.lecturer-title strong {
-    color: var(--primary);
-    font-family: var(--font-secondary);
-    font-size: 14px;
+.hod-content .lecturer-title strong {
+    color: var(--ds-heading, #0f2742);
+    font-family: "Poppins", sans-serif;
+    font-size: 13.5px;
     font-weight: 700;
-    letter-spacing: -0.2px;
+    letter-spacing: -0.15px;
 }
 
-.remove-lecturer {
+.hod-content .remove-lecturer {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     min-height: 32px;
     padding: 0 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--surface);
-    color: var(--text-secondary);
+    border: 1px solid var(--ds-border-light, #e8eef4);
+    border-radius: var(--ds-radius-sm, 6px);
+    background: var(--ds-surface, #ffffff);
+    color: var(--ds-text-secondary, #4a5b6d);
     font-family: inherit;
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
-    transition: background var(--transition), border-color var(--transition), color var(--transition);
+    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
-    .remove-lecturer:hover:not(:disabled) {
-        background: var(--danger-bg);
-        border-color: var(--danger-border);
-        color: var(--danger-dark);
+    .hod-content .remove-lecturer:hover:not(:disabled) {
+        background: var(--ds-danger-soft, #fbe3e0);
+        border-color: #eec4bd;
+        color: var(--ds-danger, #c0392b);
     }
 
-    .remove-lecturer:disabled {
+    .hod-content .remove-lecturer:disabled {
         opacity: 0.45;
         cursor: not-allowed;
     }
 
-    .remove-lecturer i {
+    .hod-content .remove-lecturer i {
         font-size: 12px;
     }
 
-.lecturer-card-body {
-    padding: 22px;
+.hod-content .lecturer-card-body {
+    padding: 18px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 18px;
 }
 
-
-/* ================================================================
-   FORM SECTIONS
-   ================================================================ */
-
-.form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.form-section-title {
-    margin: 0;
-    color: var(--primary);
-    font-family: var(--font-secondary);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: -0.1px;
-    line-height: 1.3;
-}
-
-.form-divider {
-    height: 1px;
-    background: var(--border-light);
-}
-
-
-/* ================================================================
-   FORM GRID
-   ================================================================ */
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.form-group-full {
-    grid-column: 1 / -1;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 6px;
-    color: var(--text-secondary);
-    font-size: 11.5px;
-    font-weight: 600;
-    line-height: 1.4;
-}
-
-    .form-group label span {
-        color: var(--danger);
-    }
-
-
-/* ================================================================
-   FORM CONTROLS
-   ================================================================ */
-
-.form-control {
-    width: 100%;
-    min-height: 40px;
-    padding: 9px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    outline: none;
-    background: var(--surface);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 12.5px;
-    transition: border-color var(--transition), box-shadow var(--transition);
-}
-
-    .form-control::placeholder {
-        color: var(--text-muted);
-    }
-
-    .form-control:hover {
-        border-color: var(--border-strong);
-    }
-
-    .form-control:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-    }
-
-select.form-control {
-    cursor: pointer;
-    appearance: auto;
-}
-
-
-/* ================================================================
-   VALIDATION
-   ================================================================ */
-
-.field-error {
-    display: block;
-    min-height: 14px;
-    margin-top: 4px;
-    color: var(--danger);
-    font-size: 11px;
-    line-height: 1.35;
-}
-
-.input-validation-error,
-.form-control.input-validation-error {
-    border-color: var(--danger-border);
-    background: var(--danger-bg);
-}
-
-    .input-validation-error:focus {
-        border-color: var(--danger);
-        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-    }
-
-
-/* ================================================================
-   SIGNATURE PAD
-   ================================================================ */
-
-.signature-area {
+.hod-content .form-section {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.signature-wrapper {
+.hod-content .form-section-title {
+    margin: 0;
+    color: var(--ds-heading, #0f2742);
+    font-family: "Poppins", sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: -0.1px;
+    line-height: 1.3;
+}
+
+.hod-content .form-divider {
+    height: 1px;
+    background: var(--ds-border-light, #e8eef4);
+}
+
+.hod-content .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.hod-content .form-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.hod-content .form-group-full {
+    grid-column: 1 / -1;
+}
+
+.hod-content .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--ds-text-secondary, #4a5b6d);
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+    .hod-content .form-group label span {
+        color: var(--ds-danger, #c0392b);
+    }
+
+.hod-content .form-control {
+    width: 100%;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--ds-border, #d8e0e8);
+    border-radius: var(--ds-radius-sm, 6px);
+    outline: none;
+    background: var(--ds-surface, #ffffff);
+    color: var(--ds-heading, #0f2742);
+    font-family: inherit;
+    font-size: 12.5px;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+    .hod-content .form-control::placeholder {
+        color: var(--ds-text-muted, #8a99a8);
+    }
+
+    .hod-content .form-control:hover {
+        border-color: var(--ds-border, #d8e0e8);
+    }
+
+    .hod-content .form-control:focus {
+        border-color: var(--ds-action, #1e5fbf);
+        box-shadow: 0 0 0 3px var(--ds-action-soft, #d9e7f8);
+    }
+
+.hod-content select.form-control {
+    cursor: pointer;
+    appearance: auto;
+}
+
+.hod-content .faculty-readonly {
+    background: var(--ds-surface-raised, #f5f8fb);
+    color: var(--ds-text-secondary, #4a5b6d);
+    cursor: not-allowed;
+}
+
+.hod-content .field-help {
+    display: block;
+    margin-top: 4px;
+    color: var(--ds-text-muted, #8a99a8);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.hod-content .field-error {
+    display: block;
+    min-height: 14px;
+    margin-top: 4px;
+    color: var(--ds-danger, #c0392b);
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.hod-content .input-validation-error,
+.hod-content .form-control.input-validation-error {
+    border-color: #eec4bd;
+    background: var(--ds-danger-soft, #fbe3e0);
+}
+
+    .hod-content .input-validation-error:focus {
+        border-color: var(--ds-danger, #c0392b);
+        box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1);
+    }
+
+.hod-content .signature-area {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hod-content .signature-wrapper {
     position: relative;
     width: 100%;
-    height: 320px; /* ← taller desktop pad */
+    height: 320px;
     overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--surface);
+    border: 1px solid var(--ds-border, #d8e0e8);
+    border-radius: var(--ds-radius-sm, 6px);
+    background: var(--ds-surface, #ffffff);
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -433,7 +355,7 @@ select.form-control {
     -webkit-touch-callout: none;
 }
 
-.signature-pad {
+.hod-content .signature-pad {
     display: block;
     width: 100%;
     height: 100%;
@@ -448,22 +370,22 @@ select.form-control {
     -webkit-tap-highlight-color: transparent;
 }
 
-.signature-line {
+.hod-content .signature-line {
     position: absolute;
     left: 24px;
     right: 24px;
-    bottom: 48px;
+    bottom: 15%;
     height: 1px;
-    background: var(--border-strong);
+    background: var(--ds-border, #d8e0e8);
     pointer-events: none;
     user-select: none;
 }
 
-.signature-label {
+.hod-content .signature-label {
     position: absolute;
     left: 24px;
-    bottom: 22px;
-    color: var(--text-muted);
+    bottom: 7%;
+    color: var(--ds-text-muted, #8a99a8);
     font-size: 10px;
     letter-spacing: 0.4px;
     text-transform: uppercase;
@@ -471,134 +393,112 @@ select.form-control {
     user-select: none;
 }
 
-.signature-actions {
+.hod-content .signature-actions {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 10px;
 }
 
-
-/* ================================================================
-   BUTTONS
-   ================================================================ */
-
-.primary-button,
-.secondary-button {
+.hod-content .primary-button,
+.hod-content .secondary-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 7px;
     flex-shrink: 0;
-    min-height: 38px;
-    padding: 0 18px;
-    border-radius: var(--radius-sm);
+    min-height: 36px;
+    padding: 0 16px;
+    border-radius: var(--ds-radius-sm, 6px);
     font-family: inherit;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 600;
     text-decoration: none;
+    white-space: nowrap;
     cursor: pointer;
-    transition: background var(--transition), border-color var(--transition), transform var(--transition);
+    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
-.primary-button {
-    border: 1px solid var(--accent);
-    background: var(--accent);
-    color: var(--text-inverse);
+.hod-content .primary-button {
+    border: 1px solid var(--ds-action, #1e5fbf);
+    background: var(--ds-action, #1e5fbf);
+    color: #ffffff;
 }
 
-    .primary-button:hover:not(:disabled) {
-        background: var(--accent-dark);
-        border-color: var(--accent-dark);
+    .hod-content .primary-button:hover:not(:disabled) {
+        background: var(--ds-action-strong, #154a99);
+        border-color: var(--ds-action-strong, #154a99);
+        color: #ffffff;
     }
 
-    .primary-button:active:not(:disabled) {
-        transform: scale(0.99);
-    }
-
-    .primary-button:disabled {
+    .hod-content .primary-button:disabled {
         opacity: 0.7;
         cursor: not-allowed;
     }
 
-.secondary-button {
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-secondary);
+.hod-content .secondary-button {
+    border: 1px solid var(--ds-border, #d8e0e8);
+    background: var(--ds-surface, #ffffff);
+    color: var(--ds-text-secondary, #4a5b6d);
 }
 
-    .secondary-button:hover {
-        background: var(--surface-raised);
-        border-color: var(--border-strong);
-        color: var(--text);
+    .hod-content .secondary-button:hover {
+        background: var(--ds-surface-raised, #f5f8fb);
+        border-color: var(--ds-border, #d8e0e8);
+        color: var(--ds-heading, #0f2742);
     }
 
-    .primary-button i,
-    .secondary-button i {
-        font-size: 13px;
+    .hod-content .primary-button i,
+    .hod-content .secondary-button i {
+        font-size: 12.5px;
     }
 
-
-/* ================================================================
-   ADD LECTURER BUTTON
-   ================================================================ */
-
-.add-lecturer-button {
+.hod-content .add-lecturer-button {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     min-height: 44px;
     padding: 0 18px;
-    border: 1.5px dashed var(--border-strong);
-    border-radius: var(--radius-md);
-    background: var(--surface);
-    color: var(--accent);
+    border: 1.5px dashed var(--ds-border, #d8e0e8);
+    border-radius: var(--ds-radius-md, 8px);
+    background: var(--ds-surface, #ffffff);
+    color: var(--ds-action, #1e5fbf);
     font-family: inherit;
     font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
-    transition: background var(--transition), border-color var(--transition), color var(--transition);
+    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
-    .add-lecturer-button:hover {
-        background: var(--accent-soft);
-        border-color: var(--accent);
-        color: var(--accent-dark);
+    .hod-content .add-lecturer-button:hover {
+        background: var(--ds-action-faint, #eef5fd);
+        border-color: var(--ds-action, #1e5fbf);
+        color: var(--ds-action-strong, #154a99);
     }
 
-    .add-lecturer-button i {
+    .hod-content .add-lecturer-button i {
         font-size: 14px;
     }
 
-
-/* ================================================================
-   FORM ACTIONS
-   ================================================================ */
-
-.form-actions {
+.hod-content .form-actions {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 16px;
-    padding: 16px 22px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    background: var(--ds-surface-raised, #f5f8fb);
+    border: 1px solid var(--ds-border-light, #e8eef4);
+    border-radius: var(--ds-radius-md, 8px);
 }
 
-
-/* ================================================================
-   LOADING STATE
-   ================================================================ */
-
-.button-loading {
+.hod-content .button-loading {
     display: none;
     align-items: center;
     gap: 8px;
 }
 
-.loading-spinner {
+.hod-content .loading-spinner {
     width: 13px;
     height: 13px;
     border: 2px solid rgba(255, 255, 255, 0.35);
@@ -613,122 +513,98 @@ select.form-control {
     }
 }
 
-
-/* ================================================================
-   FOCUS ACCESSIBILITY
-   ================================================================ */
-
-.primary-button:focus-visible,
-.secondary-button:focus-visible,
-.add-lecturer-button:focus-visible,
-.remove-lecturer:focus-visible,
-.form-control:focus-visible {
-    outline: 2px solid rgba(5, 150, 105, 0.4);
+.hod-content .primary-button:focus-visible,
+.hod-content .secondary-button:focus-visible,
+.hod-content .add-lecturer-button:focus-visible,
+.hod-content .remove-lecturer:focus-visible,
+.hod-content .form-control:focus-visible {
+    outline: 2px solid var(--ds-action, #1e5fbf);
     outline-offset: 2px;
 }
 
+@media (max-width: 990px) {
 
-/* ================================================================
-   RESPONSIVE — TABLET
-   ================================================================ */
-
-@media (max-width: 800px) {
-
-    .register-page {
-        padding: 22px 18px 40px;
-    }
-
-    .page-header h1 {
-        font-size: 22px;
-    }
-
-    .form-grid {
+    .hod-content .form-grid {
         grid-template-columns: 1fr;
     }
 
-    .form-group-full {
+    .hod-content .form-group-full {
         grid-column: auto;
     }
 
-    .lecturer-card-body {
-        padding: 18px;
-    }
-
-    .form-actions {
-        flex-direction: column-reverse;
-        align-items: stretch;
-    }
-
-    .register-submit-button {
-        width: 100%;
-    }
-
-    .signature-wrapper {
+    .hod-content .signature-wrapper {
         height: 260px;
     }
 }
 
+@media (max-width: 720px) {
 
-/* ================================================================
-   RESPONSIVE — SMALL MOBILE
-   ================================================================ */
-
-@media (max-width: 520px) {
-
-    .register-page {
-        padding: 18px 12px 32px;
+    .hod-content .register-page {
+        gap: 16px;
+        padding-bottom: 18px;
     }
 
-    .page-header h1 {
-        font-size: 20px;
+    .hod-content .page-header h1 {
+        font-size: 22px;
     }
 
-    .lecturer-card-header {
-        padding: 12px 18px;
-        flex-direction: column;
-        align-items: stretch;
+    .hod-content .page-header p {
+        font-size: 12.5px;
     }
 
-    .remove-lecturer {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .lecturer-card-body {
+    .hod-content .lecturer-card-body {
         padding: 16px;
     }
 
-    .signature-wrapper {
+    .hod-content .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .hod-content .register-submit-button {
+        width: 100%;
+    }
+
+    .hod-content .signature-wrapper {
         height: 220px;
     }
 
-    .signature-line {
-        bottom: 42px;
-    }
-
-    .signature-label {
-        bottom: 18px;
-    }
-
-    .signature-actions {
+    .hod-content .signature-actions {
         justify-content: stretch;
     }
 
-    .clear-signature {
+    .hod-content .clear-signature {
         width: 100%;
     }
 }
 
+@media (max-width: 520px) {
 
-/* ================================================================
-   REDUCED MOTION
-   ================================================================ */
+    .hod-content .page-header h1 {
+        font-size: 20px;
+    }
+
+    .hod-content .lecturer-card-header {
+        padding: 12px 14px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hod-content .remove-lecturer {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .hod-content .lecturer-card-body {
+        padding: 14px;
+    }
+}
 
 @media (prefers-reduced-motion: reduce) {
 
-    *,
-    *::before,
-    *::after {
+    .hod-content .register-page *,
+    .hod-content .register-page *::before,
+    .hod-content .register-page *::after {
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
     }
