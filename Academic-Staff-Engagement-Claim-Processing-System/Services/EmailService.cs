@@ -90,6 +90,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                             "Welcome to the system and thank you for being part of UNILAK.",
 
                             "",
+                            "Please log in to the UNILAK Staff Engagement Portal.",
+
+"",
+
+"Portal: https://unilak-academic-claim-system.onrender.com",
+
+"",
+
+
 
                             "Kind regards,",
 
@@ -169,10 +178,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                             $"Contract: {contractReference}",
 
                             "",
+"Please log in to the UNILAK Staff Engagement Portal.",
 
-                            "Please log in to the UNILAK Staff Engagement Portal to review and sign the contract.",
+"",
 
-                            "",
+"Portal: https://unilak-academic-claim-system.onrender.com",
+
+"",
+
+"Kind regards,",
 
                             "Kind regards,",
 
@@ -289,12 +303,17 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                             $"Submission Reference: {submissionReference}",
 
                             "",
+"Please log in to the UNILAK Staff Engagement Portal.",
 
-                            "Please log in to the UNILAK Staff Engagement Portal to review and sign the submitted marks.",
+"",
 
-                            "",
+"Portal: https://unilak-academic-claim-system.onrender.com",
 
-                            "Kind regards,",
+"",
+
+"Kind regards,",
+
+                         
 
                             "",
 
@@ -385,12 +404,17 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                             $"Submission Reference: {submissionReference}",
 
                             "",
+"Please log in to the UNILAK Staff Engagement Portal.",
 
-                            "You can now log in to the UNILAK Staff Engagement Portal and submit a payment claim for this course.",
+"",
 
-                            "",
+"Portal: https://unilak-academic-claim-system.onrender.com",
 
-                            "Kind regards,",
+"",
+
+"Kind regards,",
+
+                          
 
                             "",
 
