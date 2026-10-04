@@ -25,10 +25,15 @@ public class ContractsModel : PageModel
 
     public List<ContractRow> Contracts { get; private set; } = new();
 
+    public string? SuccessMessage { get; private set; }
+
     public string? ErrorMessage { get; private set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
+        SuccessMessage = TempData["SuccessMessage"] as string;
+        ErrorMessage = TempData["ErrorMessage"] as string;
+
         var username = User.Identity?.Name;
 
         if (string.IsNullOrWhiteSpace(username))
@@ -61,6 +66,7 @@ public class ContractsModel : PageModel
             return Page();
         }
 
+        // Only contracts for courses in this HOD's faculty.
         var contracts = await _context.Contracts
             .AsNoTracking()
             .Include(c => c.Lecturer)
@@ -87,6 +93,8 @@ public class ContractsModel : PageModel
             .Select(s => new SignatureSummary
             {
                 ContractId = s.ContractId,
+                SequenceOrder = s.SequenceOrder,
+                SignerRole = s.SignerRole,
                 Decision = s.Decision
             })
             .ToListAsync();
@@ -95,7 +103,7 @@ public class ContractsModel : PageModel
             .GroupBy(s => s.ContractId)
             .ToDictionary(
                 g => g.Key,
-                g => g.ToList());
+                g => g.OrderBy(s => s.SequenceOrder).ToList());
 
         Contracts = contracts
             .Select(c =>
@@ -108,37 +116,59 @@ public class ContractsModel : PageModel
 
                 return new ContractRow
                 {
-                    Id = c.Id,
-
-                    Reference =
-                        $"CON-{c.Id:D6}",
+                    ContractId = c.Id,
 
                     LecturerName =
-                        c.Lecturer?.UserName ?? "—",
-
-                    CourseCode =
-                        c.CourseAssignment?.Course?.Code ?? "—",
+                        c.Lecturer?.UserName ?? "Unknown",
 
                     CourseTitle =
                         c.CourseAssignment?.Course?.Title ?? "—",
 
-                    AcademicYear =
-                        c.CourseAssignment?.AcademicYear ?? "—",
+                    Department =
+                        c.CourseAssignment?.Course?.Department ?? "—",
 
-                    Status =
-                        c.Status,
+                    // Contract.Version is a string in the entity.
+                    Version = c.Version,
+
+                    Status = c.Status,
 
                     SignedSteps =
                         contractSignatures.Count(s =>
                             s.Decision == SignatureDecision.Signed),
 
                     TotalSteps =
-                        contractSignatures.Count
+                        contractSignatures.Count,
+
+                    IsDeclined =
+                        contractSignatures.Any(s =>
+                            s.Decision == SignatureDecision.Declined),
+
+                    IsAwaitingDean =
+                        IsAwaitingDean(contractSignatures)
                 };
             })
             .ToList();
 
         return Page();
+    }
+
+    // The Dean's step is pending and every earlier step is signed,
+    // so the contract is actually waiting on the Dean right now.
+    private static bool IsAwaitingDean(
+        List<SignatureSummary> signatures)
+    {
+        var deanStep = signatures.FirstOrDefault(s =>
+            s.SignerRole == SignerRole.Dean);
+
+        if (deanStep is null ||
+            deanStep.Decision != SignatureDecision.Pending)
+        {
+            return false;
+        }
+
+        return signatures
+            .Where(s => s.SequenceOrder < deanStep.SequenceOrder)
+            .All(s => s.Decision == SignatureDecision.Signed);
     }
 
     private static HashSet<string> GetFacultyCourseDepartmentValues(
@@ -155,26 +185,27 @@ public class ContractsModel : PageModel
     {
         public int ContractId { get; init; }
 
+        public int SequenceOrder { get; init; }
+
+        public SignerRole SignerRole { get; init; }
+
         public SignatureDecision Decision { get; init; }
     }
 
     public sealed class ContractRow
     {
-        public int Id { get; init; }
-
-        public string Reference { get; init; } =
-            string.Empty;
+        public int ContractId { get; init; }
 
         public string LecturerName { get; init; } =
-            string.Empty;
-
-        public string CourseCode { get; init; } =
             string.Empty;
 
         public string CourseTitle { get; init; } =
             string.Empty;
 
-        public string AcademicYear { get; init; } =
+        public string Department { get; init; } =
+            string.Empty;
+
+        public string Version { get; init; } =
             string.Empty;
 
         public ContractStatus Status { get; init; }
@@ -182,5 +213,9 @@ public class ContractsModel : PageModel
         public int SignedSteps { get; init; }
 
         public int TotalSteps { get; init; }
+
+        public bool IsAwaitingDean { get; init; }
+
+        public bool IsDeclined { get; init; }
     }
 }

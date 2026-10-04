@@ -509,6 +509,20 @@
     white-space: nowrap;
 }
 
+.hod-content .version-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: var(--ds-radius-sm, 6px);
+    background: var(--ds-surface-raised, #f5f8fb);
+    color: var(--ds-text-secondary, #4a5b6d);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
 /* ============================================================
    PROGRESS
    ============================================================ */
@@ -547,6 +561,103 @@
     font-size: 11px;
     font-weight: 500;
     font-style: italic;
+}
+
+/* ============================================================
+   PROGRESS RING
+   ============================================================ */
+
+.hod-content .progress-ring-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 180px;
+}
+
+.hod-content .progress-ring {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+    .hod-content .progress-ring svg {
+        display: block;
+        width: 40px;
+        height: 40px;
+        transform: rotate(-90deg);
+        transform-origin: center;
+    }
+
+.hod-content .progress-ring-track {
+    fill: none;
+    stroke: var(--ds-border-light, #e8eef4);
+    stroke-width: 3.5;
+}
+
+.hod-content .progress-ring-value {
+    fill: none;
+    stroke: var(--ds-action, #1e5fbf);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    transition: stroke-dashoffset 0.4s ease;
+}
+
+.hod-content .progress-ring-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ds-heading, #0f2742);
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+    line-height: 1;
+}
+
+.hod-content .progress-ring-percent {
+    font-size: 7px;
+    font-weight: 700;
+    margin-left: 1px;
+    transform: translateY(1px);
+    color: var(--ds-text-muted, #8a99a8);
+}
+
+.hod-content .progress-ring-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.hod-content .progress-ring-count {
+    color: var(--ds-heading, #0f2742);
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.hod-content .progress-ring-step {
+    color: var(--ds-text-secondary, #4a5b6d);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hod-content .progress-ring-step--done {
+    color: var(--ds-success-strong, #106634);
+    font-weight: 600;
 }
 
 /* ============================================================
@@ -815,13 +926,3 @@
     .hod-content .section-header,
     .hod-content .toolbar,
     .hod-content .row-action,
-    .hod-content .gray-button {
-        display: none !important;
-    }
-
-    .hod-content .section-card {
-        border: 0 !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-    }
-}

@@ -1,9 +1,9 @@
 @page
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
-@model Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.ContractsModel
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ContractsModel
 
 @{
-    Layout = "~/Pages/Shared/DEAN/_DeanLayout.cshtml";
+    Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
     ViewData["Title"] = "Contracts";
 
     string GetStatusClass(ContractStatus status) => status switch
@@ -26,17 +26,6 @@
         _ => status.ToString()
     };
 
-    string SignerLabel(SignerRole role) => role switch
-    {
-        SignerRole.Lecturer => "Lecturer",
-        SignerRole.Dean => "Dean",
-        SignerRole.HROfficer => "HR Officer",
-        SignerRole.DVCAR => "DVCAR",
-        SignerRole.ViceChancellor => "Vice Chancellor",
-        SignerRole.ExamOffice => "Exam Office",
-        _ => role.ToString()
-    };
-
     var totalContracts = Model.Contracts.Count;
 
     var awaitingDeanCount = Model.Contracts.Count(c => c.IsAwaitingDean);
@@ -51,7 +40,7 @@
           asp-append-version="true" />
 
     <link rel="stylesheet"
-          href="~/css/DEAN/contracts.css"
+          href="~/css/HOD/contracts.css"
           asp-append-version="true" />
 }
 
@@ -60,7 +49,15 @@
     <header class="page-header">
         <div class="page-header-main">
             <h1>Contracts</h1>
-            <p>Review lecturer contracts and monitor the signing workflow.</p>
+            <p>Monitor the signing workflow of contracts in your faculty.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <a asp-page="/HOD/AssignCourse"
+               class="primary-button">
+                <i class="bi bi-plus-lg"></i>
+                Assign Course
+            </a>
         </div>
     </header>
 
@@ -86,11 +83,11 @@
 
         <div class="contracts-stat contracts-stat--neutral">
             <span class="contracts-stat-label">
-                Total Contracts
+                Faculty Contracts
             </span>
             <span class="contracts-stat-value">@totalContracts</span>
             <span class="contracts-stat-meta">
-                All contracts on record
+                All contracts in your faculty
             </span>
         </div>
 
@@ -102,7 +99,7 @@
             <span class="contracts-stat-meta">
                 @if (awaitingDeanCount > 0)
                 {
-                    <text>Needs your signature</text>
+                    <text>Waiting on the Dean</text>
                 }
                 else
                 {
@@ -172,8 +169,6 @@
                             var statusLabel = contract.IsDeclined
                                 ? "Declined"
                                 : GetStatusLabel(contract.Status);
-
-                            var isAction = contract.IsAwaitingDean;
 
                             // ---- Progress ring math ----
 
@@ -289,10 +284,10 @@
                                 </td>
 
                                 <td class="col-action">
-                                    <a asp-page="/DEAN/ContractDetails"
-                                       asp-route-ContractId="@contract.ContractId"
-                                       class="row-action @(isAction ? "row-action--primary" : "")">
-                                        @(isAction ? "Review & sign" : "Review")
+                                    <a asp-page="/HOD/ContractDetails"
+                                       asp-route-id="@contract.ContractId"
+                                       class="row-action">
+                                        View
                                     </a>
                                 </td>
 
@@ -310,7 +305,7 @@
         else
         {
             <div class="empty-state">
-                <p>No contracts available.</p>
+                <p>No contracts found in your faculty.</p>
             </div>
         }
 
