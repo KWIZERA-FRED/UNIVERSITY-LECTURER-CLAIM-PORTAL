@@ -26,6 +26,56 @@
         _ => status.ToString()
     };
 
+    string SignerLabel(SignerRole role) => role switch
+    {
+        SignerRole.Lecturer => "Lecturer",
+        SignerRole.Dean => "Dean",
+        SignerRole.HROfficer => "HR Officer",
+        SignerRole.DVCAR => "DVCAR",
+        SignerRole.ViceChancellor => "Vice Chancellor",
+        SignerRole.ExamOffice => "Exam Office",
+        _ => role.ToString()
+    };
+
+    string WaitingText(DateTime? sinceUtc)
+    {
+        if (!sinceUtc.HasValue)
+        {
+            return string.Empty;
+        }
+
+        var days = Math.Max(
+            0,
+            (int)Math.Floor(
+                (DateTime.UtcNow - sinceUtc.Value).TotalDays));
+
+        return days switch
+        {
+            0 => "Waiting since today",
+            1 => "Waiting 1 day",
+            _ => $"Waiting {days} days"
+        };
+    }
+
+    string WaitingTone(DateTime? sinceUtc)
+    {
+        if (!sinceUtc.HasValue)
+        {
+            return string.Empty;
+        }
+
+        var days = Math.Max(
+            0,
+            (int)Math.Floor(
+                (DateTime.UtcNow - sinceUtc.Value).TotalDays));
+
+        return days >= 7
+            ? "ds-tone-late"
+            : days >= 3
+                ? "ds-tone-warn"
+                : string.Empty;
+    }
+
     var totalContracts = Model.Contracts.Count;
 
     var awaitingDeanCount = Model.Contracts.Count(c => c.IsAwaitingDean);
@@ -152,6 +202,7 @@
                             <th>Lecturer</th>
                             <th>Department</th>
                             <th>Course</th>
+                            <th>Stage</th>
                             <th>Progress</th>
                             <th>Version</th>
                             <th>Status</th>
@@ -170,45 +221,38 @@
                                 ? "Declined"
                                 : GetStatusLabel(contract.Status);
 
-                            // ---- Progress ring math ----
+                            // ---- Stage pill content ----
 
-                            var signedSteps = contract.SignedSteps;
-                            var totalSteps = contract.TotalSteps;
-
-                            var pct = totalSteps > 0
-                                ? (int)Math.Round((double)signedSteps / totalSteps * 100)
-                                : 0;
-
-                            // Circumference normalised to 100 for trivial offset math.
-                            // SVG stroke-dasharray is set to 100 in CSS; offset = 100 - pct.
-                            var dashOffset = (100 - pct).ToString(
-                                "0.##",
-                                System.Globalization.CultureInfo.InvariantCulture);
-
-                            // ---- Current signer label ----
-
-                            string stepLabel;
+                            string stageLabel;
 
                             if (contract.IsDeclined)
                             {
-                                stepLabel = "Declined";
+                                stageLabel = "Declined";
                             }
-                            else if (totalSteps == 0)
+                            else if (contract.TotalSteps == 0)
                             {
-                                stepLabel = "Not started";
+                                stageLabel = "Not started";
                             }
-                            else if (signedSteps >= totalSteps)
+                            else if (contract.CurrentSignerRole is null)
                             {
-                                stepLabel = "Fully signed";
-                            }
-                            else if (contract.IsAwaitingDean)
-                            {
-                                stepLabel = "Awaiting Dean";
+                                stageLabel = "Fully signed";
                             }
                             else
                             {
-                                stepLabel = "In progress";
+                                stageLabel = $"With {SignerLabel(contract.CurrentSignerRole.Value)}";
                             }
+
+                            var waitingText = WaitingText(contract.WaitingSinceUtc);
+                            var waitingTone = WaitingTone(contract.WaitingSinceUtc);
+
+                            var isStageAction =
+                                contract.CurrentSignerRole == SignerRole.Dean ||
+                                contract.IsAwaitingDean;
+
+                            // ---- Progress count ----
+
+                            var progressLabel =
+                                $"{contract.SignedSteps} / {contract.TotalSteps}";
 
                             <tr class="contract-row"
                                 data-search="CON-@contract.ContractId.ToString("D6") @contract.LecturerName @contract.Department @contract.CourseTitle">
@@ -230,49 +274,22 @@
                                 </td>
 
                                 <td>
-                                    <div class="progress-ring-cell">
-
-                                        <div class="progress-ring"
-                                             role="img"
-                                             aria-label="@signedSteps of @totalSteps signatures complete">
-
-                                            <svg viewBox="0 0 40 40"
-                                                 width="40"
-                                                 height="40"
-                                                 aria-hidden="true">
-
-                                                <circle class="progress-ring-track"
-                                                        cx="20"
-                                                        cy="20"
-                                                        r="16" />
-
-                                                <circle class="progress-ring-value"
-                                                        cx="20"
-                                                        cy="20"
-                                                        r="16"
-                                                        style="stroke-dashoffset:@dashOffset" />
-
-                                            </svg>
-
-                                            <span class="progress-ring-label">
-                                                @pct<span class="progress-ring-percent">%</span>
-                                            </span>
-
-                                        </div>
-
-                                        <div class="progress-ring-meta">
-
-                                            <span class="progress-ring-count">
-                                                @signedSteps / @totalSteps
-                                            </span>
-
-                                            <span class="progress-ring-step @(signedSteps >= totalSteps && totalSteps > 0 ? "progress-ring-step--done" : "")">
-                                                @stepLabel
-                                            </span>
-
-                                        </div>
-
+                                    <div class="dd-stage">
+                                        <span class="dd-stage-pill @(isStageAction ? "dd-stage-pill--action" : "")">
+                                            @stageLabel
+                                            @if (!string.IsNullOrEmpty(waitingText))
+                                            {
+                                                <span class="dd-stage-sep" aria-hidden="true">·</span>
+                                                <span class="dd-stage-wait @waitingTone">@waitingText</span>
+                                            }
+                                        </span>
                                     </div>
+                                </td>
+
+                                <td>
+                                    <span class="progress-count">
+                                        @progressLabel
+                                    </span>
                                 </td>
 
                                 <td>

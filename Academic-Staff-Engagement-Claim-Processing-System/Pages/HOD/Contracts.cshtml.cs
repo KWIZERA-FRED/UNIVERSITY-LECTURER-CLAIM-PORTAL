@@ -66,7 +66,6 @@ public class ContractsModel : PageModel
             return Page();
         }
 
-        // Only contracts for courses in this HOD's faculty.
         var contracts = await _context.Contracts
             .AsNoTracking()
             .Include(c => c.Lecturer)
@@ -95,7 +94,8 @@ public class ContractsModel : PageModel
                 ContractId = s.ContractId,
                 SequenceOrder = s.SequenceOrder,
                 SignerRole = s.SignerRole,
-                Decision = s.Decision
+                Decision = s.Decision,
+                SignedAtUtc = s.SignedAtUtc
             })
             .ToListAsync();
 
@@ -114,6 +114,42 @@ public class ContractsModel : PageModel
 
                 contractSignatures ??= new List<SignatureSummary>();
 
+                var signedSteps = contractSignatures.Count(s =>
+                    s.Decision == SignatureDecision.Signed);
+
+                var isDeclined = contractSignatures.Any(s =>
+                    s.Decision == SignatureDecision.Declined);
+
+                // --- Current step = first PENDING, in sequence order ---
+
+                SignerRole? currentRole = null;
+                DateTime? waitingSince = null;
+
+                if (!isDeclined)
+                {
+                    var pending = contractSignatures
+                        .Where(s => s.Decision == SignatureDecision.Pending)
+                        .OrderBy(s => s.SequenceOrder)
+                        .FirstOrDefault();
+
+                    if (pending is not null)
+                    {
+                        currentRole = pending.SignerRole;
+
+                        // Waiting since the most recent completed signature,
+                        // or since the contract was created if none yet.
+                        var lastSigned = contractSignatures
+                            .Where(s =>
+                                s.Decision == SignatureDecision.Signed &&
+                                s.SignedAtUtc.HasValue)
+                            .OrderByDescending(s => s.SignedAtUtc)
+                            .FirstOrDefault();
+
+                        waitingSince =
+                            lastSigned?.SignedAtUtc ?? c.CreatedAtUtc;
+                    }
+                }
+
                 return new ContractRow
                 {
                     ContractId = c.Id,
@@ -127,24 +163,22 @@ public class ContractsModel : PageModel
                     Department =
                         c.CourseAssignment?.Course?.Department ?? "—",
 
-                    // Contract.Version is a string in the entity.
                     Version = c.Version,
 
                     Status = c.Status,
 
-                    SignedSteps =
-                        contractSignatures.Count(s =>
-                            s.Decision == SignatureDecision.Signed),
+                    SignedSteps = signedSteps,
 
-                    TotalSteps =
-                        contractSignatures.Count,
+                    TotalSteps = contractSignatures.Count,
 
-                    IsDeclined =
-                        contractSignatures.Any(s =>
-                            s.Decision == SignatureDecision.Declined),
+                    IsDeclined = isDeclined,
 
                     IsAwaitingDean =
-                        IsAwaitingDean(contractSignatures)
+                        IsAwaitingDean(contractSignatures),
+
+                    CurrentSignerRole = currentRole,
+
+                    WaitingSinceUtc = waitingSince
                 };
             })
             .ToList();
@@ -152,8 +186,6 @@ public class ContractsModel : PageModel
         return Page();
     }
 
-    // The Dean's step is pending and every earlier step is signed,
-    // so the contract is actually waiting on the Dean right now.
     private static bool IsAwaitingDean(
         List<SignatureSummary> signatures)
     {
@@ -190,6 +222,8 @@ public class ContractsModel : PageModel
         public SignerRole SignerRole { get; init; }
 
         public SignatureDecision Decision { get; init; }
+
+        public DateTime? SignedAtUtc { get; init; }
     }
 
     public sealed class ContractRow
@@ -217,5 +251,11 @@ public class ContractsModel : PageModel
         public bool IsAwaitingDean { get; init; }
 
         public bool IsDeclined { get; init; }
+
+        // NEW — drives the Stage pill on the Contracts register.
+
+        public SignerRole? CurrentSignerRole { get; init; }
+
+        public DateTime? WaitingSinceUtc { get; init; }
     }
 }

@@ -1,7 +1,6 @@
 @page "/HOD/ContractDetails"
-@model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ContractDetailsModel
-
 @using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ContractDetailsModel
 
 @{
     Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
@@ -27,21 +26,69 @@
         _ => status.ToString()
     };
 
-    var contract = Model.Contract;
+    string RoleName(SignerRole role) => role switch
+    {
+        SignerRole.Lecturer => "Lecturer",
+        SignerRole.Dean => "Dean of Faculty",
+        SignerRole.HROfficer => "Human Resource Officer",
+        SignerRole.DVCAR => "DVCAR",
+        SignerRole.ViceChancellor => "Vice Chancellor",
+        SignerRole.ExamOffice => "Exam Office",
+        _ => role.ToString()
+    };
 
-    var signedSteps = contract?.Steps.Count(s =>
-        s.Decision == SignatureDecision.Signed) ?? 0;
+    var c = Model.Contract;
 
-    var totalSteps = contract?.Steps.Count ?? 0;
+    var steps = (c?.Steps is not null
+            ? c.Steps.AsEnumerable()
+            : Enumerable.Empty<Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ContractDetailsModel.ContractSignatureViewModel>())
+        .OrderBy(s => s.SequenceOrder)
+        .ToList();
+
+    var totalSteps = steps.Count;
+
+    var signedSteps = steps.Count(s =>
+        s.Decision == SignatureDecision.Signed);
+
+    var allSigned = totalSteps > 0 && signedSteps == totalSteps;
+
+    var anyDeclined = steps.Any(s =>
+        s.Decision == SignatureDecision.Declined);
+
+    bool IsCurrentStep(int index)
+    {
+        if (index < 0 || index >= steps.Count)
+            return false;
+
+        var s = steps[index];
+
+        if (s.Decision == SignatureDecision.Signed ||
+            s.Decision == SignatureDecision.Declined)
+        {
+            return false;
+        }
+
+        for (var j = 0; j < index; j++)
+        {
+            if (steps[j].Decision != SignatureDecision.Signed)
+                return false;
+        }
+
+        return true;
+    }
 }
 
 @section Styles {
+    <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
     <link rel="stylesheet"
           href="~/css/shared/contract-document.css"
           asp-append-version="true" />
 
     <link rel="stylesheet"
-          href="~/css/HOD/contracts.css"
+          href="~/css/HOD/ContractDetails.css"
           asp-append-version="true" />
 }
 
@@ -51,30 +98,14 @@
 
         <div class="page-header-main">
             <h1>Contract Details</h1>
-
-            <p>
-                Review the contract and monitor its electronic signature workflow.
-            </p>
+            <p>Review the contract and monitor its electronic signature workflow.</p>
         </div>
 
         <div class="page-header-actions">
-
-            <a asp-page="/HOD/Contracts"
-               class="secondary-button">
+            <a asp-page="/HOD/Contracts" class="secondary-button">
                 <i class="bi bi-arrow-left"></i>
                 Back to Contracts
             </a>
-
-            @if (contract is not null)
-            {
-                <button type="button"
-                        class="primary-button"
-                        onclick="openContractPreview()">
-                    <i class="bi bi-arrows-fullscreen"></i>
-                    Full Preview
-                </button>
-            }
-
         </div>
 
     </header>
@@ -86,239 +117,241 @@
             <span>@Model.ErrorMessage</span>
         </div>
     }
-    else if (contract is not null)
+
+    @if (c is null)
+    {
+        <section class="section-card">
+            <div class="empty-state">
+                <span class="empty-state-icon" aria-hidden="true">
+                    <i class="bi bi-file-earmark-x"></i>
+                </span>
+                <h3>Contract not found</h3>
+                <p>That contract could not be found, or it may have been removed.</p>
+                <a asp-page="/HOD/Contracts" class="secondary-button">
+                    Back to Contracts
+                </a>
+            </div>
+        </section>
+    }
+    else
     {
         <section class="section-card">
 
             <header class="section-header">
-
-                <h2>
-                    @contract.Reference
-                </h2>
-
-                <span class="status-badge @GetStatusClass(contract.Status)">
-                    @GetStatusLabel(contract.Status)
+                <h2>@c.Reference</h2>
+                <span class="status-badge @GetStatusClass(c.Status)">
+                    @GetStatusLabel(c.Status)
                 </span>
-
             </header>
 
             <div class="detail-grid">
 
                 <div class="detail-item">
-
-                    <span class="detail-label">
-                        Lecturer
-                    </span>
-
-                    <span class="detail-value">
-                        @contract.LecturerName
-                    </span>
-
+                    <span class="detail-label">Lecturer</span>
+                    <span class="detail-value">@c.LecturerName</span>
                 </div>
 
                 <div class="detail-item">
-
-                    <span class="detail-label">
-                        Course
-                    </span>
-
-                    <span class="detail-value">
-                        @contract.CourseTitle
-                    </span>
-
+                    <span class="detail-label">Course</span>
+                    <span class="detail-value">@c.CourseTitle</span>
                 </div>
 
                 <div class="detail-item">
-
-                    <span class="detail-label">
-                        Academic Year
-                    </span>
-
-                    <span class="detail-value">
-                        @contract.AcademicYear
-                    </span>
-
+                    <span class="detail-label">Academic Year</span>
+                    <span class="detail-value">@c.AcademicYear</span>
                 </div>
 
                 <div class="detail-item">
-
-                    <span class="detail-label">
-                        Signature Progress
-                    </span>
-
-                    <span class="detail-value">
-                        @signedSteps / @totalSteps
-                    </span>
-
+                    <span class="detail-label">Signature Progress</span>
+                    <span class="detail-value">@signedSteps / @totalSteps</span>
                 </div>
 
             </div>
 
         </section>
 
-        <section class="section-card">
+        @if (totalSteps > 0)
+        {
+            <section class="section-card">
 
-            <header class="section-header">
+                <header class="section-header">
+                    <h2>Signature Workflow</h2>
+                    <span class="section-meta">
+                        @signedSteps / @totalSteps signed
+                    </span>
+                </header>
 
-                <div>
+                @if (allSigned && !anyDeclined)
+                {
+                    <div class="detail-notes">
 
-                    <h2>
-                        Signature Workflow
-                    </h2>
+                        <div class="status-information">
 
-                    <p class="section-description">
-                        Electronic signing progress for internal workflow tracking.
-                    </p>
+                            <i class="bi bi-check-circle-fill"></i>
 
-                </div>
-
-            </header>
-
-            @if (contract.Steps.Count > 0)
-            {
-                <div class="timeline">
-
-                    @for (var index = 0;
-                          index < contract.Steps.Count;
-                          index++)
-                    {
-                        var step = contract.Steps[index];
-
-                        var isSigned =
-                            step.Decision == SignatureDecision.Signed;
-
-                        var isDeclined =
-                            step.Decision == SignatureDecision.Declined;
-
-                        var isCurrent =
-                            !isSigned &&
-                            !isDeclined &&
-                            contract.Steps
-                                .Take(index)
-                                .All(s =>
-                                    s.Decision ==
-                                    SignatureDecision.Signed);
-
-                        <div class="timeline-step">
-
-                            <div class="timeline-role">
-
-                                @(step.Role switch
-                                {
-                                    SignerRole.Lecturer =>
-                                        "Lecturer",
-
-                                    SignerRole.Dean =>
-                                        "Dean of Faculty",
-
-                                    SignerRole.HROfficer =>
-                                        "Human Resource Officer",
-
-                                    SignerRole.DVCAR =>
-                                        "DVCAR",
-
-                                    SignerRole.ViceChancellor =>
-                                        "Vice Chancellor",
-
-                                    _ =>
-                                        step.Role.ToString()
-                                })
-
+                            <div>
+                                <strong>All signatures complete</strong>
+                                <span>
+                                    Signed by all @totalSteps authorities.
+                                    The contract is now active.
+                                </span>
                             </div>
 
-                            <div class="timeline-content">
+                        </div>
 
-                                <div class="timeline-status">
+                    </div>
+                }
+                else
+                {
+                    <div class="signature-flow"
+                         role="list"
+                         aria-label="Signature progress">
 
-                                    @if (isSigned)
+                        @for (var i = 0; i < steps.Count; i++)
+                        {
+                            var step = steps[i];
+
+                            var signed = step.Decision == SignatureDecision.Signed;
+                            var declined = step.Decision == SignatureDecision.Declined;
+                            var isCurrent = IsCurrentStep(i);
+
+                            var isLast = i == steps.Count - 1;
+
+                            var nodeState = signed ? "done"
+                                : declined ? "rejected"
+                                : isCurrent ? "current"
+                                : "future";
+
+                            var nextState = isLast
+                                ? nodeState
+                                : steps[i + 1].Decision == SignatureDecision.Signed
+                                    ? "done"
+                                    : steps[i + 1].Decision == SignatureDecision.Declined
+                                        ? "rejected"
+                                        : IsCurrentStep(i + 1)
+                                            ? "current"
+                                            : "future";
+
+                            <div class="signature-flow-step"
+                                 role="listitem"
+                                 data-state="@nodeState">
+
+                                <div class="signature-flow-node"
+                                     data-state="@nodeState"
+                                     aria-label="@RoleName(step.Role) — @nodeState">
+
+                                    @if (signed)
                                     {
-                                        <span class="status-badge status-active">
-                                            Signed
-                                        </span>
+                                        <i class="bi bi-check-lg" aria-hidden="true"></i>
                                     }
-                                    else if (isDeclined)
+                                    else if (declined)
                                     {
-                                        <span class="status-badge status-danger">
-                                            Declined
-                                        </span>
-                                    }
-                                    else if (isCurrent)
-                                    {
-                                        <span class="status-badge status-pending">
-                                            Current Step
-                                        </span>
+                                        <i class="bi bi-x-lg" aria-hidden="true"></i>
                                     }
                                     else
                                     {
-                                        <span class="status-badge status-neutral">
-                                            Pending
-                                        </span>
-                                    }
-
-                                    @if (step.SignedAtUtc.HasValue)
-                                    {
-                                        <span class="timeline-date">
-                                            @step.SignedAtUtc.Value
-                                                .ToLocalTime()
-                                                .ToString("dd MMM yyyy, HH:mm")
-                                        </span>
+                                        <span>@step.SequenceOrder</span>
                                     }
 
                                 </div>
 
-                                @if (!string.IsNullOrWhiteSpace(step.Comments))
+                                <div class="signature-flow-role">
+                                    @RoleName(step.Role)
+                                </div>
+
+                                <div class="signature-flow-meta">
+                                    @if (signed && step.SignedAtUtc.HasValue)
+                                    {
+                                        @(step.SignedAtUtc.Value
+                                            .ToLocalTime()
+                                            .ToString("dd MMM HH:mm"))
+                                    }
+                                    else if (declined)
+                                    {
+                                        <text>Declined</text>
+                                    }
+                                    else if (isCurrent)
+                                    {
+                                        <text>Awaiting</text>
+                                    }
+                                    else
+                                    {
+                                        <text>—</text>
+                                    }
+                                </div>
+
+                                @if (!isLast)
                                 {
-                                    <p class="timeline-comments">
-                                        @step.Comments
-                                    </p>
+                                    <span class="signature-flow-connector"
+                                          data-state="@nodeState"
+                                          data-next-state="@nextState"
+                                          aria-hidden="true"></span>
                                 }
 
+                            </div>
+                        }
+
+                    </div>
+
+                    @foreach (var step in steps.Where(s =>
+                        s.Decision == SignatureDecision.Declined &&
+                        !string.IsNullOrWhiteSpace(s.Comments)))
+                    {
+                        <div class="detail-notes">
+
+                            <div class="status-warning">
+                                <i class="bi bi-x-circle-fill"></i>
+                                <div>
+                                    <strong>Declined by @RoleName(step.Role)</strong>
+                                    <span>@step.Comments</span>
+                                </div>
                             </div>
 
                         </div>
                     }
+                }
 
+            </section>
+        }
+        else
+        {
+            <section class="section-card">
+
+                <header class="section-header">
+                    <h2>Signature Workflow</h2>
+                </header>
+
+                <div class="empty-state empty-state--compact">
+                    <span class="empty-state-icon" aria-hidden="true">
+                        <i class="bi bi-hourglass-split"></i>
+                    </span>
+                    <h3>No signatures yet</h3>
+                    <p>The signature workflow has not been initiated for this contract.</p>
                 </div>
-            }
-            else
-            {
-                <div class="empty-state">
 
-                    <i class="bi bi-file-earmark-x"></i>
+            </section>
+        }
 
-                    <p>
-                        No signature records are available for this contract.
-                    </p>
-
-                </div>
-            }
-
-        </section>
-
-        <section class="section-card contract-document-section">
+        <section class="section-card">
 
             <header class="section-header">
+                <h2>Contract Document</h2>
 
-                <div>
+                <div class="section-header-actions">
 
-                    <h2>
-                        Contract Document
-                    </h2>
-
-                    <p class="section-description">
-                        Official contract document with the current signature records.
-                    </p>
+                    <button type="button"
+                            class="secondary-button preview-contract-button">
+                        <i class="bi bi-arrows-fullscreen"></i>
+                        <span>Full preview</span>
+                    </button>
 
                 </div>
-
             </header>
 
             <div class="document-stage">
-
                 <article class="contract-document">
-                    @Html.Raw(contract.Content)
+                    @Html.Raw(c.Content)
                 </article>
-
             </div>
 
         </section>
@@ -326,15 +359,13 @@
 
 </section>
 
-@if (contract is not null)
+@if (c is not null)
 {
-    <div id="contractPreview"
+    <div id="contractPreviewModal"
          class="preview-modal"
          aria-hidden="true">
 
-        <div class="preview-backdrop"
-             onclick="closeContractPreview()">
-        </div>
+        <div class="preview-backdrop"></div>
 
         <div class="preview-dialog"
              role="dialog"
@@ -344,26 +375,26 @@
             <header class="preview-header">
 
                 <h2 id="contractPreviewTitle">
-                    @contract.Reference
+                    @c.Reference
                 </h2>
 
-                <button type="button"
-                        class="preview-close"
-                        aria-label="Close preview"
-                        onclick="closeContractPreview()">
+                <div class="preview-header-actions">
 
-                    <i class="bi bi-x-lg"></i>
+                    <button type="button"
+                            id="closeContractPreview"
+                            class="preview-close"
+                            aria-label="Close preview">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
 
-                </button>
+                </div>
 
             </header>
 
             <div class="preview-body">
-
                 <article class="contract-preview-paper">
-                    @Html.Raw(contract.Content)
+                    @Html.Raw(c.Content)
                 </article>
-
             </div>
 
         </div>
@@ -372,64 +403,53 @@
 }
 
 @section Scripts {
+<script>
 
-    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const previewModal = document.getElementById("contractPreviewModal");
+        const closePreviewButton = document.getElementById("closeContractPreview");
+        const previewButtons = document.querySelectorAll(".preview-contract-button");
 
         function openContractPreview() {
-
-            const modal =
-                document.getElementById("contractPreview");
-
-            if (!modal) {
-                return;
-            }
-
-            modal.classList.add("is-open");
-
-            modal.setAttribute(
-                "aria-hidden",
-                "false"
-            );
-
-            document.body.classList.add(
-                "preview-open"
-            );
+            if (!previewModal) return;
+            previewModal.classList.add("is-open");
+            previewModal.setAttribute("aria-hidden", "false");
+            document.body.classList.add("preview-open");
         }
 
         function closeContractPreview() {
-
-            const modal =
-                document.getElementById("contractPreview");
-
-            if (!modal) {
-                return;
-            }
-
-            modal.classList.remove(
-                "is-open"
-            );
-
-            modal.setAttribute(
-                "aria-hidden",
-                "true"
-            );
-
-            document.body.classList.remove(
-                "preview-open"
-            );
+            if (!previewModal) return;
+            previewModal.classList.remove("is-open");
+            previewModal.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("preview-open");
         }
 
-        document.addEventListener(
-            "keydown",
-            function (event) {
+        previewButtons.forEach(function (button) {
+            button.addEventListener("click", openContractPreview);
+        });
 
-                if (event.key === "Escape") {
+        if (closePreviewButton) {
+            closePreviewButton.addEventListener("click", closeContractPreview);
+        }
+
+        if (previewModal) {
+            previewModal.addEventListener("click", function (event) {
+                if (event.target.classList.contains("preview-backdrop")) {
                     closeContractPreview();
                 }
+            });
+        }
 
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" &&
+                previewModal &&
+                previewModal.classList.contains("is-open")) {
+                closeContractPreview();
             }
-        );
+        });
 
-    </script>
+    });
 
+</script>
 }

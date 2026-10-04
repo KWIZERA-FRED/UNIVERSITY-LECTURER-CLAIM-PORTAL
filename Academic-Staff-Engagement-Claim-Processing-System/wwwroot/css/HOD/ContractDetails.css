@@ -1,0 +1,978 @@
+/* ================================================================
+   UNILAK ASECPS — HOD CONTRACT DETAILS
+   ================================================================
+   Loaded by Pages/HOD/ContractDetails.cshtml only.
+   Scoped under .hod-content.
+   Contract paper styling comes from shared/contract-document.css.
+   Layout mirrors Pages/DEAN/ContractDetails.cshtml.
+   ================================================================ */
+
+
+/* ================================================================
+   PAGE SHELL
+   ================================================================ */
+
+.hod-content .contracts-page {
+	width: 100%;
+	max-width: none;
+	margin: 0;
+	padding: 0 0 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	color: var(--ds-text, #1a2b3c);
+	font-family: "Plus Jakarta Sans", sans-serif;
+	font-size: 13.5px;
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+}
+
+	.hod-content .contracts-page *,
+	.hod-content .contracts-page *::before,
+	.hod-content .contracts-page *::after {
+		box-sizing: border-box;
+	}
+
+	.hod-content .contracts-page a {
+		color: inherit;
+	}
+
+	.hod-content .contracts-page button,
+	.hod-content .contracts-page input,
+	.hod-content .contracts-page select,
+	.hod-content .contracts-page textarea {
+		font: inherit;
+	}
+
+
+/* ================================================================
+   PAGE HEADER
+   ================================================================ */
+
+.hod-content .page-header {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.hod-content .page-header-main {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+
+.hod-content .page-header-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-shrink: 0;
+}
+
+.hod-content .page-header h1 {
+	margin: 0;
+	color: var(--ds-heading, #0f2742);
+	font-family: "Poppins", sans-serif;
+	font-size: 26px;
+	font-weight: 700;
+	letter-spacing: -0.4px;
+	line-height: 1.2;
+	overflow-wrap: anywhere;
+}
+
+.hod-content .page-header p {
+	margin: 0;
+	max-width: 640px;
+	color: var(--ds-text-muted, #8a99a8);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.5;
+	overflow-wrap: anywhere;
+}
+
+
+/* ================================================================
+   BUTTONS
+   ================================================================ */
+
+.hod-content .primary-button,
+.hod-content .secondary-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	flex-shrink: 0;
+	min-height: 36px;
+	padding: 0 16px;
+	border-radius: var(--ds-radius-sm, 6px);
+	font-family: inherit;
+	font-size: 12.5px;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.hod-content .primary-button {
+	border: 1px solid var(--ds-action, #1e5fbf);
+	background: var(--ds-action, #1e5fbf);
+	color: #ffffff;
+}
+
+	.hod-content .primary-button:hover {
+		background: var(--ds-action-strong, #154a99);
+		border-color: var(--ds-action-strong, #154a99);
+		color: #ffffff;
+	}
+
+.hod-content .secondary-button {
+	border: 1px solid var(--ds-border, #d8e0e8);
+	background: var(--ds-surface, #ffffff);
+	color: var(--ds-text-secondary, #4a5b6d);
+}
+
+	.hod-content .secondary-button:hover {
+		background: var(--ds-surface-raised, #f5f8fb);
+		border-color: var(--ds-border, #d8e0e8);
+		color: var(--ds-heading, #0f2742);
+	}
+
+	.hod-content .primary-button i,
+	.hod-content .secondary-button i {
+		font-size: 12.5px;
+	}
+
+
+/* ================================================================
+   ALERTS
+   ================================================================ */
+
+.hod-content .page-alert {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 11px 14px;
+	border: 1px solid;
+	border-radius: var(--ds-radius-sm, 6px);
+	font-size: 12.5px;
+	line-height: 1.5;
+}
+
+	.hod-content .page-alert i {
+		font-size: 13px;
+		flex-shrink: 0;
+	}
+
+.hod-content .page-alert-error {
+	background: var(--ds-danger-soft, #fbe3e0);
+	border-color: #eec4bd;
+	color: var(--ds-danger, #c0392b);
+}
+
+	.hod-content .page-alert-error i {
+		color: var(--ds-danger, #c0392b);
+	}
+
+.hod-content .page-alert-success {
+	background: var(--ds-success-soft, #d8f0e0);
+	border-color: #b6e0c3;
+	color: var(--ds-success-strong, #106634);
+}
+
+	.hod-content .page-alert-success i {
+		color: var(--ds-success, #1a8a4a);
+	}
+
+
+/* ================================================================
+   SECTION CARD
+   ================================================================ */
+
+.hod-content .section-card {
+	display: flex;
+	flex-direction: column;
+	background: var(--ds-surface, #ffffff);
+	border: 1px solid var(--ds-border-light, #e8eef4);
+	border-radius: var(--ds-radius-md, 8px);
+	overflow: hidden;
+}
+
+.hod-content .section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 14px 18px;
+	border-bottom: 1px solid var(--ds-border-light, #e8eef4);
+	flex-wrap: wrap;
+}
+
+	.hod-content .section-header h2 {
+		margin: 0;
+		color: var(--ds-heading, #0f2742);
+		font-family: "Poppins", sans-serif;
+		font-size: 13.5px;
+		font-weight: 700;
+		letter-spacing: -0.15px;
+		line-height: 1.3;
+	}
+
+.hod-content .section-header-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+	.hod-content .section-header-actions .secondary-button {
+		min-height: 32px;
+		padding: 0 12px;
+		font-size: 12px;
+	}
+
+.hod-content .section-meta {
+	color: var(--ds-text-muted, #8a99a8);
+	font-size: 11.5px;
+	font-weight: 500;
+	font-variant-numeric: tabular-nums;
+}
+
+.hod-content .section-description {
+	margin: 4px 0 0;
+	color: var(--ds-text-muted, #8a99a8);
+	font-size: 11.5px;
+	line-height: 1.45;
+}
+
+
+/* ================================================================
+   STATUS BADGES
+   ================================================================ */
+
+.hod-content .status-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 3px 9px;
+	border: 1px solid;
+	border-radius: 999px;
+	font-size: 10.5px;
+	font-weight: 600;
+	line-height: 1.4;
+	white-space: nowrap;
+	letter-spacing: 0.15px;
+}
+
+	.hod-content .status-badge::before {
+		content: "";
+		display: inline-block;
+		flex: 0 0 auto;
+		width: 5px;
+		height: 5px;
+		border-radius: 50%;
+		background: currentColor;
+		opacity: 0.7;
+	}
+
+.hod-content .status-active {
+	background: var(--ds-success-soft, #d8f0e0);
+	border-color: #b6e0c3;
+	color: var(--ds-success-strong, #106634);
+}
+
+.hod-content .status-pending {
+	background: var(--ds-warning-soft, #fdf2d6);
+	border-color: #f0d99a;
+	color: var(--ds-warning-strong, #8e5d00);
+}
+
+.hod-content .status-danger {
+	background: var(--ds-danger-soft, #fbe3e0);
+	border-color: #eec4bd;
+	color: var(--ds-danger, #c0392b);
+}
+
+.hod-content .status-neutral {
+	background: var(--ds-surface-raised, #f5f8fb);
+	border-color: var(--ds-border-light, #e8eef4);
+	color: var(--ds-text-muted, #8a99a8);
+}
+
+
+/* ================================================================
+   DETAIL GRID
+   ================================================================ */
+
+.hod-content .detail-grid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	padding: 6px 18px;
+}
+
+.hod-content .detail-item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 14px 0;
+	border-bottom: 1px solid var(--ds-border-light, #e8eef4);
+}
+
+	.hod-content .detail-item:nth-last-child(-n + 4) {
+		border-bottom: none;
+	}
+
+.hod-content .detail-label {
+	color: var(--ds-text-muted, #8a99a8);
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.6px;
+	text-transform: uppercase;
+	line-height: 1.4;
+}
+
+.hod-content .detail-value {
+	color: var(--ds-heading, #0f2742);
+	font-size: 12.5px;
+	font-weight: 500;
+	line-height: 1.5;
+	overflow-wrap: anywhere;
+}
+
+
+/* ================================================================
+   DETAIL NOTES + STATUS PANELS
+   ================================================================ */
+
+.hod-content .detail-notes {
+	padding: 14px 18px 18px;
+}
+
+.hod-content .status-information,
+.hod-content .status-warning {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 13px 15px;
+	border: 1px solid;
+	border-radius: var(--ds-radius-sm, 6px);
+}
+
+.hod-content .status-information {
+	background: var(--ds-success-soft, #d8f0e0);
+	border-color: #b6e0c3;
+	color: var(--ds-success-strong, #106634);
+}
+
+	.hod-content .status-information > i {
+		font-size: 17px;
+		flex-shrink: 0;
+		margin-top: 1px;
+		color: var(--ds-success, #1a8a4a);
+	}
+
+.hod-content .status-warning {
+	background: var(--ds-warning-soft, #fdf2d6);
+	border-color: #f0d99a;
+	color: var(--ds-warning-strong, #8e5d00);
+}
+
+	.hod-content .status-warning > i {
+		font-size: 17px;
+		flex-shrink: 0;
+		margin-top: 1px;
+	}
+
+	.hod-content .status-information strong,
+	.hod-content .status-warning strong {
+		display: block;
+		font-size: 12.5px;
+		font-weight: 700;
+		margin-bottom: 3px;
+	}
+
+	.hod-content .status-information span,
+	.hod-content .status-warning span {
+		display: block;
+		font-size: 12.5px;
+		line-height: 1.55;
+	}
+
+
+/* ================================================================
+   SIGNATURE FLOW — horizontal stepper
+   ================================================================ */
+
+.hod-content .signature-flow {
+	display: flex;
+	align-items: flex-start;
+	padding: 20px 18px;
+	overflow-x: auto;
+	gap: 0;
+	scrollbar-width: thin;
+	scrollbar-color: var(--ds-border, #d8e0e8) transparent;
+}
+
+	.hod-content .signature-flow::-webkit-scrollbar {
+		height: 6px;
+	}
+
+	.hod-content .signature-flow::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.hod-content .signature-flow::-webkit-scrollbar-thumb {
+		background: var(--ds-border, #d8e0e8);
+		border-radius: 999px;
+	}
+
+.hod-content .signature-flow-step {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	flex: 0 0 auto;
+	min-width: 110px;
+	padding: 0 4px;
+	z-index: 1;
+}
+
+.hod-content .signature-flow-node {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: var(--ds-surface-raised, #f5f8fb);
+	color: var(--ds-text-muted, #8a99a8);
+	font-size: 12px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
+	border: 2px solid var(--ds-border, #d8e0e8);
+	transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+	position: relative;
+	z-index: 2;
+}
+
+	.hod-content .signature-flow-node[data-state="done"] {
+		background: var(--ds-success, #1a8a4a);
+		border-color: var(--ds-success, #1a8a4a);
+		color: #ffffff;
+	}
+
+	.hod-content .signature-flow-node[data-state="current"] {
+		background: var(--ds-action, #1e5fbf);
+		border-color: var(--ds-action, #1e5fbf);
+		color: #ffffff;
+		box-shadow: 0 0 0 3px var(--ds-action-soft, #d9e7f8);
+	}
+
+	.hod-content .signature-flow-node[data-state="rejected"] {
+		background: var(--ds-danger, #c0392b);
+		border-color: var(--ds-danger, #c0392b);
+		color: #ffffff;
+	}
+
+	.hod-content .signature-flow-node[data-state="future"] {
+		background: transparent;
+		border-color: var(--ds-border, #d8e0e8);
+		color: var(--ds-text-muted, #8a99a8);
+		opacity: 0.75;
+	}
+
+.hod-content .signature-flow-role {
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--ds-heading, #0f2742);
+	text-align: center;
+	line-height: 1.3;
+	white-space: nowrap;
+	position: relative;
+	z-index: 2;
+}
+
+.hod-content .signature-flow-step[data-state="future"] .signature-flow-role {
+	color: var(--ds-text-muted, #8a99a8);
+	font-weight: 500;
+}
+
+.hod-content .signature-flow-meta {
+	font-size: 11px;
+	font-weight: 500;
+	color: var(--ds-text-muted, #8a99a8);
+	text-align: center;
+	line-height: 1.3;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+	text-decoration: none;
+	border-bottom: none;
+	position: relative;
+	z-index: 2;
+}
+
+.hod-content .signature-flow-step[data-state="done"] .signature-flow-meta {
+	color: var(--ds-success-strong, #106634);
+}
+
+.hod-content .signature-flow-step[data-state="current"] .signature-flow-meta {
+	color: var(--ds-action-strong, #154a99);
+	font-weight: 600;
+	text-decoration: none;
+	border-bottom: none;
+}
+
+.hod-content .signature-flow-step[data-state="rejected"] .signature-flow-meta {
+	color: var(--ds-danger, #c0392b);
+	font-weight: 600;
+}
+
+
+/* ----------------------------------------------------------------
+   CONNECTOR
+   ----------------------------------------------------------------
+   Sits behind the nodes (z-index: -1). The connector's horizontal
+   span reaches the center of the next step, but the node's own
+   background hides the overshoot.
+   ---------------------------------------------------------------- */
+
+.hod-content .signature-flow-connector {
+	position: absolute;
+	top: 13px;
+	left: calc(50% + 18px);
+	right: calc(-50% + 18px);
+	height: 2px;
+	border-radius: 1px;
+	background: var(--ds-border, #d8e0e8);
+	pointer-events: none;
+	z-index: -1;
+}
+
+
+	/* --- Done → Done (both signed): solid green --- */
+
+	.hod-content .signature-flow-connector[data-state="done"][data-next-state="done"] {
+		background: var(--ds-success, #1a8a4a);
+		opacity: 1;
+	}
+
+
+	/* --- Done → Current (next step is active): solid green --- */
+
+	.hod-content .signature-flow-connector[data-state="done"][data-next-state="current"] {
+		background: var(--ds-success, #1a8a4a);
+		opacity: 1;
+	}
+
+
+	/* --- Current → Future: dashed blue --- */
+
+	.hod-content .signature-flow-connector[data-state="current"][data-next-state="future"] {
+		background: transparent;
+		border-top: 3px dashed var(--ds-action, #1e5fbf);
+		height: 0;
+		opacity: 1;
+	}
+
+
+	/* --- Current → Current (edge case): dashed blue --- */
+
+	.hod-content .signature-flow-connector[data-state="current"][data-next-state="current"] {
+		background: transparent;
+		border-top: 3px dashed var(--ds-action, #1e5fbf);
+		height: 0;
+		opacity: 1;
+	}
+
+
+	/* --- Future → Future: dashed grey --- */
+
+	.hod-content .signature-flow-connector[data-state="future"][data-next-state="future"] {
+		background: transparent;
+		border-top: 3px dashed var(--ds-border, #d8e0e8);
+		height: 0;
+		opacity: 0.7;
+	}
+
+
+	/* --- Anything → Rejected: solid red --- */
+
+	.hod-content .signature-flow-connector[data-next-state="rejected"] {
+		background: var(--ds-danger, #c0392b);
+		opacity: 1;
+	}
+
+
+/* ================================================================
+   EMPTY STATE
+   ================================================================ */
+
+.hod-content .empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 40px 24px;
+	text-align: center;
+	gap: 8px;
+}
+
+.hod-content .empty-state--compact {
+	padding: 28px 24px;
+}
+
+.hod-content .empty-state-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background: var(--ds-surface-raised, #f5f8fb);
+	color: var(--ds-text-muted, #8a99a8);
+	font-size: 18px;
+	margin-bottom: 4px;
+}
+
+.hod-content .empty-state h3 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--ds-heading, #0f2742);
+}
+
+.hod-content .empty-state p {
+	margin: 0;
+	color: var(--ds-text-secondary, #4a5b6d);
+	font-size: 12.5px;
+	line-height: 1.55;
+	max-width: 440px;
+}
+
+.hod-content .empty-state .secondary-button {
+	margin-top: 10px;
+}
+
+.hod-content .empty-state i {
+	font-size: 28px;
+	color: var(--ds-text-muted, #8a99a8);
+}
+
+
+/* ================================================================
+   DOCUMENT STAGE — wrapper around the contract paper
+   ================================================================ */
+
+.hod-content .document-stage {
+	padding: 20px;
+	background: var(--ds-surface-raised, #f5f8fb);
+	border-top: 1px solid var(--ds-border-light, #e8eef4);
+	overflow-x: hidden;
+}
+
+
+/* ================================================================
+   PREVIEW MODAL
+   ================================================================ */
+
+.hod-content .preview-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 2000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	background: rgba(15, 39, 66, 0.45);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+	.hod-content .preview-modal.is-open {
+		opacity: 1;
+		visibility: visible;
+		pointer-events: auto;
+	}
+
+.hod-content .preview-backdrop {
+	position: absolute;
+	inset: 0;
+}
+
+.hod-content .preview-dialog {
+	position: relative;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	width: min(1100px, 100%);
+	height: min(94vh, 1000px);
+	background: var(--ds-surface, #ffffff);
+	border-radius: var(--ds-radius-lg, 12px);
+	box-shadow: 0 8px 28px rgba(15, 39, 66, 0.14), 0 2px 6px rgba(15, 39, 66, 0.08);
+	overflow: hidden;
+	transform: translateY(10px) scale(0.99);
+	transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hod-content .preview-modal.is-open .preview-dialog {
+	transform: translateY(0) scale(1);
+}
+
+.hod-content .preview-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 14px 20px;
+	border-bottom: 1px solid var(--ds-border-light, #e8eef4);
+	flex-shrink: 0;
+}
+
+	.hod-content .preview-header h2 {
+		margin: 0;
+		color: var(--ds-heading, #0f2742);
+		font-family: "Poppins", sans-serif;
+		font-size: 14px;
+		font-weight: 700;
+		letter-spacing: -0.2px;
+	}
+
+.hod-content .preview-header-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-shrink: 0;
+}
+
+.hod-content .preview-close {
+	width: 32px;
+	height: 32px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	border: 1px solid var(--ds-border-light, #e8eef4);
+	border-radius: var(--ds-radius-sm, 6px);
+	background: var(--ds-surface, #ffffff);
+	color: var(--ds-text-muted, #8a99a8);
+	font-size: 13px;
+	cursor: pointer;
+	transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+	.hod-content .preview-close:hover {
+		background: var(--ds-danger-soft, #fbe3e0);
+		border-color: #eec4bd;
+		color: var(--ds-danger, #c0392b);
+	}
+
+.hod-content .preview-body {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 20px;
+	background: var(--ds-surface-raised, #f5f8fb);
+	scrollbar-width: thin;
+	scrollbar-color: var(--ds-border, #d8e0e8) transparent;
+}
+
+	.hod-content .preview-body::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	.hod-content .preview-body::-webkit-scrollbar-thumb {
+		background: var(--ds-border, #d8e0e8);
+		border-radius: 999px;
+	}
+
+body.preview-open {
+	overflow: hidden;
+}
+
+
+/* ================================================================
+   FOCUS
+   ================================================================ */
+
+.hod-content .primary-button:focus-visible,
+.hod-content .secondary-button:focus-visible,
+.hod-content .preview-close:focus-visible {
+	outline: 2px solid var(--ds-action, #1e5fbf);
+	outline-offset: 2px;
+}
+
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+
+@media (max-width: 1280px) {
+
+	.hod-content .detail-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.hod-content .detail-item:nth-last-child(-n + 4) {
+		border-bottom: 1px solid var(--ds-border-light, #e8eef4);
+	}
+
+	.hod-content .detail-item:nth-last-child(-n + 2) {
+		border-bottom: none;
+	}
+}
+
+@media (max-width: 990px) {
+
+	.hod-content .page-header {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+		.hod-content .page-header h1 {
+			font-size: 22px;
+		}
+
+	.hod-content .page-header-actions {
+		width: 100%;
+		flex-wrap: wrap;
+	}
+
+		.hod-content .page-header-actions .primary-button,
+		.hod-content .page-header-actions .secondary-button {
+			flex: 1 1 auto;
+			min-width: 0;
+		}
+
+	.hod-content .document-stage,
+	.hod-content .preview-body {
+		padding: 14px;
+	}
+}
+
+@media (max-width: 720px) {
+
+	.hod-content .contracts-page {
+		gap: 16px;
+		padding-bottom: 18px;
+	}
+
+	.hod-content .section-header {
+		padding: 12px 16px;
+	}
+
+	.hod-content .detail-grid {
+		grid-template-columns: 1fr;
+		padding: 4px 14px;
+	}
+
+	.hod-content .detail-item:nth-last-child(-n + 2) {
+		border-bottom: 1px solid var(--ds-border-light, #e8eef4);
+	}
+
+	.hod-content .detail-item:last-child {
+		border-bottom: none;
+	}
+
+	.hod-content .signature-flow {
+		padding: 14px;
+	}
+
+	.hod-content .signature-flow-step {
+		min-width: 92px;
+	}
+
+	.hod-content .signature-flow-role {
+		font-size: 12px;
+		white-space: normal;
+		max-width: 90px;
+	}
+
+	.hod-content .preview-modal {
+		padding: 0;
+	}
+
+	.hod-content .preview-dialog {
+		width: 100%;
+		height: 100%;
+		border-radius: 0;
+	}
+}
+
+@media (max-width: 520px) {
+
+	.hod-content .page-header h1 {
+		font-size: 20px;
+	}
+
+	.hod-content .section-header,
+	.hod-content .detail-notes,
+	.hod-content .document-stage,
+	.hod-content .preview-header {
+		padding-left: 14px;
+		padding-right: 14px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.hod-content .contracts-page *,
+	.hod-content .contracts-page *::before,
+	.hod-content .contracts-page *::after,
+	.hod-content .preview-modal *,
+	.hod-content .preview-modal *::before,
+	.hod-content .preview-modal *::after {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+	}
+
+	.hod-content .preview-dialog {
+		transform: none !important;
+	}
+}
+
+@media print {
+
+	body {
+		background: #ffffff !important;
+	}
+
+	.hod-content .contracts-page {
+		width: 100% !important;
+		max-width: none !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		gap: 0 !important;
+	}
+
+	.hod-content .page-header,
+	.hod-content .page-header-actions,
+	.hod-content .section-header,
+	.hod-content .detail-grid,
+	.hod-content .signature-flow,
+	.hod-content .preview-modal {
+		display: none !important;
+	}
+
+	.hod-content .section-card {
+		border: 0 !important;
+		border-radius: 0 !important;
+		box-shadow: none !important;
+	}
+
+	.hod-content .document-stage {
+		padding: 0 !important;
+		background: #ffffff !important;
+		overflow: visible !important;
+		border: 0 !important;
+	}
+}

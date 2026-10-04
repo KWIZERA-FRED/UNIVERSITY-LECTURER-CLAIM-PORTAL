@@ -1,3 +1,7 @@
+/* ============================================================
+   HOD CONTRACTS
+   ============================================================ */
+
 .hod-content .contracts-page {
     width: 100%;
     max-width: none;
@@ -29,6 +33,10 @@
     .hod-content .contracts-page textarea {
         font: inherit;
     }
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
 
 .hod-content .page-header {
     display: flex;
@@ -73,11 +81,13 @@
     overflow-wrap: anywhere;
 }
 
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
 .hod-content .primary-button,
 .hod-content .secondary-button,
-.hod-content .gray-button,
-.hod-content .danger-button,
-.hod-content .danger-outline-button {
+.hod-content .gray-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -126,7 +136,6 @@
     background: var(--ds-surface, #ffffff);
     color: var(--ds-text-secondary, #4a5b6d);
     font-size: 12px;
-    font-weight: 600;
 }
 
     .hod-content .gray-button:hover {
@@ -135,35 +144,13 @@
         color: var(--ds-heading, #0f2742);
     }
 
-.hod-content .danger-button {
-    border: 1px solid var(--ds-danger, #c0392b);
-    background: var(--ds-danger, #c0392b);
-    color: #ffffff;
+.hod-content .primary-button i {
+    font-size: 12.5px;
 }
 
-    .hod-content .danger-button:hover {
-        background: #a93226;
-        border-color: #a93226;
-        color: #ffffff;
-    }
-
-.hod-content .danger-outline-button {
-    border: 1px solid #eec4bd;
-    background: var(--ds-danger-soft, #fbe3e0);
-    color: var(--ds-danger, #c0392b);
-}
-
-    .hod-content .danger-outline-button:hover {
-        background: #f5d6d2;
-        border-color: var(--ds-danger, #c0392b);
-    }
-
-    .hod-content .primary-button i,
-    .hod-content .secondary-button i,
-    .hod-content .danger-button i,
-    .hod-content .danger-outline-button i {
-        font-size: 12.5px;
-    }
+/* ============================================================
+   ALERTS
+   ============================================================ */
 
 .hod-content .page-alert {
     display: flex;
@@ -202,7 +189,7 @@
     }
 
 /* ============================================================
-   STATS — label / value / meta (Dean-style)
+   STATS
    ============================================================ */
 
 .hod-content .contracts-stats {
@@ -226,12 +213,6 @@
     .hod-content .contracts-stat:hover {
         border-color: var(--ds-border, #d8e0e8);
     }
-
-.hod-content .contracts-stat--neutral,
-.hod-content .contracts-stat--action,
-.hod-content .contracts-stat--success {
-    border-left-color: var(--ds-border-light, #e8eef4);
-}
 
 .hod-content .contracts-stat-label {
     display: block;
@@ -428,7 +409,7 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 12.5px;
-    min-width: 1000px;
+    min-width: 1180px;
 }
 
     .hod-content .data-table thead {
@@ -475,6 +456,10 @@
         text-align: right;
     }
 
+/* ============================================================
+   CELL VALUES
+   ============================================================ */
+
 .hod-content .reference-pill {
     display: inline-flex;
     align-items: center;
@@ -501,14 +486,6 @@
     font-weight: 500;
 }
 
-.hod-content .year-value {
-    color: var(--ds-text-secondary, #4a5b6d);
-    font-size: 12.5px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
-
 .hod-content .version-badge {
     display: inline-flex;
     align-items: center;
@@ -523,142 +500,84 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* ============================================================
-   PROGRESS
-   ============================================================ */
-
-.hod-content .progress-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    min-width: 130px;
-}
-
-.hod-content .progress-text {
+.hod-content .progress-count {
     color: var(--ds-heading, #0f2742);
-    font-size: 11.5px;
+    font-size: 12.5px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-}
-
-.hod-content .progress-track {
-    width: 100%;
-    height: 4px;
-    overflow: hidden;
-    background: var(--ds-border-light, #e8eef4);
-    border-radius: 999px;
-}
-
-.hod-content .progress-bar {
-    height: 100%;
-    background: var(--ds-action, #1e5fbf);
-    border-radius: inherit;
-    transition: width 300ms ease;
-}
-
-.hod-content .progress-empty {
-    color: var(--ds-text-muted, #8a99a8);
-    font-size: 11px;
-    font-weight: 500;
-    font-style: italic;
+    white-space: nowrap;
 }
 
 /* ============================================================
-   PROGRESS RING
+   STAGE PILL — same pattern as the Dashboard
    ============================================================ */
 
-.hod-content .progress-ring-cell {
+.hod-content .dd-stage {
     display: flex;
     align-items: center;
-    gap: 12px;
-    min-width: 180px;
-}
-
-.hod-content .progress-ring {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-}
-
-    .hod-content .progress-ring svg {
-        display: block;
-        width: 40px;
-        height: 40px;
-        transform: rotate(-90deg);
-        transform-origin: center;
-    }
-
-.hod-content .progress-ring-track {
-    fill: none;
-    stroke: var(--ds-border-light, #e8eef4);
-    stroke-width: 3.5;
-}
-
-.hod-content .progress-ring-value {
-    fill: none;
-    stroke: var(--ds-action, #1e5fbf);
-    stroke-width: 3.5;
-    stroke-linecap: round;
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-    transition: stroke-dashoffset 0.4s ease;
-}
-
-.hod-content .progress-ring-label {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--ds-heading, #0f2742);
-    font-size: 11px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.2px;
-    line-height: 1;
-}
-
-.hod-content .progress-ring-percent {
-    font-size: 7px;
-    font-weight: 700;
-    margin-left: 1px;
-    transform: translateY(1px);
-    color: var(--ds-text-muted, #8a99a8);
-}
-
-.hod-content .progress-ring-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
     min-width: 0;
 }
 
-.hod-content .progress-ring-count {
-    color: var(--ds-heading, #0f2742);
-    font-size: 12px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.2;
-}
-
-.hod-content .progress-ring-step {
+.hod-content .dd-stage-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--ds-surface-raised, #f5f8fb);
     color: var(--ds-text-secondary, #4a5b6d);
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.3;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.4;
     white-space: nowrap;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.hod-content .progress-ring-step--done {
-    color: var(--ds-success-strong, #106634);
-    font-weight: 600;
+    .hod-content .dd-stage-pill::before {
+        content: "";
+        display: inline-block;
+        flex: 0 0 auto;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.55;
+    }
+
+.hod-content .dd-stage-pill--action {
+    background: var(--ds-action-soft, #d9e7f8);
+    color: var(--ds-action-strong, #154a99);
 }
+
+    .hod-content .dd-stage-pill--action::before {
+        background: var(--ds-action, #1e5fbf);
+        opacity: 1;
+    }
+
+.hod-content .dd-stage-sep {
+    color: var(--ds-text-muted, #8a99a8);
+    font-weight: 400;
+    margin: 0 2px;
+}
+
+.hod-content .dd-stage-wait {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: inherit;
+    opacity: 0.85;
+}
+
+    .hod-content .dd-stage-wait.ds-tone-warn {
+        color: var(--ds-warning-strong, #8e5d00);
+        opacity: 1;
+    }
+
+    .hod-content .dd-stage-wait.ds-tone-late {
+        color: var(--ds-danger, #c0392b);
+        opacity: 1;
+    }
 
 /* ============================================================
    STATUS BADGES
@@ -741,18 +660,6 @@
         color: var(--ds-heading, #0f2742);
     }
 
-.hod-content .row-action--primary {
-    border-color: var(--ds-action, #1e5fbf);
-    background: var(--ds-action, #1e5fbf);
-    color: #ffffff;
-}
-
-    .hod-content .row-action--primary:hover {
-        background: var(--ds-action-strong, #154a99);
-        border-color: var(--ds-action-strong, #154a99);
-        color: #ffffff;
-    }
-
 /* ============================================================
    EMPTY STATE
    ============================================================ */
@@ -792,6 +699,13 @@
    RESPONSIVE
    ============================================================ */
 
+@media (max-width: 1280px) {
+
+    .hod-content .data-table {
+        min-width: 1140px;
+    }
+}
+
 @media (max-width: 990px) {
 
     .hod-content .page-header {
@@ -821,7 +735,7 @@
     }
 
     .hod-content .data-table {
-        min-width: 900px;
+        min-width: 1080px;
     }
 }
 
@@ -894,6 +808,10 @@
         padding-left: 12px;
         padding-right: 12px;
     }
+
+    .hod-content .dd-stage-pill {
+        font-size: 11px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -925,4 +843,13 @@
     .hod-content .contracts-stats,
     .hod-content .section-header,
     .hod-content .toolbar,
-    .hod-content .row-action,
+    .hod-content .row-action {
+        display: none !important;
+    }
+
+    .hod-content .section-card {
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+}

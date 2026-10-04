@@ -1,3 +1,7 @@
+/* ============================================================
+   DEAN CONTRACTS
+   ============================================================ */
+
 .dean-content .contracts-page {
     width: 100%;
     max-width: none;
@@ -29,6 +33,10 @@
     .dean-content .contracts-page textarea {
         font: inherit;
     }
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
 
 .dean-content .page-header {
     display: flex;
@@ -73,11 +81,13 @@
     overflow-wrap: anywhere;
 }
 
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
 .dean-content .primary-button,
 .dean-content .secondary-button,
-.dean-content .gray-button,
-.dean-content .danger-button,
-.dean-content .danger-outline-button {
+.dean-content .gray-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -126,7 +136,6 @@
     background: var(--ds-surface, #ffffff);
     color: var(--ds-text-secondary, #4a5b6d);
     font-size: 12px;
-    font-weight: 600;
 }
 
     .dean-content .gray-button:hover {
@@ -135,35 +144,13 @@
         color: var(--ds-heading, #0f2742);
     }
 
-.dean-content .danger-button {
-    border: 1px solid var(--ds-danger, #c0392b);
-    background: var(--ds-danger, #c0392b);
-    color: #ffffff;
+.dean-content .primary-button i {
+    font-size: 12.5px;
 }
 
-    .dean-content .danger-button:hover {
-        background: #a93226;
-        border-color: #a93226;
-        color: #ffffff;
-    }
-
-.dean-content .danger-outline-button {
-    border: 1px solid #eec4bd;
-    background: var(--ds-danger-soft, #fbe3e0);
-    color: var(--ds-danger, #c0392b);
-}
-
-    .dean-content .danger-outline-button:hover {
-        background: #f5d6d2;
-        border-color: var(--ds-danger, #c0392b);
-    }
-
-    .dean-content .primary-button i,
-    .dean-content .secondary-button i,
-    .dean-content .danger-button i,
-    .dean-content .danger-outline-button i {
-        font-size: 12.5px;
-    }
+/* ============================================================
+   ALERTS
+   ============================================================ */
 
 .dean-content .page-alert {
     display: flex;
@@ -202,7 +189,7 @@
     }
 
 /* ============================================================
-   STATS — label / value / meta
+   STATS
    ============================================================ */
 
 .dean-content .contracts-stats {
@@ -226,12 +213,6 @@
     .dean-content .contracts-stat:hover {
         border-color: var(--ds-border, #d8e0e8);
     }
-
-.dean-content .contracts-stat--neutral,
-.dean-content .contracts-stat--action,
-.dean-content .contracts-stat--success {
-    border-left-color: var(--ds-border-light, #e8eef4);
-}
 
 .dean-content .contracts-stat-label {
     display: block;
@@ -308,19 +289,6 @@
         font-weight: 700;
         letter-spacing: -0.15px;
         line-height: 1.3;
-    }
-
-.dean-content .section-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-    .dean-content .section-header-actions .secondary-button {
-        min-height: 32px;
-        padding: 0 12px;
-        font-size: 12px;
     }
 
 .dean-content .section-meta {
@@ -441,7 +409,7 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 12.5px;
-    min-width: 1120px;
+    min-width: 1180px;
 }
 
     .dean-content .data-table thead {
@@ -488,6 +456,10 @@
         text-align: right;
     }
 
+/* ============================================================
+   CELL VALUES
+   ============================================================ */
+
 .dean-content .reference-pill {
     display: inline-flex;
     align-items: center;
@@ -529,101 +501,104 @@
 }
 
 /* ============================================================
-   PROGRESS RING
+   STAGE PILL — matches the Dashboard and the HOD Contracts page
    ============================================================ */
 
-.dean-content .progress-ring-cell {
+.dean-content .dd-stage {
     display: flex;
     align-items: center;
-    gap: 12px;
-    min-width: 180px;
-}
-
-.dean-content .progress-ring {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-}
-
-    .dean-content .progress-ring svg {
-        display: block;
-        width: 40px;
-        height: 40px;
-        transform: rotate(-90deg);
-        transform-origin: center;
-    }
-
-.dean-content .progress-ring-track {
-    fill: none;
-    stroke: var(--ds-border-light, #e8eef4);
-    stroke-width: 3.5;
-}
-
-.dean-content .progress-ring-value {
-    fill: none;
-    stroke: var(--ds-action, #1e5fbf);
-    stroke-width: 3.5;
-    stroke-linecap: round;
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-    transition: stroke-dashoffset 0.4s ease;
-}
-
-.dean-content .progress-ring-label {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--ds-heading, #0f2742);
-    font-size: 11px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.2px;
-    line-height: 1;
-}
-
-.dean-content .progress-ring-percent {
-    font-size: 7px;
-    font-weight: 700;
-    margin-left: 1px;
-    transform: translateY(1px);
-    color: var(--ds-text-muted, #8a99a8);
-}
-
-.dean-content .progress-ring-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
     min-width: 0;
 }
 
-.dean-content .progress-ring-count {
-    color: var(--ds-heading, #0f2742);
-    font-size: 12px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.2;
-}
-
-.dean-content .progress-ring-step {
+.dean-content .dd-stage-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--ds-surface-raised, #f5f8fb);
     color: var(--ds-text-secondary, #4a5b6d);
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.3;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.4;
     white-space: nowrap;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.dean-content .progress-ring-step--done {
-    color: var(--ds-success-strong, #106634);
-    font-weight: 600;
+    .dean-content .dd-stage-pill::before {
+        content: "";
+        display: inline-block;
+        flex: 0 0 auto;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.55;
+    }
+
+/* Action — awaiting the Dean's signature */
+.dean-content .dd-stage-pill--action {
+    background: var(--ds-action-soft, #d9e7f8);
+    color: var(--ds-action-strong, #154a99);
 }
+
+    .dean-content .dd-stage-pill--action::before {
+        background: var(--ds-action, #1e5fbf);
+        opacity: 1;
+    }
+
+/* Completed — every signature captured */
+.dean-content .dd-stage-pill--done {
+    background: var(--ds-success-soft, #d8f0e0);
+    color: var(--ds-success-strong, #106634);
+}
+
+    .dean-content .dd-stage-pill--done::before {
+        background: var(--ds-success, #1a8a4a);
+        opacity: 1;
+    }
+
+/* Declined — a signer rejected the contract */
+.dean-content .dd-stage-pill--declined {
+    background: var(--ds-danger-soft, #fbe3e0);
+    color: var(--ds-danger, #c0392b);
+}
+
+    .dean-content .dd-stage-pill--declined::before {
+        background: var(--ds-danger, #c0392b);
+        opacity: 1;
+    }
+
+/* Not started — no signatures on record yet */
+.dean-content .dd-stage-pill--muted {
+    background: var(--ds-surface-raised, #f5f8fb);
+    color: var(--ds-text-muted, #8a99a8);
+}
+
+.dean-content .dd-stage-sep {
+    color: var(--ds-text-muted, #8a99a8);
+    font-weight: 400;
+    margin: 0 2px;
+}
+
+.dean-content .dd-stage-wait {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: inherit;
+    opacity: 0.85;
+}
+
+    .dean-content .dd-stage-wait.ds-tone-warn {
+        color: var(--ds-warning-strong, #8e5d00);
+        opacity: 1;
+    }
+
+    .dean-content .dd-stage-wait.ds-tone-late {
+        color: var(--ds-danger, #c0392b);
+        opacity: 1;
+    }
 
 /* ============================================================
    STATUS BADGES
@@ -759,12 +734,8 @@
 
 @media (max-width: 1280px) {
 
-    .dean-content .contracts-stats {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
     .dean-content .data-table {
-        min-width: 1080px;
+        min-width: 1140px;
     }
 }
 
@@ -789,7 +760,7 @@
     }
 
     .dean-content .data-table {
-        min-width: 1020px;
+        min-width: 1080px;
     }
 }
 
@@ -862,6 +833,10 @@
         padding-left: 12px;
         padding-right: 12px;
     }
+
+    .dean-content .dd-stage-pill {
+        font-size: 11px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -893,8 +868,7 @@
     .dean-content .contracts-stats,
     .dean-content .section-header,
     .dean-content .toolbar,
-    .dean-content .row-action,
-    .dean-content .gray-button {
+    .dean-content .row-action {
         display: none !important;
     }
 
