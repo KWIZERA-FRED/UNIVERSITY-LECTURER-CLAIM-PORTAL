@@ -1,12 +1,8 @@
-/* ============================================================
-   DEAN CONTRACTS
-   ============================================================ */
-
 .dean-content .contracts-page {
     width: 100%;
     max-width: none;
-    margin: 0;
-    padding: 0 0 24px;
+    margin: 0 auto;
+    padding: 0 24px 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -15,6 +11,7 @@
     font-size: 13.5px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    box-sizing: border-box;
 }
 
     .dean-content .contracts-page *,
@@ -33,10 +30,6 @@
     .dean-content .contracts-page textarea {
         font: inherit;
     }
-
-/* ============================================================
-   PAGE HEADER
-   ============================================================ */
 
 .dean-content .page-header {
     display: flex;
@@ -80,10 +73,6 @@
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
-
-/* ============================================================
-   BUTTONS
-   ============================================================ */
 
 .dean-content .primary-button,
 .dean-content .secondary-button,
@@ -148,10 +137,6 @@
     font-size: 12.5px;
 }
 
-/* ============================================================
-   ALERTS
-   ============================================================ */
-
 .dean-content .page-alert {
     display: flex;
     align-items: center;
@@ -187,10 +172,6 @@
     .dean-content .page-alert-error i {
         color: var(--ds-danger, #c0392b);
     }
-
-/* ============================================================
-   STATS
-   ============================================================ */
 
 .dean-content .contracts-stats {
     display: grid;
@@ -258,10 +239,6 @@
     line-height: 1.4;
 }
 
-/* ============================================================
-   SECTION CARD
-   ============================================================ */
-
 .dean-content .section-card {
     display: flex;
     flex-direction: column;
@@ -297,10 +274,6 @@
     font-weight: 500;
     font-variant-numeric: tabular-nums;
 }
-
-/* ============================================================
-   TOOLBAR + SEARCH
-   ============================================================ */
 
 .dean-content .toolbar {
     padding: 12px 18px;
@@ -381,10 +354,6 @@
         font-size: 12.5px;
     }
 
-/* ============================================================
-   DATA TABLE
-   ============================================================ */
-
 .dean-content .table-wrapper {
     width: 100%;
     overflow-x: auto;
@@ -456,10 +425,6 @@
         text-align: right;
     }
 
-/* ============================================================
-   CELL VALUES
-   ============================================================ */
-
 .dean-content .reference-pill {
     display: inline-flex;
     align-items: center;
@@ -500,10 +465,6 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* ============================================================
-   STAGE PILL — matches the Dashboard and the HOD Contracts page
-   ============================================================ */
-
 .dean-content .dd-stage {
     display: flex;
     align-items: center;
@@ -538,7 +499,6 @@
         opacity: 0.55;
     }
 
-/* Action — awaiting the Dean's signature */
 .dean-content .dd-stage-pill--action {
     background: var(--ds-action-soft, #d9e7f8);
     color: var(--ds-action-strong, #154a99);
@@ -549,7 +509,6 @@
         opacity: 1;
     }
 
-/* Completed — every signature captured */
 .dean-content .dd-stage-pill--done {
     background: var(--ds-success-soft, #d8f0e0);
     color: var(--ds-success-strong, #106634);
@@ -560,7 +519,6 @@
         opacity: 1;
     }
 
-/* Declined — a signer rejected the contract */
 .dean-content .dd-stage-pill--declined {
     background: var(--ds-danger-soft, #fbe3e0);
     color: var(--ds-danger, #c0392b);
@@ -571,7 +529,6 @@
         opacity: 1;
     }
 
-/* Not started — no signatures on record yet */
 .dean-content .dd-stage-pill--muted {
     background: var(--ds-surface-raised, #f5f8fb);
     color: var(--ds-text-muted, #8a99a8);
@@ -599,10 +556,6 @@
         color: var(--ds-danger, #c0392b);
         opacity: 1;
     }
-
-/* ============================================================
-   STATUS BADGES
-   ============================================================ */
 
 .dean-content .status-badge {
     display: inline-flex;
@@ -653,10 +606,6 @@
     color: var(--ds-text-muted, #8a99a8);
 }
 
-/* ============================================================
-   ROW ACTION
-   ============================================================ */
-
 .dean-content .row-action {
     display: inline-flex;
     align-items: center;
@@ -681,21 +630,23 @@
         color: var(--ds-heading, #0f2742);
     }
 
-.dean-content .row-action--primary {
+.dean-content .row-action--primary,
+.dean-content .row-action--primary:link,
+.dean-content .row-action--primary:visited,
+.dean-content .row-action--primary:hover,
+.dean-content .row-action--primary:focus,
+.dean-content .row-action--primary:active {
     border-color: var(--ds-action, #1e5fbf);
     background: var(--ds-action, #1e5fbf);
-    color: #ffffff;
+    color: #ffffff !important;
+    text-decoration: none;
 }
 
     .dean-content .row-action--primary:hover {
         background: var(--ds-action-strong, #154a99);
         border-color: var(--ds-action-strong, #154a99);
-        color: #ffffff;
+        color: #ffffff !important;
     }
-
-/* ============================================================
-   EMPTY STATE
-   ============================================================ */
 
 .dean-content .empty-state {
     display: flex;
@@ -715,10 +666,6 @@
         max-width: 440px;
     }
 
-/* ============================================================
-   FOCUS
-   ============================================================ */
-
 .dean-content .primary-button:focus-visible,
 .dean-content .secondary-button:focus-visible,
 .dean-content .gray-button:focus-visible,
@@ -728,11 +675,20 @@
     outline-offset: 2px;
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
+@media (max-width: 1400px) {
+
+    .dean-content .contracts-page {
+        padding-left: 22px;
+        padding-right: 22px;
+    }
+}
 
 @media (max-width: 1280px) {
+
+    .dean-content .contracts-page {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
 
     .dean-content .data-table {
         min-width: 1140px;
@@ -740,6 +696,11 @@
 }
 
 @media (max-width: 990px) {
+
+    .dean-content .contracts-page {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
 
     .dean-content .page-header {
         align-items: flex-start;
@@ -768,7 +729,17 @@
 
     .dean-content .contracts-page {
         gap: 16px;
+        padding-left: 16px;
+        padding-right: 16px;
         padding-bottom: 18px;
+    }
+
+    .dean-content .page-header h1 {
+        font-size: 22px;
+    }
+
+    .dean-content .page-header p {
+        font-size: 12.5px;
     }
 
     .dean-content .contracts-stats {
@@ -818,6 +789,11 @@
 
 @media (max-width: 520px) {
 
+    .dean-content .contracts-page {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
     .dean-content .page-header h1 {
         font-size: 20px;
     }
@@ -836,6 +812,36 @@
 
     .dean-content .dd-stage-pill {
         font-size: 11px;
+    }
+}
+
+@media (max-width: 400px) {
+
+    .dean-content .contracts-page {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .dean-content .page-header h1 {
+        font-size: 19px;
+    }
+
+    .dean-content .page-header p {
+        font-size: 12px;
+    }
+
+    .dean-content .section-header {
+        padding: 12px 14px;
+    }
+
+    .dean-content .toolbar {
+        padding: 10px 14px;
+    }
+
+    .dean-content .data-table th,
+    .dean-content .data-table td {
+        padding-left: 12px;
+        padding-right: 12px;
     }
 }
 

@@ -1,9 +1,37 @@
 @page
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.DEAN.ClaimsModel
 
 @{
     Layout = "~/Pages/Shared/DEAN/_DeanLayout.cshtml";
     ViewData["Title"] = "Claims";
+
+    // How many "needs your approval" banners to show before summarising.
+    const int maxBanners = 5;
+
+    var moreWaiting = Math.Max(0, Model.PendingClaims.Count - maxBanners);
+
+    string StatusLabel(ClaimStatus status) => status switch
+    {
+        ClaimStatus.Draft => "Draft",
+        ClaimStatus.Submitted => "Submitted",
+        ClaimStatus.PendingHODApproval => "Pending HOD",
+        ClaimStatus.PendingDeanApproval => "Pending Dean",
+        ClaimStatus.PendingDirectorOfQualityApproval => "Pending Director of Quality",
+        ClaimStatus.PendingDVCARApproval => "Pending DVCAR",
+        ClaimStatus.Approved => "Approved",
+        ClaimStatus.Rejected => "Rejected",
+        ClaimStatus.Paid => "Paid",
+        _ => status.ToString()
+    };
+
+    string StatusClass(ClaimStatus status) => status switch
+    {
+        ClaimStatus.Approved or ClaimStatus.Paid => "status-active",
+        ClaimStatus.Rejected => "status-danger",
+        ClaimStatus.Draft => "status-neutral",
+        _ => "status-pending"
+    };
 }
 
 @section Styles {
@@ -21,7 +49,7 @@
     <header class="page-header">
         <div class="page-header-main">
             <h1>Claims</h1>
-            <p>Review lecturer payment claims awaiting your approval.</p>
+            <p>Review lecturer payment claims and follow every claim through the approval chain.</p>
         </div>
     </header>
 
@@ -41,27 +69,89 @@
         </div>
     }
 
-    <section class="section-card" id="claims-card">
+    <!-- ============================================================
+         AWAITING YOUR APPROVAL — banners (same look as the dashboard)
+         ============================================================ -->
+
+    <section class="cl-banners" aria-label="Claims awaiting your approval">
+
+        @if (Model.PendingClaims.Count == 0)
+        {
+            <div class="cl-banner cl-banner--calm" role="status">
+
+                <span class="cl-banner-icon" aria-hidden="true">
+                    <i class="bi bi-check2-circle"></i>
+                </span>
+
+                <p class="cl-banner-text">
+                    <strong>You're all caught up.</strong>
+                    Nothing is waiting for your approval right now.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            @foreach (var row in Model.PendingClaims.Take(maxBanners))
+            {
+                <div class="cl-banner" role="status">
+
+                    <span class="cl-banner-icon" aria-hidden="true">
+                        <i class="bi bi-pen-fill"></i>
+                    </span>
+
+                    <p class="cl-banner-text">
+                        <strong>CL@(row.ClaimId.ToString("D3"))</strong>
+                        from @row.LecturerName
+                        needs your approval :
+                        @row.HoursClaimed.ToString("0.##") hours on contract
+                        C@(row.ContractId.ToString("D3")),
+                        waiting @row.WaitText.
+                    </p>
+
+                    <a asp-page="/DEAN/ClaimDetails"
+                       asp-route-claimId="@row.ClaimId"
+                       class="cl-banner-btn">
+                        Review &amp; approve
+                    </a>
+
+                </div>
+            }
+
+            @if (moreWaiting > 0)
+            {
+                <p class="cl-banners-more">
+                    <strong>@moreWaiting more</strong>
+                    waiting — you'll find them highlighted in the table below.
+                </p>
+            }
+        }
+
+    </section>
+
+    <!-- ============================================================
+         ALL CLAIMS
+         ============================================================ -->
+
+    <section class="section-card" id="all-claims-card">
 
         <header class="section-header">
-            <h2>Awaiting your approval</h2>
+            <h2>All claims</h2>
             <span class="section-meta">
-                @Model.PendingClaims.Count
-                @(Model.PendingClaims.Count == 1 ? "claim" : "claims")
+                @Model.AllClaims.Count
+                @(Model.AllClaims.Count == 1 ? "claim" : "claims")
             </span>
         </header>
 
-        @if (Model.PendingClaims.Count == 0)
+        @if (Model.AllClaims.Count == 0)
         {
             <div class="empty-state">
                 <span class="empty-state-icon" aria-hidden="true">
                     <i class="bi bi-inbox"></i>
                 </span>
-                <h3>No claims awaiting your approval</h3>
+                <h3>No claims yet</h3>
                 <p>
-                    Everything assigned to you has been processed.
-                    New claims will appear here once the previous
-                    approver has finished their step.
+                    Claims will appear here once lecturers submit them.
                 </p>
             </div>
         }
@@ -76,9 +166,9 @@
                     <i class="bi bi-search" aria-hidden="true"></i>
 
                     <input type="search"
-                           id="claimSearch"
-                           placeholder="Search by claim, lecturer or contract…"
-                           aria-label="Search claims"
+                           id="allClaimSearch"
+                           placeholder="Search by claim, lecturer, contract or status…"
+                           aria-label="Search all claims"
                            autocomplete="off" />
 
                     <span class="search-hint" aria-hidden="true">Press /</span>
@@ -96,15 +186,16 @@
                             <th>Lecturer</th>
                             <th>Contract</th>
                             <th class="col-right">Hours</th>
+                            <th>Status</th>
                             <th class="col-action"></th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @foreach (var row in Model.PendingClaims)
+                        @foreach (var row in Model.AllClaims)
                         {
-                            <tr class="claim-row"
-                                data-search="CL@(row.ClaimId.ToString("D3")) @row.LecturerName C@(row.ContractId.ToString("D3"))">
+                            <tr class="all-claim-row"
+                                data-search="CL@(row.ClaimId.ToString("D3")) @row.LecturerName C@(row.ContractId.ToString("D3")) @StatusLabel(row.Status)">
 
                                 <td>
                                     <span class="reference-pill">
@@ -128,12 +219,25 @@
                                     </span>
                                 </td>
 
+                                <td>
+                                    <span class="status-badge @StatusClass(row.Status)">
+                                        @StatusLabel(row.Status)
+                                    </span>
+                                </td>
+
                                 <td class="col-action">
-                                    <a asp-page="/DEAN/ClaimDetails"
-                                       asp-route-claimId="@row.ClaimId"
-                                       class="row-action row-action--primary">
-                                        Review &amp; approve
-                                    </a>
+                                    @if (row.HasDeanStep)
+                                    {
+                                        <a asp-page="/DEAN/ClaimDetails"
+                                           asp-route-claimId="@row.ClaimId"
+                                           class="row-action @(row.IsAwaitingYou ? "row-action--primary" : "")">
+                                            @(row.IsAwaitingYou ? "Review & approve" : "Review")
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="section-meta">Not routed to Dean</span>
+                                    }
                                 </td>
 
                             </tr>
@@ -143,7 +247,7 @@
                 </table>
             </div>
 
-            <div class="table-empty" id="noResults" style="display:none;">
+            <div class="table-empty" id="allNoResults" style="display:none;">
                 <p>No claims match your search.</p>
             </div>
         }
@@ -157,18 +261,21 @@
 
     document.addEventListener("DOMContentLoaded", function () {
 
-        const input = document.getElementById("claimSearch");
-        const noResults = document.getElementById("noResults");
+        const input = document.getElementById("allClaimSearch");
+        const noResults = document.getElementById("allNoResults");
 
         if (!input) return;
 
         const rows = Array.prototype.slice.call(
-            document.querySelectorAll(".claim-row"));
+            document.querySelectorAll(".all-claim-row"));
 
         function apply() {
 
-            const query = input.value.trim().toLowerCase();
-            const terms = query.split(/\s+/).filter(Boolean);
+            const terms = input.value
+                .trim()
+                .toLowerCase()
+                .split(/\s+/)
+                .filter(Boolean);
 
             let shown = 0;
 

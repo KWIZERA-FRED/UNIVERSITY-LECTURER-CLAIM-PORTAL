@@ -1,16 +1,3 @@
-/* ================================================================
-   UNILAK ASECPS — DEAN — CLAIMS (list + details)
-   ================================================================
-   Tokens come from /css/shared/design-system.css.
-   One action blue (--ds-action) for the primary action.
-   Soft shadows on cards, no borders.
-   ================================================================ */
-
-
-/* ================================================================
-   PAGE SHELL
-   ================================================================ */
-
 .claims-page {
     width: 100%;
     max-width: 1100px;
@@ -43,11 +30,6 @@
     .claims-page select {
         font: inherit;
     }
-
-
-/* ================================================================
-   PAGE HEADER
-   ================================================================ */
 
 .page-header {
     display: flex;
@@ -90,11 +72,6 @@
     line-height: 1.5;
     max-width: 640px;
 }
-
-
-/* ================================================================
-   BUTTONS
-   ================================================================ */
 
 .primary-button,
 .secondary-button,
@@ -191,11 +168,6 @@
         font-size: 13px;
     }
 
-
-/* ================================================================
-   ROW ACTION BUTTON
-   ================================================================ */
-
 .row-action {
     display: inline-flex;
     align-items: center;
@@ -237,11 +209,6 @@
         color: #ffffff;
     }
 
-
-/* ================================================================
-   ALERTS
-   ================================================================ */
-
 .page-alert {
     display: flex;
     align-items: center;
@@ -278,10 +245,99 @@
         color: var(--ds-danger);
     }
 
+.cl-banners {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-/* ================================================================
-   SECTION CARD — soft shadow, no border
-   ================================================================ */
+.cl-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #cfd5dd;
+    border-radius: var(--ds-radius-lg);
+}
+
+.cl-banner-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--ds-heading);
+    color: #ffffff;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.cl-banner--calm .cl-banner-icon {
+    background: var(--ds-success);
+}
+
+.cl-banner-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    color: var(--ds-heading);
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+    .cl-banner-text strong {
+        font-weight: 700;
+    }
+
+.claims-page .cl-banner-btn,
+.claims-page .cl-banner-btn:link,
+.claims-page .cl-banner-btn:visited,
+.claims-page .cl-banner-btn:focus,
+.claims-page .cl-banner-btn:active {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    min-height: 35px;
+    padding: 8px 14px;
+    border-radius: var(--ds-radius-sm);
+    background: var(--ds-action);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color var(--ds-transition);
+}
+
+    .claims-page .cl-banner-btn:hover {
+        background: var(--ds-action-strong);
+        color: #ffffff;
+    }
+
+    .claims-page .cl-banner-btn:focus-visible {
+        outline: 2px solid var(--ds-action);
+        outline-offset: 2px;
+    }
+
+.cl-banners-more {
+    margin: 2px 4px 0;
+    color: var(--ds-text-secondary);
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+    .cl-banners-more strong {
+        color: var(--ds-heading);
+        font-weight: 700;
+    }
 
 .section-card {
     display: flex;
@@ -341,12 +397,11 @@
     gap: 10px;
     flex-wrap: wrap;
 }
-
-
-/* ================================================================
-   TOOLBAR + SEARCH
-   ================================================================ */
-
+.bi bi-folder2-open {
+    color: var(--ds-text-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
 .toolbar {
     padding: 12px 20px;
     border-bottom: 1px solid var(--ds-border-light);
@@ -426,11 +481,6 @@
         font-size: 13px;
     }
 
-
-/* ================================================================
-   DATA TABLE
-   ================================================================ */
-
 .table-wrapper {
     width: 100%;
     overflow-x: auto;
@@ -507,11 +557,6 @@
         text-align: right;
     }
 
-
-/* ================================================================
-   CELL VALUES
-   ================================================================ */
-
 .reference-pill {
     display: inline-flex;
     align-items: center;
@@ -546,11 +591,6 @@
     font-variant-numeric: tabular-nums;
 }
 
-
-/* ================================================================
-   STATUS BADGES
-   ================================================================ */
-
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -575,13 +615,11 @@
         opacity: 0.7;
     }
 
-/* Active — success green */
 .status-active {
     color: var(--ds-success-strong);
     background: var(--ds-success-soft);
 }
 
-/* Pending — action blue (waiting on you) */
 .status-pending {
     color: var(--ds-action-strong);
     background: var(--ds-action-soft);
@@ -592,22 +630,15 @@
         opacity: 1;
     }
 
-/* Danger — red */
 .status-danger {
     color: var(--ds-danger);
     background: var(--ds-danger-soft);
 }
 
-/* Neutral — grey */
 .status-neutral {
     color: var(--ds-text-secondary);
     background: var(--ds-surface-raised);
 }
-
-
-/* ================================================================
-   DETAIL GRID
-   ================================================================ */
 
 .detail-grid {
     display: grid;
@@ -643,11 +674,6 @@
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
-
-
-/* ================================================================
-   DETAIL NOTES / STATUS PANELS
-   ================================================================ */
 
 .detail-notes {
     padding: 16px 20px 20px;
@@ -715,11 +741,6 @@
         font-size: 12.5px;
         line-height: 1.55;
     }
-
-
-/* ================================================================
-   DECISION PANEL — in-page confirm panels
-   ================================================================ */
 
 .decision-actions {
     display: flex;
@@ -823,11 +844,6 @@
     flex-wrap: wrap;
 }
 
-
-/* ================================================================
-   EMPTY STATE — icon + heading + body
-   ================================================================ */
-
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -874,11 +890,6 @@
     margin-top: 10px;
 }
 
-
-/* ================================================================
-   FOCUS ACCESSIBILITY
-   ================================================================ */
-
 .primary-button:focus-visible,
 .secondary-button:focus-visible,
 .gray-button:focus-visible,
@@ -897,11 +908,6 @@
     outline-color: var(--ds-danger);
 }
 
-
-/* ================================================================
-   FORCE: primary row action must be white text on action blue
-   ================================================================ */
-
 .row-action.row-action--primary,
 .row-action.row-action--primary:link,
 .row-action.row-action--primary:visited,
@@ -918,11 +924,6 @@
         color: #ffffff;
     }
 
-
-/* ================================================================
-   RESPONSIVE — TABLET
-   ================================================================ */
-
 @media (max-width: 950px) {
 
     .detail-grid {
@@ -937,11 +938,6 @@
         border-bottom: none;
     }
 }
-
-
-/* ================================================================
-   RESPONSIVE — MOBILE
-   ================================================================ */
 
 @media (max-width: 700px) {
 
@@ -971,6 +967,20 @@
 
     .primary-button {
         width: 100%;
+    }
+
+    .cl-banner {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .cl-banner-text {
+        flex-basis: calc(100% - 42px);
+    }
+
+    .claims-page .cl-banner-btn {
+        width: calc(100% - 42px);
+        margin-left: 42px;
     }
 
     .section-header {
@@ -1051,11 +1061,6 @@
     }
 }
 
-
-/* ================================================================
-   RESPONSIVE — SMALL MOBILE
-   ================================================================ */
-
 @media (max-width: 480px) {
 
     .claims-page {
@@ -1064,6 +1069,11 @@
 
     .page-header h1 {
         font-size: 19px;
+    }
+
+    .claims-page .cl-banner-btn {
+        width: 100%;
+        margin-left: 0;
     }
 
     .section-header,
@@ -1082,11 +1092,6 @@
     }
 }
 
-
-/* ================================================================
-   REDUCED MOTION
-   ================================================================ */
-
 @media (prefers-reduced-motion: reduce) {
 
     .claims-page *,
@@ -1096,11 +1101,6 @@
         animation-duration: 0.01ms !important;
     }
 }
-
-
-/* ================================================================
-   PRINT
-   ================================================================ */
 
 @media print {
 
@@ -1115,6 +1115,7 @@
 
     .page-header,
     .page-header-actions,
+    .cl-banners,
     .section-actions,
     .decision-actions,
     .confirm-panel,

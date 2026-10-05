@@ -6,10 +6,15 @@
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: 0 0 24px;
+    padding: 0 24px 24px;
+    display: flex;
+    flex-direction: column;
     gap: 20px;
     font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 13.5px;
+    line-height: 1.5;
     color: #1a2634;
+    -webkit-font-smoothing: antialiased;
 }
 
     .hod-content .dd-page [hidden] {
@@ -22,15 +27,29 @@
    ================================================================ */
 
 .hod-content .dd-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     padding-top: 4px;
 }
 
     .hod-content .dd-header h1 {
+        margin: 0;
+        color: var(--ds-heading, #0f2742);
+        font-family: "Poppins", sans-serif;
         font-size: 26px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.4px;
         overflow-wrap: anywhere;
     }
 
     .hod-content .dd-header p {
+        margin: 0;
+        color: var(--ds-text-muted, #8a99a8);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1.5;
         overflow-wrap: anywhere;
         max-width: 100%;
     }
@@ -55,18 +74,67 @@
 }
 
 .hod-content .dd-milestone-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--ds-heading, #0f2742);
+    color: #fff;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.hod-content .dd-milestone--calm .dd-milestone-icon {
+    background: var(--ds-success, #1a8a4a);
 }
 
 .hod-content .dd-milestone-text {
     flex: 1 1 auto;
     min-width: 0;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--ds-heading, #0f2742);
+    font-weight: 500;
     overflow-wrap: anywhere;
 }
 
+    .hod-content .dd-milestone-text strong {
+        font-weight: 700;
+    }
+
 .hod-content .dd-milestone-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     flex: 0 0 auto;
+    min-height: 34px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    background: var(--ds-action, #1e5fbf);
+    color: #fff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.16s ease;
 }
+
+    .hod-content .dd-milestone-btn:hover {
+        background: var(--ds-action-strong, #154a99);
+        color: #fff;
+    }
+
+    .hod-content .dd-milestone-btn:focus-visible {
+        outline: 2px solid var(--ds-action, #1e5fbf);
+        outline-offset: 2px;
+    }
 
 
 /* ================================================================
@@ -90,6 +158,7 @@
     text-decoration: none;
     color: inherit;
     min-width: 0;
+    transition: border-color 0.16s ease;
 }
 
     .hod-content .dd-workflow-card:hover {
@@ -105,8 +174,14 @@
     letter-spacing: 0.6px;
     text-transform: uppercase;
     color: var(--ds-text-muted, #8a99a8);
+    line-height: 1.3;
     margin-bottom: 6px;
 }
+
+    .hod-content .dd-workflow-label .bi-info-circle {
+        font-size: 10px;
+        opacity: 0.7;
+    }
 
 .hod-content .dd-workflow-value {
     display: block;
@@ -122,6 +197,7 @@
 
 .hod-content .dd-workflow-card--action .dd-workflow-value {
     color: var(--ds-action, #1e5fbf);
+    font-size: 30px;
 }
 
 .hod-content .dd-workflow-card--waiting .dd-workflow-value {
@@ -142,8 +218,17 @@
 
 
 /* ================================================================
-   QUEUE
+   QUEUE — card header with chips
    ================================================================ */
+
+.hod-content .ds-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #dce4ed;
+    border-radius: 8px;
+    overflow: hidden;
+}
 
 .hod-content .ds-card-header {
     display: flex;
@@ -158,8 +243,10 @@
 
     .hod-content .ds-card-header h2 {
         margin: 0;
+        font-family: "Poppins", sans-serif;
         font-size: 13.5px;
         font-weight: 700;
+        letter-spacing: -0.15px;
         color: var(--ds-heading, #0f2742);
     }
 
@@ -181,17 +268,59 @@
     }
 
 .hod-content .ds-chip {
-    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 0 10px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ds-text-secondary, #4a5b6d);
+    text-decoration: none;
+    font-size: 11.5px;
+    font-weight: 600;
     white-space: nowrap;
+    flex: 0 0 auto;
+    transition: background-color 0.16s ease, color 0.16s ease;
 }
 
+    .hod-content .ds-chip:hover {
+        background: var(--ds-surface-raised, #f5f8fb);
+        color: var(--ds-heading, #0f2742);
+    }
+
+    .hod-content .ds-chip.is-active,
+    .hod-content .ds-chip.is-active:visited {
+        background: #66a1ff !important;
+        border-color: #66a1ff !important;
+        color: #0f2742 !important;
+    }
+
 .hod-content .ds-chip-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 5px;
+    background: rgba(15, 39, 66, 0.06);
+    color: var(--ds-text-secondary, #4a5b6d);
+    font-size: 10px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
     flex: 0 0 auto;
+}
+
+.hod-content .ds-chip.is-active .ds-chip-count {
+    background: rgba(255, 255, 255, 0.7) !important;
+    color: #0f2742 !important;
 }
 
 
 /* ================================================================
-   TOOLBAR — kill the flex-basis that was opening the gap
+   TOOLBAR + SEARCH
    ================================================================ */
 
 .hod-content .dd-toolbar {
@@ -215,15 +344,66 @@
         height: auto;
     }
 
-        .hod-content .dd-toolbar input,
+        .hod-content .ds-search > i {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            transform: translateY(-50%);
+            color: var(--ds-text-muted, #8a99a8);
+            font-size: 13px;
+            pointer-events: none;
+        }
+
         .hod-content .ds-search input {
+            width: 100%;
             height: 36px;
             min-height: 36px;
+            padding: 0 68px 0 34px;
+            border: 1px solid var(--ds-border, #d8e0e8);
+            border-radius: 6px;
+            outline: none;
+            background: var(--ds-surface-raised, #f5f8fb);
+            color: var(--ds-heading, #0f2742);
+            font-family: inherit;
+            font-size: 12.5px;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
         }
+
+            .hod-content .ds-search input::placeholder {
+                color: var(--ds-text-muted, #8a99a8);
+            }
+
+            .hod-content .ds-search input:focus {
+                background: #fff;
+                border-color: var(--ds-action, #1e5fbf);
+                box-shadow: 0 0 0 3px var(--ds-action-soft, #d9e7f8);
+            }
+
+.hod-content .ds-search-hint {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 2px 6px;
+    border: 1px solid var(--ds-border, #d8e0e8);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ds-text-muted, #8a99a8);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    pointer-events: none;
+}
+
+.hod-content .ds-search input:focus ~ .ds-search-hint,
+.hod-content .ds-search input:not(:placeholder-shown) ~ .ds-search-hint {
+    opacity: 0;
+    visibility: hidden;
+}
 
 
 /* ================================================================
-   QUEUE LIST — no reserved height
+   QUEUE LIST
    ================================================================ */
 
 .hod-content .dd-list {
@@ -250,9 +430,47 @@
         display: none !important;
     }
 
+.hod-content .ds-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 8px;
+}
+
+.hod-content .ds-empty-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--ds-surface-raised, #f5f8fb);
+    color: var(--ds-text-muted, #8a99a8);
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.hod-content .ds-empty h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ds-heading, #0f2742);
+}
+
+.hod-content .ds-empty p {
+    margin: 0;
+    max-width: 420px;
+    color: var(--ds-text-secondary, #4a5b6d);
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
 
 /* ================================================================
-   ROW GRID — desktop default
+   ROW GRID — desktop
    ================================================================ */
 
 .hod-content .dd-row {
@@ -264,24 +482,44 @@
     padding: 12px 18px;
     border-bottom: 1px solid var(--ds-border-light, #e8eef4);
     background: #fff;
+    transition: background-color 0.16s ease;
+}
+
+    .hod-content .dd-row:not(.dd-row--head):hover,
+    .hod-content .dd-row--needs:hover {
+        background: #f0f3f7;
+    }
+
+    .hod-content .dd-row:last-child {
+        border-bottom: none;
+    }
+
+.hod-content .dd-row--needs {
+    background: transparent;
+    box-shadow: inset 3px 0 0 var(--ds-action, #1e5fbf);
 }
 
 .hod-content .dd-row--head {
     min-height: 0;
     padding-top: 10px;
     padding-bottom: 10px;
-    background: transparent;
+    background: var(--ds-surface-raised, #f5f8fb);
     border-bottom: 1px solid var(--ds-border, #d8e0e8);
     color: var(--ds-text-muted, #8a99a8);
     font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: 0.7px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
 }
 
 .hod-content .dd-cell {
     min-width: 0;
 }
+
+
+/* ================================================================
+   ROW CELLS
+   ================================================================ */
 
 .hod-content .dd-avatar {
     display: inline-flex;
@@ -322,11 +560,68 @@
 
 .hod-content .dd-ref-code {
     color: var(--ds-heading, #0f2742);
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 700;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: 0;
+}
+
+.hod-content .dd-row--needs .dd-ref-code {
+    font-weight: 800;
+}
+
+.hod-content .ds-tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--ds-surface-raised, #f5f8fb);
+    color: var(--ds-text-secondary, #4a5b6d);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1.4;
+    align-self: flex-start;
+}
+
+.hod-content .ds-copy {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--ds-text-muted, #8a99a8);
+    cursor: pointer;
+    opacity: 0;
+    flex: 0 0 auto;
+    transition: opacity 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+}
+
+    .hod-content .dd-row:hover .ds-copy,
+    .hod-content .ds-copy:focus-visible {
+        opacity: 1;
+    }
+
+    .hod-content .ds-copy:hover {
+        background: var(--ds-surface-raised, #f5f8fb);
+        color: var(--ds-action, #1e5fbf);
+    }
+
+    .hod-content .ds-copy.is-copied {
+        background: var(--ds-success-soft, #d8f0e0);
+        color: var(--ds-success-strong, #106634);
+    }
+
+@media (hover: none) {
+    .hod-content .ds-copy {
+        opacity: 0.55;
+    }
 }
 
 .hod-content .dd-who {
@@ -338,7 +633,7 @@
 
 .hod-content .dd-who-name {
     color: var(--ds-heading, #0f2742);
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -358,12 +653,14 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 .hod-content .dd-value-amount {
     color: var(--ds-heading, #0f2742);
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 700;
+    font-variant-numeric: tabular-nums;
 }
 
 .hod-content .dd-value-hours {
@@ -394,27 +691,48 @@
     text-overflow: ellipsis;
 }
 
+    .hod-content .dd-stage-pill::before {
+        content: "";
+        display: inline-block;
+        flex: 0 0 auto;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.55;
+    }
+
 .hod-content .dd-stage-pill--action {
     background: var(--ds-action-soft, #d9e7f8);
     color: var(--ds-action-strong, #154a99);
 }
 
+    .hod-content .dd-stage-pill--action::before {
+        background: var(--ds-action, #1e5fbf);
+        opacity: 1;
+    }
+
 .hod-content .dd-stage-sep {
     color: var(--ds-text-muted, #8a99a8);
     font-weight: 400;
+    margin: 0 2px;
 }
 
 .hod-content .dd-stage-wait {
     font-size: 11.5px;
     font-weight: 500;
+    color: inherit;
+    opacity: 0.85;
 }
 
     .hod-content .dd-stage-wait.ds-tone-warn {
         color: var(--ds-warning-strong, #8e5d00);
+        opacity: 1;
     }
 
     .hod-content .dd-stage-wait.ds-tone-late {
         color: var(--ds-danger, #c0392b);
+        opacity: 1;
     }
 
 .hod-content .dd-action {
@@ -432,6 +750,7 @@
     color: var(--ds-text-muted, #8a99a8);
     background: transparent;
     text-decoration: none;
+    transition: background-color 0.16s ease, color 0.16s ease;
 }
 
     .hod-content .dd-row-action:hover {
@@ -453,7 +772,7 @@
 
 
 /* ================================================================
-   ACTIVITY + SNAPSHOT
+   ACTIVITY
    ================================================================ */
 
 .hod-content .ds-activity {
@@ -476,9 +795,25 @@
         border-bottom: 0;
     }
 
+.hod-content .ds-activity-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ds-text-muted, #8a99a8);
+}
+
+.hod-content .ds-activity-dot--done {
+    background: var(--ds-success, #1a8a4a);
+}
+
+.hod-content .ds-activity-dot--rejected {
+    background: var(--ds-danger, #c0392b);
+}
+
 .hod-content .ds-activity-text {
     color: var(--ds-text-secondary, #4a5b6d);
     font-size: 12px;
+    min-width: 0;
 }
 
     .hod-content .ds-activity-text strong {
@@ -492,11 +827,29 @@
     white-space: nowrap;
 }
 
+
+/* ================================================================
+   SNAPSHOT
+   ================================================================ */
+
 .hod-content .ds-snapshot {
     padding: 18px;
     background: var(--ds-surface, #ffffff);
     border: 1px solid var(--ds-border-light, #e8eef4);
     border-radius: 8px;
+}
+
+.hod-content .ds-snapshot-header {
+    margin-bottom: 16px;
+}
+
+.hod-content .ds-snapshot-title {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: -0.15px;
+    color: var(--ds-heading, #0f2742);
 }
 
 .hod-content .ds-snapshot-grid {
@@ -511,6 +864,7 @@
     gap: 4px;
     text-decoration: none;
     color: inherit;
+    min-width: 0;
 }
 
 .hod-content .ds-snapshot-label {
@@ -527,6 +881,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    font-family: "Poppins", sans-serif;
     font-size: 22px;
     font-weight: 700;
     color: var(--ds-heading, #0f2742);
@@ -545,10 +900,15 @@
 
 
 /* ================================================================
-   RESPONSIVE — 1400 / 1280 / 990 / 720 / 520
+   RESPONSIVE — 1400 / 1280 / 990 / 720 / 520 / 400
    ================================================================ */
 
 @media (max-width: 1400px) {
+
+    .hod-content .dd-page {
+        padding-left: 22px;
+        padding-right: 22px;
+    }
 
     .hod-content .dd-row {
         grid-template-columns: 180px minmax(160px, 1.2fr) 120px minmax(180px, 1fr) 40px;
@@ -604,6 +964,11 @@
 
 @media (max-width: 990px) {
 
+    .hod-content .dd-page {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
     .hod-content .dd-workflow {
         grid-template-columns: 1fr;
         gap: 8px;
@@ -656,7 +1021,7 @@
     .hod-content .dd-toolbar {
         flex-direction: column;
         align-items: stretch;
-        padding: 10px 14px;
+        padding: 12px 14px;
     }
 
         .hod-content .dd-toolbar .ds-search,
@@ -680,10 +1045,6 @@
     .hod-content .dd-ref {
         align-items: center;
         flex-wrap: nowrap;
-    }
-
-    .hod-content .dd-ref-code {
-        font-size: 13px;
     }
 
     .hod-content .dd-action {
@@ -719,16 +1080,27 @@
 @media (max-width: 720px) {
 
     .hod-content .dd-page {
-        gap: 16px;
+        padding-left: 16px;
+        padding-right: 16px;
         padding-bottom: 18px;
+        gap: 16px;
     }
 
-    .hod-content .dd-header h1 {
-        font-size: 22px;
+    .hod-content .dd-header {
+        padding-top: 0;
     }
 
-    .hod-content .dd-header p {
-        font-size: 12.5px;
+        .hod-content .dd-header h1 {
+            font-size: 22px;
+        }
+
+        .hod-content .dd-header p {
+            font-size: 12.5px;
+        }
+
+    .hod-content .dd-milestone {
+        padding: 12px 14px;
+        border-radius: 8px;
     }
 
     .hod-content .ds-card-header {
@@ -736,11 +1108,19 @@
     }
 
     .hod-content .dd-toolbar {
-        padding: 10px 14px;
+        padding: 12px 14px;
     }
 
     .hod-content .ds-search-hint {
         display: none;
+    }
+
+    .hod-content .dd-row {
+        padding: 14px;
+    }
+
+    .hod-content .ds-activity {
+        padding: 0 16px;
     }
 
     .hod-content .ds-activity-item {
@@ -752,12 +1132,25 @@
     .hod-content .ds-activity-when {
         grid-column: 2;
     }
+
+    .hod-content .ds-snapshot {
+        padding: 16px;
+    }
 }
 
 @media (max-width: 520px) {
 
+    .hod-content .dd-page {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
     .hod-content .dd-header h1 {
         font-size: 20px;
+    }
+
+    .hod-content .dd-workflow-card {
+        padding: 12px 14px;
     }
 
     .hod-content .dd-workflow-value {
@@ -771,21 +1164,59 @@
 
     .hod-content .ds-chip {
         font-size: 11px;
-        padding: 5px 8px;
+        padding: 0 8px;
+        min-height: 28px;
+    }
+
+    .hod-content .ds-snapshot {
+        padding: 14px;
+    }
+}
+
+@media (max-width: 400px) {
+
+    .hod-content .dd-page {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .hod-content .dd-header h1 {
+        font-size: 19px;
+    }
+
+    .hod-content .dd-header p {
+        font-size: 12px;
+    }
+
+    .hod-content .dd-milestone {
+        padding: 10px 12px;
+    }
+
+    .hod-content .dd-milestone-text {
+        font-size: 12.5px;
+    }
+
+    .hod-content .dd-workflow-label {
+        font-size: 10px;
+    }
+
+    .hod-content .ds-card-header {
+        padding: 12px 14px;
+    }
+
+    .hod-content .dd-toolbar {
+        padding: 10px 14px;
+    }
+
+    .hod-content .dd-row {
+        padding: 12px 14px;
     }
 }
 
 
 /* ================================================================
-   TOUCH / MOTION / PRINT
+   REDUCED MOTION
    ================================================================ */
-
-@media (hover: none) {
-
-    .hod-content .ds-copy {
-        opacity: 0.55;
-    }
-}
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -796,6 +1227,11 @@
         animation-duration: 0.01ms !important;
     }
 }
+
+
+/* ================================================================
+   PRINT
+   ================================================================ */
 
 @media print {
 

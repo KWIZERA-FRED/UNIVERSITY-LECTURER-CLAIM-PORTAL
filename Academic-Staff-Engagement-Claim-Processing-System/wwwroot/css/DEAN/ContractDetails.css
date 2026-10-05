@@ -1,8 +1,8 @@
 .dean-content .contracts-page {
     width: 100%;
     max-width: none;
-    margin: 0;
-    padding: 0 0 24px;
+    margin: 0 auto;
+    padding: 0 24px 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -29,11 +29,6 @@
     .dean-content .contracts-page textarea {
         font: inherit;
     }
-
-
-/* ================================================================
-   PAGE HEADER
-   ================================================================ */
 
 .dean-content .page-header {
     display: flex;
@@ -78,11 +73,6 @@
     overflow-wrap: anywhere;
 }
 
-
-/* ================================================================
-   BUTTONS
-   ================================================================ */
-
 .dean-content .primary-button,
 .dean-content .secondary-button,
 .dean-content .gray-button,
@@ -105,17 +95,22 @@
     transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
-.dean-content .primary-button {
-    border: 1px solid var(--ds-action, #1e5fbf);
-    background: var(--ds-action, #1e5fbf);
-    color: #ffffff;
-}
-
-    .dean-content .primary-button:hover {
-        background: var(--ds-action-strong, #154a99);
-        border-color: var(--ds-action-strong, #154a99);
-        color: #ffffff;
+    .dean-content .primary-button,
+    .dean-content .primary-button:link,
+    .dean-content .primary-button:visited,
+    .dean-content .primary-button:focus,
+    .dean-content .primary-button:active {
+        border: 1px solid var(--ds-action, #1e5fbf);
+        background: var(--ds-action, #1e5fbf);
+        color: #ffffff !important;
+        text-decoration: none;
     }
+
+        .dean-content .primary-button:hover {
+            background: var(--ds-action-strong, #154a99);
+            border-color: var(--ds-action-strong, #154a99);
+            color: #ffffff !important;
+        }
 
 .dean-content .secondary-button {
     border: 1px solid var(--ds-border, #d8e0e8);
@@ -144,16 +139,21 @@
         color: var(--ds-heading, #0f2742);
     }
 
-.dean-content .danger-button {
+.dean-content .danger-button,
+.dean-content .danger-button:link,
+.dean-content .danger-button:visited,
+.dean-content .danger-button:focus,
+.dean-content .danger-button:active {
     border: 1px solid var(--ds-danger, #c0392b);
     background: var(--ds-danger, #c0392b);
-    color: #ffffff;
+    color: #ffffff !important;
+    text-decoration: none;
 }
 
     .dean-content .danger-button:hover {
         background: #a93226;
         border-color: #a93226;
-        color: #ffffff;
+        color: #ffffff !important;
     }
 
 .dean-content .danger-outline-button {
@@ -165,6 +165,7 @@
     .dean-content .danger-outline-button:hover {
         background: #f5d6d2;
         border-color: var(--ds-danger, #c0392b);
+        color: var(--ds-danger, #c0392b);
     }
 
     .dean-content .primary-button i,
@@ -173,11 +174,6 @@
     .dean-content .danger-outline-button i {
         font-size: 12.5px;
     }
-
-
-/* ================================================================
-   ALERTS
-   ================================================================ */
 
 .dean-content .page-alert {
     display: flex;
@@ -214,82 +210,6 @@
     .dean-content .page-alert-error i {
         color: var(--ds-danger, #c0392b);
     }
-
-
-/* ================================================================
-   STATS — used only on Contracts.cshtml
-   ================================================================ */
-
-.dean-content .contracts-stats {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.dean-content .contracts-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 16px 18px;
-    background: var(--ds-surface, #ffffff);
-    border: 1px solid var(--ds-border-light, #e8eef4);
-    border-radius: var(--ds-radius-md, 8px);
-    min-width: 0;
-    transition: border-color 0.16s ease;
-}
-
-    .dean-content .contracts-stat:hover {
-        border-color: var(--ds-border, #d8e0e8);
-    }
-
-.dean-content .contracts-stat-label {
-    display: block;
-    color: var(--ds-text-muted, #8a99a8);
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    line-height: 1.3;
-    margin-bottom: 8px;
-}
-
-.dean-content .contracts-stat-value {
-    display: block;
-    font-family: "Poppins", sans-serif;
-    font-size: 26px;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.5px;
-    font-variant-numeric: tabular-nums;
-    margin-bottom: 8px;
-}
-
-.dean-content .contracts-stat--neutral .contracts-stat-value {
-    color: var(--ds-heading, #0f2742);
-}
-
-.dean-content .contracts-stat--action .contracts-stat-value {
-    color: var(--ds-action, #1e5fbf);
-    font-size: 30px;
-    letter-spacing: -0.6px;
-}
-
-.dean-content .contracts-stat--success .contracts-stat-value {
-    color: var(--ds-success, #1a8a4a);
-}
-
-.dean-content .contracts-stat-meta {
-    display: block;
-    color: var(--ds-text-secondary, #4a5b6d);
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 1.4;
-}
-
-
-/* ================================================================
-   SECTION CARD
-   ================================================================ */
 
 .dean-content .section-card {
     display: flex;
@@ -340,223 +260,6 @@
     font-variant-numeric: tabular-nums;
 }
 
-
-/* ================================================================
-   TOOLBAR + SEARCH
-   ================================================================ */
-
-.dean-content .toolbar {
-    padding: 12px 18px;
-    border-bottom: 1px solid var(--ds-border-light, #e8eef4);
-    background: var(--ds-surface, #ffffff);
-}
-
-.dean-content .search-box {
-    position: relative;
-    width: 380px;
-    max-width: 100%;
-    display: block;
-}
-
-    .dean-content .search-box > i {
-        position: absolute;
-        top: 50%;
-        left: 12px;
-        transform: translateY(-50%);
-        color: var(--ds-text-muted, #8a99a8);
-        font-size: 13px;
-        pointer-events: none;
-    }
-
-    .dean-content .search-box input {
-        width: 100%;
-        height: 36px;
-        padding: 0 68px 0 34px;
-        border: 1px solid var(--ds-border, #d8e0e8);
-        border-radius: var(--ds-radius-sm, 6px);
-        outline: none;
-        background: var(--ds-surface, #ffffff);
-        color: var(--ds-heading, #0f2742);
-        font-family: inherit;
-        font-size: 12.5px;
-        transition: border-color 0.16s ease, box-shadow 0.16s ease;
-    }
-
-        .dean-content .search-box input::placeholder {
-            color: var(--ds-text-muted, #8a99a8);
-        }
-
-        .dean-content .search-box input:focus {
-            border-color: var(--ds-action, #1e5fbf);
-            box-shadow: 0 0 0 3px var(--ds-action-soft, #d9e7f8);
-        }
-
-.dean-content .search-hint {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 2px 6px;
-    border: 1px solid var(--ds-border, #d8e0e8);
-    border-radius: var(--ds-radius-sm, 6px);
-    background: var(--ds-surface-raised, #f5f8fb);
-    color: var(--ds-text-muted, #8a99a8);
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.4;
-    pointer-events: none;
-}
-
-.dean-content .search-box input:focus ~ .search-hint,
-.dean-content .search-box input:not(:placeholder-shown) ~ .search-hint {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.dean-content .table-empty {
-    padding: 36px 24px;
-    text-align: center;
-}
-
-    .dean-content .table-empty p {
-        margin: 0;
-        color: var(--ds-text-muted, #8a99a8);
-        font-size: 12.5px;
-    }
-
-
-/* ================================================================
-   DATA TABLE — used only on Contracts.cshtml
-   ================================================================ */
-
-.dean-content .table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--ds-border, #d8e0e8) transparent;
-}
-
-    .dean-content .table-wrapper::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    .dean-content .table-wrapper::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .dean-content .table-wrapper::-webkit-scrollbar-thumb {
-        background: var(--ds-border, #d8e0e8);
-        border-radius: 999px;
-    }
-
-.dean-content .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12.5px;
-    min-width: 1180px;
-}
-
-    .dean-content .data-table thead {
-        background: var(--ds-surface-raised, #f5f8fb);
-    }
-
-    .dean-content .data-table th {
-        padding: 11px 18px;
-        color: var(--ds-text-muted, #8a99a8);
-        font-size: 10.5px;
-        font-weight: 700;
-        text-align: left;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        border-bottom: 1px solid var(--ds-border-light, #e8eef4);
-        white-space: nowrap;
-    }
-
-    .dean-content .data-table td {
-        padding: 13px 18px;
-        color: var(--ds-text-secondary, #4a5b6d);
-        font-size: 12.5px;
-        font-weight: 500;
-        border-bottom: 1px solid var(--ds-border-light, #e8eef4);
-        vertical-align: middle;
-    }
-
-    .dean-content .data-table tbody tr {
-        transition: background-color 0.16s ease;
-    }
-
-        .dean-content .data-table tbody tr:hover {
-            background: var(--ds-surface-raised, #f5f8fb);
-        }
-
-        .dean-content .data-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-    .dean-content .data-table th.col-action,
-    .dean-content .data-table td.col-action {
-        width: 1%;
-        white-space: nowrap;
-        text-align: right;
-    }
-
-
-/* ================================================================
-   CELL VALUES
-   ================================================================ */
-
-.dean-content .reference-pill {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    border-radius: var(--ds-radius-sm, 6px);
-    background: var(--ds-surface-raised, #f5f8fb);
-    color: var(--ds-heading, #0f2742);
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-}
-
-.dean-content .lecturer-name {
-    color: var(--ds-heading, #0f2742);
-    font-size: 12.5px;
-    font-weight: 600;
-}
-
-.dean-content .course-title {
-    color: var(--ds-text-secondary, #4a5b6d);
-    font-size: 12.5px;
-    font-weight: 500;
-}
-
-.dean-content .version-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    border-radius: var(--ds-radius-sm, 6px);
-    background: var(--ds-surface-raised, #f5f8fb);
-    color: var(--ds-text-secondary, #4a5b6d);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-}
-
-.dean-content .hours-value {
-    color: var(--ds-heading, #0f2742);
-    font-size: 12.5px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-}
-
-
-/* ================================================================
-   STATUS BADGES
-   ================================================================ */
-
 .dean-content .status-badge {
     display: inline-flex;
     align-items: center;
@@ -606,52 +309,6 @@
     color: var(--ds-text-muted, #8a99a8);
 }
 
-
-/* ================================================================
-   ROW ACTION — used only on Contracts.cshtml
-   ================================================================ */
-
-.dean-content .row-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    min-height: 30px;
-    padding: 0 12px;
-    border-radius: var(--ds-radius-sm, 6px);
-    border: 1px solid var(--ds-border-light, #e8eef4);
-    background: var(--ds-surface, #ffffff);
-    color: var(--ds-text-secondary, #4a5b6d);
-    font-size: 12px;
-    font-weight: 600;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
-}
-
-    .dean-content .row-action:hover {
-        background: var(--ds-surface-raised, #f5f8fb);
-        border-color: var(--ds-border, #d8e0e8);
-        color: var(--ds-heading, #0f2742);
-    }
-
-.dean-content .row-action--primary {
-    border-color: var(--ds-action, #1e5fbf);
-    background: var(--ds-action, #1e5fbf);
-    color: #ffffff;
-}
-
-    .dean-content .row-action--primary:hover {
-        background: var(--ds-action-strong, #154a99);
-        border-color: var(--ds-action-strong, #154a99);
-        color: #ffffff;
-    }
-
-
-/* ================================================================
-   DETAIL GRID — used only on ContractDetails.cshtml
-   ================================================================ */
-
 .dean-content .detail-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -686,11 +343,6 @@
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
-
-
-/* ================================================================
-   DETAIL NOTES + STATUS PANELS — used only on ContractDetails.cshtml
-   ================================================================ */
 
 .dean-content .detail-notes {
     padding: 14px 18px 18px;
@@ -746,11 +398,6 @@
         line-height: 1.55;
     }
 
-
-/* ================================================================
-   SIGNATURE FLOW — horizontal stepper
-   ================================================================ */
-
 .dean-content .signature-flow {
     display: flex;
     align-items: flex-start;
@@ -783,6 +430,7 @@
     flex: 0 0 auto;
     min-width: 110px;
     padding: 0 4px;
+    z-index: 1;
 }
 
 .dean-content .signature-flow-node {
@@ -800,6 +448,8 @@
     line-height: 1;
     border: 2px solid var(--ds-border, #d8e0e8);
     transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+    position: relative;
+    z-index: 2;
 }
 
     .dean-content .signature-flow-node[data-state="done"] {
@@ -835,6 +485,8 @@
     text-align: center;
     line-height: 1.3;
     white-space: nowrap;
+    position: relative;
+    z-index: 2;
 }
 
 .dean-content .signature-flow-step[data-state="future"] .signature-flow-role {
@@ -850,6 +502,10 @@
     line-height: 1.3;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+    text-decoration: none;
+    border-bottom: none;
+    position: relative;
+    z-index: 2;
 }
 
 .dean-content .signature-flow-step[data-state="done"] .signature-flow-meta {
@@ -859,6 +515,8 @@
 .dean-content .signature-flow-step[data-state="current"] .signature-flow-meta {
     color: var(--ds-action-strong, #154a99);
     font-weight: 600;
+    text-decoration: none;
+    border-bottom: none;
 }
 
 .dean-content .signature-flow-step[data-state="rejected"] .signature-flow-meta {
@@ -875,6 +533,7 @@
     border-radius: 1px;
     background: var(--ds-border, #d8e0e8);
     pointer-events: none;
+    z-index: -1;
 }
 
     .dean-content .signature-flow-connector[data-state="done"][data-next-state="done"] {
@@ -889,14 +548,21 @@
 
     .dean-content .signature-flow-connector[data-state="current"][data-next-state="future"] {
         background: transparent;
-        border-top: 2px dashed var(--ds-action, #1e5fbf);
+        border-top: 3px dashed var(--ds-action, #1e5fbf);
         height: 0;
-        opacity: 0.85;
+        opacity: 1;
+    }
+
+    .dean-content .signature-flow-connector[data-state="current"][data-next-state="current"] {
+        background: transparent;
+        border-top: 3px dashed var(--ds-action, #1e5fbf);
+        height: 0;
+        opacity: 1;
     }
 
     .dean-content .signature-flow-connector[data-state="future"][data-next-state="future"] {
         background: transparent;
-        border-top: 2px dashed var(--ds-border, #d8e0e8);
+        border-top: 3px dashed var(--ds-border, #d8e0e8);
         height: 0;
         opacity: 0.7;
     }
@@ -905,11 +571,6 @@
         background: var(--ds-danger, #c0392b);
         opacity: 1;
     }
-
-
-/* ================================================================
-   DECISION PANEL — Sign / Decline buttons on ContractDetails.cshtml
-   ================================================================ */
 
 .dean-content .decision-actions {
     display: flex;
@@ -971,11 +632,6 @@
     flex-wrap: wrap;
 }
 
-
-/* ================================================================
-   FORM GROUP — used inside the decline panel
-   ================================================================ */
-
 .dean-content .form-group {
     display: flex;
     flex-direction: column;
@@ -1017,11 +673,6 @@
             border-color: var(--ds-danger, #c0392b);
             box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.12);
         }
-
-
-/* ================================================================
-   EMPTY STATE
-   ================================================================ */
 
 .dean-content .empty-state {
     display: flex;
@@ -1069,22 +720,12 @@
     margin-top: 10px;
 }
 
-
-/* ================================================================
-   DOCUMENT STAGE — the wrapper around the rendered contract paper
-   ================================================================ */
-
 .dean-content .document-stage {
     padding: 20px;
     background: var(--ds-surface-raised, #f5f8fb);
     border-top: 1px solid var(--ds-border-light, #e8eef4);
     overflow-x: hidden;
 }
-
-
-/* ================================================================
-   PREVIEW MODAL — used on ContractDetails.cshtml
-   ================================================================ */
 
 .dean-content .preview-modal {
     position: fixed;
@@ -1205,19 +846,12 @@ body.preview-open {
     overflow: hidden;
 }
 
-
-/* ================================================================
-   FOCUS
-   ================================================================ */
-
 .dean-content .primary-button:focus-visible,
 .dean-content .secondary-button:focus-visible,
 .dean-content .gray-button:focus-visible,
 .dean-content .danger-button:focus-visible,
 .dean-content .danger-outline-button:focus-visible,
-.dean-content .row-action:focus-visible,
 .dean-content .preview-close:focus-visible,
-.dean-content .search-box input:focus-visible,
 .dean-content .form-group textarea:focus-visible {
     outline: 2px solid var(--ds-action, #1e5fbf);
     outline-offset: 2px;
@@ -1229,15 +863,19 @@ body.preview-open {
     outline-color: var(--ds-danger, #c0392b);
 }
 
+@media (max-width: 1400px) {
 
-/* ================================================================
-   RESPONSIVE
-   ================================================================ */
+    .dean-content .contracts-page {
+        padding-left: 22px;
+        padding-right: 22px;
+    }
+}
 
 @media (max-width: 1280px) {
 
-    .dean-content .data-table {
-        min-width: 1140px;
+    .dean-content .contracts-page {
+        padding-left: 20px;
+        padding-right: 20px;
     }
 
     .dean-content .detail-grid {
@@ -1255,6 +893,11 @@ body.preview-open {
 
 @media (max-width: 990px) {
 
+    .dean-content .contracts-page {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
     .dean-content .page-header {
         align-items: flex-start;
         flex-direction: column;
@@ -1267,29 +910,16 @@ body.preview-open {
 
     .dean-content .page-header-actions {
         width: 100%;
+        flex-wrap: wrap;
     }
 
         .dean-content .page-header-actions .primary-button,
         .dean-content .page-header-actions .secondary-button {
-            flex: 1;
+            flex: 1 1 auto;
+            min-width: 0;
         }
 
-    .dean-content .contracts-stats {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .dean-content .search-box {
-        width: 100%;
-    }
-
-    .dean-content .data-table {
-        min-width: 1080px;
-    }
-
-    .dean-content .document-stage {
-        padding: 14px;
-    }
-
+    .dean-content .document-stage,
     .dean-content .preview-body {
         padding: 14px;
     }
@@ -1299,51 +929,21 @@ body.preview-open {
 
     .dean-content .contracts-page {
         gap: 16px;
+        padding-left: 16px;
+        padding-right: 16px;
         padding-bottom: 18px;
     }
 
-    .dean-content .contracts-stats {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    .dean-content .contracts-stat {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        grid-template-areas:
-            "label  value"
-            "meta   meta";
-        align-items: center;
-        column-gap: 12px;
-        row-gap: 4px;
-        padding: 12px 14px;
-    }
-
-    .dean-content .contracts-stat-label {
-        grid-area: label;
-        margin-bottom: 0;
-    }
-
-    .dean-content .contracts-stat-value {
-        grid-area: value;
-        margin-bottom: 0;
-        text-align: right;
+    .dean-content .page-header h1 {
         font-size: 22px;
     }
 
-    .dean-content .contracts-stat-meta {
-        grid-area: meta;
+    .dean-content .page-header p {
+        font-size: 12.5px;
     }
 
-    .dean-content .section-header,
-    .dean-content .toolbar {
+    .dean-content .section-header {
         padding: 12px 16px;
-    }
-
-    .dean-content .data-table th,
-    .dean-content .data-table td {
-        padding-left: 14px;
-        padding-right: 14px;
     }
 
     .dean-content .detail-grid {
@@ -1408,12 +1008,16 @@ body.preview-open {
 
 @media (max-width: 520px) {
 
+    .dean-content .contracts-page {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
     .dean-content .page-header h1 {
         font-size: 20px;
     }
 
     .dean-content .section-header,
-    .dean-content .toolbar,
     .dean-content .document-stage,
     .dean-content .preview-header,
     .dean-content .detail-notes,
@@ -1422,18 +1026,35 @@ body.preview-open {
         padding-left: 14px;
         padding-right: 14px;
     }
+}
 
-    .dean-content .data-table th,
-    .dean-content .data-table td {
+@media (max-width: 400px) {
+
+    .dean-content .contracts-page {
         padding-left: 12px;
         padding-right: 12px;
     }
+
+    .dean-content .page-header h1 {
+        font-size: 19px;
+    }
+
+    .dean-content .page-header p {
+        font-size: 12px;
+    }
+
+    .dean-content .section-header {
+        padding: 12px 14px;
+    }
+
+    .dean-content .detail-notes,
+    .dean-content .document-stage,
+    .dean-content .decision-actions,
+    .dean-content .confirm-panel {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
 }
-
-
-/* ================================================================
-   REDUCED MOTION
-   ================================================================ */
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -1452,11 +1073,6 @@ body.preview-open {
     }
 }
 
-
-/* ================================================================
-   PRINT — contracts list + details
-   ================================================================ */
-
 @media print {
 
     body {
@@ -1473,17 +1089,13 @@ body.preview-open {
 
     .dean-content .page-header,
     .dean-content .page-header-actions,
-    .dean-content .contracts-stats,
     .dean-content .section-header,
-    .dean-content .toolbar,
     .dean-content .detail-grid,
     .dean-content .detail-notes,
     .dean-content .decision-actions,
     .dean-content .confirm-panel,
     .dean-content .signature-flow,
-    .dean-content .preview-modal,
-    .dean-content .row-action,
-    .dean-content .gray-button {
+    .dean-content .preview-modal {
         display: none !important;
     }
 
