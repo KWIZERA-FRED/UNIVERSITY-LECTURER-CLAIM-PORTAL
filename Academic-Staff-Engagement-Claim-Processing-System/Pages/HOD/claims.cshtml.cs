@@ -18,7 +18,15 @@ public class ClaimsModel : PageModel
         _context = context;
     }
 
+    // Claims waiting on this HOD right now, oldest first.
     public List<PendingClaimRow> PendingClaims { get; set; } = new();
+
+    // Every submitted claim in the HOD's faculty, whatever its status.
+    public List<AllClaimRow> AllClaims { get; set; } = new();
+
+    // False when the HOD account or faculty could not be resolved,
+    // so the page shows the error instead of "all caught up".
+    public bool HasAccess { get; private set; }
 
     public string? SuccessMessage { get; set; }
 
@@ -34,6 +42,39 @@ public class ClaimsModel : PageModel
         public int ContractId { get; set; }
 
         public decimal HoursClaimed { get; set; }
+
+        // When the claim started waiting on the HOD.
+        public DateTime WaitingSinceUtc { get; set; }
+
+        public int DaysWaiting { get; set; }
+
+        public string WaitText =>
+            DaysWaiting switch
+            {
+                0 => "since today",
+                1 => "for 1 day",
+                _ => $"for {DaysWaiting} days"
+            };
+    }
+
+    public class AllClaimRow
+    {
+        public int ClaimId { get; set; }
+
+        public string LecturerName { get; set; } =
+            string.Empty;
+
+        public int ContractId { get; set; }
+
+        public decimal HoursClaimed { get; set; }
+
+        public ClaimStatus Status { get; set; }
+
+        // The claim has an HOD approval step, so the details page can open it.
+        public bool HasHodStep { get; set; }
+
+        // It is this HOD's turn to approve the claim right now.
+        public bool IsAwaitingYou { get; set; }
     }
 
     public async Task<IActionResult> OnGetAsync()
@@ -80,16 +121,22 @@ public class ClaimsModel : PageModel
             return Page();
         }
 
-        await LoadPendingListAsync(
+        await LoadClaimsAsync(
             facultyDepartmentValues);
+
+        HasAccess = true;
 
         return Page();
     }
 
-    private async Task LoadPendingListAsync(
+    private async Task LoadClaimsAsync(
         HashSet<string> facultyDepartmentValues)
     {
-        PendingClaims = await _context.ClaimApprovals
+        // ------------------------------------------------------------
+        // Waiting on the HOD
+        // ------------------------------------------------------------
+
+        var pending = await _context.ClaimApprovals
             .AsNoTracking()
             .Where(ca =>
                 ca.ApprovalRole == ApprovalRole.HOD &&
@@ -98,21 +145,96 @@ public class ClaimsModel : PageModel
                 ca.Claim.CourseAssignment.Course != null &&
                 facultyDepartmentValues.Contains(
                     ca.Claim.CourseAssignment.Course.Department))
-            .Select(ca => new PendingClaimRow
+            .Select(ca => new
             {
-                ClaimId =
-                    ca.Claim.Id,
+                ClaimId = ca.Claim.Id,
 
                 LecturerName =
                     ca.Claim.CourseAssignment.Lecturer.UserName,
 
-                ContractId =
-                    ca.Claim.ContractId,
+                ContractId = ca.Claim.ContractId,
 
-                HoursClaimed =
-                    ca.Claim.HoursClaimed
+                HoursClaimed = ca.Claim.HoursClaimed,
+
+                SubmittedAtUtc = ca.Claim.SubmittedAtUtc,
+
+                CreatedAtUtc = ca.Claim.CreatedAtUtc,
+
+                // When the approver before the HOD finished.
+                LastEarlierDecisionUtc =
+                    ca.Claim.Approvals
+                        .Where(a =>
+                            a.SequenceOrder < ca.SequenceOrder &&
+                            a.DecidedAtUtc != null)
+                        .Max(a => a.DecidedAtUtc)
             })
-            .OrderByDescending(c => c.ClaimId)
+            .ToListAsync();
+
+        var nowUtc = DateTime.UtcNow;
+
+        PendingClaims = pending
+            .Select(p =>
+            {
+                var since =
+                    p.LastEarlierDecisionUtc ??
+                    p.SubmittedAtUtc ??
+                    p.CreatedAtUtc;
+
+                return new PendingClaimRow
+                {
+                    ClaimId = p.ClaimId,
+                    LecturerName = p.LecturerName,
+                    ContractId = p.ContractId,
+                    HoursClaimed = p.HoursClaimed,
+                    WaitingSinceUtc = since,
+                    DaysWaiting = Math.Max(
+                        0,
+                        (int)Math.Floor((nowUtc - since).TotalDays))
+                };
+            })
+            .OrderBy(r => r.WaitingSinceUtc)
+            .ThenBy(r => r.ClaimId)
+            .ToList();
+
+        // ------------------------------------------------------------
+        // Every submitted claim in the HOD's faculty
+        // ------------------------------------------------------------
+        //
+        // Drafts are left out: they are the lecturer's unsubmitted work.
+        // Claims from other faculties are left out: they are not the
+        // HOD's to review (the details page enforces the same rule).
+
+        AllClaims = await _context.Claims
+            .AsNoTracking()
+            .Where(c =>
+                c.Status != ClaimStatus.Draft &&
+                c.CourseAssignment.Course != null &&
+                facultyDepartmentValues.Contains(
+                    c.CourseAssignment.Course.Department))
+            .OrderByDescending(c => c.Id)
+            .Select(c => new AllClaimRow
+            {
+                ClaimId = c.Id,
+
+                LecturerName =
+                    c.CourseAssignment.Lecturer.UserName,
+
+                ContractId = c.ContractId,
+
+                HoursClaimed = c.HoursClaimed,
+
+                Status = c.Status,
+
+                HasHodStep =
+                    c.Approvals.Any(a =>
+                        a.ApprovalRole == ApprovalRole.HOD),
+
+                IsAwaitingYou =
+                    c.Status == ClaimStatus.PendingHODApproval &&
+                    c.Approvals.Any(a =>
+                        a.ApprovalRole == ApprovalRole.HOD &&
+                        a.Decision == ApprovalDecision.Pending)
+            })
             .ToListAsync();
     }
 

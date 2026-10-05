@@ -1,26 +1,56 @@
 @page
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.ClaimsModel
 
 @{
     Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
     ViewData["Title"] = "Claims";
+
+    // How many "needs your approval" banners to show before summarising.
+    const int maxBanners = 5;
+
+    var moreWaiting = Math.Max(0, Model.PendingClaims.Count - maxBanners);
+
+    string StatusLabel(ClaimStatus status) => status switch
+    {
+        ClaimStatus.Draft => "Draft",
+        ClaimStatus.Submitted => "Submitted",
+        ClaimStatus.PendingHODApproval => "Pending HOD",
+        ClaimStatus.PendingDeanApproval => "Pending Dean",
+        ClaimStatus.PendingDirectorOfQualityApproval => "Pending Director of Quality",
+        ClaimStatus.PendingDVCARApproval => "Pending DVCAR",
+        ClaimStatus.Approved => "Approved",
+        ClaimStatus.Rejected => "Rejected",
+        ClaimStatus.Paid => "Paid",
+        _ => status.ToString()
+    };
+
+    string StatusClass(ClaimStatus status) => status switch
+    {
+        ClaimStatus.Approved or ClaimStatus.Paid => "status-active",
+        ClaimStatus.Rejected => "status-danger",
+        ClaimStatus.Draft => "status-neutral",
+        _ => "status-pending"
+    };
 }
 
 @section Styles {
     <link rel="stylesheet"
-          href="~/css/HOD/claims.css"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/HOD/claims-list.css"
           asp-append-version="true" />
 }
 
 <section class="claims-page">
 
     <header class="page-header">
-
         <div class="page-header-main">
             <h1>Claims</h1>
-            <p>Review lecturer claims awaiting your approval.</p>
+            <p>Review lecturer payment claims in your faculty and follow every claim through the approval chain.</p>
         </div>
-
     </header>
 
     @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
@@ -39,143 +69,256 @@
         </div>
     }
 
-    <section class="stats-grid">
+    @if (Model.HasAccess)
+    {
+        <!-- ============================================================
+             AWAITING YOUR APPROVAL — banners (same look as the dashboard)
+             ============================================================ -->
 
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-orange">
-                <i class="bi bi-hourglass-split"></i>
-            </div>
-            <div class="stat-value">@Model.PendingClaims.Count</div>
-            <span class="stat-label">Pending Claims</span>
-        </div>
+        <section class="cl-banners" aria-label="Claims awaiting your approval">
 
-    </section>
+            @if (Model.PendingClaims.Count == 0)
+            {
+                <div class="cl-banner cl-banner--calm" role="status">
 
-    <section class="section-card">
+                    <span class="cl-banner-icon" aria-hidden="true">
+                        <i class="bi bi-check2-circle"></i>
+                    </span>
 
-        <header class="section-header">
-            <h2>Claims Awaiting Review</h2>
-            <span class="section-meta">
-                @Model.PendingClaims.Count @(Model.PendingClaims.Count == 1 ? "claim" : "claims")
-            </span>
-        </header>
+                    <p class="cl-banner-text">
+                        <strong>You're all caught up.</strong>
+                        Nothing is waiting for your approval right now.
+                    </p>
 
-        <div class="toolbar">
+                </div>
+            }
+            else
+            {
+                @foreach (var row in Model.PendingClaims.Take(maxBanners))
+                {
+                    <div class="cl-banner" role="status">
 
-            <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input type="search"
-                       id="claimsSearch"
-                       placeholder="Search by claim, lecturer or contract…"
-                       autocomplete="off" />
-            </div>
+                        <span class="cl-banner-icon" aria-hidden="true">
+                            <i class="bi bi-pen-fill"></i>
+                        </span>
 
-        </div>
+                        <p class="cl-banner-text">
+                            <strong>CL@(row.ClaimId.ToString("D3"))</strong>
+                            from @row.LecturerName
+                            needs your approval :
+                            @row.HoursClaimed.ToString("0.##") hours on contract
+                            C@(row.ContractId.ToString("D3")),
+                            waiting @row.WaitText.
+                        </p>
 
-        @if (Model.PendingClaims.Count > 0)
-        {
-            <div class="table-wrapper">
-                <table class="data-table" id="claimsTable">
+                        <a asp-page="/HOD/ClaimDetails"
+                           asp-route-ClaimId="@row.ClaimId"
+                           class="cl-banner-btn">
+                            Review &amp; approve
+                        </a>
 
-                    <thead>
-                        <tr>
-                            <th>Claim</th>
-                            <th>Lecturer</th>
-                            <th>Contract</th>
-                            <th class="col-right">Hours</th>
-                            <th class="col-action"></th>
-                        </tr>
-                    </thead>
+                    </div>
+                }
 
-                    <tbody>
-                        @foreach (var row in Model.PendingClaims)
-                        {
-                            <tr class="claim-row"
-                                data-search="CL@(row.ClaimId.ToString("D3")) @row.LecturerName C@(row.ContractId.ToString("D3"))">
+                @if (moreWaiting > 0)
+                {
+                    <p class="cl-banners-more">
+                        <strong>@moreWaiting more</strong>
+                        waiting — you'll find them highlighted in the table below.
+                    </p>
+                }
+            }
 
-                                <td>
-                                    <span class="reference-pill">
-                                        CL@(row.ClaimId.ToString("D3"))
-                                    </span>
-                                </td>
+        </section>
 
-                                <td>
-                                    <span class="lecturer-name">@row.LecturerName</span>
-                                </td>
+        <!-- ============================================================
+             ALL CLAIMS
+             ============================================================ -->
 
-                                <td>
-                                    <span class="contract-reference">
-                                        C@(row.ContractId.ToString("D3"))
-                                    </span>
-                                </td>
+        <section class="section-card" id="all-claims-card">
 
-                                <td class="col-right">
-                                    <span class="hours-value">@row.HoursClaimed.ToString("N2") h</span>
-                                </td>
+            <header class="section-header">
+                <h2>All claims</h2>
+                <span class="section-meta">
+                    @Model.AllClaims.Count
+                    @(Model.AllClaims.Count == 1 ? "claim" : "claims")
+                </span>
+            </header>
 
-                                <td class="col-action">
-                                    <a asp-page="/HOD/ClaimDetails"
-                                       asp-route-ClaimId="@row.ClaimId"
-                                       class="gray-button">
-                                        Review
-                                    </a>
-                                </td>
+            @if (Model.AllClaims.Count == 0)
+            {
+                <div class="empty-state">
+                    <span class="empty-state-icon" aria-hidden="true">
+                        <i class="bi bi-inbox"></i>
+                    </span>
+                    <h3>No claims yet</h3>
+                    <p>
+                        Claims from your faculty will appear here once lecturers submit them.
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="toolbar">
 
+                    <form class="search-box"
+                          role="search"
+                          onsubmit="return false;">
+
+                        <i class="bi bi-search" aria-hidden="true"></i>
+
+                        <input type="search"
+                               id="allClaimSearch"
+                               placeholder="Search by claim, lecturer, contract or status…"
+                               aria-label="Search all claims"
+                               autocomplete="off" />
+
+                        <span class="search-hint" aria-hidden="true">Press /</span>
+
+                    </form>
+
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="data-table">
+
+                        <thead>
+                            <tr>
+                                <th>Claim</th>
+                                <th>Lecturer</th>
+                                <th>Contract</th>
+                                <th class="col-right">Hours</th>
+                                <th>Status</th>
+                                <th class="col-action"></th>
                             </tr>
-                        }
-                    </tbody>
+                        </thead>
 
-                </table>
-            </div>
+                        <tbody>
+                            @foreach (var row in Model.AllClaims)
+                            {
+                                <tr class="all-claim-row"
+                                    data-search="CL@(row.ClaimId.ToString("D3")) @row.LecturerName C@(row.ContractId.ToString("D3")) @StatusLabel(row.Status)">
 
-            <div class="table-empty" id="noResults" style="display:none;">
-                <p>No claims match your search.</p>
-            </div>
-        }
-        else
-        {
-            <div class="empty-state">
-                <p>No claims awaiting your review.</p>
-            </div>
-        }
+                                    <td>
+                                        <span class="reference-pill">
+                                            CL@(row.ClaimId.ToString("D3"))
+                                        </span>
+                                    </td>
 
-    </section>
+                                    <td>
+                                        <span class="lecturer-name">@row.LecturerName</span>
+                                    </td>
+
+                                    <td>
+                                        <span class="contract-reference">
+                                            C@(row.ContractId.ToString("D3"))
+                                        </span>
+                                    </td>
+
+                                    <td class="col-right">
+                                        <span class="hours-value">
+                                            @row.HoursClaimed.ToString("N2")
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="status-badge @StatusClass(row.Status)">
+                                            @StatusLabel(row.Status)
+                                        </span>
+                                    </td>
+
+                                    <td class="col-action">
+                                        @if (row.HasHodStep)
+                                        {
+                                            <a asp-page="/HOD/ClaimDetails"
+                                               asp-route-ClaimId="@row.ClaimId"
+                                               class="row-action @(row.IsAwaitingYou ? "row-action--primary" : "")">
+                                                @(row.IsAwaitingYou ? "Review & approve" : "Review")
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="section-meta">Not routed to HOD</span>
+                                        }
+                                    </td>
+
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <div class="table-empty" id="allNoResults" style="display:none;">
+                    <p>No claims match your search.</p>
+                </div>
+            }
+
+        </section>
+    }
 
 </section>
 
 @section Scripts {
 <script>
 
-    const claimsSearch = document.getElementById("claimsSearch");
-    const noResults = document.getElementById("noResults");
+    document.addEventListener("DOMContentLoaded", function () {
 
-    if (claimsSearch) {
+        const input = document.getElementById("allClaimSearch");
+        const noResults = document.getElementById("allNoResults");
 
-        claimsSearch.addEventListener("input", function () {
+        if (!input) return;
 
-            const term = this.value.toLowerCase().trim();
-            const rows = document.querySelectorAll(".claim-row");
+        const rows = Array.prototype.slice.call(
+            document.querySelectorAll(".all-claim-row"));
 
-            let visible = 0;
+        function apply() {
+
+            const terms = input.value
+                .trim()
+                .toLowerCase()
+                .split(/\s+/)
+                .filter(Boolean);
+
+            let shown = 0;
 
             rows.forEach(function (row) {
 
-                const haystack = (row.dataset.search || "").toLowerCase();
-                const match = term === "" || haystack.includes(term);
+                const key = (row.dataset.search || "").toLowerCase();
+
+                const match = terms.every(function (t) {
+                    return key.indexOf(t) !== -1;
+                });
 
                 row.style.display = match ? "" : "none";
 
-                if (match) visible++;
-
+                if (match) shown++;
             });
 
             if (noResults) {
-                noResults.style.display = visible === 0 ? "" : "none";
+                noResults.style.display = shown === 0 ? "" : "none";
             }
+        }
 
+        input.addEventListener("input", apply);
+        input.addEventListener("search", apply);
+
+        // Press / to focus the search box.
+        document.addEventListener("keydown", function (event) {
+
+            const tag = (document.activeElement || {}).tagName || "";
+
+            if (event.key === "/" &&
+                !/^(INPUT|TEXTAREA|SELECT)$/.test(tag) &&
+                !event.ctrlKey && !event.metaKey && !event.altKey) {
+
+                event.preventDefault();
+                input.focus();
+                input.select();
+            }
         });
 
-    }
+    });
 
 </script>
 }
