@@ -29,18 +29,26 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             string? details = null,
             string? ipAddress = null)
         {
+            // Column limits (AuditLogs): ActorUsername 100, ActorRole 20,
+            // EntityType 50, Details 500, IpAddress 45. A value that is too
+            // long must never make the audited action itself fail.
             var entry = new AuditLog(
                 action,
-                actorUsername,
-                actorRole,
+                Limit(actorUsername, 100) ?? string.Empty,
+                Limit(actorRole, 20) ?? string.Empty,
                 actorId,
-                entityType,
+                Limit(entityType, 50),
                 entityId,
-                details,
-                ipAddress);
+                Limit(details, 500),
+                Limit(ipAddress, 45));
 
             _context.AuditLogs.Add(entry);
         }
+
+        private static string? Limit(string? value, int max) =>
+            value is null || value.Length <= max
+                ? value
+                : value.Substring(0, max);
 
         /// <summary>
         /// Adds and immediately saves an audit record.

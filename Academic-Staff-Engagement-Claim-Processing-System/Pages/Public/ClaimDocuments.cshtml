@@ -129,65 +129,88 @@
 
             </section>
 
-            <footer class="cd-actions">
+            @if (Model.CanDownload)
+            {
+                <footer class="cd-actions">
 
-                <a class="cd-download"
-                   href="?handler=Pdf&token=@documents.Token&document=contract">
+                    <a class="cd-download"
+                       href="?handler=Pdf&token=@documents.Token&document=contract">
 
-                    <span class="cd-badge cd-badge-pdf">PDF</span>
+                        <span class="cd-badge cd-badge-pdf">PDF</span>
 
-                    <div class="cd-download-text">
-                        <strong>Signed Contract</strong>
-                        <span>Download PDF</span>
-                    </div>
+                        <div class="cd-download-text">
+                            <strong>Signed Contract</strong>
+                            <span>Download PDF</span>
+                        </div>
 
-                    <i class="bi bi-download cd-download-icon"></i>
+                        <i class="bi bi-download cd-download-icon"></i>
 
-                </a>
+                    </a>
 
-                <a class="cd-download"
-                   href="?handler=Pdf&token=@documents.Token&document=claim-letter">
+                    <a class="cd-download"
+                       href="?handler=Pdf&token=@documents.Token&document=claim-letter">
 
-                    <span class="cd-badge cd-badge-doc">DOC</span>
+                        <span class="cd-badge cd-badge-doc">DOC</span>
 
-                    <div class="cd-download-text">
-                        <strong>Claim Letter</strong>
-                        <span>Download PDF</span>
-                    </div>
+                        <div class="cd-download-text">
+                            <strong>Claim Letter</strong>
+                            <span>Download PDF</span>
+                        </div>
 
-                    <i class="bi bi-download cd-download-icon"></i>
+                        <i class="bi bi-download cd-download-icon"></i>
 
-                </a>
+                    </a>
 
-                <a class="cd-download"
-                   href="?handler=Pdf&token=@documents.Token&document=completion-form">
+                    <a class="cd-download"
+                       href="?handler=Pdf&token=@documents.Token&document=completion-form">
 
-                    <span class="cd-badge cd-badge-pdf">PDF</span>
+                        <span class="cd-badge cd-badge-pdf">PDF</span>
 
-                    <div class="cd-download-text">
-                        <strong>Course Completion Approval Form</strong>
-                        <span>Download PDF</span>
-                    </div>
+                        <div class="cd-download-text">
+                            <strong>Course Completion Approval Form</strong>
+                            <span>Download PDF</span>
+                        </div>
 
-                    <i class="bi bi-download cd-download-icon"></i>
+                        <i class="bi bi-download cd-download-icon"></i>
 
-                </a>
+                    </a>
 
-                <a class="cd-download"
-                   href="?handler=Pdf&token=@documents.Token&document=attendance-report">
+                    <a class="cd-download"
+                       href="?handler=Pdf&token=@documents.Token&document=attendance-report">
 
-                    <span class="cd-badge cd-badge-pdf">PDF</span>
+                        <span class="cd-badge cd-badge-pdf">PDF</span>
 
-                    <div class="cd-download-text">
-                        <strong>Lecturer Attendance Report</strong>
-                        <span>Download PDF</span>
-                    </div>
+                        <div class="cd-download-text">
+                            <strong>Lecturer Attendance Report</strong>
+                            <span>Download PDF</span>
+                        </div>
 
-                    <i class="bi bi-download cd-download-icon"></i>
+                        <i class="bi bi-download cd-download-icon"></i>
 
-                </a>
+                    </a>
 
-            </footer>
+                </footer>
+            }
+            else
+            {
+                <footer class="cd-actions">
+
+                    <a class="cd-download"
+                       href="/Login">
+
+                        <span class="cd-badge cd-badge-doc">LOGIN</span>
+
+                        <div class="cd-download-text">
+                            <strong>Sign in to download documents</strong>
+                            <span>The official documents are available to authorised staff only.</span>
+                        </div>
+
+                        <i class="bi bi-box-arrow-in-right cd-download-icon"></i>
+
+                    </a>
+
+                </footer>
+            }
 
         </article>
     }

@@ -260,10 +260,6 @@
                                            class="form-control faculty-readonly"
                                            value="@Model.HodFacultyDisplayName"
                                            readonly />
-
-                                    <small class="field-help">
-                                        Faculty is automatically assigned from your HOD account.
-                                    </small>
                                 </div>
 
                                 <div class="form-group">
@@ -291,10 +287,6 @@
 
                                     <span class="field-error"
                                           asp-validation-for="Users[i].Department"></span>
-
-                                    <small class="field-help">
-                                        Only departments under your faculty are available.
-                                    </small>
                                 </div>
 
                             </div>
@@ -725,10 +717,6 @@
                                        value="@Model.HodFacultyDisplayName"
                                        readonly />
 
-                                <small class="field-help">
-                                    Faculty is automatically assigned from your HOD account.
-                                </small>
-
                             </div>
 
                             <div class="form-group">
@@ -745,10 +733,6 @@
                                 </select>
 
                                 <span class="field-error"></span>
-
-                                <small class="field-help">
-                                    Only departments under your faculty are available.
-                                </small>
 
                             </div>
 
@@ -978,17 +962,20 @@
                         1
                     );
 
+                const cssWidth =
+                    Math.max(1, Math.floor(rect.width));
+
+                const cssHeight =
+                    Math.max(1, Math.floor(rect.height));
+
                 const existingSignature =
                     signatureInput.value;
 
                 canvas.width =
-                    rect.width * ratio;
+                    Math.floor(cssWidth * ratio);
 
                 canvas.height =
-                    220 * ratio;
-
-                canvas.style.height =
-                    "220px";
+                    Math.floor(cssHeight * ratio);
 
                 context.setTransform(
                     ratio,
@@ -1015,8 +1002,8 @@
                                 image,
                                 0,
                                 0,
-                                rect.width,
-                                220
+                                cssWidth,
+                                cssHeight
                             );
 
                         };
@@ -1029,6 +1016,51 @@
             }
 
             resizeCanvas();
+
+            let resizeTimer = null;
+
+            window.addEventListener("resize", function () {
+
+                clearTimeout(resizeTimer);
+
+                resizeTimer = setTimeout(function () {
+
+                    const previous = signatureInput.value;
+
+                    resizeCanvas();
+
+                    if (previous) {
+
+                        const image = new Image();
+
+                        image.onload = function () {
+
+                            const rect = canvas.getBoundingClientRect();
+
+                            context.clearRect(
+                                0,
+                                0,
+                                canvas.width,
+                                canvas.height
+                            );
+
+                            context.drawImage(
+                                image,
+                                0,
+                                0,
+                                rect.width,
+                                rect.height
+                            );
+
+                        };
+
+                        image.src = previous;
+
+                    }
+
+                }, 150);
+
+            });
 
             function getPosition(event) {
 

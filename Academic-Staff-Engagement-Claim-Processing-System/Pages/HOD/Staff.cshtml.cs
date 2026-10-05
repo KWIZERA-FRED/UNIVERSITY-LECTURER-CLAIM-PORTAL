@@ -1,6 +1,7 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,10 +13,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
     public class StaffModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly AuditLogger _auditLogger;
 
-        public StaffModel(ApplicationDbContext context)
+        public StaffModel(
+            ApplicationDbContext context,
+            AuditLogger auditLogger)
         {
             _context = context;
+            _auditLogger = auditLogger;
         }
 
         // ============================================================
@@ -272,6 +277,20 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 assignment.IsApproved = false;
                 assignment.ApprovedByHodId = null;
                 assignment.ApprovedAtUtc = null;
+
+                // Recorded in the same SaveChanges as the update itself.
+                _auditLogger.Add(
+                    AuditAction.CourseAssignmentUpdated,
+                    CurrentHod!.UserName,
+                    "HOD",
+                    CurrentHod.Id,
+                    "CourseAssignment",
+                    assignment.Id,
+                    $"{selectedCourse.Code} {assignment.AcademicYear} " +
+                    $"{assignment.Semester}, {assignment.AllocatedHours:0.##}h " +
+                    $"for lecturer {assignment.Lecturer.UserName}; " +
+                    "returned to pending approval",
+                    HttpContext.Connection.RemoteIpAddress?.ToString());
             }
 
             await _context.SaveChangesAsync();
@@ -320,6 +339,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
 
             assignment.IsActive = false;
             assignment.UpdatedAtUtc = DateTime.UtcNow;
+
+            _auditLogger.Add(
+                AuditAction.CourseAssignmentRemoved,
+                CurrentHod!.UserName,
+                "HOD",
+                CurrentHod.Id,
+                "CourseAssignment",
+                assignment.Id,
+                $"{assignment.Course.Code} {assignment.AcademicYear} " +
+                $"{assignment.Semester} deactivated " +
+                $"(lecturer id {assignment.LecturerId})",
+                HttpContext.Connection.RemoteIpAddress?.ToString());
 
             await _context.SaveChangesAsync();
 
@@ -374,8 +405,23 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return RedirectToPage();
             }
 
+            bool wasActive = lecturer.IsActive;
+
             lecturer.IsActive = false;
             lecturer.UpdatedAtUtc = DateTime.UtcNow;
+
+            if (wasActive)
+            {
+                _auditLogger.Add(
+                    AuditAction.AccountDeactivated,
+                    CurrentHod.UserName,
+                    "HOD",
+                    CurrentHod.Id,
+                    "Lecturer",
+                    lecturer.Id,
+                    $"Lecturer account {lecturer.UserName} deactivated by HOD",
+                    HttpContext.Connection.RemoteIpAddress?.ToString());
+            }
 
             await _context.SaveChangesAsync();
 

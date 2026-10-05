@@ -178,6 +178,37 @@ builder.Services.AddRateLimiter(options =>
                     }));
 
     // ========================================================
+    // PUBLIC CLAIM DOCUMENTS RATE LIMIT
+    // ========================================================
+    //
+    // The QR verification page is reachable without signing in,
+    // so cap how often one client can hit it. Page views and
+    // PDF generation share the same budget.
+    // ========================================================
+
+    options.AddPolicy(
+        "public-documents-policy",
+        httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey:
+                    httpContext.Connection.RemoteIpAddress?.ToString()
+                    ?? "unknown",
+
+                factory: _ =>
+                    new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 60,
+
+                        Window =
+                            TimeSpan.FromMinutes(1),
+
+                        QueueProcessingOrder =
+                            QueueProcessingOrder.OldestFirst,
+
+                        QueueLimit = 0
+                    }));
+
+    // ========================================================
     // GENERAL APPLICATION RATE LIMIT
     // ========================================================
 
@@ -358,13 +389,28 @@ var app = builder.Build();
 // FORWARDED HEADERS
 // ============================================================
 
-app.UseForwardedHeaders(
+// Render terminates TLS and forwards traffic from its own proxy, whose
+// address is not loopback. By default ASP.NET Core only trusts loopback
+// proxies and would ignore X-Forwarded-For / X-Forwarded-Proto, so every
+// visitor would share the proxy's IP (breaking the per-IP rate limiters)
+// and Request.Scheme would be "http" (giving http:// QR links).
+//
+// Clearing the trusted lists is safe here only because the container is
+// reachable solely through Render's proxy. ForwardLimit stays at 1, so
+// only the entry appended by that proxy is used; anything a client puts
+// earlier in the header is ignored.
+var forwardedHeadersOptions =
     new ForwardedHeadersOptions
     {
         ForwardedHeaders =
             ForwardedHeaders.XForwardedFor |
             ForwardedHeaders.XForwardedProto
-    });
+    };
+
+forwardedHeadersOptions.KnownNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+
+app.UseForwardedHeaders(forwardedHeadersOptions);
 
 // ============================================================
 // TEMPLATE SEEDING

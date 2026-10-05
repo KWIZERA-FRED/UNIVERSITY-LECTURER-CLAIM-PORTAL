@@ -25,10 +25,15 @@ public class ContractsModel : PageModel
 
     public List<ContractRow> Contracts { get; private set; } = new();
 
+    public string? SuccessMessage { get; private set; }
+
     public string? ErrorMessage { get; private set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
+        SuccessMessage = TempData["SuccessMessage"] as string;
+        ErrorMessage = TempData["ErrorMessage"] as string;
+
         var username = User.Identity?.Name;
 
         if (string.IsNullOrWhiteSpace(username))
@@ -87,7 +92,10 @@ public class ContractsModel : PageModel
             .Select(s => new SignatureSummary
             {
                 ContractId = s.ContractId,
-                Decision = s.Decision
+                SequenceOrder = s.SequenceOrder,
+                SignerRole = s.SignerRole,
+                Decision = s.Decision,
+                SignedAtUtc = s.SignedAtUtc
             })
             .ToListAsync();
 
@@ -95,7 +103,7 @@ public class ContractsModel : PageModel
             .GroupBy(s => s.ContractId)
             .ToDictionary(
                 g => g.Key,
-                g => g.ToList());
+                g => g.OrderBy(s => s.SequenceOrder).ToList());
 
         Contracts = contracts
             .Select(c =>
@@ -106,39 +114,93 @@ public class ContractsModel : PageModel
 
                 contractSignatures ??= new List<SignatureSummary>();
 
+                var signedSteps = contractSignatures.Count(s =>
+                    s.Decision == SignatureDecision.Signed);
+
+                var isDeclined = contractSignatures.Any(s =>
+                    s.Decision == SignatureDecision.Declined);
+
+                // --- Current step = first PENDING, in sequence order ---
+
+                SignerRole? currentRole = null;
+                DateTime? waitingSince = null;
+
+                if (!isDeclined)
+                {
+                    var pending = contractSignatures
+                        .Where(s => s.Decision == SignatureDecision.Pending)
+                        .OrderBy(s => s.SequenceOrder)
+                        .FirstOrDefault();
+
+                    if (pending is not null)
+                    {
+                        currentRole = pending.SignerRole;
+
+                        // Waiting since the most recent completed signature,
+                        // or since the contract was created if none yet.
+                        var lastSigned = contractSignatures
+                            .Where(s =>
+                                s.Decision == SignatureDecision.Signed &&
+                                s.SignedAtUtc.HasValue)
+                            .OrderByDescending(s => s.SignedAtUtc)
+                            .FirstOrDefault();
+
+                        waitingSince =
+                            lastSigned?.SignedAtUtc ?? c.CreatedAtUtc;
+                    }
+                }
+
                 return new ContractRow
                 {
-                    Id = c.Id,
-
-                    Reference =
-                        $"CON-{c.Id:D6}",
+                    ContractId = c.Id,
 
                     LecturerName =
-                        c.Lecturer?.UserName ?? "—",
-
-                    CourseCode =
-                        c.CourseAssignment?.Course?.Code ?? "—",
+                        c.Lecturer?.UserName ?? "Unknown",
 
                     CourseTitle =
                         c.CourseAssignment?.Course?.Title ?? "—",
 
-                    AcademicYear =
-                        c.CourseAssignment?.AcademicYear ?? "—",
+                    Department =
+                        c.CourseAssignment?.Course?.Department ?? "—",
 
-                    Status =
-                        c.Status,
+                    Version = c.Version,
 
-                    SignedSteps =
-                        contractSignatures.Count(s =>
-                            s.Decision == SignatureDecision.Signed),
+                    Status = c.Status,
 
-                    TotalSteps =
-                        contractSignatures.Count
+                    SignedSteps = signedSteps,
+
+                    TotalSteps = contractSignatures.Count,
+
+                    IsDeclined = isDeclined,
+
+                    IsAwaitingDean =
+                        IsAwaitingDean(contractSignatures),
+
+                    CurrentSignerRole = currentRole,
+
+                    WaitingSinceUtc = waitingSince
                 };
             })
             .ToList();
 
         return Page();
+    }
+
+    private static bool IsAwaitingDean(
+        List<SignatureSummary> signatures)
+    {
+        var deanStep = signatures.FirstOrDefault(s =>
+            s.SignerRole == SignerRole.Dean);
+
+        if (deanStep is null ||
+            deanStep.Decision != SignatureDecision.Pending)
+        {
+            return false;
+        }
+
+        return signatures
+            .Where(s => s.SequenceOrder < deanStep.SequenceOrder)
+            .All(s => s.Decision == SignatureDecision.Signed);
     }
 
     private static HashSet<string> GetFacultyCourseDepartmentValues(
@@ -155,26 +217,29 @@ public class ContractsModel : PageModel
     {
         public int ContractId { get; init; }
 
+        public int SequenceOrder { get; init; }
+
+        public SignerRole SignerRole { get; init; }
+
         public SignatureDecision Decision { get; init; }
+
+        public DateTime? SignedAtUtc { get; init; }
     }
 
     public sealed class ContractRow
     {
-        public int Id { get; init; }
-
-        public string Reference { get; init; } =
-            string.Empty;
+        public int ContractId { get; init; }
 
         public string LecturerName { get; init; } =
-            string.Empty;
-
-        public string CourseCode { get; init; } =
             string.Empty;
 
         public string CourseTitle { get; init; } =
             string.Empty;
 
-        public string AcademicYear { get; init; } =
+        public string Department { get; init; } =
+            string.Empty;
+
+        public string Version { get; init; } =
             string.Empty;
 
         public ContractStatus Status { get; init; }
@@ -182,5 +247,15 @@ public class ContractsModel : PageModel
         public int SignedSteps { get; init; }
 
         public int TotalSteps { get; init; }
+
+        public bool IsAwaitingDean { get; init; }
+
+        public bool IsDeclined { get; init; }
+
+        // NEW — drives the Stage pill on the Contracts register.
+
+        public SignerRole? CurrentSignerRole { get; init; }
+
+        public DateTime? WaitingSinceUtc { get; init; }
     }
 }

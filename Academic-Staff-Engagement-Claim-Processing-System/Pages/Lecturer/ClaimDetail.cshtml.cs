@@ -1,5 +1,6 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 using Academic_Staff_Engagement_Claim_Processing_System.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -14,14 +15,21 @@ public class ClaimDetailModel : PageModel
 {
     private readonly ApplicationDbContext _context;
     private readonly OfficialDocumentService _officialDocumentService;
+    private readonly AuditLogger _auditLogger;
 
     public ClaimDetailModel(
         ApplicationDbContext context,
-        OfficialDocumentService officialDocumentService)
+        OfficialDocumentService officialDocumentService,
+        AuditLogger auditLogger)
     {
         _context = context;
         _officialDocumentService = officialDocumentService;
+        _auditLogger = auditLogger;
     }
+
+    // Shown once after the lecturer regenerates the claim link.
+    [TempData]
+    public string? LinkMessage { get; set; }
 
     [BindProperty(SupportsGet = true)]
     public int ClaimId { get; set; }
@@ -227,6 +235,16 @@ public class ClaimDetailModel : PageModel
 
         if (download)
         {
+            await _auditLogger.LogAsync(
+                AuditAction.MarksDownloaded,
+                lecturer.UserName,
+                "Lecturer",
+                lecturer.Id,
+                "Claim",
+                claim.Id,
+                $"Signed marks downloaded ({claim.MarksSubmission.FileName})",
+                HttpContext.Connection.RemoteIpAddress?.ToString());
+
             return File(
                 storedFile.Content,
                 storedFile.ContentType,
@@ -283,10 +301,79 @@ public class ClaimDetailModel : PageModel
         if (document is null)
             return NotFound();
 
+        await _auditLogger.LogAsync(
+            AuditAction.ClaimDocumentDownloaded,
+            lecturer.UserName,
+            "Lecturer",
+            lecturer.Id,
+            "Claim",
+            claim.Id,
+            "Attendance report downloaded",
+            HttpContext.Connection.RemoteIpAddress?.ToString());
+
         return File(
             document.Content,
             "application/pdf",
             document.FileName);
+    }
+
+    // ================================================================
+    // REGENERATE CLAIM LINK
+    // ================================================================
+    //
+    // Replaces the QR / public-link token. Use this if the link was
+    // shared with the wrong person. The old link and every printed QR
+    // code that carries it stop working immediately.
+    // ================================================================
+
+    public async Task<IActionResult> OnPostRegenerateLinkAsync(
+        int claimId)
+    {
+        var username = User.Identity?.Name;
+
+        if (string.IsNullOrWhiteSpace(username))
+            return RedirectToPage("/Login");
+
+        var lecturer = await _context.Lecturers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(l =>
+                l.UserName == username &&
+                l.IsActive);
+
+        if (lecturer is null)
+            return RedirectToPage("/Login");
+
+        // Ownership check: the claim must belong to this lecturer.
+        var claim = await _context.Claims
+            .FirstOrDefaultAsync(c =>
+                c.Id == claimId &&
+                c.CourseAssignment != null &&
+                c.CourseAssignment.LecturerId == lecturer.Id);
+
+        if (claim is null)
+            return NotFound();
+
+        claim.RegenerateQrToken();
+
+        // Saved in the same SaveChanges as the new token.
+        _auditLogger.Add(
+            AuditAction.ClaimLinkRegenerated,
+            lecturer.UserName,
+            "Lecturer",
+            lecturer.Id,
+            "Claim",
+            claim.Id,
+            "Claim document link regenerated; the previous link " +
+            "and printed QR codes no longer work.",
+            HttpContext.Connection.RemoteIpAddress?.ToString());
+
+        await _context.SaveChangesAsync();
+
+        LinkMessage =
+            "Your claim link was regenerated. The old link and any " +
+            "previously printed QR codes no longer work.";
+
+        return RedirectToPage(new { claimId });
     }
 
     public sealed class ClaimDetailsViewModel

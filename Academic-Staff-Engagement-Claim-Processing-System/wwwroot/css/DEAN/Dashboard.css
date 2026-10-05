@@ -1,68 +1,80 @@
-/* ================================================================
-   UNILAK ASECPS — DEAN DASHBOARD
-   ================================================================ */
-
-.dd-page {
+.dean-content .dd-page {
     width: 100%;
     max-width: 1440px;
     margin: 0 auto;
-    padding: 30px 34px 42px;
+    padding: 0 0 24px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
     color: #1a2634;
     font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 13.5px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
 }
 
-    .dd-page [hidden] {
+    .dean-content .dd-page *,
+    .dean-content .dd-page *::before,
+    .dean-content .dd-page *::after {
+        box-sizing: border-box;
+    }
+
+    .dean-content .dd-page [hidden] {
         display: none !important;
     }
 
-/* ================================================================
-   HEADER
-   ================================================================ */
+    .dean-content .dd-page a {
+        color: inherit;
+    }
 
-.dd-header {
+    .dean-content .dd-page button,
+    .dean-content .dd-page input,
+    .dean-content .dd-page select,
+    .dean-content .dd-page textarea {
+        font: inherit;
+    }
+
+.dean-content .dd-header {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
 }
 
-    .dd-header h1 {
+    .dean-content .dd-header h1 {
         margin: 0;
-        color: var(--ds-heading, #0f2b4a);
-        font-family: var(--ds-font-display, "Poppins", sans-serif);
-        font-size: 27px;
-        font-weight: 600;
-        line-height: 1.25;
+        color: var(--ds-heading, #0f2742);
+        font-family: "Poppins", sans-serif;
+        font-size: 26px;
+        font-weight: 700;
         letter-spacing: -0.4px;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
     }
 
-    .dd-header p {
+    .dean-content .dd-header p {
         margin: 0;
-        color: var(--ds-text-secondary, #64748b);
-        font-size: 12px;
-        line-height: 1.6;
+        color: var(--ds-text-muted, #8a99a8);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
     }
 
-/* ================================================================
-   MILESTONE
-   ================================================================ */
-
-.dd-milestone {
+.dean-content .dd-milestone {
     display: flex;
     align-items: center;
+    flex-wrap: nowrap;
     gap: 12px;
     padding: 12px 14px;
-    background: #f3f5f7;
-    border-radius: var(--ds-radius-lg, 10px);
+    background: #cfd5dd;
+    border-radius: 10px;
 }
 
-.dd-milestone--calm {
-    background: #f3f5f7;
+.dean-content .dd-milestone--calm {
+    background: #cfd5dd;
 }
 
-.dd-milestone-icon {
+.dean-content .dd-milestone-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -70,564 +82,430 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: var(--ds-heading, #0f2b4a);
-    color: #fff;
+    background: var(--ds-heading, #0f2742);
+    color: #ffffff;
     font-size: 13px;
     line-height: 1;
 }
 
-.dd-milestone--calm .dd-milestone-icon {
-    background: var(--ds-success, #2a7f5e);
+.dean-content .dd-milestone--calm .dd-milestone-icon {
+    background: var(--ds-success, #1a8a4a);
 }
 
-.dd-milestone-text {
+.dean-content .dd-milestone-text {
     flex: 1 1 auto;
     min-width: 0;
     margin: 0;
-    font-size: 13.5px;
+    font-size: 13px;
     line-height: 1.4;
-    color: var(--ds-heading, #0f2b4a);
+    color: var(--ds-heading, #0f2742);
     font-weight: 500;
+    overflow-wrap: anywhere;
 }
 
-    .dd-milestone-text strong {
+    .dean-content .dd-milestone-text strong {
         font-weight: 700;
     }
 
-.dd-milestone-btn {
+.dean-content .dd-milestone-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
     flex: 0 0 auto;
-    min-height: 35px;
-    padding: 8px 14px;
-    border-radius: var(--ds-radius-sm, 7px);
-    background: var(--ds-action, #2a7f5e);
-    color: #fff;
+    min-height: 34px;
+    padding: 7px 14px;
+    border: 1px solid var(--ds-action, #1e5fbf);
+    border-radius: 6px;
+    background: var(--ds-action, #1e5fbf);
+    color: #ffffff !important;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 600;
     line-height: 1.2;
     text-decoration: none;
     white-space: nowrap;
-    transition: background-color .18s ease;
+    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
-    .dd-milestone-btn:hover {
-        background: var(--ds-action-strong, #236c50);
-        color: #fff;
+    .dean-content .dd-milestone-btn:link,
+    .dean-content .dd-milestone-btn:visited,
+    .dean-content .dd-milestone-btn:hover,
+    .dean-content .dd-milestone-btn:focus,
+    .dean-content .dd-milestone-btn:active {
+        color: #ffffff !important;
+        text-decoration: none;
     }
 
-    .dd-milestone-btn:focus-visible {
-        outline: 2px solid var(--ds-action, #2a7f5e);
+    .dean-content .dd-milestone-btn:hover {
+        background: var(--ds-action-strong, #154a99);
+        border-color: var(--ds-action-strong, #154a99);
+        color: #ffffff !important;
+    }
+
+    .dean-content .dd-milestone-btn:focus-visible {
+        outline: 2px solid var(--ds-action, #1e5fbf);
         outline-offset: 2px;
     }
 
-/* ================================================================
-   BANNERS
-   ================================================================ */
-
-.dd-page .ds-banner {
-    min-height: 72px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 18px;
-    border-radius: 10px;
-    box-shadow: none;
-}
-
-.dd-page .ds-banner--action {
-    background: #0f2b4a;
-    border: 1px solid #0f2b4a;
-    color: #fff;
-}
-
-.dd-page .ds-banner--calm {
-    background: #f1f8f4;
-    border: 1px solid #d6e9df;
-    color: #245d49;
-}
-
-.dd-page .ds-banner-icon {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    font-size: 15px;
-}
-
-.dd-page .ds-banner--action .ds-banner-icon {
-    background: rgba(255, 255, 255, .1);
-    color: #bfe4d3;
-}
-
-.dd-page .ds-banner--calm .ds-banner-icon {
-    background: #dcefe6;
-    color: #2a7f5e;
-}
-
-.dd-page .ds-banner p {
-    flex: 1;
-    margin: 0;
-    font-size: 11.5px;
-    line-height: 1.55;
-}
-
-    .dd-page .ds-banner p strong {
-        font-weight: 700;
-    }
-
-/* ================================================================
-   BUTTONS
-   ================================================================ */
-
-.dd-page .ds-btn {
-    min-height: 35px;
+.dean-content .ds-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
+    min-height: 34px;
     padding: 0 13px;
-    border-radius: 7px;
-    font-size: 10.5px;
-    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
     text-decoration: none;
-    transition: all .18s ease;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
-.dd-page .ds-btn--on-dark {
-    background: #fff;
-    color: #0f2b4a;
+.dean-content .ds-btn--primary {
+    background: var(--ds-action, #1e5fbf);
+    border-color: var(--ds-action, #1e5fbf);
+    color: #ffffff;
 }
 
-    .dd-page .ds-btn--on-dark:hover {
-        background: #eaf0f5;
-        color: #0f2b4a;
+    .dean-content .ds-btn--primary:hover {
+        background: var(--ds-action-strong, #154a99);
+        border-color: var(--ds-action-strong, #154a99);
+        color: #ffffff;
     }
 
-.dd-page .ds-btn--primary {
-    background: #2a7f5e;
-    border-color: #2a7f5e;
-    color: #fff;
+.dean-content .ds-btn--quiet {
+    background: #ffffff;
+    border-color: var(--ds-border, #d8e0e8);
+    color: var(--ds-text-secondary, #4a5b6d);
 }
 
-    .dd-page .ds-btn--primary:hover {
-        background: #236c50;
-        border-color: #236c50;
-        color: #fff;
+    .dean-content .ds-btn--quiet:hover {
+        background: var(--ds-surface-raised, #f5f8fb);
+        border-color: var(--ds-border, #d8e0e8);
+        color: var(--ds-heading, #0f2742);
     }
 
-.dd-page .ds-btn--quiet {
-    background: #fff;
-    border: 1px solid #d7e0e8;
-    color: #31536f;
-}
-
-    .dd-page .ds-btn--quiet:hover {
-        background: #f5f8fb;
-        border-color: #b9c8d5;
-        color: #0f2b4a;
-    }
-
-/* ================================================================
-   WORKFLOW CARDS — no left accent edge
-   ================================================================ */
-
-.dd-workflow {
+.dean-content .dd-workflow {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
+    gap: 12px;
 }
 
-.dd-workflow-card {
+.dean-content .dd-workflow-card {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     padding: 16px 18px;
-    background: var(--ds-surface, #fff);
-    border: 1px solid var(--ds-border-light, #dce4ed);
-    border-radius: var(--ds-radius-lg, 9px);
+    background: var(--ds-surface, #ffffff);
+    border: 1px solid var(--ds-border-light, #e8eef4);
+    border-radius: 8px;
     text-decoration: none;
     color: inherit;
-    box-shadow: var(--ds-shadow-card, 0 1px 3px rgba(15, 39, 66, .06));
-    transition: border-color .18s ease, box-shadow .18s ease;
     min-width: 0;
+    transition: border-color 0.16s ease;
 }
 
-    .dd-workflow-card:hover {
-        box-shadow: var(--ds-shadow-hover, 0 5px 16px rgba(15, 39, 66, .07));
+    .dean-content .dd-workflow-card:hover {
+        border-color: var(--ds-border, #d8e0e8);
     }
 
-/* Variant classes are kept so nothing breaks in markup, but they no
-   longer apply a left-edge accent. */
-.dd-workflow-card--action,
-.dd-workflow-card--waiting,
-.dd-workflow-card--info {
-    border-left-color: var(--ds-border-light, #dce4ed);
-}
-
-.dd-workflow-label {
+.dean-content .dd-workflow-label {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 11.5px;
-    font-weight: 600;
-    letter-spacing: .3px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
-    color: var(--ds-text-secondary, #536a7f);
+    color: var(--ds-text-muted, #8a99a8);
+    line-height: 1.3;
+    margin-bottom: 6px;
 }
 
-    .dd-workflow-label .bi-info-circle {
-        font-size: 11px;
-        color: var(--ds-text-muted, #8a99a7);
-        opacity: .7;
+    .dean-content .dd-workflow-label .bi-info-circle {
+        font-size: 10px;
+        opacity: 0.7;
     }
 
-.dd-workflow-value {
+.dean-content .dd-workflow-value {
     display: block;
-    font-size: 28px;
+    font-family: "Poppins", sans-serif;
+    font-size: 26px;
     font-weight: 700;
-    line-height: 1.1;
-    color: var(--ds-heading, #0f2b4a);
+    line-height: 1;
+    color: var(--ds-heading, #0f2742);
     font-variant-numeric: tabular-nums;
-    letter-spacing: -.5px;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
 }
 
-.dd-workflow-card--action .dd-workflow-value {
-    color: var(--ds-action, #2a7f5e);
-    font-size: 32px;
-    letter-spacing: -.6px;
+.dean-content .dd-workflow-card--action .dd-workflow-value {
+    color: var(--ds-action, #1e5fbf);
+    font-size: 30px;
 }
 
-.dd-workflow-card--waiting .dd-workflow-value {
-    color: #8e5d00 !important;
-    font-size: 28px;
+.dean-content .dd-workflow-card--waiting .dd-workflow-value {
+    color: var(--ds-warning-strong, #8e5d00);
 }
 
-.dd-workflow-card--info .dd-workflow-value {
-    color: #8a99a8 !important;
-    font-size: 28px;
+.dean-content .dd-workflow-card--info .dd-workflow-value {
+    color: var(--ds-text-muted, #8a99a8);
 }
 
-.dd-workflow-meta {
+.dean-content .dd-workflow-meta {
     display: block;
-    font-size: 12.5px;
-    font-weight: 500;
-    color: var(--ds-text-secondary, #64748b);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--ds-text-secondary, #4a5b6d);
     line-height: 1.4;
-    margin-top: 2px;
 }
 
-/* ================================================================
-   ATTENTION CARDS
-   ================================================================ */
-
-.dd-attn-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-}
-
-.dd-page .ds-attn {
-    min-height: 116px;
-    padding: 18px 20px;
+.dean-content .ds-card {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    background: #ffffff;
     border: 1px solid #dce4ed;
-    border-radius: 9px;
-    background: #fff;
-    text-decoration: none;
-    box-shadow: 0 1px 3px rgba(15, 43, 74, .035);
-    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-    .dd-page .ds-attn:hover {
-        border-color: #b9c9d7;
-        box-shadow: 0 5px 16px rgba(15, 43, 74, .07);
-        transform: translateY(-1px);
-    }
-
-.dd-page .ds-attn--action {
-    border-top: 3px solid #2a7f5e;
-}
-
-.dd-page .ds-attn--waiting {
-    border-top: 3px solid #c78a20;
-}
-
-.dd-page .ds-attn--info {
-    border-top: 3px solid #527da3;
-}
-
-.dd-page .ds-attn-label {
-    color: #536a7f;
-    font-size: 10.5px;
-    font-weight: 600;
-}
-
-.dd-page .ds-attn-value {
-    margin-top: 8px;
-    color: #0f2b4a;
-    font-family: "Poppins", sans-serif;
-    font-size: 27px;
-    font-weight: 600;
-    line-height: 1;
-}
-
-.dd-page .ds-attn-meta {
-    margin-top: 7px;
-    color: #8796a5;
-    font-size: 9.5px;
-}
-
-/* ================================================================
-   CARDS
-   ================================================================ */
-
-.dd-page .ds-card {
-    border: 1px solid #dce4ed;
-    border-radius: 9px;
-    background: #fff;
-    box-shadow: 0 1px 4px rgba(15, 43, 74, .035);
-}
-
-.dd-page .ds-card-header,
-.ds-card-header {
+.dean-content .ds-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--ds-border-light, #e9eef2);
-}
-
-    .dd-page .ds-card-header h2,
-    .ds-card-header h2 {
-        margin: 0;
-        color: var(--ds-heading, #0f2b4a);
-        font-size: 14px;
-        font-weight: 700;
-        letter-spacing: -.2px;
-    }
-
-/* ================================================================
-   TOOLBAR
-   ================================================================ */
-
-.dd-toolbar {
-    min-height: 62px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
     gap: 12px;
-    padding: 12px 20px;
-    border-bottom: 1px solid var(--ds-border-light, #e6ecf1);
+    flex-wrap: wrap;
+    row-gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--ds-border-light, #e8eef4);
 }
 
-    .dd-toolbar .ds-search {
-        flex: 0 1 380px;
-        max-width: 380px;
+    .dean-content .ds-card-header h2 {
+        margin: 0;
+        color: var(--ds-heading, #0f2742);
+        font-family: "Poppins", sans-serif;
+        font-size: 13.5px;
+        font-weight: 700;
+        letter-spacing: -0.15px;
     }
 
-.ds-search {
-    position: relative;
-    width: 300px;
-}
-
-    .ds-search > i {
-        position: absolute;
-        top: 50%;
-        left: 12px;
-        color: #8a9aaa;
-        font-size: 13px;
-        transform: translateY(-50%);
-        pointer-events: none;
-    }
-
-    .ds-search input {
-        width: 100%;
-        height: 36px;
-        padding: 0 12px 0 34px;
-        border: 1px solid #dce4ed;
-        border-radius: 7px;
-        outline: none;
-        background: #f9fbfc;
-        color: #1a2634;
-        font-family: inherit;
-        font-size: 10.5px;
-        transition: all .18s ease;
-    }
-
-        .ds-search input:focus {
-            background: #fff;
-            border-color: #6fa88e;
-            box-shadow: 0 0 0 3px rgba(42, 127, 94, .08);
-        }
-
-        .ds-search input::placeholder {
-            color: #9aa8b5;
-        }
-
-.ds-chips {
+.dean-content .ds-chips {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    max-width: 100%;
+    padding-bottom: 1px;
 }
 
-.dd-page .ds-chip {
-    min-height: 31px;
+    .dean-content .ds-chips::-webkit-scrollbar {
+        display: none;
+    }
+
+.dean-content .ds-chip {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    min-height: 30px;
     padding: 0 10px;
     border: 1px solid transparent;
     border-radius: 6px;
     background: transparent;
-    color: #697b8d;
+    color: var(--ds-text-secondary, #4a5b6d);
     text-decoration: none;
-    font-size: 10px;
+    font-size: 11.5px;
     font-weight: 600;
     white-space: nowrap;
-    transition: all .18s ease;
+    flex: 0 0 auto;
+    transition: background-color 0.16s ease, color 0.16s ease;
 }
 
-    .dd-page .ds-chip:hover {
-        background: #f1f5f8;
-        color: #0f2b4a;
+    .dean-content .ds-chip:hover {
+        background: var(--ds-surface-raised, #f5f8fb);
+        color: var(--ds-heading, #0f2742);
     }
 
-    .dd-page .ds-chip.is-active,
-    .dd-page .ds-chip.is-active:visited {
+    .dean-content .ds-chip.is-active,
+    .dean-content .ds-chip.is-active:visited {
         background: #66a1ff !important;
         border-color: #66a1ff !important;
         color: #0f2742 !important;
     }
 
-.dd-page .ds-chip-count {
-    min-width: 18px;
-    height: 18px;
+.dean-content .ds-chip-count {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    min-width: 18px;
+    height: 18px;
     padding: 0 4px;
     border-radius: 5px;
-    background: #edf1f4;
-    color: #66798b;
-    font-size: 8.5px;
+    background: rgba(15, 39, 66, 0.06);
+    color: var(--ds-text-secondary, #4a5b6d);
+    font-size: 10px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    flex: 0 0 auto;
 }
 
-.dd-page .ds-chip.is-active .ds-chip-count {
-    background: rgba(255, 255, 255, .7) !important;
+.dean-content .ds-chip.is-active .ds-chip-count {
+    background: rgba(255, 255, 255, 0.7) !important;
     color: #0f2742 !important;
 }
 
-/* ================================================================
-   QUEUE
-   ================================================================ */
+.dean-content .dd-toolbar {
+    min-height: 0;
+    height: auto;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--ds-border-light, #e8eef4);
+}
 
-.dd-list {
+    .dean-content .dd-toolbar .ds-search,
+    .dean-content .ds-search {
+        position: relative;
+        flex: 0 1 auto;
+        width: 100%;
+        max-width: 380px;
+        min-height: 36px;
+        height: auto;
+    }
+
+        .dean-content .ds-search > i {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            transform: translateY(-50%);
+            color: var(--ds-text-muted, #8a99a8);
+            font-size: 13px;
+            pointer-events: none;
+        }
+
+        .dean-content .ds-search input {
+            width: 100%;
+            height: 36px;
+            min-height: 36px;
+            padding: 0 68px 0 34px;
+            border: 1px solid var(--ds-border, #d8e0e8);
+            border-radius: 6px;
+            outline: none;
+            background: var(--ds-surface-raised, #f5f8fb);
+            color: var(--ds-heading, #0f2742);
+            font-family: inherit;
+            font-size: 12.5px;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+        }
+
+            .dean-content .ds-search input::placeholder {
+                color: var(--ds-text-muted, #8a99a8);
+            }
+
+            .dean-content .ds-search input:focus {
+                background: #ffffff;
+                border-color: var(--ds-action, #1e5fbf);
+                box-shadow: 0 0 0 3px var(--ds-action-soft, #d9e7f8);
+            }
+
+.dean-content .ds-search-hint {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 2px 6px;
+    border: 1px solid var(--ds-border, #d8e0e8);
+    border-radius: 6px;
+    background: #ffffff;
+    color: var(--ds-text-muted, #8a99a8);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    pointer-events: none;
+}
+
+.dean-content .ds-search input:focus ~ .ds-search-hint,
+.dean-content .ds-search input:not(:placeholder-shown) ~ .ds-search-hint {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.dean-content .dd-list {
+    min-height: 0;
     display: flex;
     flex-direction: column;
 }
 
-.dd-row {
+    .dean-content .dd-list .dd-row--head[hidden] {
+        display: none !important;
+    }
+
+.dean-content .dd-row {
     display: grid;
     grid-template-columns: 200px minmax(180px, 1.2fr) 130px minmax(200px, 1fr) 44px;
     column-gap: 16px;
     align-items: center;
     min-height: 60px;
-    padding: 12px 20px;
-    border-bottom: 1px solid var(--ds-border-light, #e9eef2);
-    background: #fff;
-    transition: background-color .16s ease;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--ds-border-light, #e8eef4);
+    background: #ffffff;
+    transition: background-color 0.16s ease;
 }
 
-    .dd-row:not(.dd-row--head):hover,
-    .dd-row--needs:hover {
+    .dean-content .dd-row:not(.dd-row--head):hover,
+    .dean-content .dd-row--needs:hover {
         background: #f0f3f7 !important;
     }
 
-    .dd-row:last-child {
+    .dean-content .dd-row:last-child {
         border-bottom: none;
     }
 
-.dd-row--needs {
+.dean-content .dd-row--needs {
     background: transparent;
-    box-shadow: inset 3px 0 0 #2a7f5e;
+    box-shadow: inset 3px 0 0 var(--ds-action, #1e5fbf);
 }
 
-.dd-row--head {
+.dean-content .dd-row--head {
     min-height: 0;
     padding-top: 10px;
     padding-bottom: 10px;
-    background: transparent;
-    border-bottom: 1px solid var(--ds-border, #d7e0e8);
-    color: var(--ds-text-muted, #81909e);
+    background: var(--ds-surface-raised, #f5f8fb);
+    border-bottom: 1px solid var(--ds-border, #d8e0e8);
+    color: var(--ds-text-muted, #8a99a8);
     font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: .7px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
 }
 
-    .dd-row--head > span {
+    .dean-content .dd-row--head > span {
         align-self: center;
     }
 
-.dd-cell {
+.dean-content .dd-cell {
     min-width: 0;
 }
 
-/* ================================================================
-   REFERENCE
-   ================================================================ */
-
-.dd-ref {
+.dean-content .dd-ref {
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     gap: 10px;
     min-width: 0;
 }
 
-.dd-ref-body {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    min-width: 0;
-}
-
-.dd-ref-line {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-}
-
-.dd-ref-code {
-    color: var(--ds-heading, #0f2b4a);
-    font-size: 13px;
-    font-weight: 700;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.dd-row--needs .dd-ref-code {
-    font-weight: 800;
-}
-
-/* ================================================================
-   AVATAR
-   ================================================================ */
-
-.dd-avatar {
+.dean-content .dd-avatar {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -635,21 +513,45 @@
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: var(--ds-surface-raised, #f0f3f6);
-    color: var(--ds-heading, #0f2b4a);
+    background: var(--ds-surface-raised, #f5f8fb);
+    color: var(--ds-heading, #0f2742);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .2px;
-    border: 1px solid var(--ds-border-light, #e1e7ec);
+    letter-spacing: 0.2px;
+    border: 1px solid var(--ds-border-light, #e8eef4);
     user-select: none;
 }
 
-/* ================================================================
-   COPY
-   ================================================================ */
+.dean-content .dd-ref-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
 
-.dd-page .ds-copy {
+.dean-content .dd-ref-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.dean-content .dd-ref-code {
+    color: var(--ds-heading, #0f2742);
+    font-size: 12.5px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.dean-content .dd-row--needs .dd-ref-code {
+    font-weight: 800;
+}
+
+.dean-content .ds-copy {
     width: 22px;
     height: 22px;
     padding: 0;
@@ -659,68 +561,66 @@
     border: 0;
     border-radius: 5px;
     background: transparent;
-    color: #8998a6;
+    color: var(--ds-text-muted, #8a99a8);
     cursor: pointer;
     opacity: 0;
-    transition: opacity .18s ease, background .18s ease, color .18s ease;
+    flex: 0 0 auto;
+    transition: opacity 0.16s ease, background-color 0.16s ease, color 0.16s ease;
 }
 
-    .dd-row:hover .ds-copy,
-    .dd-page .ds-copy:focus-visible {
+    .dean-content .dd-row:hover .ds-copy,
+    .dean-content .ds-copy:focus-visible {
         opacity: 1;
     }
 
-    .dd-page .ds-copy:hover {
-        background: #eef3f6;
-        color: #2a7f5e;
+    .dean-content .ds-copy:hover {
+        background: var(--ds-surface-raised, #f5f8fb);
+        color: var(--ds-action, #1e5fbf);
     }
 
-    .dd-page .ds-copy.is-copied {
-        background: #e1f0e8;
-        color: #2a7f5e;
+    .dean-content .ds-copy.is-copied {
+        background: var(--ds-success-soft, #d8f0e0);
+        color: var(--ds-success-strong, #106634);
     }
 
 @media (hover: none) {
-    .dd-page .ds-copy {
-        opacity: .5;
+    .dean-content .ds-copy {
+        opacity: 0.55;
     }
 }
 
-/* ================================================================
-   TAG
-   ================================================================ */
-
-.dd-page .ds-tag {
-    padding: 3px 7px;
+.dean-content .ds-tag {
+    display: inline-block;
+    padding: 2px 7px;
     border-radius: 4px;
-    background: #f0f3f6;
-    color: #718294;
-    font-size: 7.5px;
+    background: var(--ds-surface-raised, #f5f8fb);
+    color: var(--ds-text-secondary, #4a5b6d);
+    font-size: 9px;
     font-weight: 700;
-    line-height: 1;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1.4;
+    align-self: flex-start;
 }
 
-/* ================================================================
-   WHO
-   ================================================================ */
-
-.dd-who {
+.dean-content .dd-who {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
-.dd-who-name {
-    color: var(--ds-heading, #26394b);
-    font-size: 13.5px;
+.dean-content .dd-who-name {
+    color: var(--ds-heading, #0f2742);
+    font-size: 12.5px;
     font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.dd-who-course {
-    color: var(--ds-text-secondary, #8a99a7);
+.dean-content .dd-who-course {
+    color: var(--ds-text-muted, #8a99a8);
     font-size: 12px;
     line-height: 1.4;
     overflow: hidden;
@@ -728,45 +628,39 @@
     white-space: nowrap;
 }
 
-/* ================================================================
-   VALUE
-   ================================================================ */
-
-.dd-value {
+.dean-content .dd-value {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
-.dd-value-amount {
-    color: var(--ds-heading, #26394b);
-    font-size: 13.5px;
+.dean-content .dd-value-amount {
+    color: var(--ds-heading, #0f2742);
+    font-size: 12.5px;
     font-weight: 700;
+    font-variant-numeric: tabular-nums;
 }
 
-.dd-value-hours {
-    color: var(--ds-text-secondary, #8a99a7);
+.dean-content .dd-value-hours {
+    color: var(--ds-text-muted, #8a99a8);
     font-size: 12px;
 }
 
-/* ================================================================
-   JOURNEY / STAGE
-   ================================================================ */
-
-.dd-stage {
+.dean-content .dd-stage {
     display: flex;
     align-items: center;
     min-width: 0;
 }
 
-.dd-stage-pill {
+.dean-content .dd-stage-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 3px 10px;
     border-radius: 999px;
-    background: var(--ds-surface-raised, #f0f3f6);
-    color: var(--ds-text-secondary, #64748b);
+    background: var(--ds-surface-raised, #f5f8fb);
+    color: var(--ds-text-secondary, #4a5b6d);
     font-size: 11.5px;
     font-weight: 600;
     line-height: 1.4;
@@ -776,7 +670,7 @@
     text-overflow: ellipsis;
 }
 
-    .dd-stage-pill::before {
+    .dean-content .dd-stage-pill::before {
         content: "";
         display: inline-block;
         flex: 0 0 auto;
@@ -784,283 +678,178 @@
         height: 5px;
         border-radius: 50%;
         background: currentColor;
-        opacity: .55;
+        opacity: 0.55;
     }
 
-.dd-stage-pill--action {
-    background: var(--ds-action-soft, #e8f3ee);
-    color: var(--ds-action-strong, #236c50);
+.dean-content .dd-stage-pill--action {
+    background: var(--ds-action-soft, #d9e7f8);
+    color: var(--ds-action-strong, #154a99);
 }
 
-    .dd-stage-pill--action::before {
-        background: var(--ds-action, #2a7f5e);
+    .dean-content .dd-stage-pill--action::before {
+        background: var(--ds-action, #1e5fbf);
         opacity: 1;
     }
 
-.dd-stage-sep {
-    color: var(--ds-text-muted, #8a99a7);
+.dean-content .dd-stage-sep {
+    color: var(--ds-text-muted, #8a99a8);
     font-weight: 400;
     margin: 0 2px;
 }
 
-.dd-stage-wait {
+.dean-content .dd-stage-wait {
     font-size: 11.5px;
     font-weight: 500;
     color: inherit;
-    opacity: .8;
+    opacity: 0.85;
 }
 
-    .dd-stage-wait.ds-tone-warn {
-        color: var(--ds-warning-strong, #a56608);
+    .dean-content .dd-stage-wait.ds-tone-warn {
+        color: var(--ds-warning-strong, #8e5d00);
         opacity: 1;
     }
 
-    .dd-stage-wait.ds-tone-late {
-        color: var(--ds-danger, #b42318);
+    .dean-content .dd-stage-wait.ds-tone-late {
+        color: var(--ds-danger, #c0392b);
         opacity: 1;
     }
 
-/* ================================================================
-   JOURNEY
-   ================================================================ */
-
-.dd-journey {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-    .dd-journey .ds-stepper {
-        min-width: 220px;
-    }
-
-/* ================================================================
-   STATUS
-   ================================================================ */
-
-.dd-status {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    flex-wrap: wrap;
-}
-
-.dd-page .ds-pill {
-    min-height: 21px;
-    display: inline-flex;
-    align-items: center;
-    padding: 0 7px;
-    border-radius: 4px;
-    font-size: 7.5px;
-    font-weight: 700;
-}
-
-.dd-page .ds-pill--success,
-.dd-page .ds-pill--approved,
-.dd-page .ds-pill--done {
-    background: #e7f4ed;
-    color: #277052;
-}
-
-.dd-page .ds-pill--warning,
-.dd-page .ds-pill--pending,
-.dd-page .ds-pill--action {
-    background: #fff5e5;
-    color: #a56608;
-}
-
-.dd-page .ds-pill--danger,
-.dd-page .ds-pill--rejected {
-    background: #fcebea;
-    color: #b42318;
-}
-
-.dd-page .ds-pill--info,
-.dd-page .ds-pill--active {
-    background: #eaf2f9;
-    color: #37698e;
-}
-
-.dd-page .ds-pill--muted,
-.dd-page .ds-pill--neutral {
-    background: #eef1f4;
-    color: #687b8d;
-}
-
-.dd-wait {
-    color: #8a99a7;
-    font-size: 8px;
-}
-
-.dd-wait--action {
-    color: #277052;
-}
-
-.dd-wait--warning {
-    color: #a56608;
-}
-
-.dd-wait--info {
-    color: #37698e;
-}
-
-.dd-wait--danger {
-    color: #b42318;
-}
-
-/* ================================================================
-   ACTION
-   ================================================================ */
-
-.dd-action {
+.dean-content .dd-action {
     display: flex;
     justify-content: flex-end;
 }
 
-    .dd-action .ds-btn {
-        min-width: 78px;
-        min-height: 31px;
-        padding: 0 10px;
-        font-size: 9px;
-    }
-
-.dd-row-action {
+.dean-content .dd-row-action {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 28px;
     height: 28px;
-    border-radius: var(--ds-radius-sm, 7px);
-    color: var(--ds-text-muted, #8a99a7);
+    border-radius: 6px;
+    color: var(--ds-text-muted, #8a99a8);
     background: transparent;
     text-decoration: none;
-    transition: background-color .18s ease, color .18s ease;
+    transition: background-color 0.16s ease, color 0.16s ease;
 }
 
-    .dd-row-action:hover {
-        background: var(--ds-surface-raised, #eef3f6);
-        color: var(--ds-heading, #0f2b4a);
+    .dean-content .dd-row-action:hover {
+        background: var(--ds-surface-raised, #f5f8fb);
+        color: var(--ds-heading, #0f2742);
     }
 
-/* ================================================================
-   EMPTY STATE
-   ================================================================ */
-
-#dd-empty {
-    padding: 40px 20px;
-    text-align: center;
+.dean-content #dd-empty {
+    padding: 32px 20px;
+    margin: 0;
+    min-height: 0;
 }
 
-.dd-page .ds-empty {
-    margin: 16px;
-    min-height: 170px;
+    .dean-content #dd-empty[hidden] {
+        display: none !important;
+    }
+
+.dean-content .ds-empty {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 1px dashed #d5dfe7;
-    border-radius: 8px;
-    background: #fafcfd;
     text-align: center;
+    padding: 40px 20px;
+    gap: 8px;
 }
 
-.dd-page .ds-empty-icon {
-    color: #8a9aaa;
-    font-size: 25px;
+.dean-content .ds-empty-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--ds-surface-raised, #f5f8fb);
+    color: var(--ds-text-muted, #8a99a8);
+    font-size: 20px;
+    margin-bottom: 4px;
 }
 
-.dd-page .ds-empty h3 {
-    margin: 9px 0 4px;
-    color: #0f2b4a;
-    font-family: "Poppins", sans-serif;
-    font-size: 13px;
-    font-weight: 600;
+.dean-content .ds-empty h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ds-heading, #0f2742);
 }
 
-.dd-page .ds-empty p {
+.dean-content .ds-empty p {
+    margin: 0;
     max-width: 420px;
-    margin: 0 0 12px;
-    color: #81909e;
-    font-size: 9.5px;
+    color: var(--ds-text-secondary, #4a5b6d);
+    font-size: 12.5px;
     line-height: 1.5;
 }
 
-/* ================================================================
-   FOOTNOTE
-   ================================================================ */
-
-.dd-footnote {
-    padding: 12px 20px;
-    border-top: 1px solid var(--ds-border-light, #e9eef2);
-    color: var(--ds-text-secondary, #8a99a7);
+.dean-content .dd-footnote {
+    padding: 12px 18px;
+    border-top: 1px solid var(--ds-border-light, #e8eef4);
+    color: var(--ds-text-muted, #8a99a8);
     font-size: 12px;
     text-align: center;
 }
 
-    .dd-footnote:empty {
+    .dean-content .dd-footnote:empty {
         display: none;
     }
 
-/* ================================================================
-   ACTIVITY
-   ================================================================ */
-
-.dd-page .ds-activity {
+.dean-content .ds-activity {
     margin: 0;
     padding: 0 18px;
     list-style: none;
 }
 
-.dd-page .ds-activity-item {
-    min-height: 48px;
+.dean-content .ds-activity-item {
     display: grid;
     grid-template-columns: 8px 1fr auto;
     align-items: center;
     gap: 10px;
-    border-bottom: 1px solid #edf1f4;
+    min-height: 48px;
+    border-bottom: 1px solid var(--ds-border-light, #e8eef4);
+    padding: 8px 0;
 }
 
-    .dd-page .ds-activity-item:last-child {
+    .dean-content .ds-activity-item:last-child {
         border-bottom: 0;
     }
 
-.dd-page .ds-activity-dot {
+.dean-content .ds-activity-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #94a3b8;
+    background: var(--ds-text-muted, #8a99a8);
 }
 
-.dd-page .ds-activity-dot--done {
-    background: #2a7f5e;
+.dean-content .ds-activity-dot--done {
+    background: var(--ds-success, #1a8a4a);
 }
 
-.dd-page .ds-activity-dot--rejected {
-    background: #c2413b;
+.dean-content .ds-activity-dot--rejected {
+    background: var(--ds-danger, #c0392b);
 }
 
-.dd-page .ds-activity-text {
-    color: #65788a;
-    font-size: 9.5px;
+.dean-content .ds-activity-text {
+    color: var(--ds-text-secondary, #4a5b6d);
+    font-size: 12px;
+    min-width: 0;
 }
 
-    .dd-page .ds-activity-text strong {
-        color: #26394b;
+    .dean-content .ds-activity-text strong {
+        color: var(--ds-heading, #0f2742);
         font-weight: 700;
     }
 
-.dd-page .ds-activity-when {
-    color: #98a5b1;
-    font-size: 8.5px;
+.dean-content .ds-activity-when {
+    color: var(--ds-text-muted, #8a99a8);
+    font-size: 11px;
     white-space: nowrap;
 }
 
-/* ================================================================
-   VISUALLY HIDDEN
-   ================================================================ */
-
-.dd-page .ds-visually-hidden {
+.dean-content .ds-visually-hidden {
     position: absolute !important;
     width: 1px !important;
     height: 1px !important;
@@ -1072,40 +861,26 @@
     border: 0 !important;
 }
 
-/* ================================================================
-   RESPONSIVE — 1200px
-   ================================================================ */
+@media (max-width: 1400px) {
 
-@media (max-width: 1200px) {
-    .dd-page {
-        padding-left: 24px;
-        padding-right: 24px;
+    .dean-content .dd-page {
+        padding-left: 20px;
+        padding-right: 20px;
     }
 
-    .dd-row {
-        grid-template-columns: 1fr 1.2fr .8fr 1.6fr auto;
-        gap: 12px;
+    .dean-content .dd-row {
+        grid-template-columns: 1fr 1.2fr 0.8fr 1.6fr auto;
+        column-gap: 12px;
     }
 }
 
-/* ================================================================
-   RESPONSIVE — 1050px
-   ================================================================ */
+@media (max-width: 1280px) {
 
-@media (max-width: 1050px) {
-    .dd-attn-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .dd-workflow {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .dd-row--head {
+    .dean-content .dd-row--head {
         display: none;
     }
 
-    .dd-row {
+    .dean-content .dd-row {
         grid-template-columns: 1fr auto;
         grid-template-areas:
             "ref     action"
@@ -1114,171 +889,308 @@
             "stage   stage";
         row-gap: 10px;
         min-height: 0;
-        padding: 14px 20px;
+        padding: 14px 18px;
     }
 
-    .dd-ref {
+    .dean-content .dd-ref {
         grid-area: ref;
     }
 
-    .dd-action {
+    .dean-content .dd-action {
         grid-area: action;
         align-self: start;
     }
 
-    .dd-who {
+    .dean-content .dd-who {
         grid-area: who;
     }
 
-    .dd-value {
+    .dean-content .dd-value {
         grid-area: value;
         flex-direction: row;
         align-items: baseline;
         gap: 12px;
     }
 
-    .dd-stage {
+    .dean-content .dd-stage {
         grid-area: stage;
         flex-direction: row;
         align-items: center;
         gap: 10px;
     }
-
-    .dd-journey {
-        grid-column: 1 / -1;
-        grid-row: 2;
-    }
 }
 
-/* ================================================================
-   RESPONSIVE — 760px
-   ================================================================ */
+@media (max-width: 990px) {
 
-@media (max-width: 760px) {
-    .dd-page {
-        padding: 20px 15px 30px;
-        gap: 18px;
+    .dean-content .dd-page {
+        padding-left: 18px;
+        padding-right: 18px;
     }
 
-    .dd-header h1 {
-        font-size: 23px;
+    .dean-content .dd-workflow {
+        grid-template-columns: 1fr;
+        gap: 8px;
     }
 
-    .dd-milestone {
+    .dean-content .dd-workflow-card {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "label  value"
+            "meta   meta";
+        column-gap: 12px;
+        row-gap: 2px;
+        padding: 12px 14px;
+    }
+
+    .dean-content .dd-workflow-label {
+        grid-area: label;
+        margin-bottom: 0;
+        align-self: center;
+    }
+
+    .dean-content .dd-workflow-value {
+        grid-area: value;
+        font-size: 22px !important;
+        margin-bottom: 0;
+        align-self: center;
+        text-align: right;
+    }
+
+    .dean-content .dd-workflow-meta {
+        grid-area: meta;
+        margin-top: 0;
+    }
+
+    .dean-content .dd-milestone {
         flex-wrap: wrap;
         gap: 10px;
     }
 
-    .dd-milestone-btn {
+    .dean-content .dd-milestone-text {
+        flex-basis: calc(100% - 42px);
+    }
+
+    .dean-content .dd-milestone-btn {
         margin-left: 42px;
+        width: calc(100% - 42px);
     }
 
-    .dd-workflow {
-        grid-template-columns: 1fr;
-    }
-
-    .dd-toolbar {
-        padding: 12px 14px;
-        align-items: stretch;
+    .dean-content .dd-toolbar {
         flex-direction: column;
+        align-items: stretch;
+        padding: 12px 14px;
     }
 
-        .dd-toolbar .ds-search,
-        .ds-search {
+        .dean-content .dd-toolbar .ds-search,
+        .dean-content .ds-search {
             width: 100%;
             max-width: none;
         }
 
-    .ds-chips {
-        justify-content: flex-start;
-        overflow-x: auto;
-        padding-bottom: 2px;
+    .dean-content .dd-row {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "ref     action"
+            "who     who"
+            "value   value"
+            "stage   stage";
+        row-gap: 10px;
+        min-height: 0;
+        padding: 14px 16px;
     }
 
-    .dd-row {
-        grid-template-columns: 1fr;
-        grid-template-areas: none;
-        gap: 10px;
-        padding: 15px;
+    .dean-content .dd-ref {
+        align-items: center;
+        flex-wrap: nowrap;
     }
 
-    .dd-ref,
-    .dd-who,
-    .dd-value,
-    .dd-stage,
-    .dd-journey,
-    .dd-action {
-        grid-area: auto;
-        grid-column: auto;
-        grid-row: auto;
+    .dean-content .dd-action {
+        align-self: start;
+        justify-content: flex-end;
     }
 
-    .dd-value {
+    .dean-content .dd-who-name,
+    .dean-content .dd-who-course {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .dean-content .dd-value {
         flex-direction: row;
         align-items: baseline;
+        gap: 12px;
     }
 
-    .dd-action {
-        justify-content: flex-start;
-    }
-
-        .dd-action .ds-btn {
-            width: 100%;
-        }
-
-    .dd-page .ds-banner {
-        align-items: flex-start;
-        flex-wrap: wrap;
-    }
-
-        .dd-page .ds-banner .ds-btn {
-            width: 100%;
-        }
-
-    .dd-page .ds-activity-item {
-        grid-template-columns: 8px 1fr;
-        padding: 10px 0;
-    }
-
-    .dd-page .ds-activity-when {
-        grid-column: 2;
-    }
-
-    .dd-page .ds-card-header,
-    .ds-card-header {
-        padding: 14px;
+    .dean-content .dd-stage {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
     }
 }
 
-/* ================================================================
-   PRINT
-   ================================================================ */
+@media (max-width: 720px) {
+
+    .dean-content .dd-page {
+        gap: 16px;
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 18px;
+    }
+
+    .dean-content .dd-header h1 {
+        font-size: 22px;
+    }
+
+    .dean-content .dd-header p {
+        font-size: 12.5px;
+    }
+
+    .dean-content .dd-milestone {
+        padding: 12px 14px;
+        border-radius: 8px;
+    }
+
+    .dean-content .dd-milestone-text {
+        font-size: 12.5px;
+    }
+
+    .dean-content .ds-card-header {
+        padding: 12px 16px;
+    }
+
+    .dean-content .dd-toolbar {
+        padding: 12px 14px;
+    }
+
+    .dean-content .ds-search-hint {
+        display: none;
+    }
+
+    .dean-content .dd-row {
+        padding: 14px;
+    }
+
+    .dean-content .ds-activity {
+        padding: 0 16px;
+    }
+
+    .dean-content .ds-activity-item {
+        grid-template-columns: 8px 1fr;
+        padding: 10px 0;
+        row-gap: 2px;
+    }
+
+    .dean-content .ds-activity-when {
+        grid-column: 2;
+    }
+}
+
+@media (max-width: 520px) {
+
+    .dean-content .dd-page {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .dean-content .dd-header h1 {
+        font-size: 20px;
+    }
+
+    .dean-content .dd-workflow-card {
+        padding: 12px 14px;
+    }
+
+    .dean-content .dd-workflow-value {
+        font-size: 20px !important;
+    }
+
+    .dean-content .dd-milestone-btn {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .dean-content .ds-chip {
+        font-size: 11px;
+        padding: 0 8px;
+        min-height: 28px;
+    }
+}
+
+@media (max-width: 400px) {
+
+    .dean-content .dd-page {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .dean-content .dd-header h1 {
+        font-size: 19px;
+    }
+
+    .dean-content .dd-header p {
+        font-size: 12px;
+    }
+
+    .dean-content .dd-milestone {
+        padding: 10px 12px;
+    }
+
+    .dean-content .dd-milestone-text {
+        font-size: 12px;
+    }
+
+    .dean-content .dd-workflow-label {
+        font-size: 10px;
+    }
+
+    .dean-content .ds-card-header {
+        padding: 12px 14px;
+    }
+
+    .dean-content .dd-toolbar {
+        padding: 10px 14px;
+    }
+
+    .dean-content .dd-row {
+        padding: 12px 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .dean-content .dd-page *,
+    .dean-content .dd-page *::before,
+    .dean-content .dd-page *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
 
 @media print {
-    .dd-page {
+
+    .dean-content .dd-page {
         max-width: none;
         padding: 0;
     }
 
-    .dd-toolbar,
-    .dd-action,
-    .ds-btn,
-    .ds-copy,
-    .dd-milestone {
+    .dean-content .dd-toolbar,
+    .dean-content .dd-action,
+    .dean-content .dd-milestone,
+    .dean-content .ds-btn,
+    .dean-content .ds-copy,
+    .dean-content .ds-chips {
         display: none !important;
     }
 
-    .dd-row {
+    .dean-content .dd-row {
         break-inside: avoid;
         box-shadow: none;
     }
-}
 
-/* ================================================================
-   FORCE OVERRIDES
-   ================================================================ */
-
-.dd-row:not(.dd-row--head):hover,
-.dd-row--needs:hover {
-    background: #f0f3f7 !important;
+    .dean-content .ds-card {
+        box-shadow: none;
+        border: 1px solid #e0e6ec;
+    }
 }

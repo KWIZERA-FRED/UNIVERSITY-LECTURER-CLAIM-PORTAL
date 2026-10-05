@@ -1,6 +1,7 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using Academic_Staff_Engagement_Claim_Processing_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -17,10 +18,14 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
     public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly AuditLogger _auditLogger;
 
-        public EditModel(ApplicationDbContext context)
+        public EditModel(
+            ApplicationDbContext context,
+            AuditLogger auditLogger)
         {
             _context = context;
+            _auditLogger = auditLogger;
         }
 
         [BindProperty]
@@ -477,6 +482,61 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 return Forbid();
             }
 
+            // --------------------------------------------------------
+            // Work out what is changing, for the audit trail.
+            // Field names only (plus the username, which is the
+            // account's identity); emails and phone numbers are not
+            // written to the log.
+            // --------------------------------------------------------
+
+            var changedFields = new List<string>();
+
+            if (!string.Equals(
+                    lecturerEntity.UserName,
+                    UserName,
+                    StringComparison.Ordinal))
+            {
+                changedFields.Add(
+                    $"UserName ('{lecturerEntity.UserName}' to '{UserName}')");
+            }
+
+            if (!string.Equals(
+                    lecturerEntity.Email,
+                    Email,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                changedFields.Add("Email");
+            }
+
+            if (!string.Equals(
+                    lecturerEntity.PhoneNumber ?? string.Empty,
+                    PhoneNumber,
+                    StringComparison.Ordinal))
+            {
+                changedFields.Add("PhoneNumber");
+            }
+
+            if (lecturerEntity.Type != Type)
+            {
+                changedFields.Add(
+                    $"Type ({lecturerEntity.Type} to {Type})");
+            }
+
+            if (lecturerEntity.Rank != Rank)
+            {
+                changedFields.Add("Rank");
+            }
+
+            if (!string.Equals(
+                    lecturerEntity.Department,
+                    Department,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                changedFields.Add("Department");
+            }
+
+            bool activeChanged = lecturerEntity.IsActive != IsActive;
+
             lecturerEntity.UserName = UserName;
             lecturerEntity.Email = Email;
             lecturerEntity.PhoneNumber = PhoneNumber;
@@ -486,6 +546,41 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             lecturerEntity.Department = Department;
             lecturerEntity.IsActive = IsActive;
             lecturerEntity.UpdatedAtUtc = DateTime.UtcNow;
+
+            // Recorded in the same SaveChanges as the update itself.
+            var ipAddress =
+                HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            if (changedFields.Count > 0)
+            {
+                _auditLogger.Add(
+                    AuditAction.AccountUpdated,
+                    hod.UserName,
+                    "HOD",
+                    hod.Id,
+                    "Lecturer",
+                    lecturerEntity.Id,
+                    "Lecturer record updated. Changed: " +
+                    string.Join(", ", changedFields),
+                    ipAddress);
+            }
+
+            if (activeChanged)
+            {
+                _auditLogger.Add(
+                    IsActive
+                        ? AuditAction.AccountReactivated
+                        : AuditAction.AccountDeactivated,
+                    hod.UserName,
+                    "HOD",
+                    hod.Id,
+                    "Lecturer",
+                    lecturerEntity.Id,
+                    IsActive
+                        ? $"Lecturer account {lecturerEntity.UserName} reactivated by HOD"
+                        : $"Lecturer account {lecturerEntity.UserName} deactivated by HOD",
+                    ipAddress);
+            }
 
             try
             {

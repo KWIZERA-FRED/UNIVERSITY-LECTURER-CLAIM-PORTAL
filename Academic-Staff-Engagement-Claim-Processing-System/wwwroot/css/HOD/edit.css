@@ -1,246 +1,218 @@
-:root {
-    --primary: #0f2742;
-    --primary-soft: #1e3a5f;
-    --accent: #059669;
-    --accent-dark: #047857;
-    --accent-soft: #ecfdf5;
-    --accent-line: #a7f3d0;
-    --surface: #ffffff;
-    --surface-soft: #fafbfc;
-    --surface-sunken: #f5f7fb;
-    --border: #e6ebf1;
-    --border-soft: #eef2f6;
-    --border-strong: #d5dde6;
-    --text: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #7a8699;
-    --text-faint: #a8b3c2;
-    --text-inverse: #ffffff;
-    --danger: #b91c1c;
-    --danger-soft: #fef2f2;
-    --danger-line: #fecaca;
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --font-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --transition: 140ms ease;
-}
-
-.edit-page {
+.hod-content .edit-page {
     width: 100%;
-    max-width: 1120px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
+    padding: 0 0 24px;
     display: flex;
     flex-direction: column;
-    gap: 22px;
-    color: var(--text);
-    font-family: var(--font-primary);
-    font-size: 14px;
-    line-height: 1.55;
+    gap: 20px;
+    color: var(--ds-text, #1a2b3c);
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 13.5px;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
-    .edit-page *,
-    .edit-page *::before,
-    .edit-page *::after {
+    .hod-content .edit-page *,
+    .hod-content .edit-page *::before,
+    .hod-content .edit-page *::after {
         box-sizing: border-box;
     }
 
-    .edit-page .page-header {
+    .hod-content .edit-page .page-header {
         display: flex;
         flex-direction: column;
         gap: 4px;
-        padding-bottom: 4px;
     }
 
-        .edit-page .page-header h1 {
+        .hod-content .edit-page .page-header h1 {
             margin: 0;
-            color: var(--primary);
-            font-family: var(--font-secondary);
-            font-size: 24px;
+            color: var(--ds-heading, #0f2742);
+            font-family: "Poppins", sans-serif;
+            font-size: 26px;
             font-weight: 700;
             letter-spacing: -0.4px;
             line-height: 1.2;
+            overflow-wrap: anywhere;
         }
 
-        .edit-page .page-header p {
+        .hod-content .edit-page .page-header p {
             margin: 0;
-            max-width: 620px;
-            color: var(--text-muted);
+            max-width: 640px;
+            color: var(--ds-text-muted, #8a99a8);
             font-size: 13px;
             font-weight: 400;
             line-height: 1.5;
+            overflow-wrap: anywhere;
         }
 
-    .edit-page .section-card {
+    .hod-content .edit-page .section-card {
         display: flex;
         flex-direction: column;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
+        background: var(--ds-surface, #ffffff);
+        border: 1px solid var(--ds-border-light, #e8eef4);
+        border-radius: var(--ds-radius-md, 8px);
         overflow: hidden;
     }
 
-    .edit-page .section-header {
+    .hod-content .edit-page .section-header {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
         gap: 16px;
-        padding: 16px 22px;
-        border-bottom: 1px solid var(--border-soft);
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--ds-border-light, #e8eef4);
     }
 
-        .edit-page .section-header > div {
+        .hod-content .edit-page .section-header > div {
             display: flex;
             flex-direction: column;
             gap: 3px;
             min-width: 0;
         }
 
-        .edit-page .section-header h2 {
+        .hod-content .edit-page .section-header h2 {
             margin: 0;
-            color: var(--primary);
-            font-family: var(--font-secondary);
+            color: var(--ds-heading, #0f2742);
+            font-family: "Poppins", sans-serif;
             font-size: 13.5px;
-            font-weight: 600;
-            letter-spacing: -0.1px;
+            font-weight: 700;
+            letter-spacing: -0.15px;
             line-height: 1.35;
         }
 
-    .edit-page .card-body {
+    .hod-content .edit-page .card-body {
         display: flex;
         flex-direction: column;
-        gap: 20px;
-        padding: 22px;
+        gap: 18px;
+        padding: 20px;
     }
 
-    .edit-page form {
+    .hod-content .edit-page form {
         width: 100%;
     }
 
-    .edit-page .form-grid {
+    .hod-content .edit-page .form-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px 20px;
+        gap: 16px 18px;
     }
 
-    .edit-page .form-group {
+    .hod-content .edit-page .form-group {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 5px;
         min-width: 0;
     }
 
-        .edit-page .form-group > label {
-            color: var(--text-secondary);
+        .hod-content .edit-page .form-group > label {
+            color: var(--ds-text-secondary, #4a5b6d);
             font-size: 11.5px;
             font-weight: 600;
             letter-spacing: 0.1px;
             line-height: 1.4;
         }
 
-        .edit-page .form-group input[type="text"],
-        .edit-page .form-group input[type="email"],
-        .edit-page .form-group input[type="tel"],
-        .edit-page .form-group input:not([type]),
-        .edit-page .form-group select {
+        .hod-content .edit-page .form-group input[type="text"],
+        .hod-content .edit-page .form-group input[type="email"],
+        .hod-content .edit-page .form-group input[type="tel"],
+        .hod-content .edit-page .form-group input:not([type]),
+        .hod-content .edit-page .form-group select {
             width: 100%;
-            height: 40px;
+            height: 38px;
             padding: 0 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
+            border: 1px solid var(--ds-border, #d8e0e8);
+            border-radius: var(--ds-radius-sm, 6px);
             outline: none;
-            background: var(--surface);
-            color: var(--text);
+            background: var(--ds-surface, #ffffff);
+            color: var(--ds-heading, #0f2742);
             font-family: inherit;
-            font-size: 13px;
-            transition: border-color var(--transition), box-shadow var(--transition);
+            font-size: 12.5px;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease;
         }
 
-            .edit-page .form-group input:hover,
-            .edit-page .form-group select:hover {
-                border-color: var(--border-strong);
+            .hod-content .edit-page .form-group input:hover,
+            .hod-content .edit-page .form-group select:hover {
+                border-color: var(--ds-border, #d8e0e8);
             }
 
-            .edit-page .form-group input:focus,
-            .edit-page .form-group select:focus {
-                border-color: var(--accent);
-                box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+            .hod-content .edit-page .form-group input:focus,
+            .hod-content .edit-page .form-group select:focus {
+                border-color: var(--ds-action, #1e5fbf);
+                box-shadow: 0 0 0 3px var(--ds-action-soft, #d9e7f8);
             }
 
-        .edit-page .form-group select {
+        .hod-content .edit-page .form-group select {
             cursor: pointer;
             appearance: auto;
         }
 
-    .edit-page .readonly-field {
+    .hod-content .edit-page .readonly-field {
         width: 100%;
-        min-height: 40px;
+        min-height: 38px;
         display: flex;
         align-items: center;
         gap: 9px;
         padding: 0 12px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        background: var(--surface-sunken);
-        color: var(--text-secondary);
-        font-size: 13px;
+        border: 1px solid var(--ds-border-light, #e8eef4);
+        border-radius: var(--ds-radius-sm, 6px);
+        background: var(--ds-surface-raised, #f5f8fb);
+        color: var(--ds-text-secondary, #4a5b6d);
+        font-size: 12.5px;
         font-weight: 500;
         cursor: not-allowed;
     }
 
-        .edit-page .readonly-field i {
+        .hod-content .edit-page .readonly-field i {
             flex-shrink: 0;
-            color: var(--primary-soft);
+            color: var(--ds-text-muted, #8a99a8);
             font-size: 13px;
         }
 
-        .edit-page .readonly-field span {
+        .hod-content .edit-page .readonly-field span {
             min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-    .edit-page .form-group-phone {
+    .hod-content .edit-page .form-group-phone {
         grid-column: span 1;
     }
 
-    .edit-page .phone-field {
+    .hod-content .edit-page .phone-field {
         position: relative;
         display: flex;
         align-items: stretch;
         width: 100%;
-        height: 40px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
+        height: 38px;
+        border: 1px solid var(--ds-border, #d8e0e8);
+        border-radius: var(--ds-radius-sm, 6px);
         overflow: hidden;
-        background: var(--surface);
-        transition: border-color var(--transition), box-shadow var(--transition);
+        background: var(--ds-surface, #ffffff);
+        transition: border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
-        .edit-page .phone-field:hover {
-            border-color: var(--border-strong);
+        .hod-content .edit-page .phone-field:hover {
+            border-color: var(--ds-border, #d8e0e8);
         }
 
-        .edit-page .phone-field:focus-within {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        .hod-content .edit-page .phone-field:focus-within {
+            border-color: var(--ds-action, #1e5fbf);
+            box-shadow: 0 0 0 3px var(--ds-action-soft, #d9e7f8);
         }
 
-    .edit-page .phone-country {
+    .hod-content .edit-page .phone-country {
         flex: 0 0 140px;
         width: 140px;
         height: 100%;
         padding: 0 10px;
         border: none;
-        border-right: 1px solid var(--border-soft);
+        border-right: 1px solid var(--ds-border-light, #e8eef4);
         border-radius: 0;
         outline: none;
-        background: var(--surface-soft);
-        color: var(--text);
+        background: var(--ds-surface-raised, #f5f8fb);
+        color: var(--ds-heading, #0f2742);
         font-family: inherit;
         font-size: 12.5px;
         font-weight: 500;
@@ -250,23 +222,23 @@
         text-align: left;
     }
 
-        .edit-page .phone-country:hover {
-            background: var(--surface-sunken);
+        .hod-content .edit-page .phone-country:hover {
+            background: var(--ds-surface-raised, #f5f8fb);
         }
 
-        .edit-page .phone-country:focus {
+        .hod-content .edit-page .phone-country:focus {
             outline: none;
         }
 
-        .edit-page .phone-country option {
-            background: var(--surface);
-            color: var(--text);
+        .hod-content .edit-page .phone-country option {
+            background: var(--ds-surface, #ffffff);
+            color: var(--ds-heading, #0f2742);
             font-family: inherit;
             font-size: 13px;
             padding: 6px 8px;
         }
 
-    .edit-page .phone-local {
+    .hod-content .edit-page .phone-local {
         flex: 1;
         min-width: 0;
         height: 100%;
@@ -274,89 +246,108 @@
         border: none;
         border-radius: 0;
         outline: none;
-        background: var(--surface);
-        color: var(--text);
+        background: var(--ds-surface, #ffffff);
+        color: var(--ds-heading, #0f2742);
         font-family: inherit;
-        font-size: 13px;
+        font-size: 12.5px;
         line-height: 1;
         letter-spacing: 0.25px;
     }
 
-        .edit-page .phone-local::placeholder {
+        .hod-content .edit-page .phone-local::placeholder {
             color: transparent;
         }
 
-    .edit-page .checkbox-label {
+    .hod-content .edit-page .checkbox-label {
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        min-height: 40px;
+        min-height: 38px;
         padding-top: 20px;
         cursor: pointer;
         user-select: none;
     }
 
-        .edit-page .checkbox-label input[type="checkbox"] {
-            width: 17px;
-            height: 17px;
+        .hod-content .edit-page .checkbox-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
             flex-shrink: 0;
             margin: 0;
-            accent-color: var(--accent);
+            accent-color: var(--ds-action, #1e5fbf);
             cursor: pointer;
         }
 
-        .edit-page .checkbox-label span {
-            color: var(--text-secondary);
+        .hod-content .edit-page .checkbox-label span {
+            color: var(--ds-text-secondary, #4a5b6d);
             font-size: 12.5px;
             font-weight: 500;
             line-height: 1.4;
         }
 
-    .edit-page .validation {
+    .hod-content .edit-page .validation {
         display: block;
-        color: var(--danger);
+        color: var(--ds-danger, #c0392b);
         font-size: 11.5px;
         font-weight: 450;
         line-height: 1.4;
     }
 
-    .edit-page .validation-summary {
-        padding: 12px 14px;
-        border: 1px solid var(--danger-line);
-        border-radius: var(--radius-md);
-        background: var(--danger-soft);
-        color: var(--danger);
+    .hod-content .edit-page .validation-summary {
+        padding: 11px 14px;
+        border: 1px solid #eec4bd;
+        border-radius: var(--ds-radius-sm, 6px);
+        background: var(--ds-danger-soft, #fbe3e0);
+        color: var(--ds-danger, #c0392b);
         font-size: 12.5px;
         line-height: 1.55;
     }
 
-        .edit-page .validation-summary ul {
+        .hod-content .edit-page .validation-summary ul {
             margin: 0;
             padding-left: 18px;
         }
 
-        .edit-page .validation-summary li {
+        .hod-content .edit-page .validation-summary li {
             margin: 0;
         }
 
-    .edit-page .form-group input.input-validation-error,
-    .edit-page .form-group select.input-validation-error,
-    .edit-page .phone-field:has(.input-validation-error) {
-        border-color: var(--danger);
+    .hod-content .edit-page .success-message {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border: 1px solid #b6e0c3;
+        border-radius: var(--ds-radius-sm, 6px);
+        background: var(--ds-success-soft, #d8f0e0);
+        color: var(--ds-success-strong, #106634);
+        font-size: 12.5px;
+        line-height: 1.5;
     }
 
-    .edit-page .card-actions {
+        .hod-content .edit-page .success-message i {
+            font-size: 13px;
+            flex-shrink: 0;
+            color: var(--ds-success, #1a8a4a);
+        }
+
+    .hod-content .edit-page .form-group input.input-validation-error,
+    .hod-content .edit-page .form-group select.input-validation-error,
+    .hod-content .edit-page .phone-field:has(.input-validation-error) {
+        border-color: var(--ds-danger, #c0392b);
+    }
+
+    .hod-content .edit-page .card-actions {
         display: flex;
         align-items: center;
         gap: 10px;
         margin-top: 4px;
-        padding-top: 18px;
-        border-top: 1px solid var(--border-soft);
+        padding-top: 16px;
+        border-top: 1px solid var(--ds-border-light, #e8eef4);
         flex-wrap: wrap;
     }
 
-    .edit-page .primary-button,
-    .edit-page .secondary-button {
+    .hod-content .edit-page .primary-button,
+    .hod-content .edit-page .secondary-button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -365,134 +356,134 @@
         min-height: 36px;
         padding: 0 16px;
         border: 1px solid transparent;
-        border-radius: var(--radius-sm);
+        border-radius: var(--ds-radius-sm, 6px);
         font-family: inherit;
         font-size: 12.5px;
         font-weight: 600;
         text-decoration: none;
         cursor: pointer;
-        transition: background var(--transition), border-color var(--transition), color var(--transition);
+        transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
     }
 
-        .edit-page .primary-button i,
-        .edit-page .secondary-button i {
+        .hod-content .edit-page .primary-button i,
+        .hod-content .edit-page .secondary-button i {
             font-size: 12.5px;
         }
 
-    .edit-page .primary-button {
-        background: var(--accent);
-        color: var(--text-inverse);
-        border-color: var(--accent);
+    .hod-content .edit-page .primary-button {
+        background: var(--ds-action, #1e5fbf);
+        color: #ffffff;
+        border-color: var(--ds-action, #1e5fbf);
     }
 
-        .edit-page .primary-button:hover {
-            background: var(--accent-dark);
-            border-color: var(--accent-dark);
+        .hod-content .edit-page .primary-button:hover {
+            background: var(--ds-action-strong, #154a99);
+            border-color: var(--ds-action-strong, #154a99);
+            color: #ffffff;
         }
 
-    .edit-page .secondary-button {
-        background: var(--surface);
-        color: var(--text-secondary);
-        border-color: var(--border);
+    .hod-content .edit-page .secondary-button {
+        background: var(--ds-surface, #ffffff);
+        color: var(--ds-text-secondary, #4a5b6d);
+        border-color: var(--ds-border, #d8e0e8);
     }
 
-        .edit-page .secondary-button:hover {
-            background: var(--surface-sunken);
-            border-color: var(--border-strong);
-            color: var(--primary);
+        .hod-content .edit-page .secondary-button:hover {
+            background: var(--ds-surface-raised, #f5f8fb);
+            border-color: var(--ds-border, #d8e0e8);
+            color: var(--ds-heading, #0f2742);
         }
 
-        .edit-page .primary-button:focus-visible,
-        .edit-page .secondary-button:focus-visible {
-            outline: 2px solid rgba(5, 150, 105, 0.35);
+        .hod-content .edit-page .primary-button:focus-visible,
+        .hod-content .edit-page .secondary-button:focus-visible {
+            outline: 2px solid var(--ds-action, #1e5fbf);
             outline-offset: 2px;
         }
 
-@media (max-width: 900px) {
+@media (max-width: 990px) {
 
-    .edit-page .form-grid {
+    .hod-content .edit-page .form-grid {
         grid-template-columns: 1fr;
     }
 
-    .edit-page .form-group-phone {
+    .hod-content .edit-page .form-group-phone {
         grid-column: auto;
     }
 }
 
-@media (max-width: 650px) {
+@media (max-width: 720px) {
 
-    .edit-page {
-        gap: 18px;
+    .hod-content .edit-page {
+        gap: 16px;
     }
 
-        .edit-page .page-header h1 {
-            font-size: 20px;
+        .hod-content .edit-page .page-header h1 {
+            font-size: 22px;
         }
 
-        .edit-page .page-header p {
+        .hod-content .edit-page .page-header p {
             font-size: 12.5px;
         }
 
-        .edit-page .section-header {
-            padding: 14px 18px;
+        .hod-content .edit-page .section-header {
+            padding: 12px 16px;
         }
 
-            .edit-page .section-header h2 {
+            .hod-content .edit-page .section-header h2 {
                 font-size: 13px;
             }
 
-        .edit-page .card-body {
-            gap: 16px;
-            padding: 18px;
+        .hod-content .edit-page .card-body {
+            gap: 14px;
+            padding: 16px;
         }
 
-        .edit-page .form-grid {
-            gap: 16px;
+        .hod-content .edit-page .form-grid {
+            gap: 14px;
         }
 
-        .edit-page .card-actions {
+        .hod-content .edit-page .card-actions {
             flex-direction: column;
             align-items: stretch;
         }
 
-            .edit-page .card-actions .primary-button,
-            .edit-page .card-actions .secondary-button {
+            .hod-content .edit-page .card-actions .primary-button,
+            .hod-content .edit-page .card-actions .secondary-button {
                 width: 100%;
             }
 
-        .edit-page .checkbox-label {
+        .hod-content .edit-page .checkbox-label {
             padding-top: 0;
         }
 
-        .edit-page .phone-country {
+        .hod-content .edit-page .phone-country {
             flex: 0 0 120px;
             width: 120px;
             font-size: 12px;
             padding: 0 8px;
         }
 
-        .edit-page .phone-local {
+        .hod-content .edit-page .phone-local {
             padding: 0 10px;
             font-size: 12.5px;
         }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 520px) {
 
-    .edit-page .section-header {
-        padding: 13px 15px;
+    .hod-content .edit-page .page-header h1 {
+        font-size: 20px;
     }
 
-    .edit-page .card-body {
-        padding: 15px;
+    .hod-content .edit-page .section-header {
+        padding: 11px 14px;
     }
 
-    .edit-page .primary-button,
-    .edit-page .secondary-button {
-        min-height: 38px;
+    .hod-content .edit-page .card-body {
+        padding: 14px;
     }
 
-    .edit-page .phone-country {
+    .hod-content .edit-page .phone-country {
         flex: 0 0 110px;
         width: 110px;
         font-size: 11.5px;
@@ -502,10 +493,10 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-    .edit-page *,
-    .edit-page *::before,
-    .edit-page *::after {
-        transition: none !important;
+    .hod-content .edit-page *,
+    .hod-content .edit-page *::before,
+    .hod-content .edit-page *::after {
+        transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
     }
 }

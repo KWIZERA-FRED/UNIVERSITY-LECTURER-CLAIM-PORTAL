@@ -41,6 +41,27 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
 
         public string? ErrorMessage { get; set; }
 
+        // Set by the cookie middleware when an anonymous visitor hits a
+        // protected page (e.g. the claim documents download).
+        [BindProperty(SupportsGet = true)]
+        public string? ReturnUrl { get; set; }
+
+        // Only ever redirect to a local path, never to another site, and
+        // never back to the login page itself.
+        private IActionResult RedirectAfterLogin(IActionResult fallback)
+        {
+            if (!string.IsNullOrWhiteSpace(ReturnUrl) &&
+                Url.IsLocalUrl(ReturnUrl) &&
+                !ReturnUrl.StartsWith(
+                    "/Login",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return LocalRedirect(ReturnUrl);
+            }
+
+            return fallback;
+        }
+
         public void OnGet()
         {
         }
@@ -97,8 +118,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                         // Lecturer dashboard
                         // ------------------------------------------------
 
-                        return RedirectToPage(
-                            "/Lecturer/Index");
+                        return RedirectAfterLogin(RedirectToPage("/Lecturer/Index"));
                     });
             }
 
@@ -119,7 +139,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     new PasswordHasher<AdminAccount>(),
                     onSuccess: () =>
                         Task.FromResult<IActionResult>(
-                            RedirectToPage("/HOD/Index")));
+                            RedirectAfterLogin(RedirectToPage("/HOD/Index"))));
             }
 
             // ============================================================
@@ -139,7 +159,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                     new PasswordHasher<AdminAccount>(),
                     onSuccess: () =>
                         Task.FromResult<IActionResult>(
-                            RedirectToPage("/DEAN/Index")));
+                            RedirectAfterLogin(RedirectToPage("/DEAN/Index"))));
             }
 
             // ============================================================
@@ -167,8 +187,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                             ManagementTitle.ExamOffice)
                         {
                             return Task.FromResult<IActionResult>(
-                                RedirectToPage(
-                                    "/Management/ExamOffice/Index"));
+                                RedirectAfterLogin(RedirectToPage("/Management/ExamOffice/Index")));
                         }
 
                         // ------------------------------------------------
@@ -176,8 +195,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages
                         // ------------------------------------------------
 
                         return Task.FromResult<IActionResult>(
-                            RedirectToPage(
-                                "/Management/ManagementDashboard"));
+                            RedirectAfterLogin(RedirectToPage("/Management/ManagementDashboard")));
                     },
                     managementTitle: management.Title);
             }

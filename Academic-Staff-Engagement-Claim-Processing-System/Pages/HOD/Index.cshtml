@@ -1,175 +1,756 @@
 ﻿@page
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.IndexModel
-@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 
 @{
-ViewData["Title"] = "HOD Dashboard";
+    Layout = "~/Pages/Shared/HOD/_HODLayout.cshtml";
+    ViewData["Title"] = "HOD Dashboard";
 }
 
-@section Styles { <link rel="stylesheet"
-       href="~/css/HOD/dashboard.css"
-       asp-append-version="true" />
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/DEAN/Dashboard.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/HOD/dashboard.css"
+          asp-append-version="true" />
 }
 
-<div class="dashboard-page">
+<section class="ds-page dd-page">
 
+    @* ---------------- Header ---------------- *@
 
-<header class="page-header">
-    <h1>Welcome, @Model.HodName</h1>
-    <p>@Model.HodFaculty Faculty overview and pending academic activities.</p>
-</header>
-
-<section class="stats-grid">
-
-    <a href="/HOD/Contracts" class="stat-card stat-card-blue">
-        <div class="stat-icon">
-            <i class="bi bi-file-earmark-text-fill"></i>
-        </div>
-        <div class="stat-value">@Model.ContractsToSign</div>
-        <span class="stat-label">Contracts to Sign</span>
-    </a>
-
-    <a href="/HOD/Contracts" class="stat-card stat-card-green">
-        <div class="stat-icon">
-            <i class="bi bi-file-earmark-check-fill"></i>
-        </div>
-        <div class="stat-value">@Model.ContractsToReview</div>
-        <span class="stat-label">Active Contracts</span>
-    </a>
-
-    <a href="/HOD/Claims" class="stat-card stat-card-purple">
-        <div class="stat-icon">
-            <i class="bi bi-receipt"></i>
-        </div>
-        <div class="stat-value">@Model.ClaimsReceived</div>
-        <span class="stat-label">Claims Received</span>
-    </a>
-
-    <a href="/HOD/Staff" class="stat-card stat-card-orange">
-        <div class="stat-icon">
-            <i class="bi bi-people-fill"></i>
-        </div>
-        <div class="stat-value">@Model.AcademicStaff</div>
-        <span class="stat-label">Academic Staff</span>
-    </a>
-
-</section>
-
-<section class="section-card">
-
-    <header class="section-header">
-        <h2>Recent Claims</h2>
-        <a href="/HOD/Claims" class="section-link">View all</a>
+    <header class="dd-header">
+        <h1>Welcome back, @Model.DisplayName</h1>
+        <p>@Model.HodFacultyDisplay · claims and contracts awaiting your review.</p>
     </header>
 
-    @if (Model.RecentClaims.Any())
+
+    @* ---------------- Next action strip ---------------- *@
+
+    @if (Model.NextAction is not null)
     {
-        <div class="list-table">
+        <div class="dd-milestone" role="status">
 
-            @foreach (var claim in Model.RecentClaims)
+            <span class="dd-milestone-icon" aria-hidden="true">
+                <i class="bi bi-pen-fill"></i>
+            </span>
+
+            <p class="dd-milestone-text">
+                <strong>@Model.NextAction.Reference</strong>
+                from @Model.NextAction.LecturerName
+                needs your approval —
+                waiting @Model.NextActionWaitText.
+                @if (Model.ReadyCount > 1)
+                {
+                    <text>
+                        <strong>@(Model.ReadyCount - 1) more</strong> waiting.
+                    </text>
+                }
+            </p>
+
+            <a href="@Model.NextAction.ReviewUrl"
+               class="dd-milestone-btn">
+                Review &amp; approve
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <div class="dd-milestone dd-milestone--calm" role="status">
+
+            <span class="dd-milestone-icon" aria-hidden="true">
+                <i class="bi bi-check2-circle"></i>
+            </span>
+
+            <p class="dd-milestone-text">
+                <strong>You're all caught up.</strong>
+                Nothing is waiting for your approval right now.
+            </p>
+
+        </div>
+    }
+
+
+    @* ---------------- Workflow cards — three tiers ---------------- *@
+
+    <section class="dd-workflow" aria-label="Your workflow">
+
+        <a asp-page="/HOD/Index"
+           asp-route-filter="needs-action"
+           data-filter="needs-action"
+           class="dd-workflow-card dd-workflow-card--action">
+
+            <span class="dd-workflow-label">
+                Needs your approval
+                <i class="bi bi-info-circle"
+                   aria-hidden="true"
+                   title="Claims where the lecturer has submitted and your decision is now required."></i>
+            </span>
+
+            <span class="dd-workflow-value">@Model.ReadyCount</span>
+
+            <span class="dd-workflow-meta">
+                @if (Model.ReadyCount > 0)
+                {
+                    <text>Oldest waiting @Model.OldestReadyText</text>
+                }
+                else
+                {
+                    <text>Nothing for you to approve</text>
+                }
+            </span>
+
+        </a>
+
+        <a asp-page="/HOD/Index"
+           asp-route-filter="pipeline"
+           data-filter="pipeline"
+           class="dd-workflow-card dd-workflow-card--waiting">
+
+            <span class="dd-workflow-label">
+                Waiting on earlier signers
+                <i class="bi bi-info-circle"
+                   aria-hidden="true"
+                   title="Claims still being prepared or submitted. You can act once the lecturer submits."></i>
+            </span>
+
+            <span class="dd-workflow-value">@Model.WaitingCount</span>
+
+            <span class="dd-workflow-meta">
+                You can act once they submit
+            </span>
+
+        </a>
+
+        <a asp-page="/HOD/Index"
+           asp-route-filter="pipeline"
+           data-filter="pipeline"
+           class="dd-workflow-card dd-workflow-card--info">
+
+            <span class="dd-workflow-label">
+                With later approvers
+                <i class="bi bi-info-circle"
+                   aria-hidden="true"
+                   title="Claims you have already approved. They are now with a later approver."></i>
+            </span>
+
+            <span class="dd-workflow-value">@Model.WithLaterCount</span>
+
+            <span class="dd-workflow-meta">
+                You've approved — still in progress
+            </span>
+
+        </a>
+
+    </section>
+
+
+    @* ---------------- Queue ---------------- *@
+
+    <section class="ds-card" id="dd-queue">
+
+        <div class="ds-card-header">
+
+            <h2>Claim queue</h2>
+
+            <nav class="ds-chips" aria-label="Filter the queue">
+
+                <a asp-page="/HOD/Index"
+                   asp-route-filter="needs-action"
+                   asp-route-q="@Model.Q"
+                   data-filter="needs-action"
+                   class="ds-chip @(Model.ActiveFilter == "needs-action" ? "is-active" : "")">
+                    Needs your action
+                    <span class="ds-chip-count">@Model.ReadyCount</span>
+                </a>
+
+                <a asp-page="/HOD/Index"
+                   asp-route-filter="pipeline"
+                   asp-route-q="@Model.Q"
+                   data-filter="pipeline"
+                   class="ds-chip @(Model.ActiveFilter == "pipeline" ? "is-active" : "")">
+                    In pipeline
+                    <span class="ds-chip-count">@Model.PipelineCount</span>
+                </a>
+
+                <a asp-page="/HOD/Index"
+                   asp-route-filter="closed"
+                   asp-route-q="@Model.Q"
+                   data-filter="closed"
+                   class="ds-chip @(Model.ActiveFilter == "closed" ? "is-active" : "")">
+                    Closed
+                    <span class="ds-chip-count">@Model.ClosedCount</span>
+                </a>
+
+                <a asp-page="/HOD/Index"
+                   asp-route-filter="all"
+                   asp-route-q="@Model.Q"
+                   data-filter="all"
+                   class="ds-chip @(Model.ActiveFilter == "all" ? "is-active" : "")">
+                    All
+                    <span class="ds-chip-count">@Model.AllCount</span>
+                </a>
+
+            </nav>
+
+        </div>
+
+        <div class="dd-toolbar">
+
+            <form method="get"
+                  asp-page="/HOD/Index"
+                  id="dd-search-form"
+                  class="ds-search"
+                  role="search">
+
+                <i class="bi bi-search" aria-hidden="true"></i>
+
+                <input type="hidden" name="filter" value="@Model.ActiveFilter" />
+
+                <input type="search"
+                       id="dd-search"
+                       name="q"
+                       value="@Model.Q"
+                       autocomplete="off"
+                       aria-keyshortcuts="/"
+                       placeholder="Search reference, lecturer or course"
+                       aria-label="Search reference, lecturer or course" />
+
+                <span class="ds-search-hint" aria-hidden="true">Press /</span>
+
+            </form>
+
+        </div>
+
+        <div class="dd-list"
+             id="dd-list"
+             role="list"
+             data-filter="@Model.ActiveFilter">
+
+            <div class="dd-row dd-row--head" id="dd-head" aria-hidden="true">
+                <span>Reference</span>
+                <span>Lecturer &amp; course</span>
+                <span>Value</span>
+                <span>Stage</span>
+                <span></span>
+            </div>
+
+            @foreach (var item in Model.Items)
             {
-                var claimStatusClass =
-                    claim.Status == ClaimStatus.Approved ||
-                    claim.Status == ClaimStatus.Paid
-                        ? "status-active"
-                        : claim.Status == ClaimStatus.Rejected
-                            ? "status-danger"
-                            : "status-pending";
+                var needsAction =
+                    item.Bucket == Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD.IndexModel.QueueBucket.NeedsAction;
 
-                <div class="list-row">
+                var initial =
+                    !string.IsNullOrWhiteSpace(item.LecturerName)
+                        ? item.LecturerName.Trim().Substring(0, 1).ToUpperInvariant()
+                        : "?";
 
-                    <div class="list-main">
-                        <span class="list-reference">
-                            CON-@claim.ContractId.ToString("D6")
-                        </span>
+                <article class="dd-row @(needsAction ? "dd-row--needs" : "")"
+                         role="listitem"
+                         data-bucket="@Model.BucketKey(item)"
+                         data-search="@Model.SearchKey(item)"
+                         hidden="@(!Model.IsVisibleOnLoad(item))">
 
-                        <strong>@claim.LecturerName</strong>
+                    <div class="dd-cell dd-ref">
+
+                        <span class="dd-avatar" aria-hidden="true">@initial</span>
+
+                        <div class="dd-ref-body">
+
+                            <div class="dd-ref-line">
+                                <span class="dd-ref-code">@item.Reference</span>
+
+                                <button type="button"
+                                        class="ds-copy"
+                                        data-copy="@item.Reference"
+                                        aria-label="Copy reference @item.Reference">
+                                    <i class="bi bi-clipboard" aria-hidden="true"></i>
+                                </button>
+                            </div>
+
+                            <span class="ds-tag ds-tag--claim">Claim</span>
+
+                        </div>
+
                     </div>
 
-                    <span class="status-badge @claimStatusClass">
-                        @claim.Status
-                    </span>
+                    <div class="dd-cell dd-who">
+                        <span class="dd-who-name">@item.LecturerName</span>
 
-                </div>
+                        <span class="dd-who-course">
+                            @if (!string.IsNullOrWhiteSpace(item.CourseCode))
+                            {
+                                <text>@item.CourseCode · </text>
+                            }
+                            @item.CourseTitle
+                        </span>
+                    </div>
+
+                    <div class="dd-cell dd-value">
+                        <span class="dd-value-amount">RWF @item.Amount.ToString("N0")</span>
+                        <span class="dd-value-hours">@item.Hours.ToString("0.##") hours</span>
+                    </div>
+
+                    <div class="dd-cell dd-stage">
+                        <span class="dd-stage-pill @(needsAction ? "dd-stage-pill--action" : "")">
+                            @item.StatusText
+                            <span class="dd-stage-sep" aria-hidden="true">·</span>
+                            <span class="dd-stage-wait @item.WaitTone">@item.WaitText</span>
+                        </span>
+                    </div>
+
+                    <div class="dd-cell dd-action">
+                        <a href="@item.ReviewUrl"
+                           class="dd-row-action"
+                           aria-label="Open @item.Reference">
+                            <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+
+                </article>
             }
 
         </div>
-    }
-    else
-    {
-        <div class="empty-state">
-            <p>No recent claims.</p>
+
+        <div class="ds-empty"
+             id="dd-empty"
+             data-state="idle"
+             hidden>
+            <span class="ds-empty-icon"><i class="bi bi-inbox" aria-hidden="true"></i></span>
+            <h3 id="dd-empty-title"></h3>
+            <p id="dd-empty-text"></p>
+            <button type="button"
+                    class="ds-btn ds-btn--quiet"
+                    id="dd-empty-action"
+                    hidden></button>
         </div>
+
+        <div class="dd-footnote" id="dd-footnote">
+            @if (Model.IsTruncated)
+            {
+                <text>Showing the first 300 items.</text>
+            }
+        </div>
+
+        <div class="ds-visually-hidden" id="dd-summary" aria-live="polite"></div>
+
+    </section>
+
+
+    @* ---------------- Faculty snapshot ---------------- *@
+
+    <section class="ds-snapshot" aria-label="Faculty snapshot">
+
+        <div class="ds-snapshot-header">
+            <h2 class="ds-snapshot-title">Faculty snapshot</h2>
+        </div>
+
+        <div class="ds-snapshot-grid">
+
+            <a asp-page="/HOD/Contracts"
+               class="ds-snapshot-col">
+
+                <span class="ds-snapshot-label">Active contracts</span>
+
+                <span class="ds-snapshot-value">
+                    <span class="ds-dot ds-dot--done" aria-hidden="true"></span>
+                    @Model.ActiveContractsCount
+                </span>
+
+                <span class="ds-snapshot-meta">
+                    Currently running in your faculty
+                </span>
+
+            </a>
+
+            <a asp-page="/HOD/Contracts"
+               class="ds-snapshot-col">
+
+                <span class="ds-snapshot-label">Pending signature</span>
+
+                <span class="ds-snapshot-value">
+                    <span class="ds-dot ds-dot--waiting" aria-hidden="true"></span>
+                    @Model.PendingSignatureContractsCount
+                </span>
+
+                <span class="ds-snapshot-meta">
+                    Awaiting signatures from other offices
+                </span>
+
+            </a>
+
+            <a asp-page="/HOD/Staff"
+               class="ds-snapshot-col">
+
+                <span class="ds-snapshot-label">Academic staff</span>
+
+                <span class="ds-snapshot-value">
+                    <span class="ds-dot ds-dot--info" aria-hidden="true"></span>
+                    @Model.AcademicStaffCount
+                </span>
+
+                <span class="ds-snapshot-meta">
+                    Active lecturers in your faculty
+                </span>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    @* ---------------- Recent activity ---------------- *@
+
+    @if (Model.Activity.Any())
+    {
+        <section class="ds-card">
+
+            <header class="ds-card-header">
+                <h2>Your recent decisions</h2>
+            </header>
+
+            <ul class="ds-activity">
+
+                @foreach (var entry in Model.Activity)
+                {
+                    <li class="ds-activity-item">
+
+                        <span class="ds-activity-dot @(entry.Positive ? "ds-activity-dot--done" : "ds-activity-dot--rejected")"
+                              aria-hidden="true"></span>
+
+                        <span class="ds-activity-text">
+                            @entry.Verb <strong>@entry.Reference</strong>
+                            · @entry.LecturerName
+                        </span>
+
+                        <span class="ds-activity-when">@entry.WhenText</span>
+
+                    </li>
+                }
+
+            </ul>
+
+        </section>
     }
 
 </section>
 
-<section class="section-card">
+@section Scripts {
+    <script>
+        (function () {
 
-    <header class="section-header">
-        <h2>Contracts Awaiting Signature</h2>
-        <a href="/HOD/Contracts" class="section-link">View all</a>
-    </header>
+            // ---------------- Copy a reference ----------------
 
-    @if (Model.ContractsAwaitingSignature.Any())
-    {
-        <div class="table-wrapper">
+            document.addEventListener("click", async function (event) {
 
-            <table class="data-table">
+                var button = event.target.closest("[data-copy]");
 
-                <thead>
-                    <tr>
-                        <th>Lecturer</th>
-                        <th>Course</th>
-                        <th>Hours</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
+                if (!button) {
+                    return;
+                }
 
-                <tbody>
+                var text = button.getAttribute("data-copy");
 
-                    @foreach (var contract in Model.ContractsAwaitingSignature)
-                    {
-                        <tr>
+                try {
+                    await navigator.clipboard.writeText(text);
+                } catch (err) {
+                    var temp = document.createElement("textarea");
+                    temp.value = text;
+                    document.body.appendChild(temp);
+                    temp.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(temp);
+                }
 
-                            <td>@contract.LecturerName</td>
+                button.classList.add("is-copied");
 
-                            <td>@contract.CourseTitle</td>
+                setTimeout(function () {
+                    button.classList.remove("is-copied");
+                }, 1500);
+            });
 
-                            <td>@contract.Hours</td>
 
-                            <td>
-                                <span class="status-badge status-pending">
-                                    @contract.Status
-                                </span>
-                            </td>
+            // ---------------- Live search + tabs ----------------
 
-                            <td>
-                                <a href="/HOD/Contracts?ContractId=@contract.Id"
-                                   class="row-action">
-                                    View
-                                    <i class="bi bi-arrow-right"></i>
-                                </a>
-                            </td>
+            var list = document.getElementById("dd-list");
 
-                        </tr>
+            if (!list) {
+                return;
+            }
+
+            var rows = Array.prototype.slice.call(
+                list.querySelectorAll(".dd-row[data-bucket]"));
+
+            var head = document.getElementById("dd-head");
+            var input = document.getElementById("dd-search");
+            var form = document.getElementById("dd-search-form");
+            var queue = document.getElementById("dd-queue");
+            var empty = document.getElementById("dd-empty");
+            var emptyTitle = document.getElementById("dd-empty-title");
+            var emptyText = document.getElementById("dd-empty-text");
+            var emptyAction = document.getElementById("dd-empty-action");
+            var footnote = document.getElementById("dd-footnote");
+            var summary = document.getElementById("dd-summary");
+
+            var chips = Array.prototype.slice.call(
+                document.querySelectorAll(".ds-chip[data-filter]"));
+
+            var triggers = Array.prototype.slice.call(
+                document.querySelectorAll("a[data-filter]"));
+
+            var baseFootnote = footnote.textContent.trim();
+            var tab = list.getAttribute("data-filter") || "needs-action";
+            var emptyMode = "";
+            var timer = null;
+
+            function inTab(bucket) {
+                if (tab === "all") { return true; }
+                if (tab === "pipeline") { return bucket === "waiting" || bucket === "later"; }
+                if (tab === "closed") { return bucket === "closed"; }
+                return bucket === "needs";
+            }
+
+            function plural(n, one, many) {
+                return n + " " + (n === 1 ? one : many);
+            }
+
+            function hideEmpty() {
+                empty.dataset.state = "idle";
+                empty.hidden = true;
+            }
+
+            function showEmpty(title, text, actionLabel, mode) {
+                empty.dataset.state = "visible";
+                empty.hidden = false;
+                footnote.hidden = true;
+                emptyTitle.textContent = title;
+                emptyText.textContent = text;
+                emptyMode = mode || "";
+
+                if (actionLabel) {
+                    emptyAction.textContent = actionLabel;
+                    emptyAction.hidden = false;
+                } else {
+                    emptyAction.hidden = true;
+                }
+            }
+
+            function apply() {
+
+                var query = input.value.trim();
+                var terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+
+                var counts = { "needs-action": 0, pipeline: 0, closed: 0, all: 0 };
+                var shown = 0;
+
+                rows.forEach(function (row) {
+
+                    var key = row.getAttribute("data-search") || "";
+                    var bucket = row.getAttribute("data-bucket");
+
+                    var matches = terms.every(function (term) {
+                        return key.indexOf(term) !== -1;
+                    });
+
+                    if (matches) {
+                        counts.all++;
+
+                        if (bucket === "needs") {
+                            counts["needs-action"]++;
+                        } else if (bucket === "closed") {
+                            counts.closed++;
+                        } else {
+                            counts.pipeline++;
+                        }
                     }
 
-                </tbody>
+                    var visible = matches && inTab(bucket);
 
-            </table>
+                    row.hidden = !visible;
 
-        </div>
-    }
-    else
-    {
-        <div class="empty-state">
-            <p>No contracts awaiting signature.</p>
-        </div>
-    }
+                    if (visible) {
+                        shown++;
+                    }
+                });
 
-</section>
+                var url = new URL(window.location.href);
+                url.searchParams.set("filter", tab);
 
+                if (query) {
+                    url.searchParams.set("q", query);
+                } else {
+                    url.searchParams.delete("q");
+                }
 
-</div>
+                chips.forEach(function (chip) {
+
+                    var filter = chip.getAttribute("data-filter");
+                    var count = chip.querySelector(".ds-chip-count");
+
+                    chip.classList.toggle("is-active", filter === tab);
+
+                    if (count) {
+                        count.textContent = counts[filter];
+                    }
+
+                    var chipUrl = new URL(url.toString());
+                    chipUrl.searchParams.set("filter", filter);
+
+                    chip.setAttribute("href", chipUrl.pathname + chipUrl.search);
+                });
+
+                window.history.replaceState(null, "", url.toString());
+
+                head.hidden = shown === 0;
+
+                if (shown > 0) {
+
+                    hideEmpty();
+                    footnote.hidden = false;
+
+                    if (query) {
+                        footnote.textContent =
+                            plural(shown, "result", "results") + " for “" + query + "”";
+                    } else if (tab === "closed" || tab === "all") {
+                        footnote.textContent =
+                            "Closed items cover the last 30 days." +
+                            (baseFootnote ? " " + baseFootnote : "");
+                    } else {
+                        footnote.textContent = "Oldest waiting first.";
+                    }
+
+                    summary.textContent = plural(shown, "result", "results");
+
+                } else if (rows.length === 0) {
+
+                    showEmpty(
+                        "No claims yet",
+                        "They will appear here as soon as a lecturer submits one.");
+
+                } else if (query) {
+
+                    if (tab !== "all" && counts.all > 0) {
+                        showEmpty(
+                            "No matches in this view",
+                            "Nothing here matches “" + query + "”, but " +
+                                plural(counts.all, "item does", "items do") +
+                                " in other tabs.",
+                            "Show " + plural(counts.all, "match", "matches") + " in all items",
+                            "all");
+                    } else {
+                        showEmpty(
+                            "No matches",
+                            "Nothing matches “" + query + "”. Try a different reference, lecturer or course.",
+                            "Clear search",
+                            "clear");
+                    }
+
+                } else if (tab === "needs-action") {
+
+                    showEmpty(
+                        "Nothing needs your approval",
+                        "Everything assigned to you has been processed.",
+                        "See what's in the pipeline",
+                        "pipeline");
+
+                } else if (tab === "pipeline") {
+
+                    showEmpty(
+                        "Nothing in the pipeline",
+                        "No claims are waiting on other people right now.");
+
+                } else {
+
+                    showEmpty(
+                        "Nothing closed recently",
+                        "Approved, paid or rejected claims from the last 30 days appear here.");
+                }
+
+                if (shown === 0) {
+                    summary.textContent = "No results";
+                }
+            }
+
+            function selectTab(filter) {
+                tab = filter;
+                apply();
+            }
+
+            triggers.forEach(function (link) {
+
+                link.addEventListener("click", function (event) {
+
+                    if (event.button !== 0 ||
+                        event.metaKey || event.ctrlKey || event.shiftKey) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    selectTab(link.getAttribute("data-filter"));
+
+                    if (link.classList.contains("dd-workflow-card") ||
+                        link.classList.contains("dd-milestone-btn")) {
+
+                        var reduce = window.matchMedia &&
+                            window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+                        queue.scrollIntoView({
+                            behavior: reduce ? "auto" : "smooth",
+                            block: "start"
+                        });
+                    }
+                });
+            });
+
+            emptyAction.addEventListener("click", function () {
+
+                if (emptyMode === "all") {
+                    selectTab("all");
+                } else if (emptyMode === "pipeline") {
+                    selectTab("pipeline");
+                } else {
+                    input.value = "";
+                    apply();
+                    input.focus();
+                }
+            });
+
+            input.addEventListener("input", function () {
+                clearTimeout(timer);
+                timer = setTimeout(apply, 100);
+            });
+
+            input.addEventListener("search", apply);
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+                apply();
+            });
+
+            document.addEventListener("keydown", function (event) {
+
+                var tag = (document.activeElement || {}).tagName || "";
+
+                if (event.key === "/" &&
+                    !/^(INPUT|TEXTAREA|SELECT)$/.test(tag) &&
+                    !event.ctrlKey && !event.metaKey && !event.altKey) {
+
+                    event.preventDefault();
+                    input.focus();
+                    input.select();
+                }
+            });
+
+            apply();
+
+        })();
+    </script>
+}

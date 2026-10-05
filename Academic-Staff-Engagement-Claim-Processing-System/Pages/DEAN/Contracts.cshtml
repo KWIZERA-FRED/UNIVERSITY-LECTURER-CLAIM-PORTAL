@@ -26,6 +26,17 @@
         _ => status.ToString()
     };
 
+    // Maps the model's CurrentStageCss token onto our
+    // stage-pill modifier classes.
+    string GetStagePillClass(string stageCss) => stageCss switch
+    {
+        "pending" => "dd-stage-pill--action",
+        "declined" => "dd-stage-pill--declined",
+        "completed" => "dd-stage-pill--done",
+        "not-started" => "dd-stage-pill--muted",
+        _ => ""
+    };
+
     var totalContracts = Model.Contracts.Count;
 
     var awaitingDeanCount = Model.Contracts.Count(c => c.IsAwaitingDean);
@@ -144,6 +155,7 @@
                             <th>Lecturer</th>
                             <th>Department</th>
                             <th>Course</th>
+                            <th>Stage</th>
                             <th>Version</th>
                             <th>Status</th>
                             <th class="col-action"></th>
@@ -163,6 +175,9 @@
 
                             var isAction = contract.IsAwaitingDean;
 
+                            var stagePillClass =
+                                GetStagePillClass(contract.CurrentStageCss);
+
                             <tr class="contract-row"
                                 data-search="CON-@contract.ContractId.ToString("D6") @contract.LecturerName @contract.Department @contract.CourseTitle">
 
@@ -180,6 +195,14 @@
 
                                 <td>
                                     <span class="course-title">@contract.CourseTitle</span>
+                                </td>
+
+                                <td>
+                                    <div class="dd-stage">
+                                        <span class="dd-stage-pill @stagePillClass">
+                                            @contract.CurrentStage
+                                        </span>
+                                    </div>
                                 </td>
 
                                 <td>
@@ -252,7 +275,6 @@
 
         });
 
-        // Press / to focus the search box.
         document.addEventListener("keydown", function (event) {
 
             var tag = (document.activeElement || {}).tagName || "";

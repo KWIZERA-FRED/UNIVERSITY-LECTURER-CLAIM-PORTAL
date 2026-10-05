@@ -45,6 +45,40 @@ public class ClaimDetailsModel : PageModel
 
     public string? ErrorMessage { get; set; }
 
+    // True when the claim is in this HOD's faculty AND currently at the HOD approval step.
+    // When false, the page renders in read-only mode with no decision forms.
+    public bool IsActionable { get; private set; }
+
+    // Which approval role currently holds the claim. Null when the claim is not found
+    // or the faculty check failed.
+    public ApprovalRole? CurrentApprover { get; private set; }
+
+    // Which approval role currently holds the claim, in display form.
+    public string CurrentApproverLabel =>
+        CurrentApprover switch
+        {
+            ApprovalRole.HOD => "HOD",
+            ApprovalRole.Dean => "Dean",
+            ApprovalRole.DirectorOfQuality => "Director of Quality",
+            ApprovalRole.DVCAR => "DVCAR",
+            ApprovalRole.HROfficer => "HR Officer",
+            ApprovalRole.ViceChancellor => "Vice Chancellor",
+            ApprovalRole.Management => "Management",
+            null => "—",
+            _ => CurrentApprover.Value.ToString()
+        };
+
+    // Whether the HOD has already approved this claim (and it moved downstream).
+    public bool HodAlreadyApproved { get; private set; }
+
+    // When the HOD approved it, if applicable.
+    public DateTime? HodApprovedAtUtc { get; private set; }
+
+
+    // ============================================================
+    // GET
+    // ============================================================
+
     public async Task<IActionResult> OnGetAsync()
     {
         if (!ClaimId.HasValue)
@@ -53,7 +87,61 @@ public class ClaimDetailsModel : PageModel
             return Page();
         }
 
-        if (!await IsCurrentHodAuthorizedForClaimAsync(ClaimId.Value))
+        var username = User.Identity?.Name;
+
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            ErrorMessage = "Your account could not be identified.";
+            return Page();
+        }
+
+        var hod = await _context.Hods
+            .AsNoTracking()
+            .Where(h =>
+                h.UserName == username &&
+                h.IsActive)
+            .Select(h => new
+            {
+                h.Id,
+                h.Faculty
+            })
+            .FirstOrDefaultAsync();
+
+        if (hod is null)
+        {
+            ErrorMessage = "Your account could not be identified.";
+            return Page();
+        }
+
+        var facultyDepartments =
+            GetFacultyCourseDepartmentValues(hod.Faculty);
+
+        if (facultyDepartments.Count == 0)
+        {
+            ErrorMessage = "Your faculty has no configured departments.";
+            return Page();
+        }
+
+        // --- Faculty check: is this claim in the HOD's scope at all? ---
+
+        var claimContext = await _context.Claims
+            .AsNoTracking()
+            .Where(c => c.Id == ClaimId.Value)
+            .Select(c => new
+            {
+                c.Id,
+                c.Status,
+                Department = c.CourseAssignment.Course.Department
+            })
+            .FirstOrDefaultAsync();
+
+        if (claimContext is null)
+        {
+            ErrorMessage = "That claim could not be found.";
+            return Page();
+        }
+
+        if (!facultyDepartments.Contains(claimContext.Department))
         {
             ErrorMessage =
                 "You are not authorized to review this claim. " +
@@ -62,6 +150,8 @@ public class ClaimDetailsModel : PageModel
             return Page();
         }
 
+        // --- In-faculty. Load the full review DTO. ---
+
         SelectedClaim =
             await _signingService.GetClaimForReviewAsync(
                 ClaimId.Value,
@@ -69,12 +159,57 @@ public class ClaimDetailsModel : PageModel
 
         if (SelectedClaim is null)
         {
-            ErrorMessage =
-                "That claim could not be found, or is not awaiting HOD approval.";
+            ErrorMessage = "That claim could not be loaded.";
+            return Page();
+        }
+
+        // --- Determine whether the HOD can act right now. ---
+
+        IsActionable = SelectedClaim.IsThisRolesTurn;
+
+        // --- Work out who currently holds the claim. ---
+
+        var pendingApproval = await _context.ClaimApprovals
+            .AsNoTracking()
+            .Where(a =>
+                a.ClaimId == ClaimId.Value &&
+                a.Decision == ApprovalDecision.Pending)
+            .OrderBy(a => a.SequenceOrder)
+            .Select(a => (ApprovalRole?)a.ApprovalRole)
+            .FirstOrDefaultAsync();
+
+        CurrentApprover = pendingApproval;
+
+        // --- Has the HOD already had their turn? ---
+
+        var hodApproval = await _context.ClaimApprovals
+            .AsNoTracking()
+            .Where(a =>
+                a.ClaimId == ClaimId.Value &&
+                a.ApprovalRole == ApprovalRole.HOD &&
+                a.Decision != ApprovalDecision.Pending)
+            .OrderByDescending(a => a.DecidedAtUtc)
+            .Select(a => new
+            {
+                a.Decision,
+                a.DecidedAtUtc
+            })
+            .FirstOrDefaultAsync();
+
+        if (hodApproval is not null &&
+            hodApproval.Decision == ApprovalDecision.Approved)
+        {
+            HodAlreadyApproved = true;
+            HodApprovedAtUtc = hodApproval.DecidedAtUtc;
         }
 
         return Page();
     }
+
+
+    // ============================================================
+    // APPROVE
+    // ============================================================
 
     public async Task<IActionResult> OnPostApproveAsync()
     {
@@ -87,10 +222,31 @@ public class ClaimDetailsModel : PageModel
                 "You are not authorized to approve this claim. " +
                 "The claim does not belong to your faculty.";
 
-            SelectedClaim =
-                await _signingService.GetClaimForReviewAsync(
-                    ClaimId.Value,
-                    ApprovalRole.HOD);
+            await LoadReadOnlyContextAsync(ClaimId.Value);
+
+            return Page();
+        }
+
+        SelectedClaim =
+            await _signingService.GetClaimForReviewAsync(
+                ClaimId.Value,
+                ApprovalRole.HOD);
+
+        if (SelectedClaim is null)
+        {
+            ErrorMessage = "That claim could not be loaded.";
+            return Page();
+        }
+
+        IsActionable = SelectedClaim.IsThisRolesTurn;
+
+        if (!IsActionable)
+        {
+            ErrorMessage =
+                $"This claim is currently with {CurrentApproverLabel}. " +
+                "No action is required from you.";
+
+            await LoadReadOnlyContextAsync(ClaimId.Value);
 
             return Page();
         }
@@ -103,11 +259,6 @@ public class ClaimDetailsModel : PageModel
                 "Please confirm all course completion requirements before approving. Missing: " +
                 string.Join(" · ", missing) + ".";
 
-            SelectedClaim =
-                await _signingService.GetClaimForReviewAsync(
-                    ClaimId.Value,
-                    ApprovalRole.HOD);
-
             return Page();
         }
 
@@ -116,14 +267,7 @@ public class ClaimDetailsModel : PageModel
 
         if (actorId <= 0)
         {
-            ErrorMessage =
-                "Your account could not be identified.";
-
-            SelectedClaim =
-                await _signingService.GetClaimForReviewAsync(
-                    ClaimId.Value,
-                    ApprovalRole.HOD);
-
+            ErrorMessage = "Your account could not be identified.";
             return Page();
         }
 
@@ -138,13 +282,9 @@ public class ClaimDetailsModel : PageModel
 
         if (!result.Succeeded)
         {
-            ErrorMessage =
-                result.ErrorMessage;
+            ErrorMessage = result.ErrorMessage;
 
-            SelectedClaim =
-                await _signingService.GetClaimForReviewAsync(
-                    ClaimId.Value,
-                    ApprovalRole.HOD);
+            await LoadReadOnlyContextAsync(ClaimId.Value);
 
             return Page();
         }
@@ -154,6 +294,11 @@ public class ClaimDetailsModel : PageModel
 
         return RedirectToPage("/HOD/Claims");
     }
+
+
+    // ============================================================
+    // REJECT
+    // ============================================================
 
     public async Task<IActionResult> OnPostRejectAsync()
     {
@@ -166,10 +311,31 @@ public class ClaimDetailsModel : PageModel
                 "You are not authorized to reject this claim. " +
                 "The claim does not belong to your faculty.";
 
-            SelectedClaim =
-                await _signingService.GetClaimForReviewAsync(
-                    ClaimId.Value,
-                    ApprovalRole.HOD);
+            await LoadReadOnlyContextAsync(ClaimId.Value);
+
+            return Page();
+        }
+
+        SelectedClaim =
+            await _signingService.GetClaimForReviewAsync(
+                ClaimId.Value,
+                ApprovalRole.HOD);
+
+        if (SelectedClaim is null)
+        {
+            ErrorMessage = "That claim could not be loaded.";
+            return Page();
+        }
+
+        IsActionable = SelectedClaim.IsThisRolesTurn;
+
+        if (!IsActionable)
+        {
+            ErrorMessage =
+                $"This claim is currently with {CurrentApproverLabel}. " +
+                "No action is required from you.";
+
+            await LoadReadOnlyContextAsync(ClaimId.Value);
 
             return Page();
         }
@@ -179,11 +345,6 @@ public class ClaimDetailsModel : PageModel
             ErrorMessage =
                 "Please provide a reason for rejecting this claim.";
 
-            SelectedClaim =
-                await _signingService.GetClaimForReviewAsync(
-                    ClaimId.Value,
-                    ApprovalRole.HOD);
-
             return Page();
         }
 
@@ -192,14 +353,7 @@ public class ClaimDetailsModel : PageModel
 
         if (actorId <= 0)
         {
-            ErrorMessage =
-                "Your account could not be identified.";
-
-            SelectedClaim =
-                await _signingService.GetClaimForReviewAsync(
-                    ClaimId.Value,
-                    ApprovalRole.HOD);
-
+            ErrorMessage = "Your account could not be identified.";
             return Page();
         }
 
@@ -215,22 +369,22 @@ public class ClaimDetailsModel : PageModel
 
         if (!result.Succeeded)
         {
-            ErrorMessage =
-                result.ErrorMessage;
+            ErrorMessage = result.ErrorMessage;
 
-            SelectedClaim =
-                await _signingService.GetClaimForReviewAsync(
-                    ClaimId.Value,
-                    ApprovalRole.HOD);
+            await LoadReadOnlyContextAsync(ClaimId.Value);
 
             return Page();
         }
 
-        TempData["SuccessMessage"] =
-            "Claim rejected.";
+        TempData["SuccessMessage"] = "Claim rejected.";
 
         return RedirectToPage("/HOD/Claims");
     }
+
+
+    // ============================================================
+    // DOWNLOAD MARKS
+    // ============================================================
 
     public async Task<IActionResult> OnGetDownloadMarksAsync(
         int claimId,
@@ -259,6 +413,11 @@ public class ClaimDetailsModel : PageModel
             : Redirect(url);
     }
 
+
+    // ============================================================
+    // HELPERS
+    // ============================================================
+
     private async Task<bool> IsCurrentHodAuthorizedForClaimAsync(
         int claimId)
     {
@@ -282,8 +441,7 @@ public class ClaimDetailsModel : PageModel
             return false;
 
         var facultyDepartmentValues =
-            GetFacultyCourseDepartmentValues(
-                hod.Faculty);
+            GetFacultyCourseDepartmentValues(hod.Faculty);
 
         if (facultyDepartmentValues.Count == 0)
             return false;
@@ -292,11 +450,47 @@ public class ClaimDetailsModel : PageModel
             .AsNoTracking()
             .Where(c =>
                 c.Id == claimId &&
-                c.Status == ClaimStatus.PendingHODApproval &&
                 c.CourseAssignment.Course != null)
             .AnyAsync(c =>
                 facultyDepartmentValues.Contains(
                     c.CourseAssignment.Course.Department));
+    }
+
+    // Re-loads the read-only state fields (CurrentApprover, HodAlreadyApproved,
+    // HodApprovedAtUtc) after a POST path decides the page is not actionable.
+    private async Task LoadReadOnlyContextAsync(int claimId)
+    {
+        var pendingApproval = await _context.ClaimApprovals
+            .AsNoTracking()
+            .Where(a =>
+                a.ClaimId == claimId &&
+                a.Decision == ApprovalDecision.Pending)
+            .OrderBy(a => a.SequenceOrder)
+            .Select(a => (ApprovalRole?)a.ApprovalRole)
+            .FirstOrDefaultAsync();
+
+        CurrentApprover = pendingApproval;
+
+        var hodApproval = await _context.ClaimApprovals
+            .AsNoTracking()
+            .Where(a =>
+                a.ClaimId == claimId &&
+                a.ApprovalRole == ApprovalRole.HOD &&
+                a.Decision != ApprovalDecision.Pending)
+            .OrderByDescending(a => a.DecidedAtUtc)
+            .Select(a => new
+            {
+                a.Decision,
+                a.DecidedAtUtc
+            })
+            .FirstOrDefaultAsync();
+
+        if (hodApproval is not null &&
+            hodApproval.Decision == ApprovalDecision.Approved)
+        {
+            HodAlreadyApproved = true;
+            HodApprovedAtUtc = hodApproval.DecidedAtUtc;
+        }
     }
 
     private static HashSet<string> GetFacultyCourseDepartmentValues(
