@@ -1,12 +1,10 @@
 using Academic_Staff_Engagement_Claim_Processing_System.Data;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
 using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
-using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -18,7 +16,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         public string Email { get; set; } = string.Empty;
 
         public string Department { get; set; } = string.Empty;
-
         public string Faculty { get; set; } = string.Empty;
 
         public string Rank { get; set; } = string.Empty;
@@ -73,20 +70,20 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         private readonly AuditLogger _auditLogger;
         private readonly EmailService _emailService;
         private readonly ILogger<AccountRegistrationService> _logger;
-        private readonly IWebHostEnvironment _environment;
+        private readonly CloudflareR2SignatureStorageService _signatureStorage;
 
         public AccountRegistrationService(
             ApplicationDbContext context,
             AuditLogger auditLogger,
             EmailService emailService,
             ILogger<AccountRegistrationService> logger,
-            IWebHostEnvironment environment)
+            CloudflareR2SignatureStorageService signatureStorage)
         {
             _context = context;
             _auditLogger = auditLogger;
             _emailService = emailService;
             _logger = logger;
-            _environment = environment;
+            _signatureStorage = signatureStorage;
         }
 
         public async Task<AccountRegistrationResult> RegisterAsync(
@@ -359,30 +356,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             var passwordHasher =
                 new PasswordHasher<object>();
 
-            string signatureRelativePath = string.Empty;
-            string signatureAbsolutePath = string.Empty;
+            string signatureR2Key = string.Empty;
 
             try
             {
-                string signatureFolder =
-                    Path.Combine(
-                        _environment.WebRootPath,
-                        "uploads",
-                        "signatures");
-
-                Directory.CreateDirectory(
-                    signatureFolder);
-
                 string safeUsername =
                     SanitizeFileName(username);
 
                 string signatureFileName =
                     $"{safeUsername}_{Guid.NewGuid():N}.png";
-
-                signatureAbsolutePath =
-                    Path.Combine(
-                        signatureFolder,
-                        signatureFileName);
 
                 string base64Signature =
                     request.SignatureData;
@@ -433,16 +415,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                         "The digital signature must be a valid PNG image.");
                 }
 
-                await File.WriteAllBytesAsync(
-                    signatureAbsolutePath,
-                    signatureBytes);
+                // Upload the signature to Cloudflare R2.
+                signatureR2Key =
+                    await _signatureStorage.SaveAsync(
+                        signatureFileName,
+                        signatureBytes,
+                        "image/png");
 
-                signatureRelativePath =
-                    Path.Combine(
-                        "uploads",
-                        "signatures",
-                        signatureFileName)
-                    .Replace("\\", "/");
+                if (string.IsNullOrWhiteSpace(signatureR2Key))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "The digital signature could not be stored.");
+                }
 
                 string signatureHash;
 
@@ -548,7 +532,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                                 request.GovernmentId);
 
                             lecturer.CaptureSignature(
-                                signatureRelativePath,
+                                signatureR2Key,
                                 signatureHash,
                                 transactionHod.Id);
 
@@ -599,7 +583,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                                     temporaryPassword));
 
                             hod.CaptureSignature(
-                                signatureRelativePath,
+                                signatureR2Key,
                                 signatureHash);
 
                             _context.Hods.Add(hod);
@@ -646,7 +630,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                                     temporaryPassword));
 
                             management.CaptureSignature(
-                                signatureRelativePath,
+                                signatureR2Key,
                                 signatureHash);
 
                             _context.ManagementAccounts.Add(
@@ -687,7 +671,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                                     temporaryPassword));
 
                             dean.CaptureSignature(
-                                signatureRelativePath,
+                                signatureR2Key,
                                 signatureHash);
 
                             _context.Deans.Add(dean);
@@ -722,8 +706,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
                 if (registrationResult == null)
                 {
-                    DeleteSignatureFile(
-                        signatureAbsolutePath);
+                    await DeleteR2SignatureAsync(
+                        signatureR2Key);
 
                     return AccountRegistrationResult.Fail(
                         "The registration could not be completed.");
@@ -762,8 +746,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     "Database error while registering account for {Email}.",
                     request.Email);
 
-                DeleteSignatureFile(
-                    signatureAbsolutePath);
+                await DeleteR2SignatureAsync(
+                    signatureR2Key);
 
                 return AccountRegistrationResult.Fail(
                     "The account could not be created because of a database error. Please try again.");
@@ -775,8 +759,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     "Registration validation failed for {Email}.",
                     request.Email);
 
-                DeleteSignatureFile(
-                    signatureAbsolutePath);
+                await DeleteR2SignatureAsync(
+                    signatureR2Key);
 
                 return AccountRegistrationResult.Fail(
                     exception.Message);
@@ -788,8 +772,8 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     "Invalid signature format supplied for {Email}.",
                     request.Email);
 
-                DeleteSignatureFile(
-                    signatureAbsolutePath);
+                await DeleteR2SignatureAsync(
+                    signatureR2Key);
 
                 return AccountRegistrationResult.Fail(
                     "The digital signature format is invalid. Please capture the signature again.");
@@ -801,27 +785,31 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     "Unexpected error while registering account for {Email}.",
                     request.Email);
 
-                DeleteSignatureFile(
-                    signatureAbsolutePath);
+                await DeleteR2SignatureAsync(
+                    signatureR2Key);
 
                 return AccountRegistrationResult.Fail(
                     "An unexpected error occurred while creating the account. Please try again.");
             }
         }
 
-        private static void DeleteSignatureFile(
-            string signatureAbsolutePath)
+        private async Task DeleteR2SignatureAsync(
+            string signatureR2Key)
         {
-            if (!string.IsNullOrWhiteSpace(signatureAbsolutePath) &&
-                File.Exists(signatureAbsolutePath))
+            if (string.IsNullOrWhiteSpace(signatureR2Key))
+                return;
+
+            try
             {
-                try
-                {
-                    File.Delete(signatureAbsolutePath);
-                }
-                catch
-                {
-                }
+                await _signatureStorage.DeleteAsync(
+                    signatureR2Key);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Could not delete orphaned R2 signature {SignatureKey}.",
+                    signatureR2Key);
             }
         }
 

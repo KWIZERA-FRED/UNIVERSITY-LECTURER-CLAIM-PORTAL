@@ -1,0 +1,83 @@
+@page
+@model Academic_Staff_Engagement_Claim_Processing_System.Pages.Migration.SignaturesModel
+
+@{
+    ViewData["Title"] = "Signature Migration";
+}
+
+<div style="padding:40px;font-family:Arial,sans-serif;">
+    <h1>Signature Migration</h1>
+
+
+    <p>
+        This uploads all existing local signature files to Cloudflare R2.
+        Local files and database paths are not deleted or changed.
+    </p>
+
+    <form method="post">
+        <button type="submit"
+                style="padding:12px 20px;cursor:pointer;">
+            Upload Existing Signatures to R2
+        </button>
+    </form>
+
+    @if (Model.Uploaded.Count > 0 ||
+         Model.AlreadyUploaded.Count > 0 ||
+         Model.MissingFiles.Count > 0 ||
+         Model.Failed.Count > 0)
+    {
+        <hr />
+
+        <h2>Migration Result</h2>
+
+        <p><strong>Uploaded:</strong> @Model.Uploaded.Count</p>
+        <p><strong>Already uploaded:</strong> @Model.AlreadyUploaded.Count</p>
+        <p><strong>Missing local files:</strong> @Model.MissingFiles.Count</p>
+        <p><strong>Failed:</strong> @Model.Failed.Count</p>
+
+        @if (Model.Uploaded.Count > 0)
+        {
+            <h3>Uploaded</h3>
+            <ul>
+                @foreach (var item in Model.Uploaded)
+                {
+                    <li>@item</li>
+                }
+            </ul>
+        }
+
+        @if (Model.AlreadyUploaded.Count > 0)
+        {
+            <h3>Already Uploaded</h3>
+            <ul>
+                @foreach (var item in Model.AlreadyUploaded)
+                {
+                    <li>@item</li>
+                }
+            </ul>
+        }
+
+        @if (Model.MissingFiles.Count > 0)
+        {
+            <h3>Missing Local Files</h3>
+            <ul>
+                @foreach (var item in Model.MissingFiles)
+                {
+                    <li>@item</li>
+                }
+            </ul>
+        }
+
+        @if (Model.Failed.Count > 0)
+        {
+            <h3>Failed</h3>
+            <ul>
+                @foreach (var item in Model.Failed)
+                {
+                    <li>@item</li>
+                }
+            </ul>
+        }
+    }
+</div>
+
