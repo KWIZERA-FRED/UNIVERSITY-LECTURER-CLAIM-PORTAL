@@ -608,7 +608,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
             }
         }
 
-        public async Task<string?> GetSignedFileDownloadUrlAsync(
+        public async Task<MarksFileDownloadResult?> GetSignedFileAsync(
             int submissionId)
         {
             var submission = await _context.MarksSubmissions
@@ -622,19 +622,83 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 return null;
             }
 
-            if (!submission.StorageFileId.Equals(Guid.Empty) == false)
+            if (submission.StorageFileId == Guid.Empty)
             {
+                _logger.LogWarning(
+                    "Signed marks submission {SubmissionId} has an empty storage file ID.",
+                    submissionId);
+
                 return null;
             }
 
-            var storageKey = submission.StorageFileId.ToString("D");
+            var storageKey =
+                submission.StorageFileId.ToString("D");
 
-            var exists = await _fileStorage.ExistsAsync(storageKey);
+            bool exists;
 
-            return exists ? storageKey : null;
+            try
+            {
+                exists = await _fileStorage.ExistsAsync(storageKey);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to verify storage file for signed marks submission {SubmissionId}.",
+                    submissionId);
+
+                return null;
+            }
+
+            if (!exists)
+            {
+                _logger.LogWarning(
+                    "Storage file {StorageKey} for signed marks submission {SubmissionId} does not exist.",
+                    storageKey,
+                    submissionId);
+
+                return null;
+            }
+
+            byte[] content;
+
+            try
+            {
+                content = await _fileStorage.ReadAsync(storageKey);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to read storage file for signed marks submission {SubmissionId}.",
+                    submissionId);
+
+                return null;
+            }
+
+            if (content == null || content.Length == 0)
+            {
+                _logger.LogWarning(
+                    "Storage file {StorageKey} for signed marks submission {SubmissionId} is empty.",
+                    storageKey,
+                    submissionId);
+
+                return null;
+            }
+
+            return new MarksFileDownloadResult
+            {
+                Content = content,
+                ContentType = string.IsNullOrWhiteSpace(submission.ContentType)
+                    ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    : submission.ContentType,
+                FileName = string.IsNullOrWhiteSpace(submission.FileName)
+                    ? $"Marks-{submission.SubmissionReference}.xlsx"
+                    : Path.GetFileName(submission.FileName)
+            };
         }
 
-        public async Task<string?> GetSignedFileDownloadUrlAsync(
+        public async Task<MarksFileDownloadResult?> GetSignedFileAsync(
             int actorId,
             int submissionId)
         {
@@ -650,7 +714,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 return null;
             }
 
-            return await GetSignedFileDownloadUrlAsync(submissionId);
+            return await GetSignedFileAsync(submissionId);
         }
 
         private static MarksSubmissionResult Failure(string message)
@@ -670,6 +734,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 ErrorMessage = message
             };
         }
+    }
+
+    public class MarksFileDownloadResult
+    {
+        public byte[] Content { get; set; } = Array.Empty<byte>();
+
+        public string ContentType { get; set; } =
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        public string FileName { get; set; } = "marks.xlsx";
     }
 
     public class MarksSubmissionResult

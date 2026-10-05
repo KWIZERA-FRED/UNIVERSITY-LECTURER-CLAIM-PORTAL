@@ -189,6 +189,23 @@
 
                     </a>
 
+                    @if (!string.IsNullOrWhiteSpace(documents.ExamSheetFileName))
+                    {
+                        <a class="cd-download"
+                           href="?handler=ExamSheet&token=@documents.Token">
+
+                            <span class="cd-badge cd-badge-xls">XLS</span>
+
+                            <div class="cd-download-text">
+                                <strong>Exam Sheet</strong>
+                                <span>Approved by Exam Office · Download Excel</span>
+                            </div>
+
+                            <i class="bi bi-download cd-download-icon"></i>
+
+                        </a>
+                    }
+
                 </footer>
             }
             else
@@ -202,7 +219,9 @@
 
                         <div class="cd-download-text">
                             <strong>Sign in to download documents</strong>
-                            <span>The official documents are available to authorised staff only.</span>
+                            <span>
+                                The official documents are available to authorised staff only.
+                            </span>
                         </div>
 
                         <i class="bi bi-box-arrow-in-right cd-download-icon"></i>

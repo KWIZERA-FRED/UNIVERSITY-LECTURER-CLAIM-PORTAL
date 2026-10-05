@@ -47,6 +47,15 @@ public sealed partial class OfficialDocumentService
         if (claim is null)
             return null;
 
+        var examSheetFileName = await _context.MarksSubmissions
+            .AsNoTracking()
+            .Where(ms =>
+                claim.MarksSubmissionId.HasValue &&
+                ms.Id == claim.MarksSubmissionId.Value &&
+                ms.Status == MarksSubmissionStatus.Signed)
+            .Select(ms => ms.FileName)
+            .FirstOrDefaultAsync();
+
         return new PublicClaimDocuments(
             claim.Id,
             claim.QrCodeToken,
@@ -56,7 +65,79 @@ public sealed partial class OfficialDocumentService
             claim.CourseAssignment.Course.Code,
             claim.CourseAssignment.Course.Title,
             claim.HoursClaimed,
-            claim.Status);
+            claim.Status,
+            examSheetFileName);
+    }
+
+    public async Task<ExamSheetDocument?> GetExamSheetAsync(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token) || token.Length != 32)
+            return null;
+
+        var marksSubmissionId = await _context.Claims
+            .AsNoTracking()
+            .Where(c =>
+                c.QrCodeToken == token &&
+                c.MarksSubmissionId.HasValue)
+            .Select(c => c.MarksSubmissionId)
+            .FirstOrDefaultAsync();
+
+        if (!marksSubmissionId.HasValue)
+            return null;
+
+        var submission = await _context.MarksSubmissions
+            .AsNoTracking()
+            .Where(ms =>
+                ms.Id == marksSubmissionId.Value &&
+                ms.Status == MarksSubmissionStatus.Signed)
+            .Select(ms => new
+            {
+                ms.StorageFileId,
+                ms.FileName,
+                ms.ContentType
+            })
+            .FirstOrDefaultAsync();
+
+        if (submission is null)
+            return null;
+
+        var storedFile = await _context.StoredFiles
+            .AsNoTracking()
+            .Where(sf => sf.Id == submission.StorageFileId)
+            .Select(sf => new
+            {
+                sf.Content,
+                sf.ContentType,
+                sf.OriginalFileName
+            })
+            .FirstOrDefaultAsync();
+
+        if (storedFile is null || storedFile.Content.Length == 0)
+            return null;
+
+        var fileName =
+            string.IsNullOrWhiteSpace(submission.FileName)
+                ? storedFile.OriginalFileName
+                : Path.GetFileName(submission.FileName);
+
+        if (string.IsNullOrWhiteSpace(fileName))
+            fileName = $"exam-sheet-{marksSubmissionId.Value:D6}.xlsx";
+
+        var contentType =
+            string.IsNullOrWhiteSpace(submission.ContentType)
+                ? storedFile.ContentType
+                : submission.ContentType;
+
+        if (string.IsNullOrWhiteSpace(contentType))
+        {
+            contentType =
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        }
+
+        return new ExamSheetDocument(
+            fileName,
+            contentType,
+            storedFile.Content);
     }
 
     public async Task<GeneratedDocument?> GenerateAsync(
@@ -544,7 +625,7 @@ public sealed partial class OfficialDocumentService
     {
         column.Item()
             .PaddingTop(topPadding)
-            .ShowEntire() // a signatory line is never split across pages
+            .ShowEntire()
             .Row(row =>
             {
                 var labelSpan = row.AutoItem()
@@ -581,9 +662,6 @@ public sealed partial class OfficialDocumentService
             });
     }
 
-    // A dotted leader ("……………") with an optional signature image or
-    // date text sitting just above it, like the paper documents.
-    // Used inside a FIXED height, so the content must stay short.
     private static void DottedCell(
         IContainer container,
         byte[]? image,
@@ -615,8 +693,6 @@ public sealed partial class OfficialDocumentService
                 });
         });
 
-    // A dotted field whose height grows with its text (no fixed height),
-    // so long values wrap instead of breaking the layout.
     private static void DottedField(
         IContainer container,
         string? text,
@@ -725,7 +801,6 @@ public sealed partial class OfficialDocumentService
                 }
             });
 
-    // A bullet with a hanging indent, justified like the paper contract.
     private static void BulletRow(
         ColumnDescriptor column,
         string item,
@@ -810,6 +885,11 @@ public sealed record GeneratedDocument(
     string FileName,
     byte[] Content);
 
+public sealed record ExamSheetDocument(
+    string FileName,
+    string ContentType,
+    byte[] Content);
+
 public sealed record PublicClaimDocuments(
     int ClaimId,
     string Token,
@@ -819,4 +899,5 @@ public sealed record PublicClaimDocuments(
     string CourseCode,
     string CourseTitle,
     decimal Hours,
-    ClaimStatus Status);
+    ClaimStatus Status,
+    string? ExamSheetFileName = null);

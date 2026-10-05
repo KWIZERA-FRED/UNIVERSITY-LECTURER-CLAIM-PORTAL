@@ -1,20 +1,10 @@
-/* ================================================================
-   UNILAK ASECPS
-   HOD — CLAIMS (list + claim details + checklist)
-   ================================================================ */
-
-
-/* ================================================================
-   DESIGN TOKENS
-   ================================================================ */
-
 :root {
     --primary: #0f2742;
     --primary-dark: #091c31;
-    --accent: #059669;
-    --accent-dark: #047857;
-    --accent-light: #a7f3d0;
-    --accent-soft: #ecfdf5;
+    --accent: #1e5fbf;
+    --accent-dark: #154a99;
+    --accent-light: #d9e7f8;
+    --accent-soft: #eaf2fc;
     --surface: #ffffff;
     --surface-raised: #fafbfc;
     --background: #f5f7fb;
@@ -42,11 +32,6 @@
     --font-secondary: Poppins, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --transition: 160ms ease;
 }
-
-
-/* ================================================================
-   PAGE SHELL
-   ================================================================ */
 
 .claims-page {
     width: 100%;
@@ -80,11 +65,6 @@
     .claims-page select {
         font: inherit;
     }
-
-
-/* ================================================================
-   PAGE HEADER
-   ================================================================ */
 
 .page-header {
     display: flex;
@@ -128,11 +108,6 @@
     max-width: 640px;
 }
 
-
-/* ================================================================
-   BUTTONS
-   ================================================================ */
-
 .primary-button,
 .secondary-button,
 .gray-button,
@@ -153,21 +128,26 @@
     transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
 }
 
-.primary-button {
-    border: 1px solid var(--accent);
-    background: var(--accent);
-    color: var(--text-inverse);
-}
-
-    .primary-button:hover {
-        background: var(--accent-dark);
-        border-color: var(--accent-dark);
-        color: var(--text-inverse);
-    }
-
+    .primary-button,
+    .primary-button:link,
+    .primary-button:visited,
+    .primary-button:focus,
     .primary-button:active {
-        transform: scale(0.99);
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: #ffffff !important;
+        text-decoration: none;
     }
+
+        .primary-button:hover {
+            background: var(--accent-dark);
+            border-color: var(--accent-dark);
+            color: #ffffff !important;
+        }
+
+        .primary-button:active {
+            transform: scale(0.99);
+        }
 
 .secondary-button {
     border: 1px solid var(--border);
@@ -197,16 +177,21 @@
         color: var(--primary);
     }
 
-.danger-button {
+.danger-button,
+.danger-button:link,
+.danger-button:visited,
+.danger-button:focus,
+.danger-button:active {
     border: 1px solid var(--danger);
     background: var(--danger);
-    color: var(--text-inverse);
+    color: #ffffff !important;
+    text-decoration: none;
 }
 
     .danger-button:hover {
         background: var(--danger-dark);
         border-color: var(--danger-dark);
-        color: var(--text-inverse);
+        color: #ffffff !important;
     }
 
     .primary-button i,
@@ -215,10 +200,33 @@
         font-size: 13px;
     }
 
+.claims-page .primary-button,
+.claims-page .primary-button:link,
+.claims-page .primary-button:visited,
+.claims-page .primary-button:focus,
+.claims-page .primary-button:active,
+.claims-page .primary-button:hover {
+    color: #ffffff !important;
+    text-decoration: none;
+}
 
-/* ================================================================
-   ALERTS
-   ================================================================ */
+    .claims-page .primary-button i {
+        color: #ffffff !important;
+    }
+
+.claims-page .danger-button,
+.claims-page .danger-button:link,
+.claims-page .danger-button:visited,
+.claims-page .danger-button:focus,
+.claims-page .danger-button:active,
+.claims-page .danger-button:hover {
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+    .claims-page .danger-button i {
+        color: #ffffff !important;
+    }
 
 .page-alert {
     display: flex;
@@ -255,11 +263,6 @@
     .page-alert-error i {
         color: var(--danger);
     }
-
-
-/* ================================================================
-   STATS GRID
-   ================================================================ */
 
 .stats-grid {
     display: grid;
@@ -325,11 +328,6 @@
     line-height: 1.3;
 }
 
-
-/* ================================================================
-   SECTION CARD
-   ================================================================ */
-
 .section-card {
     display: flex;
     flex-direction: column;
@@ -370,11 +368,6 @@
     padding: 16px 22px 20px;
     border-top: 1px solid var(--border-light);
 }
-
-
-/* ================================================================
-   TOOLBAR + SEARCH
-   ================================================================ */
 
 .toolbar {
     padding: 12px 22px;
@@ -418,7 +411,7 @@
 
         .search-box input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+            box-shadow: 0 0 0 3px rgba(30, 95, 191, 0.1);
         }
 
 .table-empty {
@@ -431,11 +424,6 @@
         color: var(--text-muted);
         font-size: 12.5px;
     }
-
-
-/* ================================================================
-   DATA TABLE
-   ================================================================ */
 
 .table-wrapper {
     width: 100%;
@@ -513,11 +501,6 @@
         text-align: right;
     }
 
-
-/* ================================================================
-   CELL VALUES
-   ================================================================ */
-
 .reference-pill {
     display: inline-flex;
     align-items: center;
@@ -551,11 +534,6 @@
     font-variant-numeric: tabular-nums;
 }
 
-
-/* ================================================================
-   STATUS BADGES
-   ================================================================ */
-
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -587,11 +565,6 @@
     color: var(--text-secondary);
     background: #f1f5f9;
 }
-
-
-/* ================================================================
-   DETAIL GRID
-   ================================================================ */
 
 .detail-grid {
     display: grid;
@@ -628,11 +601,6 @@
     overflow-wrap: anywhere;
 }
 
-
-/* ================================================================
-   DETAIL NOTES
-   ================================================================ */
-
 .detail-notes {
     padding: 16px 22px 20px;
 }
@@ -649,11 +617,6 @@
         color: var(--text-muted);
         font-style: italic;
     }
-
-
-/* ================================================================
-   STATUS PANELS
-   ================================================================ */
 
 .status-information,
 .status-warning {
@@ -711,11 +674,6 @@
     color: var(--text-muted);
     font-size: 11px;
 }
-
-
-/* ================================================================
-   DECISION PANEL
-   ================================================================ */
 
 .decision-actions {
     padding: 18px 22px;
@@ -807,11 +765,6 @@
     justify-content: flex-end;
 }
 
-
-/* ================================================================
-   COURSE COMPLETION CHECKLIST
-   ================================================================ */
-
 .checklist-card .checklist-body {
     padding: 20px 22px 22px;
 }
@@ -892,7 +845,7 @@
             }
 
         .checklist-item input[type="checkbox"]:focus-visible {
-            outline: 2px solid rgba(5, 150, 105, 0.4);
+            outline: 2px solid rgba(30, 95, 191, 0.4);
             outline-offset: 2px;
         }
 
@@ -904,11 +857,6 @@
     flex: 1;
     min-width: 0;
 }
-
-
-/* ================================================================
-   EMPTY STATE
-   ================================================================ */
 
 .empty-state {
     display: flex;
@@ -928,11 +876,6 @@
         max-width: 440px;
     }
 
-
-/* ================================================================
-   FOCUS ACCESSIBILITY
-   ================================================================ */
-
 .primary-button:focus-visible,
 .secondary-button:focus-visible,
 .gray-button:focus-visible,
@@ -940,7 +883,7 @@
 .search-box input:focus-visible,
 .form-group textarea:focus-visible,
 .checklist-item input[type="checkbox"]:focus-visible {
-    outline: 2px solid rgba(5, 150, 105, 0.4);
+    outline: 2px solid rgba(30, 95, 191, 0.4);
     outline-offset: 2px;
 }
 
@@ -948,11 +891,6 @@
 .form-group textarea:focus-visible {
     outline-color: rgba(220, 38, 38, 0.4);
 }
-
-
-/* ================================================================
-   RESPONSIVE — TABLET
-   ================================================================ */
 
 @media (max-width: 950px) {
 
@@ -972,11 +910,6 @@
         border-bottom: none;
     }
 }
-
-
-/* ================================================================
-   RESPONSIVE — MOBILE
-   ================================================================ */
 
 @media (max-width: 700px) {
 
@@ -1084,11 +1017,6 @@
     }
 }
 
-
-/* ================================================================
-   RESPONSIVE — SMALL MOBILE
-   ================================================================ */
-
 @media (max-width: 480px) {
 
     .claims-page {
@@ -1118,11 +1046,6 @@
     }
 }
 
-
-/* ================================================================
-   REDUCED MOTION
-   ================================================================ */
-
 @media (prefers-reduced-motion: reduce) {
 
     .claims-page *,
@@ -1132,11 +1055,6 @@
         animation-duration: 0.01ms !important;
     }
 }
-
-
-/* ================================================================
-   PRINT
-   ================================================================ */
 
 @media print {
 

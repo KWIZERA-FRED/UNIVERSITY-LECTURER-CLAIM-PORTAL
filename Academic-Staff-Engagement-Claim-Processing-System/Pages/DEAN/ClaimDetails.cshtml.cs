@@ -115,7 +115,7 @@ public class ClaimDetailsModel : PageModel
             ClaimId.Value,
             ApprovalRole.Dean,
             actorId,
-            RejectReason,
+            RejectReason.Trim(),
             actorUsername,
             actorRole,
             ipAddress);
@@ -148,11 +148,15 @@ public class ClaimDetailsModel : PageModel
         if (claim is null || claim.MarksSubmissionId != marksId)
             return NotFound();
 
-        var url = await _marksService.GetSignedFileDownloadUrlAsync(marksId);
+        var marksFile = await _marksService.GetSignedFileAsync(marksId);
 
-        return url is null
-            ? NotFound()
-            : Redirect(url);
+        if (marksFile is null)
+            return NotFound();
+
+        return File(
+            marksFile.Content,
+            marksFile.ContentType,
+            marksFile.FileName);
     }
 
 

@@ -144,6 +144,50 @@ public class ClaimDocumentsModel : PageModel
             generated.FileName);
     }
 
+    public async Task<IActionResult> OnGetExamSheetAsync(
+        string token)
+    {
+        ApplyPrivacyHeaders();
+
+        // Downloads need a signed-in user.
+        if (User.Identity?.IsAuthenticated != true)
+            return Challenge();
+
+        var documents =
+            await _documents.GetPublicDocumentsAsync(
+                token ?? string.Empty);
+
+        if (documents is null)
+            return NotFound();
+
+        if (!CanDownloadDocuments(documents))
+        {
+            await LogAsync(
+                AuditAction.ClaimDocumentDownloadDenied,
+                documents.ClaimId,
+                "Exam sheet download refused");
+
+            return Forbid();
+        }
+
+        var examSheet =
+            await _documents.GetExamSheetAsync(
+                token ?? string.Empty);
+
+        if (examSheet is null)
+            return NotFound();
+
+        await LogAsync(
+            AuditAction.ClaimDocumentDownloaded,
+            documents.ClaimId,
+            "Exam sheet downloaded");
+
+        return File(
+            examSheet.Content,
+            examSheet.ContentType,
+            examSheet.FileName);
+    }
+
     // ================================================================
     // AUDIT
     // ================================================================
@@ -299,4 +343,4 @@ public class ClaimDocumentsModel : PageModel
                 "/Management/ManagementDashboard"
         };
     }
-} 
+}

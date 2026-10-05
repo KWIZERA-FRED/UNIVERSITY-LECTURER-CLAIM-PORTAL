@@ -45,15 +45,10 @@ public class ClaimDetailsModel : PageModel
 
     public string? ErrorMessage { get; set; }
 
-    // True when the claim is in this HOD's faculty AND currently at the HOD approval step.
-    // When false, the page renders in read-only mode with no decision forms.
     public bool IsActionable { get; private set; }
 
-    // Which approval role currently holds the claim. Null when the claim is not found
-    // or the faculty check failed.
     public ApprovalRole? CurrentApprover { get; private set; }
 
-    // Which approval role currently holds the claim, in display form.
     public string CurrentApproverLabel =>
         CurrentApprover switch
         {
@@ -68,10 +63,8 @@ public class ClaimDetailsModel : PageModel
             _ => CurrentApprover.Value.ToString()
         };
 
-    // Whether the HOD has already approved this claim (and it moved downstream).
     public bool HodAlreadyApproved { get; private set; }
 
-    // When the HOD approved it, if applicable.
     public DateTime? HodApprovedAtUtc { get; private set; }
 
 
@@ -122,8 +115,6 @@ public class ClaimDetailsModel : PageModel
             return Page();
         }
 
-        // --- Faculty check: is this claim in the HOD's scope at all? ---
-
         var claimContext = await _context.Claims
             .AsNoTracking()
             .Where(c => c.Id == ClaimId.Value)
@@ -150,8 +141,6 @@ public class ClaimDetailsModel : PageModel
             return Page();
         }
 
-        // --- In-faculty. Load the full review DTO. ---
-
         SelectedClaim =
             await _signingService.GetClaimForReviewAsync(
                 ClaimId.Value,
@@ -163,11 +152,7 @@ public class ClaimDetailsModel : PageModel
             return Page();
         }
 
-        // --- Determine whether the HOD can act right now. ---
-
         IsActionable = SelectedClaim.IsThisRolesTurn;
-
-        // --- Work out who currently holds the claim. ---
 
         var pendingApproval = await _context.ClaimApprovals
             .AsNoTracking()
@@ -179,8 +164,6 @@ public class ClaimDetailsModel : PageModel
             .FirstOrDefaultAsync();
 
         CurrentApprover = pendingApproval;
-
-        // --- Has the HOD already had their turn? ---
 
         var hodApproval = await _context.ClaimApprovals
             .AsNoTracking()
@@ -404,13 +387,18 @@ public class ClaimDetailsModel : PageModel
             return NotFound();
         }
 
-        var url =
-            await _marksService.GetSignedFileDownloadUrlAsync(
-                marksId);
+        var marksFile =
+            await _marksService.GetSignedFileAsync(marksId);
 
-        return url is null
-            ? NotFound()
-            : Redirect(url);
+        if (marksFile is null)
+        {
+            return NotFound();
+        }
+
+        return File(
+            marksFile.Content,
+            marksFile.ContentType,
+            marksFile.FileName);
     }
 
 
@@ -456,8 +444,6 @@ public class ClaimDetailsModel : PageModel
                     c.CourseAssignment.Course.Department));
     }
 
-    // Re-loads the read-only state fields (CurrentApprover, HodAlreadyApproved,
-    // HodApprovedAtUtc) after a POST path decides the page is not actionable.
     private async Task LoadReadOnlyContextAsync(int claimId)
     {
         var pendingApproval = await _context.ClaimApprovals
