@@ -1,8 +1,10 @@
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
+using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using Academic_Staff_Engagement_Claim_Processing_System.Data.Models;
-using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums;
 
 namespace Academic_Staff_Engagement_Claim_Processing_System.Services;
 
@@ -20,8 +22,6 @@ public static class ContractSignatureMarkup
         RegexOptions.Singleline |
         RegexOptions.Compiled;
 
-    // Matches the whole wrapper INCLUDING its nested line divs.
-    // (A plain ".*?</div>" stops at the first inner </div>.)
     private static readonly Regex PaperSignaturesRegex = new(
         @"<div\s+class\s*=\s*[""']paper-signatures[""'][^>]*>(?:\s*<div\b[^>]*>.*?</div>)*\s*</div>",
         Options);
@@ -48,9 +48,14 @@ public static class ContractSignatureMarkup
         if (string.IsNullOrEmpty(html))
             return string.Empty;
 
-        var result = PaperSignaturesRegex.Replace(html, string.Empty);
+        var result =
+            PaperSignaturesRegex.Replace(
+                html,
+                string.Empty);
 
-        return LegacySignatureTableRegex.Replace(result, string.Empty);
+        return LegacySignatureTableRegex.Replace(
+            result,
+            string.Empty);
     }
 
     /// <summary>
@@ -65,10 +70,13 @@ public static class ContractSignatureMarkup
         if (string.IsNullOrWhiteSpace(originalContent))
             return string.Empty;
 
-        var stripped = RemoveSignatureBlocks(originalContent);
+        var stripped =
+            RemoveSignatureBlocks(originalContent);
 
         var liveSection =
-            BuildLiveSignatureSection(signatures, lecturerName);
+            BuildLiveSignatureSection(
+                signatures,
+                lecturerName);
 
         var accreditationIndex =
             stripped.IndexOf(
@@ -94,33 +102,43 @@ public static class ContractSignatureMarkup
                 liveSection + Environment.NewLine);
         }
 
-        return stripped + Environment.NewLine + liveSection;
+        return stripped +
+               Environment.NewLine +
+               liveSection;
     }
 
     private static string BuildLiveSignatureSection(
         IReadOnlyCollection<ContractSignature> signatures,
         string? lecturerName)
     {
-        var html = new StringBuilder();
+        var html =
+            new StringBuilder();
 
-        html.AppendLine("<div class=\"paper-signatures\">");
+        html.AppendLine(
+            "<div class=\"paper-signatures\">");
 
         foreach (var (role, cssClass, label) in Lines)
         {
             var signature =
                 signatures
-                    .Where(s => s.SignerRole == role)
-                    .OrderBy(s => s.SequenceOrder)
+                    .Where(s =>
+                        s.SignerRole == role)
+                    .OrderBy(s =>
+                        s.SequenceOrder)
                     .FirstOrDefault();
 
-            var displayName = label;
+            var displayName =
+                label;
 
             if (role == SignerRole.Lecturer)
             {
                 var name =
-                    !string.IsNullOrWhiteSpace(lecturerName)
+                    !string.IsNullOrWhiteSpace(
+                        lecturerName)
                         ? lecturerName
-                        : signature?.SignedByLecturer?.UserName;
+                        : signature?
+                            .SignedByLecturer?
+                            .UserName;
 
                 displayName =
                     string.IsNullOrWhiteSpace(name)
@@ -146,28 +164,34 @@ public static class ContractSignatureMarkup
         ContractSignature? signature)
     {
         var isSigned =
-            signature?.Decision == SignatureDecision.Signed;
+            signature?.Decision ==
+            SignatureDecision.Signed;
 
-        var imageHtml = string.Empty;
+        var imageHtml =
+            string.Empty;
 
         if (isSigned &&
-            !string.IsNullOrWhiteSpace(signature!.SignatureFilePath))
+            !string.IsNullOrWhiteSpace(
+                signature!.SignatureFilePath))
         {
             var src =
                 WebUtility.HtmlEncode(
-                    NormalizeImageSource(
+                    BuildSignatureImageUrl(
                         signature.SignatureFilePath));
 
             imageHtml =
                 "<span class=\"paper-signature-image-wrapper\">" +
-                $"<img src=\"{src}\" alt=\"Electronic signature\" " +
+                $"<img src=\"{src}\" " +
+                "alt=\"Electronic signature\" " +
                 "class=\"contract-signature-image\" />" +
                 "</span>";
         }
 
-        var dateHtml = string.Empty;
+        var dateHtml =
+            string.Empty;
 
-        if (isSigned && signature!.SignedAtUtc.HasValue)
+        if (isSigned &&
+            signature!.SignedAtUtc.HasValue)
         {
             var formattedDate =
                 WebUtility.HtmlEncode(
@@ -176,41 +200,116 @@ public static class ContractSignatureMarkup
                         .ToString("dd/MM/yyyy"));
 
             dateHtml =
-                $"<span class=\"paper-date-value\">{formattedDate}</span>";
+                $"<span class=\"paper-date-value\">" +
+                $"{formattedDate}</span>";
         }
 
-        var safeName = WebUtility.HtmlEncode(displayName);
+        var safeName =
+            WebUtility.HtmlEncode(
+                displayName);
 
-        var line = new StringBuilder();
+        var line =
+            new StringBuilder();
 
-        line.AppendLine($"<div class=\"paper-signature-line {cssClass}\">");
-        line.AppendLine($"    <span class=\"paper-signature-name\">{safeName}</span>");
         line.AppendLine(
-            "    <span class=\"paper-signature-field paper-signature-area\">" +
+            $"<div class=\"paper-signature-line {cssClass}\">");
+
+        line.AppendLine(
+            $"    <span class=\"paper-signature-name\">" +
+            $"{safeName}</span>");
+
+        line.AppendLine(
+            "    <span class=\"paper-signature-field " +
+            "paper-signature-area\">" +
             $"Signature........................{imageHtml}</span>");
+
         line.AppendLine(
-            "    <span class=\"paper-signature-field paper-date-area\">" +
+            "    <span class=\"paper-signature-field " +
+            "paper-date-area\">" +
             $"Date.................{dateHtml}</span>");
-        line.AppendLine("</div>");
+
+        line.AppendLine(
+            "</div>");
 
         return line.ToString();
     }
 
-    // A stored path such as "uploads/signatures/x.png" (no leading slash)
-    // is resolved relative to the current page URL and shows as a broken
-    // image. Make it root-relative.
-    private static string NormalizeImageSource(string path)
+    /// <summary>
+    /// Converts the database signature path into the application
+    /// endpoint that retrieves the private signature from Cloudflare R2.
+    ///
+    /// Existing database values such as:
+    /// uploads/signatures/example.png
+    ///
+    /// become:
+    /// /SignatureImage?path=signatures%2Fexample.png
+    ///
+    /// R2 paths such as:
+    /// signatures/example.png
+    ///
+    /// are also supported directly.
+    /// </summary>
+    private static string BuildSignatureImageUrl(
+        string path)
     {
-        var trimmed = path.Trim();
+        var trimmed =
+            path.Trim();
 
-        if (trimmed.StartsWith("/") ||
-            trimmed.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+        if (trimmed.StartsWith(
+                "signatures/",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return
+                "/SignatureImage?path=" +
+                Uri.EscapeDataString(trimmed);
+        }
+
+        if (trimmed.StartsWith(
+                "/uploads/signatures/",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            var fileName =
+                trimmed[
+                    "/uploads/signatures/".Length..];
+
+            return
+                "/SignatureImage?path=" +
+                Uri.EscapeDataString(
+                    "signatures/" + fileName);
+        }
+
+        if (trimmed.StartsWith(
+                "uploads/signatures/",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            var fileName =
+                trimmed[
+                    "uploads/signatures/".Length..];
+
+            return
+                "/SignatureImage?path=" +
+                Uri.EscapeDataString(
+                    "signatures/" + fileName);
+        }
+
+        // Preserve absolute URLs and data URLs.
+        if (trimmed.StartsWith(
+                "http://",
+                StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith(
+                "https://",
+                StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith(
+                "data:",
+                StringComparison.OrdinalIgnoreCase))
         {
             return trimmed;
         }
 
-        return "/" + trimmed.Replace('\\', '/');
+        // Fallback for any other existing root-relative path.
+        return "/" +
+               trimmed.Replace(
+                   '\\',
+                   '/');
     }
 }

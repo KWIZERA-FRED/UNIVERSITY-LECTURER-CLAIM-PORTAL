@@ -344,6 +344,10 @@ builder.Services.AddScoped<OfficialDocumentService>();
 
 builder.Services.AddScoped<IFileStorageService, SqlFileStorageService>();
 
+// Cloudflare R2 signature storage
+builder.Services.AddScoped<CloudflareR2SignatureStorageService>();
+
+
 // ============================================================
 // BUILD APPLICATION
 // ============================================================
@@ -406,9 +410,11 @@ app.Use(async (context, next) =>
                 context.Response.Headers["Cache-Control"] =
                     "no-cache, no-store, must-revalidate, max-age=0";
 
-                context.Response.Headers["Pragma"] = "no-cache";
+                context.Response.Headers["Pragma"] =
+                    "no-cache";
 
-                context.Response.Headers["Expires"] = "0";
+                context.Response.Headers["Expires"] =
+                    "0";
             }
 
             return Task.CompletedTask;
