@@ -11,8 +11,7 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         [Key]
         public int Id { get; private set; }
 
-
-    [Required]
+        [Required]
         public UserRole Type { get; set; } = UserRole.PartTimeLecturer;
 
         [Required]
@@ -30,6 +29,15 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         [MaxLength(30)]
         public string RssbNumber { get; set; } = string.Empty;
 
+        [MaxLength(50)]
+        public string AccountNumber { get; set; } = string.Empty;
+
+        [MaxLength(150)]
+        public string AccountName { get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        public string BankName { get; set; } = string.Empty;
+
         [MaxLength(100)]
         public string Department { get; set; } = string.Empty;
 
@@ -44,7 +52,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 
         public LecturerRank? Rank { get; set; }
 
-        // Signature
         public string? SignatureFilePath { get; private set; }
 
         public string? SignatureFileHash { get; private set; }
@@ -59,7 +66,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 
         public Hod? SignatureCapturedByHod { get; set; }
 
-        // Account status
         public bool IsActive { get; set; } = true;
 
         public int FailedLoginAttempts { get; set; } = 0;
@@ -68,7 +74,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
 
         public DateTime? LastLoginUtc { get; set; }
 
-        // Audit fields
         public DateTime CreatedAtUtc { get; private set; }
             = DateTime.UtcNow;
 
@@ -77,7 +82,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
         [Timestamp]
         public byte[]? RowVersion { get; set; }
 
-        // Relationships
         public ICollection<CourseAssignment> CourseAssignments { get; set; }
             = new List<CourseAssignment>();
 
@@ -137,6 +141,4 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data.Models
             UpdatedAtUtc = DateTime.UtcNow;
         }
     }
-
-
 }

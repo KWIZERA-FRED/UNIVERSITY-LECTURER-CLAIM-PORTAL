@@ -15,6 +15,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
 
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string RssbNumber { get; set; } = string.Empty;
+        public string AccountNumber { get; set; } = string.Empty;
+        public string AccountName { get; set; } = string.Empty;
+        public string BankName { get; set; } = string.Empty;
+
         public string Department { get; set; } = string.Empty;
         public string Faculty { get; set; } = string.Empty;
 
@@ -97,6 +103,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
 
             request.Name = request.Name?.Trim() ?? string.Empty;
             request.Email = request.Email?.Trim() ?? string.Empty;
+            request.PhoneNumber = request.PhoneNumber?.Trim() ?? string.Empty;
+            request.RssbNumber = request.RssbNumber?.Trim() ?? string.Empty;
+            request.AccountNumber = request.AccountNumber?.Trim() ?? string.Empty;
+            request.AccountName = request.AccountName?.Trim() ?? string.Empty;
+            request.BankName = request.BankName?.Trim() ?? string.Empty;
             request.Department = request.Department?.Trim() ?? string.Empty;
             request.Faculty = request.Faculty?.Trim() ?? string.Empty;
             request.Rank = request.Rank?.Trim() ?? string.Empty;
@@ -193,6 +204,36 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                     return AccountRegistrationResult.Fail(
                         "Department is required for lecturer registration.");
                 }
+
+                if (string.IsNullOrWhiteSpace(request.PhoneNumber))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Phone number is required for lecturer registration.");
+                }
+
+                if (string.IsNullOrWhiteSpace(request.RssbNumber))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "RSSB number is required for lecturer registration.");
+                }
+
+                if (string.IsNullOrWhiteSpace(request.AccountNumber))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Account number is required for lecturer registration.");
+                }
+
+                if (string.IsNullOrWhiteSpace(request.AccountName))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Account name is required for lecturer registration.");
+                }
+
+                if (string.IsNullOrWhiteSpace(request.BankName))
+                {
+                    return AccountRegistrationResult.Fail(
+                        "Bank name is required for lecturer registration.");
+                }
             }
 
             Faculty? parsedFaculty = null;
@@ -206,9 +247,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 }
 
                 if (!Enum.TryParse<Faculty>(
-                        request.Faculty,
-                        true,
-                        out Faculty hodFaculty))
+                    request.Faculty,
+                    true,
+                    out Faculty hodFaculty))
                 {
                     return AccountRegistrationResult.Fail(
                         "The selected faculty is invalid.");
@@ -228,9 +269,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 }
 
                 if (!Enum.TryParse<ManagementTitle>(
-                        request.ManagementTitle,
-                        true,
-                        out ManagementTitle managementTitle))
+                    request.ManagementTitle,
+                    true,
+                    out ManagementTitle managementTitle))
                 {
                     return AccountRegistrationResult.Fail(
                         "The selected management title is invalid.");
@@ -267,18 +308,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 }
 
                 if (!string.Equals(
-                        registeringHod.UserName,
-                        request.ActorUsername,
-                        StringComparison.OrdinalIgnoreCase))
+                    registeringHod.UserName,
+                    request.ActorUsername,
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     return AccountRegistrationResult.Fail(
                         "The registering HOD account could not be verified.");
                 }
 
                 if (!Enum.TryParse<Department>(
-                        request.Department,
-                        true,
-                        out Department selectedDepartment))
+                    request.Department,
+                    true,
+                    out Department selectedDepartment))
                 {
                     return AccountRegistrationResult.Fail(
                         "The selected department is invalid.");
@@ -306,9 +347,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                 }
 
                 if (!string.Equals(
-                        registeringDean.UserName,
-                        request.ActorUsername,
-                        StringComparison.OrdinalIgnoreCase))
+                    registeringDean.UserName,
+                    request.ActorUsername,
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     return AccountRegistrationResult.Fail(
                         "The registering Dean account could not be verified.");
@@ -415,7 +456,6 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                         "The digital signature must be a valid PNG image.");
                 }
 
-                // Upload the signature to Cloudflare R2.
                 signatureR2Key =
                     await _signatureStorage.SaveAsync(
                         signatureFileName,
@@ -457,9 +497,9 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                         if (isLecturer)
                         {
                             if (!Enum.TryParse<LecturerRank>(
-                                    request.Rank,
-                                    true,
-                                    out LecturerRank lecturerRank))
+                                request.Rank,
+                                true,
+                                out LecturerRank lecturerRank))
                             {
                                 throw new InvalidOperationException(
                                     "The selected academic rank is invalid.");
@@ -483,26 +523,26 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                             }
 
                             if (!string.Equals(
-                                    transactionHod.UserName,
-                                    request.ActorUsername,
-                                    StringComparison.OrdinalIgnoreCase))
+                                transactionHod.UserName,
+                                request.ActorUsername,
+                                StringComparison.OrdinalIgnoreCase))
                             {
                                 throw new InvalidOperationException(
                                     "The registering HOD account could not be verified.");
                             }
 
                             if (!Enum.TryParse<Department>(
-                                    request.Department,
-                                    true,
-                                    out Department selectedDepartment))
+                                request.Department,
+                                true,
+                                out Department selectedDepartment))
                             {
                                 throw new InvalidOperationException(
                                     "The selected department is invalid.");
                             }
 
                             if (!FacultyDepartments.IsValidDepartment(
-                                    transactionHod.Faculty,
-                                    selectedDepartment))
+                                transactionHod.Faculty,
+                                selectedDepartment))
                             {
                                 throw new InvalidOperationException(
                                     "The selected department does not belong to the HOD's faculty.");
@@ -519,6 +559,11 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Services
                                 {
                                     Rank = lecturerRank,
                                     Type = request.LecturerType.Value,
+                                    PhoneNumber = request.PhoneNumber,
+                                    RssbNumber = request.RssbNumber,
+                                    AccountNumber = request.AccountNumber,
+                                    AccountName = request.AccountName,
+                                    BankName = request.BankName,
                                     Department = selectedDepartment.ToString(),
                                     Faculty = lecturerFaculty
                                 };

@@ -152,6 +152,18 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Data
                 .HasMaxLength(30);
 
             modelBuilder.Entity<Lecturer>()
+                .Property(l => l.AccountNumber)
+                .HasMaxLength(50); 
+
+            modelBuilder.Entity<Lecturer>()
+                .Property(l => l.AccountName)
+                .HasMaxLength(150);
+
+            modelBuilder.Entity<Lecturer>()
+                .Property(l => l.BankName)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Lecturer>()
                 .Property(l => l.Department)
                 .HasMaxLength(100);
 

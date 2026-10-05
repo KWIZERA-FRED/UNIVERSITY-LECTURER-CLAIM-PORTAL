@@ -168,6 +168,41 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                         $"{prefix}: Government ID is required.");
                 }
 
+                if (string.IsNullOrWhiteSpace(user.PhoneNumber))
+                {
+                    ModelState.AddModelError(
+                        $"Users[{i}].PhoneNumber",
+                        $"{prefix}: Phone number is required.");
+                }
+
+                if (string.IsNullOrWhiteSpace(user.RssbNumber))
+                {
+                    ModelState.AddModelError(
+                        $"Users[{i}].RssbNumber",
+                        $"{prefix}: RSSB number is required.");
+                }
+
+                if (string.IsNullOrWhiteSpace(user.AccountNumber))
+                {
+                    ModelState.AddModelError(
+                        $"Users[{i}].AccountNumber",
+                        $"{prefix}: Account number is required.");
+                }
+
+                if (string.IsNullOrWhiteSpace(user.AccountName))
+                {
+                    ModelState.AddModelError(
+                        $"Users[{i}].AccountName",
+                        $"{prefix}: Account name is required.");
+                }
+
+                if (string.IsNullOrWhiteSpace(user.BankName))
+                {
+                    ModelState.AddModelError(
+                        $"Users[{i}].BankName",
+                        $"{prefix}: Bank name is required.");
+                }
+
                 if (string.IsNullOrWhiteSpace(user.Department))
                 {
                     ModelState.AddModelError(
@@ -306,8 +341,12 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
                 {
                     Name = user.Name.Trim(),
                     Email = user.Email.Trim(),
+                    PhoneNumber = user.PhoneNumber.Trim(),
+                    RssbNumber = user.RssbNumber.Trim(),
+                    AccountNumber = user.AccountNumber.Trim(),
+                    AccountName = user.AccountName.Trim(),
+                    BankName = user.BankName.Trim(),
                     Department = selectedDepartment.ToString(),
-
                     Rank = user.Rank.Trim(),
                     Role = role,
                     GovernmentId = user.GovernmentId.Trim(),
@@ -510,6 +549,16 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.HOD
             public string Name { get; set; } = string.Empty;
 
             public string Email { get; set; } = string.Empty;
+
+            public string PhoneNumber { get; set; } = string.Empty;
+
+            public string RssbNumber { get; set; } = string.Empty;
+
+            public string AccountNumber { get; set; } = string.Empty;
+
+            public string AccountName { get; set; } = string.Empty;
+
+            public string BankName { get; set; } = string.Empty;
 
             public string Department { get; set; } = string.Empty;
 
