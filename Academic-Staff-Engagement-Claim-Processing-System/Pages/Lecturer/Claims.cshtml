@@ -5,14 +5,7 @@
     ViewData["Title"] = "My Claims";
     Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
 
-    // How many "needs your attention" banners to show before summarising.
-    const int maxBanners = 5;
-
-    var attention = Model.AttentionClaims;
-
-    var moreAttention = Math.Max(0, attention.Count - maxBanners);
-
-    var inReview = Model.PendingClaims;
+    var totalClaims = Model.TotalClaims;
 }
 
 @section Styles {
@@ -31,7 +24,7 @@
 
         <div class="page-header-main">
             <h1>My Claims</h1>
-            <p>View your teaching claims and follow each one through approval and payment.</p>
+            <p>View your teaching claims and track their approval and payment status.</p>
         </div>
 
         <div class="page-header-actions">
@@ -51,106 +44,46 @@
         </div>
     }
 
-    <!-- ============================================================
-         NEEDS YOUR ATTENTION — banners (same look as the HOD page)
-         ============================================================ -->
+    <section class="claims-stats" aria-label="Claim summary">
 
-    <section class="cl-banners" aria-label="Claims that need your attention">
+        <div class="claims-stat claims-stat--neutral">
+            <span class="claims-stat-label">Total Claims</span>
+            <span class="claims-stat-value">@Model.TotalClaims</span>
+            <span class="claims-stat-meta">All claims you have submitted</span>
+        </div>
 
-        @if (attention.Count == 0)
-        {
-            <div class="cl-banner cl-banner--calm" role="status">
+        <div class="claims-stat claims-stat--action">
+            <span class="claims-stat-label">Pending</span>
+            <span class="claims-stat-value">@Model.PendingClaims</span>
+            <span class="claims-stat-meta">
+                @(Model.PendingClaims > 0 ? "In the approval pipeline" : "Nothing waiting")
+            </span>
+        </div>
 
-                <span class="cl-banner-icon" aria-hidden="true">
-                    <i class="bi bi-check2-circle"></i>
-                </span>
+        <div class="claims-stat claims-stat--success">
+            <span class="claims-stat-label">Approved</span>
+            <span class="claims-stat-value">@Model.ApprovedClaims</span>
+            <span class="claims-stat-meta">Fully approved claims</span>
+        </div>
 
-                <p class="cl-banner-text">
-                    <strong>You're all caught up.</strong>
-                    @if (inReview > 0)
-                    {
-                        <text>
-                            No claim needs your attention.
-                            @inReview @(inReview == 1 ? "claim is" : "claims are")
-                            still moving through approval.
-                        </text>
-                    }
-                    else
-                    {
-                        <text>No claim needs your attention right now.</text>
-                    }
-                </p>
-
-            </div>
-        }
-        else
-        {
-            @foreach (var row in attention.Take(maxBanners))
-            {
-                <div class="cl-banner" role="status">
-
-                    <span class="cl-banner-icon" aria-hidden="true">
-                        <i class="bi bi-exclamation-lg"></i>
-                    </span>
-
-                    <p class="cl-banner-text">
-                        <strong>@row.ClaimNumber</strong>
-                        for @row.CourseCode (@row.CourseName)
-                        was rejected :
-                        @row.Hours.ToString("0.##") hours claimed.
-                        Open it to see what happened.
-                    </p>
-
-                    <a href="@row.OpenUrl" class="cl-banner-btn">
-                        View claim
-                    </a>
-
-                </div>
-            }
-
-            @if (moreAttention > 0)
-            {
-                <p class="cl-banners-more">
-                    <strong>@moreAttention more</strong>
-                    rejected — you'll find them highlighted in the table below.
-                </p>
-            }
-        }
+        <div class="claims-stat claims-stat--neutral">
+            <span class="claims-stat-label">Total Hours</span>
+            <span class="claims-stat-value">@Model.TotalHours.ToString("N1")</span>
+            <span class="claims-stat-meta">Hours across all claims</span>
+        </div>
 
     </section>
 
-    <!-- ============================================================
-         ALL CLAIMS
-         ============================================================ -->
-
-    <section class="section-card" id="all-claims-card">
+    <section class="section-card" id="claims-card">
 
         <header class="section-header">
-            <h2>All claims</h2>
+            <h2>Submitted Claims</h2>
             <span class="section-meta">
-                @Model.TotalClaims
-                @(Model.TotalClaims == 1 ? "claim" : "claims")
-                · @Model.TotalHours.ToString("N1") hours
+                @totalClaims @(totalClaims == 1 ? "claim" : "claims")
             </span>
         </header>
 
-        @if (Model.Claims.Count == 0)
-        {
-            <div class="empty-state">
-                <span class="empty-state-icon" aria-hidden="true">
-                    <i class="bi bi-wallet2"></i>
-                </span>
-                <h3>No claims yet</h3>
-                <p>
-                    Once you submit a claim, it will appear here.
-                </p>
-                <a asp-page="/Lecturer/SubmitClaim" class="primary-button">
-                    <i class="bi bi-plus-lg"></i>
-                    Submit Your First Claim
-                </a>
-            </div>
-        }
-        else
+        @if (Model.Claims.Any())
         {
             <div class="toolbar">
 
@@ -161,9 +94,9 @@
                     <i class="bi bi-search" aria-hidden="true"></i>
 
                     <input type="search"
-                           id="allClaimSearch"
+                           id="claimSearch"
                            placeholder="Search by claim, course or status…"
-                           aria-label="Search all claims"
+                           aria-label="Search claims"
                            autocomplete="off" />
 
                     <span class="search-hint" aria-hidden="true">Press /</span>
@@ -182,53 +115,76 @@
                             <th>Academic Year</th>
                             <th>Campus</th>
                             <th class="col-right">Hours</th>
+                            <th>Progress</th>
                             <th>Status</th>
                             <th class="col-action"></th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        @foreach (var row in Model.Claims)
+                    <tbody id="claimsBody">
+                        @foreach (var claim in Model.Claims)
                         {
-                            <tr class="all-claim-row"
-                                data-search="@($"{row.ClaimNumber} {row.CourseCode} {row.CourseName} {row.AcademicYear} {row.Campus} {row.Status}".ToLowerInvariant())">
+                            <tr class="claim-row"
+                                data-search="@($"{claim.ClaimNumber} {claim.CourseCode} {claim.CourseName} {claim.AcademicYear} {claim.Campus} {claim.StatusLabel} {claim.ProgressText}".ToLowerInvariant())">
 
                                 <td>
                                     <span class="reference-pill">
-                                        @row.ClaimNumber
+                                        @claim.ClaimNumber
                                     </span>
                                 </td>
 
                                 <td>
                                     <div class="course-cell">
-                                        <span class="course-title">@row.CourseName</span>
-                                        <span class="course-code">@row.CourseCode</span>
+                                        <span class="course-title">@claim.CourseName</span>
+                                        <span class="course-code">@claim.CourseCode</span>
                                     </div>
                                 </td>
 
-                                <td>@row.AcademicYear</td>
+                                <td>@claim.AcademicYear</td>
 
-                                <td>@row.Campus</td>
+                                <td>@claim.Campus</td>
 
                                 <td class="col-right">
                                     <span class="hours-value">
-                                        @row.Hours.ToString("N2")
+                                        @claim.Hours.ToString("N1")
                                     </span>
                                 </td>
 
                                 <td>
-                                    <span class="status-badge @row.StatusClass">
-                                        @row.Status
+                                    <div class="progress-cell">
+
+                                        @if (claim.Steps.Count > 0)
+                                        {
+                                            <div class="step-bar"
+                                                 role="img"
+                                                 aria-label="@claim.ProgressText">
+
+                                                @foreach (var step in claim.Steps)
+                                                {
+                                                    <span class="step-seg step-seg--@step.State"
+                                                          title="@step.Role — @step.StateLabel"></span>
+                                                }
+
+                                            </div>
+                                        }
+
+                                        <span class="progress-text">@claim.ProgressText</span>
+
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="status-badge @claim.StatusClass">
+                                        @claim.StatusLabel
                                     </span>
                                 </td>
 
                                 <td class="col-action">
-                                    <a href="@row.OpenUrl"
-                                       class="row-action @(row.NeedsAttention ? "row-action--primary" : "")">
+                                    <a href="@claim.OpenUrl" class="row-action">
                                         View
+                                        <i class="bi bi-arrow-right"></i>
                                     </a>
                                 </td>
-
                             </tr>
                         }
                     </tbody>
@@ -236,8 +192,22 @@
                 </table>
             </div>
 
-            <div class="table-empty" id="allNoResults" style="display:none;">
+            <div class="table-empty" id="noResults" hidden>
                 <p>No claims match your search.</p>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <span class="empty-state-icon" aria-hidden="true">
+                    <i class="bi bi-wallet2"></i>
+                </span>
+                <h3>No claims yet</h3>
+                <p>Once you submit a claim, it will appear here.</p>
+                <a asp-page="/Lecturer/SubmitClaim" class="primary-button">
+                    <i class="bi bi-plus-lg"></i>
+                    Submit Your First Claim
+                </a>
             </div>
         }
 
@@ -250,21 +220,18 @@
 
     document.addEventListener("DOMContentLoaded", function () {
 
-        const input = document.getElementById("allClaimSearch");
-        const noResults = document.getElementById("allNoResults");
+        const input = document.getElementById("claimSearch");
+        const noResults = document.getElementById("noResults");
 
         if (!input) return;
 
         const rows = Array.prototype.slice.call(
-            document.querySelectorAll(".all-claim-row"));
+            document.querySelectorAll(".claim-row"));
 
         function apply() {
 
-            const terms = input.value
-                .trim()
-                .toLowerCase()
-                .split(/\s+/)
-                .filter(Boolean);
+            const query = input.value.trim().toLowerCase();
+            const terms = query.split(/\s+/).filter(Boolean);
 
             let shown = 0;
 
@@ -276,13 +243,13 @@
                     return key.indexOf(t) !== -1;
                 });
 
-                row.style.display = match ? "" : "none";
+                row.hidden = !match;
 
                 if (match) shown++;
             });
 
             if (noResults) {
-                noResults.style.display = shown === 0 ? "" : "none";
+                noResults.hidden = shown > 0 || rows.length === 0;
             }
         }
 

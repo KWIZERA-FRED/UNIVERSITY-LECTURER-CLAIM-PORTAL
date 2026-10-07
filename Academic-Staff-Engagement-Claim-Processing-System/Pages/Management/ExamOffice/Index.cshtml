@@ -1,8 +1,25 @@
 @page
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.Management.ExamOffice.IndexModel
 
 @{
     ViewData["Title"] = "Exam Office Dashboard";
+
+    string GetStatusClass(MarksSubmissionStatus status) => status switch
+    {
+        MarksSubmissionStatus.Signed   => "status-active",
+        MarksSubmissionStatus.Declined => "status-danger",
+        _                              => "status-pending"
+    };
+
+    string GetStatusLabel(MarksSubmissionStatus status) => status switch
+    {
+        MarksSubmissionStatus.Signed   => "Signed",
+        MarksSubmissionStatus.Declined => "Declined",
+        _                              => "Pending Signature"
+    };
+
+    var totalActivity = Model.RecentActivity.Count;
 }
 
 @section Styles {
@@ -11,87 +28,251 @@
           asp-append-version="true" />
 }
 
-<div class="dashboard-page">
+<section class="dashboard-page">
+
+    @* ---------------- Header ---------------- *@
 
     <header class="page-header">
         <h1>Exam Office Dashboard</h1>
-        <p>Overview of pending marks submissions and recent review activity.</p>
+        <p>Review lecturer marks submissions and monitor the signing workflow.</p>
     </header>
 
-    <section class="stats-grid">
 
-        <a href="/Management/ExamOffice/Marks" class="stat-card stat-card-orange">
-            <div class="stat-icon">
-                <i class="bi bi-hourglass-split"></i>
-            </div>
-            <div class="stat-value">@Model.PendingCount</div>
+    @* ---------------- Stats — bordered white cards, label-first ---------------- *@
+
+    <section class="stats-grid" aria-label="Submission summary">
+
+        <a href="/Management/ExamOffice/Marks" class="stat-card">
             <span class="stat-label">Pending Review</span>
+            <span class="stat-value">@Model.PendingCount</span>
+            <span class="stat-meta">Needs your signature</span>
         </a>
 
-        <a href="/Management/ExamOffice/Marks" class="stat-card stat-card-green">
-            <div class="stat-icon">
-                <i class="bi bi-file-earmark-check-fill"></i>
-            </div>
-            <div class="stat-value">@Model.SignedThisWeekCount</div>
+        <a href="/Management/ExamOffice/Marks" class="stat-card">
             <span class="stat-label">Signed This Week</span>
+            <span class="stat-value">@Model.SignedThisWeekCount</span>
+            <span class="stat-meta">Approved in last 7 days</span>
         </a>
 
-        <a href="/Management/ExamOffice/Marks" class="stat-card stat-card-purple">
-            <div class="stat-icon">
-                <i class="bi bi-x-octagon-fill"></i>
-            </div>
-            <div class="stat-value">@Model.DeclinedThisWeekCount</div>
+        <a href="/Management/ExamOffice/Marks" class="stat-card">
             <span class="stat-label">Declined This Week</span>
+            <span class="stat-value">@Model.DeclinedThisWeekCount</span>
+            <span class="stat-meta">Rejected in last 7 days</span>
         </a>
 
-        <a href="/Management/ExamOffice/Marks" class="stat-card stat-card-blue">
-            <div class="stat-icon">
-                <i class="bi bi-calendar-check-fill"></i>
-            </div>
-            <div class="stat-value">@Model.SignedThisMonthCount</div>
+        <a href="/Management/ExamOffice/Marks" class="stat-card">
             <span class="stat-label">Signed This Month</span>
+            <span class="stat-value">@Model.SignedThisMonthCount</span>
+            <span class="stat-meta">Approved since the 1st</span>
         </a>
 
     </section>
 
+
+    @* ---------------- Recent activity register ---------------- *@
+
     <section class="section-card">
 
         <header class="section-header">
+
             <h2>Recent Activity</h2>
-            <a href="/Management/ExamOffice/Marks" class="section-link">
-                View all
-            </a>
+
+            <span class="section-meta">
+                @totalActivity @(totalActivity == 1 ? "submission" : "submissions")
+            </span>
+
         </header>
+
+
+        @* ---- Search ---- *@
+
+        <div class="dd-toolbar">
+
+            <form method="get"
+                  asp-page="/Management/ExamOffice/Index"
+                  id="dd-activity-search-form"
+                  class="ds-search"
+                  role="search"
+                  onsubmit="return false;">
+
+                <i class="bi bi-search" aria-hidden="true"></i>
+
+                <input type="search"
+                       id="dd-activity-search"
+                       name="q"
+                       autocomplete="off"
+                       placeholder="Search by reference, lecturer or course"
+                       aria-label="Search recent activity" />
+
+                <span class="ds-search-hint" aria-hidden="true">Press /</span>
+
+            </form>
+
+        </div>
+
+
+        @* ---- Table ---- *@
 
         @if (Model.RecentActivity.Any())
         {
-            <div class="list-table">
+            <div class="table-wrapper">
 
-                @foreach (var item in Model.RecentActivity)
-                {
-                    <div class="list-row">
+                <table class="data-table">
 
-                        <div class="list-main">
-                            <span class="list-reference">@item.Reference</span>
-                            <strong>@item.LecturerName</strong>
-                        </div>
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Lecturer</th>
+                            <th>Course</th>
+                            <th>Reviewed</th>
+                            <th>Status</th>
+                            <th class="col-action"></th>
+                        </tr>
+                    </thead>
 
-                        <span class="status-badge @item.StatusCssClass">
-                            @item.StatusLabel
-                        </span>
+                    <tbody id="dd-activity-body">
 
-                    </div>
-                }
+                        @foreach (var item in Model.RecentActivity)
+                        {
+                            var statusClass = GetStatusClass(item.Status);
+                            var statusLabel = GetStatusLabel(item.Status);
 
+                            <tr class="activity-row"
+                                data-search="@($"{item.Reference} {item.LecturerName} {item.CourseTitle}".ToLowerInvariant())">
+
+                                <td>
+                                    <span class="reference-chip">
+                                        @item.Reference
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="cell-strong">@item.LecturerName</span>
+                                </td>
+
+                                <td>
+                                    <span class="cell-muted">@item.CourseTitle</span>
+                                </td>
+
+                                <td>
+                                    <span class="cell-muted">
+                                        @(item.ReviewedAtUtc.HasValue
+                                            ? item.ReviewedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                                            : "—")
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="status-badge @statusClass">
+                                        @statusLabel
+                                    </span>
+                                </td>
+
+                                <td class="col-action">
+                                    <a href="/Management/ExamOffice/Marks"
+                                       class="row-action @(item.Status == MarksSubmissionStatus.Pending ? "row-action--primary" : "")">
+                                        @(item.Status == MarksSubmissionStatus.Pending
+                                            ? "Review & Sign"
+                                            : "Review")
+                                    </a>
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="table-empty" id="noResults" hidden>
+                <p>No submissions match your search.</p>
             </div>
         }
         else
         {
             <div class="empty-state">
-                <p>No marks submissions have been reviewed yet.</p>
+                <span class="empty-state-icon" aria-hidden="true">
+                    <i class="bi bi-inbox"></i>
+                </span>
+                <h3>No activity yet</h3>
+                <p>Marks submissions will appear here once they have been reviewed.</p>
             </div>
         }
 
     </section>
 
-</div>
+</section>
+
+
+@section Scripts {
+    <script>
+        (function () {
+
+            var input = document.getElementById("dd-activity-search");
+            var body = document.getElementById("dd-activity-body");
+            var empty = document.getElementById("noResults");
+
+            if (!input || !body) {
+                return;
+            }
+
+            var rows = Array.prototype.slice.call(
+                body.querySelectorAll(".activity-row"));
+
+            var timer = null;
+
+            function apply() {
+
+                var query = input.value.trim().toLowerCase();
+                var terms = query.split(/\s+/).filter(Boolean);
+
+                var shown = 0;
+
+                rows.forEach(function (row) {
+
+                    var key = (row.getAttribute("data-search") || "");
+
+                    var matches = terms.every(function (t) {
+                        return key.indexOf(t) !== -1;
+                    });
+
+                    row.hidden = !matches;
+
+                    if (matches) {
+                        shown++;
+                    }
+                });
+
+                if (empty) {
+                    empty.hidden = shown > 0 || rows.length === 0;
+                }
+            }
+
+            input.addEventListener("input", function () {
+                clearTimeout(timer);
+                timer = setTimeout(apply, 100);
+            });
+
+            input.addEventListener("search", apply);
+
+            document.addEventListener("keydown", function (event) {
+
+                var tag = (document.activeElement || {}).tagName || "";
+
+                if (event.key === "/" &&
+                    !/^(INPUT|TEXTAREA|SELECT)$/.test(tag) &&
+                    !event.ctrlKey && !event.metaKey && !event.altKey) {
+
+                    event.preventDefault();
+                    input.focus();
+                    input.select();
+                }
+            });
+
+            apply();
+
+        })();
+    </script>
+}

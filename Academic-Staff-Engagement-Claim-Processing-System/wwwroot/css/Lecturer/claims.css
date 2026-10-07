@@ -1,9 +1,10 @@
 /* ================================================================
    UNILAK ASECPS — LECTURER — MY CLAIMS
    ================================================================
-   Same design as the HOD claims page:
-   attention banners on top, every claim in the table below.
+   Same design as the Dean pages.
    Tokens come from /css/shared/design-system.css.
+   Soft shadows on cards, hairlines between rows,
+   one action blue for the primary action.
    ================================================================ */
 
 
@@ -13,7 +14,7 @@
 
 .claims-page {
     width: 100%;
-    max-width: 1100px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 24px;
     box-sizing: border-box;
@@ -39,8 +40,8 @@
 
     .claims-page button,
     .claims-page input,
-    .claims-page textarea,
-    .claims-page select {
+    .claims-page select,
+    .claims-page textarea {
         font: inherit;
     }
 
@@ -65,6 +66,13 @@
     min-width: 0;
 }
 
+.page-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
 .page-header h1 {
     margin: 0;
     color: var(--ds-heading);
@@ -86,48 +94,41 @@
 
 
 /* ================================================================
-   ROW ACTION BUTTON
+   BUTTONS
    ================================================================ */
 
-.row-action {
+.primary-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    min-height: 30px;
-    padding: 0 12px;
+    gap: 8px;
+    flex-shrink: 0;
+    min-height: 38px;
+    padding: 0 16px;
+    border: 1px solid var(--ds-action);
     border-radius: var(--ds-radius-sm);
-    border: 1px solid var(--ds-border);
-    background: var(--ds-surface);
-    color: var(--ds-text-secondary);
-    font-size: 11.5px;
-    font-weight: 600;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition);
-}
-
-    .row-action:hover {
-        background: var(--ds-surface-raised);
-        border-color: var(--ds-border);
-        color: var(--ds-heading);
-    }
-
-    .row-action:focus-visible {
-        outline: 2px solid var(--ds-action);
-        outline-offset: 2px;
-    }
-
-.row-action--primary {
-    border-color: var(--ds-action);
     background: var(--ds-action);
     color: #ffffff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition), transform var(--ds-transition);
 }
 
-    .row-action--primary:hover {
+    .primary-button:hover {
         background: var(--ds-action-strong);
         border-color: var(--ds-action-strong);
         color: #ffffff;
+    }
+
+    .primary-button:active {
+        transform: scale(0.99);
+    }
+
+    .primary-button i {
+        font-size: 13px;
     }
 
 
@@ -161,114 +162,71 @@
         color: var(--ds-action);
     }
 
-.page-alert-error {
-    background: var(--ds-danger-soft);
-    border-color: rgba(192, 57, 43, 0.25);
-    color: var(--ds-danger);
-}
-
-    .page-alert-error i {
-        color: var(--ds-danger);
-    }
-
 
 /* ================================================================
-   NEEDS YOUR ATTENTION — BANNERS
+   CLAIM STATS
    ================================================================ */
 
-.cl-banners {
+.claims-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.claims-stat {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-}
-
-.cl-banner {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    background: #cfd5dd;
+    gap: 4px;
+    padding: 16px 18px;
+    background: var(--ds-surface);
+    border: 1px solid var(--ds-border-light);
     border-radius: var(--ds-radius-lg);
-}
-
-.cl-banner-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--ds-heading);
-    color: #ffffff;
-    font-size: 13px;
-    line-height: 1;
-}
-
-.cl-banner--calm .cl-banner-icon {
-    background: var(--ds-success);
-}
-
-.cl-banner-text {
-    flex: 1 1 auto;
+    box-shadow: var(--ds-shadow-card, 0 1px 2px rgba(15, 39, 66, 0.06));
     min-width: 0;
-    margin: 0;
-    color: var(--ds-heading);
-    font-size: 13.5px;
-    font-weight: 500;
-    line-height: 1.4;
-    overflow-wrap: anywhere;
 }
 
-    .cl-banner-text strong {
-        font-weight: 700;
-    }
-
-.claims-page .cl-banner-btn,
-.claims-page .cl-banner-btn:link,
-.claims-page .cl-banner-btn:visited,
-.claims-page .cl-banner-btn:focus,
-.claims-page .cl-banner-btn:active {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    flex: 0 0 auto;
-    min-height: 35px;
-    padding: 8px 14px;
-    border-radius: var(--ds-radius-sm);
-    background: var(--ds-action);
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.2;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background-color var(--ds-transition);
-}
-
-    .claims-page .cl-banner-btn:hover {
-        background: var(--ds-action-strong);
-        color: #ffffff;
-    }
-
-    .claims-page .cl-banner-btn:focus-visible {
-        outline: 2px solid var(--ds-action);
-        outline-offset: 2px;
-    }
-
-.cl-banners-more {
-    margin: 2px 4px 0;
+.claims-stat-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
     color: var(--ds-text-secondary);
-    font-size: 12.5px;
-    line-height: 1.5;
+    line-height: 1.3;
 }
 
-    .cl-banners-more strong {
-        color: var(--ds-heading);
-        font-weight: 700;
-    }
+.claims-stat-value {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+    margin-top: 2px;
+}
+
+.claims-stat--neutral .claims-stat-value {
+    color: var(--ds-heading);
+}
+
+.claims-stat--action .claims-stat-value {
+    color: var(--ds-action);
+    font-size: 32px;
+    letter-spacing: -0.6px;
+}
+
+.claims-stat--success .claims-stat-value {
+    color: var(--ds-success-strong);
+}
+
+.claims-stat-meta {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ds-text-secondary);
+    line-height: 1.4;
+    margin-top: 2px;
+}
 
 
 /* ================================================================
@@ -418,14 +376,14 @@
 
     .table-wrapper::-webkit-scrollbar-thumb {
         background: var(--ds-border);
-        border-radius: 9999px;
+        border-radius: var(--ds-radius-full, 9999px);
     }
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
-    min-width: 720px;
+    min-width: 1000px;
 }
 
     .data-table thead {
@@ -496,82 +454,6 @@
     font-variant-numeric: tabular-nums;
 }
 
-.lecturer-name {
-    color: var(--ds-heading);
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.contract-reference {
-    color: var(--ds-text-secondary);
-    font-size: 13px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-}
-
-.hours-value {
-    color: var(--ds-heading);
-    font-size: 13px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-}
-
-
-/* ================================================================
-   HEADER ACTIONS + PRIMARY BUTTON
-   ================================================================ */
-
-.page-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-}
-
-.primary-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    flex-shrink: 0;
-    min-height: 38px;
-    padding: 0 16px;
-    border: 1px solid var(--ds-action);
-    border-radius: var(--ds-radius-sm);
-    background: var(--ds-action);
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 12.5px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition), transform var(--ds-transition);
-}
-
-    .primary-button:hover {
-        background: var(--ds-action-strong);
-        border-color: var(--ds-action-strong);
-        color: #ffffff;
-    }
-
-    .primary-button:active {
-        transform: scale(0.99);
-    }
-
-    .primary-button:focus-visible {
-        outline: 2px solid var(--ds-action);
-        outline-offset: 2px;
-    }
-
-    .primary-button i {
-        font-size: 13px;
-    }
-
-
-/* ================================================================
-   COURSE CELL
-   ================================================================ */
-
 .course-cell {
     display: flex;
     flex-direction: column;
@@ -593,6 +475,13 @@
     color: var(--ds-text-muted);
     font-size: 11.5px;
     font-weight: 500;
+}
+
+.hours-value {
+    color: var(--ds-heading);
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
 }
 
 
@@ -624,11 +513,13 @@
         opacity: 0.7;
     }
 
+/* Approved — success green */
 .status-active {
     color: var(--ds-success-strong);
     background: var(--ds-success-soft);
 }
 
+/* In the approval pipeline — action blue */
 .status-pending {
     color: var(--ds-action-strong);
     background: var(--ds-action-soft);
@@ -639,20 +530,102 @@
         opacity: 1;
     }
 
+/* Paid — purple */
+.status-paid {
+    color: #6d28d9;
+    background: #f5f3ff;
+}
+
+/* Rejected — red */
 .status-danger {
     color: var(--ds-danger);
     background: var(--ds-danger-soft);
 }
 
+/* Draft / anything else — grey */
 .status-neutral {
     color: var(--ds-text-secondary);
     background: var(--ds-surface-raised);
 }
 
-.status-paid {
-    color: #6d28d9;
-    background: #f5f3ff;
+
+/* ================================================================
+   APPROVAL PROGRESS — one segment per approver
+   (HOD, Dean, Director of Quality, DVCAR)
+   ================================================================ */
+
+.progress-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 150px;
 }
+
+.step-bar {
+    display: flex;
+    gap: 4px;
+}
+
+.step-seg {
+    flex: 1 1 0;
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--ds-border-light, #e8eef4);
+}
+
+.step-seg--done {
+    background: var(--ds-success, #1a8a4a);
+}
+
+.step-seg--current {
+    background: var(--ds-action, #1e5fbf);
+}
+
+.step-seg--rejected {
+    background: var(--ds-danger, #c0392b);
+}
+
+.progress-text {
+    color: var(--ds-text-muted);
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ================================================================
+   ROW ACTION BUTTON
+   ================================================================ */
+
+.row-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 0 12px;
+    border-radius: var(--ds-radius-sm);
+    border: 1px solid var(--ds-border);
+    background: var(--ds-surface);
+    color: var(--ds-text-secondary);
+    font-size: 11.5px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background var(--ds-transition), border-color var(--ds-transition), color var(--ds-transition);
+}
+
+    .row-action:hover {
+        background: var(--ds-surface-raised);
+        border-color: var(--ds-border);
+        color: var(--ds-heading);
+    }
+
+    .row-action i {
+        font-size: 12px;
+    }
 
 
 /* ================================================================
@@ -667,10 +640,6 @@
     padding: 48px 24px;
     text-align: center;
     gap: 8px;
-}
-
-.empty-state--compact {
-    padding: 32px 24px;
 }
 
 .empty-state-icon {
@@ -710,27 +679,24 @@
    FOCUS ACCESSIBILITY
    ================================================================ */
 
+.primary-button:focus-visible,
 .row-action:focus-visible,
 .search-box input:focus-visible {
     outline: 2px solid var(--ds-action);
     outline-offset: 2px;
 }
 
-.row-action.row-action--primary,
-.row-action.row-action--primary:link,
-.row-action.row-action--primary:visited,
-.row-action.row-action--primary:focus,
-.row-action.row-action--primary:active {
-    background: var(--ds-action);
-    border-color: var(--ds-action);
-    color: #ffffff;
-}
 
-    .row-action.row-action--primary:hover {
-        background: var(--ds-action-strong);
-        border-color: var(--ds-action-strong);
-        color: #ffffff;
+/* ================================================================
+   RESPONSIVE — TABLET
+   ================================================================ */
+
+@media (max-width: 1100px) {
+
+    .claims-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
 
 
 /* ================================================================
@@ -761,18 +727,13 @@
             width: 100%;
         }
 
-    .cl-banner {
-        flex-wrap: wrap;
-        gap: 10px;
+    .claims-stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
     }
 
-    .cl-banner-text {
-        flex-basis: calc(100% - 42px);
-    }
-
-    .claims-page .cl-banner-btn {
-        width: calc(100% - 42px);
-        margin-left: 42px;
+    .claims-stat {
+        padding: 14px 16px;
     }
 
     .section-header {
@@ -788,7 +749,7 @@
     }
 
     .data-table {
-        min-width: 640px;
+        min-width: 920px;
     }
 
         .data-table th,
@@ -813,12 +774,8 @@
         font-size: 19px;
     }
 
-    .claims-page .cl-banner-btn {
-        width: 100%;
-        margin-left: 0;
-    }
-
-    .section-header {
+    .section-header,
+    .toolbar {
         padding-left: 14px;
         padding-right: 14px;
     }
@@ -852,20 +809,14 @@
 
 @media print {
 
-    .claims-page {
-        max-width: none !important;
-        padding: 0 !important;
-    }
-
-    .page-header,
     .page-header-actions,
-    .cl-banners,
-    .toolbar {
+    .toolbar,
+    .row-action {
         display: none !important;
     }
 
+    .claims-stat,
     .section-card {
-        border: 0 !important;
         box-shadow: none !important;
     }
 }

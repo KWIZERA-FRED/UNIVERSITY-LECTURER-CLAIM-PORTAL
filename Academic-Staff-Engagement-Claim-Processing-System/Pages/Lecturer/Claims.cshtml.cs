@@ -31,21 +31,16 @@ public class ClaimsModel : PageModel
     public int TotalClaims =>
         Claims.Count;
 
-    // Claims still moving through the approval chain.
+    // Anywhere in the approval chain: submitted, or waiting on the
+    // HOD, Dean, Director of Quality or DVCAR.
     public int PendingClaims =>
         Claims.Count(c => c.IsPending);
 
     public int ApprovedClaims =>
-        Claims.Count(c => c.Status is "Approved" or "Paid");
+        Claims.Count(c => c.IsApproved);
 
     public decimal TotalHours =>
         Claims.Sum(c => c.Hours);
-
-    // Claims that need the lecturer to do something (rejected ones).
-    public List<ClaimItem> AttentionClaims =>
-        Claims
-            .Where(c => c.NeedsAttention)
-            .ToList();
 
     public async Task OnGetAsync()
     {
@@ -69,10 +64,6 @@ public class ClaimsModel : PageModel
 
         var claims = await _context.Claims
             .AsNoTracking()
-            .Include(c => c.CourseAssignment)
-                .ThenInclude(a => a.Course)
-            .Include(c => c.CourseAssignment)
-                .ThenInclude(a => a.Lecturer)
             .Where(c =>
                 c.CourseAssignment.LecturerId == lecturerId)
             .OrderByDescending(c => c.CreatedAtUtc)
@@ -99,7 +90,19 @@ public class ClaimsModel : PageModel
                     c.HoursClaimed,
 
                 Status =
-                    c.Status
+                    c.Status,
+
+                // The approval chain in signing order, so the page can
+                // show how far the claim has got.
+                Steps =
+                    c.Approvals
+                        .OrderBy(a => a.SequenceOrder)
+                        .Select(a => new
+                        {
+                            a.ApprovalRole,
+                            a.Decision
+                        })
+                        .ToList()
             })
             .ToListAsync();
 
@@ -129,11 +132,15 @@ public class ClaimsModel : PageModel
                 Hours =
                     c.Hours,
 
-                RawStatus =
+                Status =
                     c.Status,
 
-                Status =
-                    ToLabel(c.Status),
+                Steps =
+                    BuildSteps(
+                        c.Steps
+                            .Select(s => (s.ApprovalRole, s.Decision))
+                            .ToList(),
+                        c.Status),
 
                 OpenUrl =
                     $"/Lecturer/ClaimDetail?ClaimId={c.Id}",
@@ -144,22 +151,90 @@ public class ClaimsModel : PageModel
             .ToList();
     }
 
-    // Same wording as the HOD and Dean claim lists, so a claim reads
-    // the same way for everyone who handles it.
-    private static string ToLabel(ClaimStatus status) =>
-        status switch
+    // ================================================================
+    // APPROVAL PROGRESS
+    // ================================================================
+
+    private static List<ClaimStep> BuildSteps(
+        List<(ApprovalRole Role, ApprovalDecision Decision)> steps,
+        ClaimStatus status)
+    {
+        var result = new List<ClaimStep>();
+
+        var currentAssigned = false;
+
+        // A claim that is rejected, still a draft, or already finished
+        // has no step that is "current".
+        var inFlight =
+            status is not (ClaimStatus.Rejected
+                or ClaimStatus.Draft
+                or ClaimStatus.Approved
+                or ClaimStatus.Paid);
+
+        foreach (var (role, decision) in steps)
         {
-            ClaimStatus.Draft => "Draft",
-            ClaimStatus.Submitted => "Submitted",
-            ClaimStatus.PendingHODApproval => "Pending HOD",
-            ClaimStatus.PendingDeanApproval => "Pending Dean",
-            ClaimStatus.PendingDirectorOfQualityApproval => "Pending Director of Quality",
-            ClaimStatus.PendingDVCARApproval => "Pending DVCAR",
-            ClaimStatus.Approved => "Approved",
-            ClaimStatus.Rejected => "Rejected",
-            ClaimStatus.Paid => "Paid",
-            _ => status.ToString()
+            string state;
+
+            if (decision == ApprovalDecision.Approved)
+            {
+                state = "done";
+            }
+            else if (decision == ApprovalDecision.Rejected)
+            {
+                state = "rejected";
+            }
+            else if (inFlight && !currentAssigned)
+            {
+                state = "current";
+                currentAssigned = true;
+            }
+            else
+            {
+                state = "todo";
+            }
+
+            result.Add(new ClaimStep
+            {
+                Role = RoleLabel(role),
+                State = state
+            });
+        }
+
+        return result;
+    }
+
+    private static string RoleLabel(ApprovalRole role) =>
+        role switch
+        {
+            ApprovalRole.HOD => "HOD",
+            ApprovalRole.Dean => "Dean",
+            ApprovalRole.DirectorOfQuality => "Director of Quality",
+            ApprovalRole.DVCAR => "DVCAR",
+            _ => role.ToString()
         };
+
+    // ================================================================
+    // VIEW MODELS
+    // ================================================================
+
+    public sealed class ClaimStep
+    {
+        public string Role { get; init; } =
+            string.Empty;
+
+        // done | current | rejected | todo
+        public string State { get; init; } =
+            "todo";
+
+        public string StateLabel =>
+            State switch
+            {
+                "done" => "Approved",
+                "current" => "Waiting",
+                "rejected" => "Rejected",
+                _ => "Not yet reached"
+            };
+    }
 
     public sealed class ClaimItem
     {
@@ -185,10 +260,10 @@ public class ClaimsModel : PageModel
 
         public decimal Hours { get; init; }
 
-        public ClaimStatus RawStatus { get; init; }
+        public ClaimStatus Status { get; init; }
 
-        public string Status { get; init; } =
-            string.Empty;
+        public List<ClaimStep> Steps { get; init; } =
+            new();
 
         public string OpenUrl { get; init; } =
             "/Lecturer/Claims";
@@ -196,21 +271,37 @@ public class ClaimsModel : PageModel
         public string ReviewUrl { get; init; } =
             string.Empty;
 
-        // Submitted, or waiting on any approver in the chain.
+        // Same wording the HOD and Dean pages use for each stage.
+        public string StatusLabel =>
+            Status switch
+            {
+                ClaimStatus.Draft => "Draft",
+                ClaimStatus.Submitted => "Submitted",
+                ClaimStatus.PendingHODApproval => "Pending HOD",
+                ClaimStatus.PendingDeanApproval => "Pending Dean",
+                ClaimStatus.PendingDirectorOfQualityApproval => "Pending Director of Quality",
+                ClaimStatus.PendingDVCARApproval => "Pending DVCAR",
+                ClaimStatus.Approved => "Approved",
+                ClaimStatus.Rejected => "Rejected",
+                ClaimStatus.Paid => "Paid",
+                _ => Status.ToString()
+            };
+
         public bool IsPending =>
-            RawStatus is
+            Status is
                 ClaimStatus.Submitted
                 or ClaimStatus.PendingHODApproval
                 or ClaimStatus.PendingDeanApproval
                 or ClaimStatus.PendingDirectorOfQualityApproval
                 or ClaimStatus.PendingDVCARApproval;
 
-        // A rejected claim is the only state that asks the lecturer to act.
-        public bool NeedsAttention =>
-            RawStatus == ClaimStatus.Rejected;
+        public bool IsApproved =>
+            Status is
+                ClaimStatus.Approved
+                or ClaimStatus.Paid;
 
         public string StatusClass =>
-            RawStatus switch
+            Status switch
             {
                 ClaimStatus.Approved => "status-active",
                 ClaimStatus.Paid => "status-paid",
@@ -218,5 +309,40 @@ public class ClaimsModel : PageModel
                 ClaimStatus.Draft => "status-neutral",
                 _ => "status-pending"
             };
+
+        public int ApprovedSteps =>
+            Steps.Count(s => s.State == "done");
+
+        public int TotalSteps =>
+            Steps.Count;
+
+        // One short line under the progress bar.
+        public string ProgressText
+        {
+            get
+            {
+                if (Status == ClaimStatus.Rejected)
+                {
+                    var rejectedBy =
+                        Steps.FirstOrDefault(s => s.State == "rejected");
+
+                    return rejectedBy is null
+                        ? "Rejected"
+                        : $"Rejected by {rejectedBy.Role}";
+                }
+
+                if (TotalSteps == 0)
+                {
+                    return Status == ClaimStatus.Draft
+                        ? "Not submitted yet"
+                        : "Waiting to be routed";
+                }
+
+                if (IsApproved)
+                    return "All approvals complete";
+
+                return $"{ApprovedSteps} of {TotalSteps} approved";
+            }
+        }
     }
 }

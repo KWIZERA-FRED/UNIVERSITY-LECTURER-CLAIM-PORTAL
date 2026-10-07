@@ -1,0 +1,636 @@
+/* ============================================================
+   Exam Office — Marks Review
+   Aligned with the Exam Office dashboard and the Dean contracts
+   design language:
+   - page-header + page-header-main
+   - uniform white stat cards (status conveyed by icon only)
+   - one section-card register with a search toolbar
+   - wait-time pills in the same family as the status badges
+   ============================================================ */
+
+/* Tokens fall back to sensible values so the page renders the
+   same whichever version of the shell stylesheet is loaded. */
+.marks-page {
+    --mk-radius-xl: var(--radius-xl, 16px);
+    --mk-shadow-xs: var(--shadow-xs, 0 1px 2px rgba(15, 39, 66, 0.05));
+    --mk-warning: var(--warning, #b45309);
+    --mk-warning-bg: var(--warning-bg, #fffbeb);
+    --mk-warning-border: #fde68a;
+    --mk-info: var(--info, #2563eb);
+    --mk-danger: var(--danger, #b91c1c);
+    --mk-danger-bg: var(--danger-bg, #fef6f6);
+    --mk-danger-border: var(--danger-border, #f5cfcf);
+    --mk-success-bg: #f0fdf4;
+    --mk-success-border: #bbf7d0;
+    --mk-ease: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+    /* ---------------- Header ---------------- */
+
+    .marks-page .page-header {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 4px;
+    }
+
+    .marks-page .page-header-main h1 {
+        margin: 0;
+        color: var(--primary);
+        font-family: var(--font-secondary);
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.6px;
+        line-height: 1.2;
+    }
+
+    .marks-page .page-header-main p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 450;
+        line-height: 1.5;
+        max-width: 640px;
+    }
+
+    /* ---------------- Alerts ---------------- */
+
+    .marks-page .page-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 14px;
+        border: 1px solid transparent;
+        border-radius: var(--radius-md);
+        font-size: 12.5px;
+        line-height: 1.55;
+    }
+
+        .marks-page .page-alert i {
+            flex-shrink: 0;
+            margin-top: 2px;
+            font-size: 13px;
+        }
+
+        .marks-page .page-alert span {
+            flex: 1;
+            min-width: 0;
+        }
+
+    .marks-page .page-alert-success {
+        color: #14532d;
+        background: var(--mk-success-bg);
+        border-color: var(--mk-success-border);
+    }
+
+        .marks-page .page-alert-success i {
+            color: var(--accent);
+        }
+
+    .marks-page .page-alert-error {
+        color: #7f1d1d;
+        background: var(--mk-danger-bg);
+        border-color: var(--mk-danger-border);
+    }
+
+        .marks-page .page-alert-error i {
+            color: var(--mk-danger);
+        }
+
+    /* ---------------- Stats — uniform white cards ---------------- */
+
+    .marks-page .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .marks-page .stat-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: 20px 22px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--mk-radius-xl);
+        box-shadow: var(--mk-shadow-xs);
+        overflow: hidden;
+        isolation: isolate;
+        transition: border-color var(--mk-ease);
+    }
+
+        .marks-page .stat-card:hover {
+            border-color: var(--border-strong);
+        }
+
+    .marks-page .stat-icon {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-bottom: 16px;
+        border-radius: var(--radius-full);
+        color: #ffffff;
+        font-size: 16px;
+        box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.15);
+    }
+
+    .marks-page .stat-value {
+        margin-bottom: 6px;
+        color: var(--text);
+        font-family: var(--font-secondary);
+        font-size: 26px;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.8px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .marks-page .stat-label {
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 650;
+        letter-spacing: 0.1px;
+        line-height: 1.3;
+    }
+
+    .marks-page .stat-meta {
+        margin-top: 4px;
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    /* Status is conveyed by the ICON color only — the card itself stays white */
+    .marks-page .stat-card--action .stat-icon {
+        background: var(--mk-warning);
+    }
+
+    .marks-page .stat-card--success .stat-icon {
+        background: var(--accent);
+    }
+
+    .marks-page .stat-card--danger .stat-icon {
+        background: var(--mk-danger);
+    }
+
+    .marks-page .stat-card--neutral .stat-icon {
+        background: var(--mk-info);
+    }
+
+    /* ---------------- Section card ---------------- */
+
+    .marks-page .section-card {
+        display: flex;
+        flex-direction: column;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+    }
+
+    .marks-page .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 22px;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+        .marks-page .section-header h2 {
+            margin: 0;
+            color: var(--primary);
+            font-family: var(--font-secondary);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            line-height: 1.3;
+        }
+
+    .marks-page .section-meta {
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* ---------------- Search toolbar ---------------- */
+
+    .marks-page .toolbar {
+        padding: 12px 22px;
+        border-bottom: 1px solid var(--border-light);
+        background: var(--surface);
+    }
+
+    .marks-page .search-box {
+        position: relative;
+        display: block;
+        width: 380px;
+        max-width: 100%;
+    }
+
+        .marks-page .search-box > i {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 13px;
+            pointer-events: none;
+        }
+
+        .marks-page .search-box input {
+            width: 100%;
+            height: 36px;
+            padding: 0 68px 0 34px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            outline: none;
+            background: var(--surface);
+            color: var(--primary);
+            font-family: inherit;
+            font-size: 12.5px;
+            transition: border-color var(--transition, 160ms ease), box-shadow var(--transition, 160ms ease);
+        }
+
+            .marks-page .search-box input::placeholder {
+                color: var(--text-muted);
+            }
+
+            .marks-page .search-box input:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+            }
+
+    .marks-page .search-hint {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        padding: 2px 6px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface-raised);
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.4;
+        pointer-events: none;
+    }
+
+    .marks-page .search-box input:focus ~ .search-hint,
+    .marks-page .search-box input:not(:placeholder-shown) ~ .search-hint {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    /* ---------------- Data table ---------------- */
+
+    .marks-page .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+    }
+
+    .marks-page .data-table {
+        width: 100%;
+        min-width: 820px;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+        .marks-page .data-table thead th {
+            padding: 10px 22px;
+            background: var(--surface-raised);
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-align: left;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .marks-page .data-table tbody td {
+            padding: 14px 22px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text);
+            vertical-align: middle;
+        }
+
+        .marks-page .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .marks-page .data-table th.col-action,
+        .marks-page .data-table td.col-action {
+            width: 1%;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+    .marks-page .activity-row {
+        transition: background-color var(--transition, 160ms ease);
+    }
+
+        .marks-page .activity-row:hover {
+            background: var(--surface-raised);
+        }
+
+    .marks-page .list-reference {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 7px;
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-sm);
+        background: var(--surface-raised);
+        color: var(--text-muted);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        white-space: nowrap;
+    }
+
+    .marks-page .lecturer-name {
+        color: var(--text);
+        font-weight: 650;
+    }
+
+    .marks-page .course-title {
+        color: var(--text-secondary);
+    }
+
+    .marks-page .academic-year {
+        color: var(--text-secondary);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+
+    .marks-page .submitted-at {
+        color: var(--text-muted);
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    /* ---------------- Wait-time pills ---------------- */
+
+    .marks-page .wait-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-full);
+        background: var(--surface-raised);
+        color: var(--text-secondary);
+        font-size: 10.5px;
+        font-weight: 650;
+        letter-spacing: 0.2px;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+        .marks-page .wait-pill::before {
+            content: "";
+            flex: 0 0 auto;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.55;
+        }
+
+    .marks-page .wait-pill--warn {
+        border-color: var(--mk-warning-border);
+        background: var(--mk-warning-bg);
+        color: var(--mk-warning);
+    }
+
+    .marks-page .wait-pill--late {
+        border-color: var(--mk-danger-border);
+        background: var(--mk-danger-bg);
+        color: var(--mk-danger);
+    }
+
+        .marks-page .wait-pill--warn::before,
+        .marks-page .wait-pill--late::before {
+            opacity: 1;
+        }
+
+    /* ---------------- Row action ---------------- */
+
+    .marks-page .row-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 30px;
+        padding: 0 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        color: var(--text-secondary);
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: background-color var(--transition, 160ms ease), border-color var(--transition, 160ms ease), color var(--transition, 160ms ease);
+    }
+
+        .marks-page .row-action i {
+            font-size: 12px;
+            transition: transform var(--mk-ease);
+        }
+
+        .marks-page .row-action:hover {
+            border-color: var(--border-strong);
+            background: var(--surface-raised);
+            color: var(--primary);
+        }
+
+            .marks-page .row-action:hover i {
+                transform: translateX(2px);
+            }
+
+    /* ---------------- Empty states ---------------- */
+
+    .marks-page .table-empty {
+        padding: 36px 24px;
+        text-align: center;
+    }
+
+        .marks-page .table-empty[hidden] {
+            display: none;
+        }
+
+        .marks-page .table-empty p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 12.5px;
+        }
+
+    .marks-page .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 48px 24px;
+        text-align: center;
+    }
+
+    .marks-page .empty-state-icon {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 4px;
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-full);
+        background: var(--surface-raised);
+        color: var(--text-muted);
+        font-size: 18px;
+    }
+
+    .marks-page .empty-state h3 {
+        margin: 0;
+        color: var(--primary);
+        font-family: var(--font-secondary);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .marks-page .empty-state p {
+        max-width: 360px;
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    /* ---------------- Focus ---------------- */
+
+    .marks-page .row-action:focus-visible {
+        outline: 2px solid rgba(5, 150, 105, 0.35);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
+    }
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 760px) {
+    .marks-page {
+        gap: 16px;
+    }
+
+        .marks-page .page-header-main h1 {
+            font-size: 22px;
+        }
+
+        .marks-page .page-header-main p {
+            font-size: 12.5px;
+        }
+
+        .marks-page .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        /* Compact horizontal stat cards: icon | label + meta | value */
+        .marks-page .stat-card {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            grid-template-areas:
+                "icon label value"
+                "icon meta  value";
+            align-items: center;
+            column-gap: 14px;
+            row-gap: 2px;
+            padding: 14px 16px;
+        }
+
+        .marks-page .stat-icon {
+            grid-area: icon;
+            width: 34px;
+            height: 34px;
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+
+        .marks-page .stat-label {
+            grid-area: label;
+            align-self: end;
+        }
+
+        .marks-page .stat-meta {
+            grid-area: meta;
+            margin-top: 0;
+            align-self: start;
+        }
+
+        .marks-page .stat-value {
+            grid-area: value;
+            margin-bottom: 0;
+            font-size: 22px;
+        }
+
+        .marks-page .section-header,
+        .marks-page .toolbar,
+        .marks-page .data-table thead th,
+        .marks-page .data-table tbody td {
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+
+        .marks-page .search-box {
+            width: 100%;
+        }
+}
+
+@media (max-width: 420px) {
+    .marks-page .page-header-main h1 {
+        font-size: 20px;
+    }
+
+    .marks-page .section-header {
+        padding: 12px 14px;
+    }
+
+    .marks-page .toolbar {
+        padding: 10px 14px;
+    }
+
+    .marks-page .data-table thead th,
+    .marks-page .data-table tbody td {
+        padding: 12px 14px;
+    }
+}
+
+/* ---------------- Accessibility ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .marks-page *,
+    .marks-page *::before,
+    .marks-page *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .marks-page .row-action:hover i {
+        transform: none;
+    }
+}

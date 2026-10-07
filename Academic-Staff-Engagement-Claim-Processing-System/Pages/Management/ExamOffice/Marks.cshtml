@@ -3,15 +3,23 @@
 
 @{
     ViewData["Title"] = "Marks Review";
+
+    var hasAttention = Model.NeedsAttentionCount > 0;
 }
 
 @section Styles {
     <link rel="stylesheet"
-          href="~/css/Management/dashboard.css"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/Management/examoffice-marks.css"
           asp-append-version="true" />
 }
 
-<section class="management-dashboard">
+<section class="marks-page">
+
+    @* ---------------- Header ---------------- *@
 
     <header class="page-header">
         <div class="page-header-main">
@@ -20,44 +28,123 @@
         </div>
     </header>
 
+
+    @* ---------------- Alerts ---------------- *@
+
     @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
     {
-        <div class="page-alert page-alert-success">
-            <i class="bi bi-check-circle-fill"></i>
+        <div class="page-alert page-alert-success" role="status">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
             <span>@Model.SuccessMessage</span>
         </div>
     }
 
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {
-        <div class="page-alert page-alert-error">
-            <i class="bi bi-exclamation-circle-fill"></i>
+        <div class="page-alert page-alert-error" role="alert">
+            <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>
             <span>@Model.ErrorMessage</span>
         </div>
     }
 
-    <section class="section-card">
+
+    @* ---------------- Stats — uniform white cards (label-first) ---------------- *@
+
+    <section class="stats-grid" aria-label="Review queue summary">
+
+        <div class="stat-card">
+            <span class="stat-label">Awaiting Review</span>
+            <span class="stat-value">@Model.PendingCount</span>
+            <span class="stat-meta">
+                @(Model.PendingCount > 0
+                    ? "Marks sheets in your queue"
+                    : "Nothing waiting")
+            </span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Waiting @(MarksModel.AttentionAfterDays)+ Days</span>
+            <span class="stat-value">@Model.NeedsAttentionCount</span>
+            <span class="stat-meta">
+                @(hasAttention
+                    ? "Review these first"
+                    : "Nothing overdue")
+            </span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Longest Wait (Days)</span>
+            <span class="stat-value">
+                @(Model.PendingCount > 0 ? Model.LongestWaitDays.ToString() : "—")
+            </span>
+            <span class="stat-meta">
+                @(Model.PendingCount > 0
+                    ? "Oldest submission in the queue"
+                    : "Queue is empty")
+            </span>
+        </div>
+
+    </section>
+
+
+    @* ---------------- Review register ---------------- *@
+
+    <section class="section-card" id="marks-register">
 
         <header class="section-header">
+
             <h2>Marks Awaiting Review</h2>
 
-            <span class="section-meta">
-                @Model.PendingSubmissions.Count
-                @(Model.PendingSubmissions.Count == 1
-                    ? "submission"
-                    : "submissions")
+            <span class="section-meta"
+                  id="marksCount"
+                  data-total="@Model.PendingCount"
+                  aria-live="polite">
+                @Model.PendingCount
+                @(Model.PendingCount == 1 ? "submission" : "submissions")
             </span>
+
         </header>
+
 
         @if (Model.PendingSubmissions.Count == 0)
         {
             <div class="empty-state">
-                <p>No marks sheets awaiting review.</p>
+                <span class="empty-state-icon" aria-hidden="true">
+                    <i class="bi bi-check2-circle"></i>
+                </span>
+                <h3>You're all caught up</h3>
+                <p>No marks sheets are awaiting review. New submissions will appear here.</p>
             </div>
         }
         else
         {
+            @* ---- Search ---- *@
+
+            <div class="dd-toolbar">
+
+                <form class="ds-search"
+                      role="search"
+                      onsubmit="return false;">
+
+                    <i class="bi bi-search" aria-hidden="true"></i>
+
+                    <input type="search"
+                           id="marksSearch"
+                           placeholder="Search by reference, lecturer or course"
+                           aria-label="Search marks submissions"
+                           autocomplete="off" />
+
+                    <span class="ds-search-hint" aria-hidden="true">Press /</span>
+
+                </form>
+
+            </div>
+
+
+            @* ---- Table ---- *@
+
             <div class="table-wrapper">
+
                 <table class="data-table">
 
                     <thead>
@@ -67,61 +154,148 @@
                             <th>Course</th>
                             <th>Academic Year</th>
                             <th>Submitted</th>
+                            <th>Waiting</th>
                             <th class="col-action"></th>
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody id="marks-body">
+
                         @foreach (var row in Model.PendingSubmissions)
                         {
-                            <tr>
+                            <tr class="activity-row marks-row"
+                                data-search="@row.Reference @row.LecturerName @row.CourseTitle @row.AcademicYear">
+
                                 <td>
-                                    <span class="reference-pill">
-                                        @row.Reference
+                                    <span class="list-reference">@row.Reference</span>
+                                </td>
+
+                                <td>
+                                    <span class="lecturer-name">@row.LecturerName</span>
+                                </td>
+
+                                <td>
+                                    <span class="course-title">@row.CourseTitle</span>
+                                </td>
+
+                                <td>
+                                    <span class="academic-year">@row.AcademicYear</span>
+                                </td>
+
+                                <td>
+                                    <span class="submitted-at">
+                                        @row.SubmittedAtUtc.ToString("dd MMM yyyy")
                                     </span>
                                 </td>
 
                                 <td>
-                                    <span class="lecturer-name">
-                                        @row.LecturerName
+                                    <span class="wait-pill @row.WaitingCssClass">
+                                        @row.WaitingLabel
                                     </span>
-                                </td>
-
-                                <td>
-                                    <span class="course-title">
-                                        @row.CourseTitle
-                                    </span>
-                                </td>
-
-                                <td>
-                                    @row.AcademicYear
-                                </td>
-
-                                <td>
-                                    @row.SubmittedAtUtc.ToString("dd MMM yyyy")
                                 </td>
 
                                 <td class="col-action">
-
-                                    <a href="@Url.Page(
-                                        "/Management/ExamOffice/MarksDetails",
-                                        new { submissionId = row.Id })"
-                                       class="gray-button">
-
-                                        <i class="bi bi-eye-fill"></i>
+                                    <a asp-page="/Management/ExamOffice/MarksDetails"
+                                       asp-route-submissionId="@row.Id"
+                                       class="row-action"
+                                       aria-label="Review marks submission @row.Reference">
                                         Review
-
                                     </a>
-
                                 </td>
+
                             </tr>
                         }
+
                     </tbody>
 
                 </table>
+
+            </div>
+
+            <div class="table-empty" id="noResults" hidden>
+                <p>No marks submissions match your search.</p>
             </div>
         }
 
     </section>
 
 </section>
+
+
+@section Scripts {
+    <script>
+
+        (function () {
+
+            var search    = document.getElementById("marksSearch");
+            var noResults = document.getElementById("noResults");
+            var count     = document.getElementById("marksCount");
+
+            if (!search) return;
+
+            var total         = parseInt(count ? count.dataset.total : "0", 10) || 0;
+            var originalCount = count ? count.textContent.trim().replace(/\s+/g, " ") : "";
+
+            function apply() {
+
+                var term = search.value.toLowerCase().trim();
+                var rows = document.querySelectorAll(".marks-row");
+                var visible = 0;
+
+                rows.forEach(function (row) {
+
+                    var haystack = (row.dataset.search || "").toLowerCase();
+                    var match = term === "" || haystack.indexOf(term) !== -1;
+
+                    row.hidden = !match;
+
+                    if (match) visible++;
+
+                });
+
+                if (noResults) {
+                    noResults.hidden = visible !== 0;
+                }
+
+                if (count) {
+                    count.textContent = term === ""
+                        ? originalCount
+                        : visible + " of " + total +
+                          (total === 1 ? " submission" : " submissions");
+                }
+            }
+
+            var timer = null;
+
+            search.addEventListener("input", function () {
+                clearTimeout(timer);
+                timer = setTimeout(apply, 100);
+            });
+
+            search.addEventListener("search", apply);
+
+            document.addEventListener("keydown", function (event) {
+
+                var tag = (document.activeElement || {}).tagName || "";
+
+                if (event.key === "/" &&
+                    !/^(INPUT|TEXTAREA|SELECT)$/.test(tag) &&
+                    !event.ctrlKey && !event.metaKey && !event.altKey) {
+
+                    event.preventDefault();
+                    search.focus();
+                    search.select();
+                }
+
+                if (event.key === "Escape" && document.activeElement === search) {
+                    search.value = "";
+                    search.dispatchEvent(new Event("input"));
+                    search.blur();
+                }
+
+            });
+
+        })();
+
+    </script>
+}

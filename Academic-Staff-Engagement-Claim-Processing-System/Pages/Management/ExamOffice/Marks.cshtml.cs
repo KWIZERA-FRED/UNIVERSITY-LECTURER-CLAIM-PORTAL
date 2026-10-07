@@ -18,7 +18,19 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management.Exa
             _context = context;
         }
 
+        // A sheet waiting this many days (or more) is highlighted amber,
+        // and red once it passes the urgent threshold.
+        public const int AttentionAfterDays = 3;
+
+        public const int UrgentAfterDays = 7;
+
         public List<PendingMarksRow> PendingSubmissions { get; set; } = new();
+
+        public int PendingCount { get; set; }
+
+        public int NeedsAttentionCount { get; set; }
+
+        public int LongestWaitDays { get; set; }
 
         public string? SuccessMessage { get; set; }
 
@@ -38,6 +50,23 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management.Exa
             public string AcademicYear { get; set; } = string.Empty;
 
             public DateTime SubmittedAtUtc { get; set; }
+
+            public int WaitingDays { get; set; }
+
+            public string WaitingLabel =>
+                WaitingDays switch
+                {
+                    0 => "Today",
+                    1 => "1 day",
+                    _ => $"{WaitingDays} days"
+                };
+
+            public string WaitingCssClass =>
+                WaitingDays >= UrgentAfterDays
+                    ? "wait-pill--late"
+                    : WaitingDays >= AttentionAfterDays
+                        ? "wait-pill--warn"
+                        : string.Empty;
         }
 
 
@@ -106,6 +135,24 @@ namespace Academic_Staff_Engagement_Claim_Processing_System.Pages.Management.Exa
                     SubmittedAtUtc = ms.SubmittedAtUtc
                 })
                 .ToListAsync();
+
+            var now = DateTime.UtcNow;
+
+            foreach (var row in PendingSubmissions)
+            {
+                row.WaitingDays = Math.Max(
+                    0,
+                    (int)(now - row.SubmittedAtUtc).TotalDays);
+            }
+
+            PendingCount = PendingSubmissions.Count;
+
+            NeedsAttentionCount = PendingSubmissions
+                .Count(r => r.WaitingDays >= AttentionAfterDays);
+
+            LongestWaitDays = PendingSubmissions.Count == 0
+                ? 0
+                : PendingSubmissions.Max(r => r.WaitingDays);
         }
     }
 }

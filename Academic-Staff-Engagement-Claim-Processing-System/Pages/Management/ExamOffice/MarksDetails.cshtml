@@ -6,48 +6,70 @@
 }
 
 @section Styles {
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+
+    <link rel="stylesheet"
+          href="~/css/shared/design-system.css"
+          asp-append-version="true" />
+
     <link rel="stylesheet"
           href="~/css/Management/marks.css"
           asp-append-version="true" />
 }
 
-<section class="management-dashboard">
+<section class="mark-details-page">
+
+    @* ---------------- Header ---------------- *@
 
     <header class="page-header">
         <div class="page-header-main">
+
             <a asp-page="/Management/ExamOffice/Marks"
                class="back-link">
-                <i class="bi bi-arrow-left"></i>
-                Back to Marks Review
+                <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                <span>Back to Marks Review</span>
             </a>
 
             <h1>Mark Details</h1>
 
-            <p>
-                Review the submitted marks sheet before signing it for claim processing.
-            </p>
+            <p>Review the submitted marks sheet before signing it for claim processing.</p>
+
         </div>
     </header>
 
+
+    @* ---------------- Alerts ---------------- *@
+
     @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
     {
-        <div class="page-alert page-alert-success">
-            <i class="bi bi-check-circle-fill"></i>
+        <div class="page-alert page-alert-success" role="status">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
             <span>@Model.SuccessMessage</span>
         </div>
     }
 
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {
-        <div class="page-alert page-alert-error">
-            <i class="bi bi-exclamation-circle-fill"></i>
+        <div class="page-alert page-alert-error" role="alert">
+            <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>
             <span>@Model.ErrorMessage</span>
         </div>
     }
 
+
     @if (Model.SelectedSubmission is not null)
     {
-        <section class="section-card">
+        var rawReference   = Model.SelectedSubmission.Reference ?? string.Empty;
+        var displayReference = rawReference.Length > 24
+            ? rawReference.Substring(0, 21) + "…"
+            : rawReference;
+
+        @* ---------------- Submission information ---------------- *@
+
+        <section class="section-card section-card--branded">
 
             <header class="section-header">
                 <div>
@@ -55,8 +77,8 @@
                     <p>Verify the submitted marks before signing.</p>
                 </div>
 
-                <span class="reference-pill">
-                    @Model.SelectedSubmission.Reference
+                <span class="reference-pill" title="@rawReference">
+                    @displayReference
                 </span>
             </header>
 
@@ -88,6 +110,9 @@
 
         </section>
 
+
+        @* ---------------- Marks sheet file ---------------- *@
+
         <section class="section-card">
 
             <header class="section-header">
@@ -99,7 +124,7 @@
 
             <div class="file-panel">
 
-                <div class="file-icon">
+                <div class="file-icon" aria-hidden="true">
                     <i class="bi bi-file-earmark-spreadsheet-fill"></i>
                 </div>
 
@@ -112,7 +137,7 @@
                     <a asp-page-handler="Download"
                        asp-route-submissionId="@Model.SelectedSubmission.Id"
                        class="gray-button">
-                        <i class="bi bi-download"></i>
+                        <i class="bi bi-download" aria-hidden="true"></i>
                         Download Marks
                     </a>
                 </div>
@@ -121,27 +146,28 @@
 
         </section>
 
+
+        @* ---------------- Verification + actions ---------------- *@
+
         <section class="section-card">
 
             <header class="section-header">
                 <div>
                     <h2>Verification</h2>
-                    <p>
-                        Confirm both items before signing the marks submission.
-                    </p>
+                    <p>Confirm both items before signing the marks submission.</p>
                 </div>
             </header>
 
-            <form method="post">
+            <form method="post" id="markDetailsForm">
 
-                <input type="hidden"
-                       asp-for="SubmissionId" />
+                <input type="hidden" asp-for="SubmissionId" />
 
                 <div class="verification-list">
 
                     <label class="verification-item">
                         <input type="checkbox"
-                               asp-for="ScriptsMatchPhysical" />
+                               asp-for="ScriptsMatchPhysical"
+                               data-verify="required" />
 
                         <span class="verification-content">
                             <strong>Scripts match physical scripts</strong>
@@ -154,7 +180,8 @@
 
                     <label class="verification-item">
                         <input type="checkbox"
-                               asp-for="StudentCountMatches" />
+                               asp-for="StudentCountMatches"
+                               data-verify="required" />
 
                         <span class="verification-content">
                             <strong>Student count matches</strong>
@@ -171,15 +198,20 @@
 
                     <button type="submit"
                             asp-page-handler="Approve"
-                            class="primary-button">
-                        <i class="bi bi-pen-fill"></i>
+                            class="primary-button"
+                            id="signMarksButton"
+                            formnovalidate
+                            disabled>
+                        <i class="bi bi-pen-fill" aria-hidden="true"></i>
                         Sign Marks
                     </button>
 
                     <button type="button"
                             class="danger-button"
-                            onclick="document.getElementById('declinePanel').classList.toggle('is-visible')">
-                        <i class="bi bi-x-circle-fill"></i>
+                            aria-controls="declinePanel"
+                            aria-expanded="false"
+                            onclick="toggleDecline(this)">
+                        <i class="bi bi-x-circle-fill" aria-hidden="true"></i>
                         Decline
                     </button>
 
@@ -194,13 +226,15 @@
 
                     <textarea asp-for="DeclineReason"
                               rows="4"
-                              placeholder="Enter the reason for declining this marks submission..."></textarea>
+                              required
+                              minlength="10"
+                              placeholder="Enter the reason for declining this marks submission…"></textarea>
 
                     <div class="decline-actions">
                         <button type="submit"
                                 asp-page-handler="Decline"
                                 class="danger-button">
-                            <i class="bi bi-x-circle"></i>
+                            <i class="bi bi-x-circle" aria-hidden="true"></i>
                             Confirm Decline
                         </button>
                     </div>
@@ -213,11 +247,17 @@
     }
     else
     {
-        <section class="section-card">
-            <div class="empty-state">
-                <i class="bi bi-file-earmark-x"></i>
+        @* ---------------- Empty state ---------------- *@
 
-                <h2>Submission unavailable</h2>
+        <section class="section-card">
+
+            <div class="empty-state">
+
+                <span class="empty-state-icon" aria-hidden="true">
+                    <i class="bi bi-file-earmark-x"></i>
+                </span>
+
+                <h3>Submission unavailable</h3>
 
                 <p>
                     The selected marks submission could not be found,
@@ -226,11 +266,67 @@
 
                 <a asp-page="/Management/ExamOffice/Marks"
                    class="primary-button">
-                    <i class="bi bi-arrow-left"></i>
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i>
                     Back to Marks Review
                 </a>
+
             </div>
+
         </section>
     }
 
 </section>
+
+
+@section Scripts {
+    <script>
+
+        (function () {
+
+            /* ---- Gate the Sign button on the two verification checkboxes ---- */
+
+            var form     = document.getElementById("markDetailsForm");
+            var signBtn  = document.getElementById("signMarksButton");
+
+            if (form && signBtn) {
+
+                var checks = form.querySelectorAll('input[data-verify="required"]');
+
+                function refresh() {
+
+                    var allChecked = Array.prototype.every.call(
+                        checks,
+                        function (c) { return c.checked; });
+
+                    signBtn.disabled = !allChecked;
+                }
+
+                checks.forEach(function (c) {
+                    c.addEventListener("change", refresh);
+                });
+
+                refresh();
+            }
+
+            /* ---- Decline panel toggle (ARIA-aware) ---- */
+
+            window.toggleDecline = function (btn) {
+
+                var panel = document.getElementById("declinePanel");
+
+                if (!panel) return;
+
+                var visible = panel.classList.toggle("is-visible");
+
+                btn.setAttribute("aria-expanded", visible ? "true" : "false");
+
+                if (visible) {
+                    var ta = panel.querySelector("textarea");
+                    if (ta) ta.focus();
+                }
+            };
+
+        })();
+
+    </script>
+}
