@@ -1,488 +1,266 @@
 @page
+@using Academic_Staff_Engagement_Claim_Processing_System.Data.Models.Enums
 @model Academic_Staff_Engagement_Claim_Processing_System.Pages.Lecturer.ClaimDetailModel
 
 @{
+    Layout = "~/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
     ViewData["Title"] = "Claim Detail";
-    Layout = "/Pages/Shared/Lecturer/_LecturerLayout.cshtml";
+
+    var claim = Model.Claim;
+
+    string StatusClass(ClaimStatus status) => status switch
+    {
+        ClaimStatus.Approved or ClaimStatus.Paid => "status-active",
+        ClaimStatus.Rejected => "status-danger",
+        ClaimStatus.Draft => "status-neutral",
+        _ => "status-pending"
+    };
+
+    string StatusLabel(ClaimStatus status) => status switch
+    {
+        ClaimStatus.Draft => "Draft",
+        ClaimStatus.Submitted => "Submitted",
+        ClaimStatus.PendingHODApproval => "Pending HOD",
+        ClaimStatus.PendingDeanApproval => "Pending Dean",
+        ClaimStatus.PendingDirectorOfQualityApproval => "Pending Director of Quality",
+        ClaimStatus.PendingDVCARApproval => "Pending DVCAR",
+        ClaimStatus.Approved => "Approved",
+        ClaimStatus.Rejected => "Rejected",
+        ClaimStatus.Paid => "Paid",
+        _ => status.ToString()
+    };
 }
 
 @section Styles {
-    <link rel="stylesheet"
-          href="~/css/shared/design-system.css"
-          asp-append-version="true" />
-
-    <link rel="stylesheet"
-          href="~/css/Lecturer/claim-detail.css"
-          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/shared/design-system.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Lecturer/claim-detail.css" asp-append-version="true" />
 }
 
-<section class="claim-detail-page">
+<section class="claims-page">
 
     <header class="page-header">
-
         <div class="page-header-main">
-            <div class="page-eyebrow">
-                <i class="bi bi-file-earmark-text"></i>
-                Claim
-            </div>
-
             <h1>Claim Detail</h1>
-
-            <p>
-                Review your claim information, academic evidence,
-                attendance and submitted marks.
-            </p>
+            <p>Review your claim, academic evidence, attendance, marks and supporting documents.</p>
         </div>
-
         <div class="page-header-actions">
-            <a asp-page="/Lecturer/Claims"
-               class="secondary-button">
+            <a asp-page="/Lecturer/Claims" class="secondary-button">
                 <i class="bi bi-arrow-left"></i>
                 Back to Claims
             </a>
         </div>
-
     </header>
-
 
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {
-        <div class="page-alert page-alert-error"
-             role="alert">
-
-            <i class="bi bi-exclamation-circle-fill"
-               aria-hidden="true"></i>
-
+        <div class="page-alert page-alert-error">
+            <i class="bi bi-exclamation-circle-fill"></i>
             <span>@Model.ErrorMessage</span>
-
         </div>
     }
-    else if (Model.Claim is not null)
+    else if (claim is not null)
     {
-        var claim = Model.Claim;
-
-        <!-- ============================================================
-             CLAIM SUMMARY
-             ============================================================ -->
-
         <section class="section-card">
-
             <header class="section-header">
-
-                <div>
-                    <span class="section-kicker">
-                        Claim reference
-                    </span>
-
-                    <h2>@claim.Reference</h2>
-                </div>
-
-                <span class="status-badge @(claim.IsFullyApproved
-                    ? "status-active"
-                    : claim.IsRejected
-                        ? "status-danger"
-                        : "status-pending")">
-
-                    @claim.Status
-
+                <h2>@claim.Reference</h2>
+                <span class="status-badge @StatusClass(claim.StatusEnum)">
+                    @StatusLabel(claim.StatusEnum)
                 </span>
-
             </header>
 
-
             <div class="detail-grid">
-
                 <div class="detail-item">
                     <span class="detail-label">Course</span>
-
-                    <span class="detail-value">
-                        @claim.CourseCode - @claim.CourseTitle
-                    </span>
+                    <span class="detail-value">@claim.CourseCode — @claim.CourseTitle</span>
                 </div>
-
-
                 <div class="detail-item">
                     <span class="detail-label">Contract</span>
-
-                    <span class="detail-value">
-                        @claim.ContractReference
-                    </span>
+                    <span class="detail-value">@claim.ContractReference</span>
                 </div>
-
-
                 <div class="detail-item">
                     <span class="detail-label">Academic Year</span>
-
-                    <span class="detail-value">
-                        @claim.AcademicYear
-                    </span>
+                    <span class="detail-value">@claim.AcademicYear</span>
                 </div>
-
-
                 <div class="detail-item">
                     <span class="detail-label">Campus</span>
-
-                    <span class="detail-value">
-                        @claim.Campus
-                    </span>
+                    <span class="detail-value">@claim.Campus</span>
                 </div>
-
-
                 <div class="detail-item">
                     <span class="detail-label">Hours Claimed</span>
-
-                    <span class="detail-value">
-                        @claim.HoursClaimed.ToString("N1") h
-                    </span>
+                    <span class="detail-value">@claim.HoursClaimed.ToString("N2") h</span>
                 </div>
-
-
                 <div class="detail-item">
                     <span class="detail-label">Submitted</span>
-
                     <span class="detail-value">
                         @(claim.SubmittedAtUtc.HasValue
-                            ? claim.SubmittedAtUtc.Value
-                                .ToLocalTime()
-                                .ToString("dd MMM yyyy HH:mm")
+                            ? claim.SubmittedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
                             : "—")
                     </span>
                 </div>
-
             </div>
-
 
             @if (!string.IsNullOrWhiteSpace(claim.Description))
             {
                 <div class="detail-notes">
-
-                    <span class="detail-label">
-                        Description
-                    </span>
-
                     <p>@claim.Description</p>
-
                 </div>
             }
-
         </section>
 
-
-        <!-- ============================================================
-             EVIDENCE OVERVIEW
-             ============================================================ -->
+        @if (claim.IsRejected)
+        {
+            <div class="page-alert page-alert-error">
+                <i class="bi bi-x-circle-fill"></i>
+                <div>
+                    <strong>Claim rejected</strong>
+                    <span>This claim has been rejected in the approval process.</span>
+                </div>
+            </div>
+        }
+        else if (claim.IsFullyApproved)
+        {
+            <div class="page-alert page-alert-success">
+                <i class="bi bi-check-circle-fill"></i>
+                <div>
+                    <strong>Claim approved</strong>
+                    <span>This claim has completed the approval process.</span>
+                </div>
+            </div>
+        }
 
         <section class="section-card">
-
             <header class="section-header">
-
-                <div>
-                    <span class="section-kicker">
-                        Supporting evidence
-                    </span>
-
-                    <h2>Claim Evidence</h2>
-                </div>
-
+                <h2>Academic Evidence</h2>
                 <span class="section-meta">
-                    Academic records
+                    @((claim.HasMarks ? 1 : 0) + (claim.HasAttendance ? 1 : 0)) of 2 available
                 </span>
-
             </header>
 
-
-            <div class="evidence-overview">
-
-                <div class="evidence-item">
-
-                    <div class="evidence-icon"
-                         aria-hidden="true">
-                        <i class="bi bi-file-earmark-spreadsheet"></i>
-                    </div>
-
-                    <div class="evidence-content">
-
+            <div class="detail-notes">
+                <div class="status-information">
+                    <i class="bi bi-file-earmark-spreadsheet"></i>
+                    <div>
                         <strong>Signed Marks</strong>
-
-                        @if (claim.HasMarks)
-                        {
-                            <span>
-                                Marks submission is attached to this claim.
-                            </span>
-                        }
-                        else
-                        {
-                            <span>
-                                No marks submission is attached.
-                            </span>
-                        }
-
+                        <span>
+                            @(claim.HasMarks
+                                ? "Marks submission is attached to this claim."
+                                : "No marks submission is attached.")
+                        </span>
                     </div>
-
-                    <span class="status-badge @(claim.HasMarks
-                        ? "status-active"
-                        : "status-pending")">
-
-                        @(claim.HasMarks ? "Available" : "Missing")
-
-                    </span>
-
                 </div>
 
-
-                <div class="evidence-item">
-
-                    <div class="evidence-icon"
-                         aria-hidden="true">
-                        <i class="bi bi-calendar-check"></i>
-                    </div>
-
-                    <div class="evidence-content">
-
+                <div class="status-information" style="margin-top:12px;">
+                    <i class="bi bi-calendar-check"></i>
+                    <div>
                         <strong>Attendance Record</strong>
-
-                        @if (claim.HasAttendance)
-                        {
-                            <span>
-                                MIS attendance evidence is attached.
-                            </span>
-                        }
-                        else
-                        {
-                            <span>
-                                No attendance record is attached.
-                            </span>
-                        }
-
+                        <span>
+                            @(claim.HasAttendance
+                                ? "MIS attendance evidence is attached."
+                                : "No attendance record is attached.")
+                        </span>
                     </div>
-
-                    <span class="status-badge @(claim.HasAttendance
-                        ? "status-active"
-                        : "status-pending")">
-
-                        @(claim.HasAttendance ? "Available" : "Missing")
-
-                    </span>
-
                 </div>
-
             </div>
-
         </section>
 
-
-        <!-- ============================================================
-             SIGNED MARKS
-             ============================================================ -->
-
         <section class="section-card">
-
             <header class="section-header">
-
-                <div>
-                    <span class="section-kicker">
-                        Academic evidence
-                    </span>
-
-                    <h2>Signed Marks</h2>
-                </div>
-
+                <h2>Signed Marks</h2>
                 @if (claim.HasMarks)
                 {
-                    <span class="section-meta">
-                        Evidence submitted
-                    </span>
+                    <span class="section-meta">Evidence submitted</span>
                 }
-
             </header>
-
 
             @if (claim.Marks is not null)
             {
                 <div class="detail-grid">
-
                     <div class="detail-item">
-                        <span class="detail-label">
-                            Submission Reference
-                        </span>
-
-                        <span class="detail-value">
-                            @claim.Marks.Reference
-                        </span>
+                        <span class="detail-label">Submission Reference</span>
+                        <span class="detail-value">@claim.Marks.Reference</span>
                     </div>
-
-
                     <div class="detail-item">
-                        <span class="detail-label">
-                            File
-                        </span>
-
-                        <span class="detail-value detail-value-break">
-                            @claim.Marks.FileName
-                        </span>
+                        <span class="detail-label">File</span>
+                        <span class="detail-value">@claim.Marks.FileName</span>
                     </div>
-
-
                     <div class="detail-item">
-                        <span class="detail-label">
-                            Status
-                        </span>
-
-                        <span class="detail-value">
-                            @claim.Marks.Status
-                        </span>
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value">@claim.Marks.Status</span>
                     </div>
-
-
                     <div class="detail-item">
-                        <span class="detail-label">
-                            Signed By
-                        </span>
-
-                        <span class="detail-value">
-                            @claim.Marks.SignedBy
-                        </span>
+                        <span class="detail-label">Signed By</span>
+                        <span class="detail-value">@claim.Marks.SignedBy</span>
                     </div>
-
-
                     <div class="detail-item">
-                        <span class="detail-label">
-                            Signed
-                        </span>
-
+                        <span class="detail-label">Signed</span>
                         <span class="detail-value">
                             @(claim.Marks.SignedAtUtc.HasValue
-                                ? claim.Marks.SignedAtUtc.Value
-                                    .ToLocalTime()
-                                    .ToString("dd MMM yyyy HH:mm")
+                                ? claim.Marks.SignedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
                                 : "—")
                         </span>
                     </div>
-
                 </div>
 
-
                 <div class="section-actions">
-
                     <a class="primary-button"
                        asp-page-handler="Marks"
                        asp-route-claimId="@claim.Id"
                        asp-route-download="true">
-
                         <i class="bi bi-download"></i>
                         Download Marks
-
                     </a>
-
                 </div>
             }
             else
             {
-                <div class="empty-state empty-state--compact">
-
-                    <span class="empty-state-icon"
-                          aria-hidden="true">
+                <div class="empty-state">
+                    <span class="empty-state-icon" aria-hidden="true">
                         <i class="bi bi-clipboard-x"></i>
                     </span>
-
                     <h3>No marks submission</h3>
-
-                    <p>
-                        No marks submission is attached to this claim.
-                    </p>
-
+                    <p>No signed marks submission is attached to this claim.</p>
                 </div>
             }
-
         </section>
 
-
-        <!-- ============================================================
-             ATTENDANCE
-             ============================================================ -->
-
         <section class="section-card">
-
             <header class="section-header">
-
-                <div>
-                    <span class="section-kicker">
-                        Academic evidence
-                    </span>
-
-                    <h2>Attendance Record</h2>
-                </div>
-
+                <h2>Attendance Record</h2>
                 @if (claim.HasAttendance)
                 {
-                    <span class="section-meta">
-                        MIS evidence
-                    </span>
+                    <span class="section-meta">MIS evidence</span>
                 }
-
             </header>
-
 
             @if (claim.Attendance is not null)
             {
                 <div class="detail-grid">
-
                     <div class="detail-item">
-                        <span class="detail-label">
-                            MIS Reference
-                        </span>
-
-                        <span class="detail-value">
-                            @claim.Attendance.MisReference
-                        </span>
+                        <span class="detail-label">MIS Reference</span>
+                        <span class="detail-value">@claim.Attendance.MisReference</span>
                     </div>
-
-
                     <div class="detail-item">
-                        <span class="detail-label">
-                            Total Sessions
-                        </span>
-
-                        <span class="detail-value">
-                            @claim.Attendance.TotalSessions
-                        </span>
+                        <span class="detail-label">Total Sessions</span>
+                        <span class="detail-value">@claim.Attendance.TotalSessions</span>
                     </div>
-
-
                     <div class="detail-item">
-                        <span class="detail-label">
-                            Attended Sessions
-                        </span>
-
-                        <span class="detail-value">
-                            @claim.Attendance.AttendedSessions
-                        </span>
+                        <span class="detail-label">Attended Sessions</span>
+                        <span class="detail-value">@claim.Attendance.AttendedSessions</span>
                     </div>
-
-
                     <div class="detail-item">
-                        <span class="detail-label">
-                            Retrieved
-                        </span>
-
+                        <span class="detail-label">Retrieved</span>
                         <span class="detail-value">
                             @(claim.Attendance.RetrievedAtUtc.HasValue
-                                ? claim.Attendance.RetrievedAtUtc.Value
-                                    .ToLocalTime()
-                                    .ToString("dd MMM yyyy HH:mm")
+                                ? claim.Attendance.RetrievedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
                                 : "Not available")
                         </span>
                     </div>
-
                 </div>
-
 
                 @if (claim.Attendance.Records.Any())
                 {
                     <div class="table-wrapper">
-
                         <table class="data-table">
-
                             <thead>
                                 <tr>
                                     <th>Date</th>
@@ -490,209 +268,121 @@
                                     <th>Attendance</th>
                                 </tr>
                             </thead>
-
                             <tbody>
-
                                 @foreach (var record in claim.Attendance.Records)
                                 {
                                     <tr>
-
-                                        <td>
-                                            @record.SessionDate
-                                                .ToString("dd MMM yyyy")
-                                        </td>
-
-                                        <td>
-                                            @record.SessionTitle
-                                        </td>
-
+                                        <td>@record.SessionDate.ToString("dd MMM yyyy")</td>
+                                        <td>@record.SessionTitle</td>
                                         <td>
                                             @if (record.Attended)
                                             {
-                                                <span class="status-badge status-active">
-                                                    Present
-                                                </span>
+                                                <span class="status-badge status-active">Present</span>
                                             }
                                             else
                                             {
-                                                <span class="status-badge status-danger">
-                                                    Absent
-                                                </span>
+                                                <span class="status-badge status-danger">Absent</span>
                                             }
                                         </td>
-
                                     </tr>
                                 }
-
                             </tbody>
-
                         </table>
-
                     </div>
                 }
                 else
                 {
-                    <div class="empty-state empty-state--compact">
-
-                        <span class="empty-state-icon"
-                              aria-hidden="true">
+                    <div class="empty-state">
+                        <span class="empty-state-icon" aria-hidden="true">
                             <i class="bi bi-calendar-x"></i>
                         </span>
-
                         <h3>No attendance sessions</h3>
-
-                        <p>
-                            No attendance sessions have been recorded
-                            for this claim.
-                        </p>
-
+                        <p>No attendance sessions have been recorded for this claim.</p>
                     </div>
                 }
 
-
                 <div class="section-actions">
-
                     <a class="primary-button"
                        asp-page-handler="Attendance"
                        asp-route-claimId="@claim.Id">
-
                         <i class="bi bi-file-earmark-pdf"></i>
                         Download Attendance Report
-
                     </a>
-
                 </div>
             }
             else
             {
-                <div class="empty-state empty-state--compact">
-
-                    <span class="empty-state-icon"
-                          aria-hidden="true">
+                <div class="empty-state">
+                    <span class="empty-state-icon" aria-hidden="true">
                         <i class="bi bi-calendar-x"></i>
                     </span>
-
                     <h3>No attendance record</h3>
-
-                    <p>
-                        No MIS attendance record is attached to this claim.
-                    </p>
-
+                    <p>No MIS attendance record is attached to this claim.</p>
                 </div>
             }
-
         </section>
 
-
-        <!-- ============================================================
-             SECURE CLAIM DOCUMENTS
-             ============================================================ -->
-
         <section class="section-card">
-
             <header class="section-header">
-
-                <div>
-                    <span class="section-kicker">
-                        Supporting documents
-                    </span>
-
-                    <h2>Claim Evidence Access</h2>
-                </div>
-
-                <span class="section-meta">
-                    Secure access
-                </span>
-
+                <h2>Claim Evidence Access</h2>
+                <span class="section-meta">Secure access</span>
             </header>
-
 
             @if (!string.IsNullOrWhiteSpace(claim.PublicDocumentsUrl))
             {
-                <div class="status-information">
-
-                    <i class="bi bi-shield-check"
-                       aria-hidden="true"></i>
-
-                    <div>
-
-                        <strong>Evidence available</strong>
-
-                        <span>
-                            Open the secure claim view to access
-                            the documents associated with this claim.
-                        </span>
-
+                <div class="detail-notes">
+                    <div class="status-information">
+                        <i class="bi bi-shield-check"></i>
+                        <div>
+                            <strong>Evidence available</strong>
+                            <span>Open the secure claim view to access the documents associated with this claim.</span>
+                        </div>
                     </div>
 
+                    @if (!string.IsNullOrWhiteSpace(Model.LinkMessage))
+                    {
+                        <div class="status-information" style="margin-top:12px;">
+                            <i class="bi bi-check-circle"></i>
+                            <div>
+                                <strong>Link regenerated</strong>
+                                <span>@Model.LinkMessage</span>
+                            </div>
+                        </div>
+                    }
                 </div>
 
-
-                @if (!string.IsNullOrWhiteSpace(Model.LinkMessage))
-                {
-                    <div class="status-information" role="status">
-
-                        <i class="bi bi-check-circle"
-                           aria-hidden="true"></i>
-
-                        <div>
-                            <strong>Link regenerated</strong>
-                            <span>@Model.LinkMessage</span>
-                        </div>
-
-                    </div>
-                }
-
                 <div class="section-actions">
-
                     <a class="primary-button"
                        href="@claim.PublicDocumentsUrl"
                        target="_blank"
                        rel="noopener noreferrer">
-
                         <i class="bi bi-folder2-open"></i>
                         Open Claim Evidence
-
                     </a>
 
                     <form method="post"
                           asp-page-handler="RegenerateLink"
                           asp-route-claimId="@claim.Id"
+                          style="margin-left:10px;"
                           onsubmit="return confirm('Regenerate the claim link? The current link and any printed QR codes will stop working.');">
-
-                        <button type="submit"
-                                class="secondary-button">
-
+                        <button type="submit" class="secondary-button">
                             <i class="bi bi-arrow-repeat"></i>
                             Regenerate Link
-
                         </button>
-
                     </form>
-
                 </div>
             }
             else
             {
-                <div class="empty-state empty-state--compact">
-
-                    <span class="empty-state-icon"
-                          aria-hidden="true">
+                <div class="empty-state">
+                    <span class="empty-state-icon" aria-hidden="true">
                         <i class="bi bi-link-45deg"></i>
                     </span>
-
                     <h3>No evidence link</h3>
-
-                    <p>
-                        No secure document link is available
-                        for this claim.
-                    </p>
-
+                    <p>No secure document link is available for this claim.</p>
                 </div>
             }
-
         </section>
-
     }
 
 </section>

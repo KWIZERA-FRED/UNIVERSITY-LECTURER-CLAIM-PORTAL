@@ -92,6 +92,12 @@ public sealed partial class OfficialDocumentService
                                 identity.Item()
                                     .Text($"Tel: {lecturer.PhoneNumber}");
                             }
+
+                            if (!string.IsNullOrWhiteSpace(lecturer.RssbNumber))
+                            {
+                                identity.Item()
+                                    .Text($"RSSB No: {lecturer.RssbNumber}");
+                            }
                         });
 
                     column.Item()
@@ -167,9 +173,18 @@ public sealed partial class OfficialDocumentService
                         {
                             bank.Spacing(4);
 
-                            BankLine(bank, "Bank Name:", null);
-                            BankLine(bank, "Account Number:", null);
-                            BankLine(bank, "Account Name:", lecturer.UserName);
+                            // From the HOD's registration of the lecturer.
+                            // A blank value (e.g. a lecturer registered before
+                            // these fields existed) prints as an empty dotted
+                            // line that can be filled in by hand.
+                            BankLine(bank, "Bank Name:", lecturer.BankName);
+                            BankLine(bank, "Account Number:", lecturer.AccountNumber);
+                            BankLine(
+                                bank,
+                                "Account Name:",
+                                string.IsNullOrWhiteSpace(lecturer.AccountName)
+                                    ? lecturer.UserName
+                                    : lecturer.AccountName);
                         });
 
                     column.Item()
@@ -224,7 +239,7 @@ public sealed partial class OfficialDocumentService
 
                 row.ConstantItem(6);
 
-                row.ConstantItem(250)
+                row.ConstantItem(300)
                     .Element(e => DottedField(e, value, 12));
             });
 

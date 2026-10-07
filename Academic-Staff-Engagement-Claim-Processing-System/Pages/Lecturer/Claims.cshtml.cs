@@ -31,14 +31,21 @@ public class ClaimsModel : PageModel
     public int TotalClaims =>
         Claims.Count;
 
+    // Claims still moving through the approval chain.
     public int PendingClaims =>
         Claims.Count(c => c.IsPending);
 
     public int ApprovedClaims =>
-        Claims.Count(c => c.Status == "Approved");
+        Claims.Count(c => c.Status is "Approved" or "Paid");
 
     public decimal TotalHours =>
         Claims.Sum(c => c.Hours);
+
+    // Claims that need the lecturer to do something (rejected ones).
+    public List<ClaimItem> AttentionClaims =>
+        Claims
+            .Where(c => c.NeedsAttention)
+            .ToList();
 
     public async Task OnGetAsync()
     {
@@ -122,12 +129,11 @@ public class ClaimsModel : PageModel
                 Hours =
                     c.Hours,
 
+                RawStatus =
+                    c.Status,
+
                 Status =
-                    c.Status is
-                        ClaimStatus.PendingHODApproval
-                        or ClaimStatus.PendingDeanApproval
-                        ? "Under Review"
-                        : c.Status.ToString(),
+                    ToLabel(c.Status),
 
                 OpenUrl =
                     $"/Lecturer/ClaimDetail?ClaimId={c.Id}",
@@ -137,6 +143,23 @@ public class ClaimsModel : PageModel
             })
             .ToList();
     }
+
+    // Same wording as the HOD and Dean claim lists, so a claim reads
+    // the same way for everyone who handles it.
+    private static string ToLabel(ClaimStatus status) =>
+        status switch
+        {
+            ClaimStatus.Draft => "Draft",
+            ClaimStatus.Submitted => "Submitted",
+            ClaimStatus.PendingHODApproval => "Pending HOD",
+            ClaimStatus.PendingDeanApproval => "Pending Dean",
+            ClaimStatus.PendingDirectorOfQualityApproval => "Pending Director of Quality",
+            ClaimStatus.PendingDVCARApproval => "Pending DVCAR",
+            ClaimStatus.Approved => "Approved",
+            ClaimStatus.Rejected => "Rejected",
+            ClaimStatus.Paid => "Paid",
+            _ => status.ToString()
+        };
 
     public sealed class ClaimItem
     {
@@ -162,6 +185,8 @@ public class ClaimsModel : PageModel
 
         public decimal Hours { get; init; }
 
+        public ClaimStatus RawStatus { get; init; }
+
         public string Status { get; init; } =
             string.Empty;
 
@@ -171,41 +196,27 @@ public class ClaimsModel : PageModel
         public string ReviewUrl { get; init; } =
             string.Empty;
 
+        // Submitted, or waiting on any approver in the chain.
         public bool IsPending =>
-            Status is
-                "Submitted"
-                or "Under Review";
+            RawStatus is
+                ClaimStatus.Submitted
+                or ClaimStatus.PendingHODApproval
+                or ClaimStatus.PendingDeanApproval
+                or ClaimStatus.PendingDirectorOfQualityApproval
+                or ClaimStatus.PendingDVCARApproval;
+
+        // A rejected claim is the only state that asks the lecturer to act.
+        public bool NeedsAttention =>
+            RawStatus == ClaimStatus.Rejected;
 
         public string StatusClass =>
-            Status switch
+            RawStatus switch
             {
-                "Approved" or "Paid" =>
-                    "approved",
-
-                "Rejected" =>
-                    "rejected",
-
-                "Under Review" =>
-                    "processing",
-
-                _ =>
-                    "pending"
-            };
-
-        public string StatusIcon =>
-            Status switch
-            {
-                "Approved" or "Paid" =>
-                    "bi-check-circle",
-
-                "Rejected" =>
-                    "bi-x-circle",
-
-                "Under Review" =>
-                    "bi-arrow-repeat",
-
-                _ =>
-                    "bi-clock"
+                ClaimStatus.Approved => "status-active",
+                ClaimStatus.Paid => "status-paid",
+                ClaimStatus.Rejected => "status-danger",
+                ClaimStatus.Draft => "status-neutral",
+                _ => "status-pending"
             };
     }
 }

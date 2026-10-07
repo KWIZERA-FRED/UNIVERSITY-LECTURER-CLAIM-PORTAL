@@ -27,7 +27,6 @@ public class ClaimDetailModel : PageModel
         _auditLogger = auditLogger;
     }
 
-    // Shown once after the lecturer regenerates the claim link.
     [TempData]
     public string? LinkMessage { get; set; }
 
@@ -40,32 +39,18 @@ public class ClaimDetailModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        var username = User.Identity?.Name;
-
-        if (string.IsNullOrWhiteSpace(username))
-            return RedirectToPage("/Login");
-
-        var lecturer = await _context.Lecturers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(l =>
-                l.UserName == username &&
-                l.IsActive);
+        var lecturer = await GetAuthenticatedLecturerAsync();
 
         if (lecturer is null)
-            return RedirectToPage("/Login");
+            return Challenge();
 
-        var claim = await _context.Claims
-            .AsNoTracking()
-            .Include(c => c.CourseAssignment)
-                .ThenInclude(a => a!.Course)
-            .Include(c => c.MarksSubmission)
-                .ThenInclude(m => m!.StorageFile)
-            .Include(c => c.Attendance)
-                .ThenInclude(a => a!.Records)
-            .FirstOrDefaultAsync(c =>
-                c.Id == ClaimId &&
-                c.CourseAssignment != null &&
-                c.CourseAssignment.LecturerId == lecturer.Id);
+        if (ClaimId <= 0)
+        {
+            ErrorMessage = "The requested claim could not be found.";
+            return Page();
+        }
+
+        var claim = await GetLecturerClaimAsync(ClaimId, lecturer.Id);
 
         if (claim is null)
         {
@@ -73,150 +58,20 @@ public class ClaimDetailModel : PageModel
             return Page();
         }
 
-        var publicDocumentsUrl = Url.Page(
-            "/Public/ClaimDocuments",
-            null,
-            new { token = claim.QrCodeToken },
-            Request.Scheme);
-
-        var status = claim.Status.ToString();
-
-        var isRejected = status.Equals(
-            "Rejected",
-            StringComparison.OrdinalIgnoreCase);
-
-        var isApproved = status.Equals(
-            "Approved",
-            StringComparison.OrdinalIgnoreCase);
-
-        Claim = new ClaimDetailsViewModel
-        {
-            Id = claim.Id,
-
-            Reference = $"CLM-{claim.Id:D6}",
-
-            ContractReference = $"CON-{claim.ContractId:D6}",
-
-            CourseCode =
-                claim.CourseAssignment?.Course?.Code ?? "—",
-
-            CourseTitle =
-                claim.CourseAssignment?.Course?.Title ?? "—",
-
-            AcademicYear =
-                claim.CourseAssignment?.AcademicYear ?? "—",
-
-            Campus =
-                claim.CourseAssignment?.Campus.ToString() ?? "—",
-
-            HoursClaimed =
-                claim.HoursClaimed,
-
-            Description =
-                claim.Description ?? string.Empty,
-
-            Status =
-                status,
-
-            SubmittedAtUtc =
-                claim.SubmittedAtUtc,
-
-            PublicDocumentsUrl =
-                publicDocumentsUrl,
-
-            QrCodeToken =
-                claim.QrCodeToken ?? string.Empty,
-
-            IsFullyApproved =
-                isApproved,
-
-            IsRejected =
-                isRejected,
-
-            HasMarks =
-                claim.MarksSubmission is not null,
-
-            HasAttendance =
-                claim.Attendance is not null,
-
-            Marks =
-                claim.MarksSubmission is null
-                    ? null
-                    : new MarksViewModel
-                    {
-                        Reference =
-                            claim.MarksSubmission.SubmissionReference,
-
-                        FileName =
-                            claim.MarksSubmission.FileName,
-
-                        Status =
-                            claim.MarksSubmission.Status.ToString(),
-
-                        SignedBy =
-                            claim.MarksSubmission.ReviewedByManagementId.HasValue
-                                ? "Management"
-                                : "Exam Office",
-
-                        SignedAtUtc =
-                            claim.MarksSubmission.SignedAtUtc
-                    },
-
-            Attendance =
-                claim.Attendance is null
-                    ? null
-                    : new AttendanceViewModel
-                    {
-                        MisReference =
-                            claim.Attendance.MisReference,
-
-                        TotalSessions =
-                            claim.Attendance.TotalSessions,
-
-                        AttendedSessions =
-                            claim.Attendance.AttendedSessions,
-
-                        RetrievedAtUtc =
-                            claim.Attendance.RetrievedAtUtc,
-
-                        Records =
-                            claim.Attendance.Records
-                                .OrderBy(r => r.SessionDate)
-                                .Select(r => new AttendanceRecordViewModel
-                                {
-                                    SessionDate =
-                                        r.SessionDate,
-
-                                    SessionTitle =
-                                        r.SessionTitle,
-
-                                    Attended =
-                                        r.Attended
-                                })
-                                .ToList()
-                    }
-        };
+        Claim = BuildClaimDetailsViewModel(claim);
 
         return Page();
     }
 
-    public async Task<IActionResult> OnGetMarksAsync(
-        int claimId,
-        bool download = false)
+    public async Task<IActionResult> OnGetMarksAsync(int claimId, bool download = false)
     {
-        var username = User.Identity?.Name;
-
-        if (string.IsNullOrWhiteSpace(username))
-            return RedirectToPage("/Login");
-
-        var lecturer = await _context.Lecturers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(l =>
-                l.UserName == username &&
-                l.IsActive);
+        var lecturer = await GetAuthenticatedLecturerAsync();
 
         if (lecturer is null)
-            return RedirectToPage("/Login");
+            return Challenge();
+
+        if (claimId <= 0)
+            return NotFound();
 
         var claim = await _context.Claims
             .AsNoTracking()
@@ -245,33 +100,21 @@ public class ClaimDetailModel : PageModel
                 $"Signed marks downloaded ({claim.MarksSubmission.FileName})",
                 HttpContext.Connection.RemoteIpAddress?.ToString());
 
-            return File(
-                storedFile.Content,
-                storedFile.ContentType,
-                claim.MarksSubmission.FileName);
+            return File(storedFile.Content, storedFile.ContentType, claim.MarksSubmission.FileName);
         }
 
-        return File(
-            storedFile.Content,
-            storedFile.ContentType);
+        return File(storedFile.Content, storedFile.ContentType);
     }
 
-    public async Task<IActionResult> OnGetAttendanceAsync(
-        int claimId)
+    public async Task<IActionResult> OnGetAttendanceAsync(int claimId)
     {
-        var username = User.Identity?.Name;
-
-        if (string.IsNullOrWhiteSpace(username))
-            return RedirectToPage("/Login");
-
-        var lecturer = await _context.Lecturers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(l =>
-                l.UserName == username &&
-                l.IsActive);
+        var lecturer = await GetAuthenticatedLecturerAsync();
 
         if (lecturer is null)
-            return RedirectToPage("/Login");
+            return Challenge();
+
+        if (claimId <= 0)
+            return NotFound();
 
         var claim = await _context.Claims
             .AsNoTracking()
@@ -283,6 +126,9 @@ public class ClaimDetailModel : PageModel
         if (claim is null)
             return NotFound();
 
+        if (string.IsNullOrWhiteSpace(claim.QrCodeToken))
+            return NotFound();
+
         var publicDocumentsUrl = Url.Page(
             "/Public/ClaimDocuments",
             null,
@@ -292,11 +138,10 @@ public class ClaimDetailModel : PageModel
         if (string.IsNullOrWhiteSpace(publicDocumentsUrl))
             return NotFound();
 
-        var document =
-            await _officialDocumentService.GenerateAsync(
-                claim.QrCodeToken,
-                OfficialDocumentKind.AttendanceReport,
-                publicDocumentsUrl);
+        var document = await _officialDocumentService.GenerateAsync(
+            claim.QrCodeToken,
+            OfficialDocumentKind.AttendanceReport,
+            publicDocumentsUrl);
 
         if (document is null)
             return NotFound();
@@ -311,39 +156,19 @@ public class ClaimDetailModel : PageModel
             "Attendance report downloaded",
             HttpContext.Connection.RemoteIpAddress?.ToString());
 
-        return File(
-            document.Content,
-            "application/pdf",
-            document.FileName);
+        return File(document.Content, "application/pdf", document.FileName);
     }
 
-    // ================================================================
-    // REGENERATE CLAIM LINK
-    // ================================================================
-    //
-    // Replaces the QR / public-link token. Use this if the link was
-    // shared with the wrong person. The old link and every printed QR
-    // code that carries it stop working immediately.
-    // ================================================================
-
-    public async Task<IActionResult> OnPostRegenerateLinkAsync(
-        int claimId)
+    public async Task<IActionResult> OnPostRegenerateLinkAsync(int claimId)
     {
-        var username = User.Identity?.Name;
-
-        if (string.IsNullOrWhiteSpace(username))
-            return RedirectToPage("/Login");
-
-        var lecturer = await _context.Lecturers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(l =>
-                l.UserName == username &&
-                l.IsActive);
+        var lecturer = await GetAuthenticatedLecturerAsync();
 
         if (lecturer is null)
-            return RedirectToPage("/Login");
+            return Challenge();
 
-        // Ownership check: the claim must belong to this lecturer.
+        if (claimId <= 0)
+            return NotFound();
+
         var claim = await _context.Claims
             .FirstOrDefaultAsync(c =>
                 c.Id == claimId &&
@@ -355,7 +180,6 @@ public class ClaimDetailModel : PageModel
 
         claim.RegenerateQrToken();
 
-        // Saved in the same SaveChanges as the new token.
         _auditLogger.Add(
             AuditAction.ClaimLinkRegenerated,
             lecturer.UserName,
@@ -363,8 +187,7 @@ public class ClaimDetailModel : PageModel
             lecturer.Id,
             "Claim",
             claim.Id,
-            "Claim document link regenerated; the previous link " +
-            "and printed QR codes no longer work.",
+            "Claim document link regenerated; the previous link and printed QR codes no longer work.",
             HttpContext.Connection.RemoteIpAddress?.ToString());
 
         await _context.SaveChangesAsync();
@@ -373,82 +196,149 @@ public class ClaimDetailModel : PageModel
             "Your claim link was regenerated. The old link and any " +
             "previously printed QR codes no longer work.";
 
-        return RedirectToPage(new { claimId });
+        return RedirectToPage(new { claimId = claim.Id });
+    }
+
+    private async Task<Data.Models.Lecturer?> GetAuthenticatedLecturerAsync()
+    {
+        var username = User.Identity?.Name;
+
+        if (string.IsNullOrWhiteSpace(username))
+            return null;
+
+        return await _context.Lecturers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(l =>
+                l.UserName == username &&
+                l.IsActive);
+    }
+
+    private async Task<Claim?> GetLecturerClaimAsync(int claimId, int lecturerId)
+    {
+        return await _context.Claims
+            .AsNoTracking()
+            .Include(c => c.CourseAssignment)
+                .ThenInclude(a => a!.Course)
+            .Include(c => c.MarksSubmission)
+                .ThenInclude(m => m!.StorageFile)
+            .Include(c => c.Attendance)
+                .ThenInclude(a => a!.Records)
+            .FirstOrDefaultAsync(c =>
+                c.Id == claimId &&
+                c.CourseAssignment != null &&
+                c.CourseAssignment.LecturerId == lecturerId);
+    }
+
+    private ClaimDetailsViewModel BuildClaimDetailsViewModel(Claim claim)
+    {
+        var publicDocumentsUrl = Url.Page(
+            "/Public/ClaimDocuments",
+            null,
+            new { token = claim.QrCodeToken },
+            Request.Scheme);
+
+        var isRejected = claim.Status == ClaimStatus.Rejected;
+        var isApproved = claim.Status == ClaimStatus.Approved;
+
+        return new ClaimDetailsViewModel
+        {
+            Id = claim.Id,
+            Reference = $"CLM-{claim.Id:D6}",
+            ContractReference = $"CON-{claim.ContractId:D6}",
+            CourseCode = claim.CourseAssignment?.Course?.Code ?? "—",
+            CourseTitle = claim.CourseAssignment?.Course?.Title ?? "—",
+            AcademicYear = claim.CourseAssignment?.AcademicYear ?? "—",
+            Campus = claim.CourseAssignment?.Campus.ToString() ?? "—",
+            HoursClaimed = claim.HoursClaimed,
+            Description = claim.Description ?? string.Empty,
+            Status = claim.Status.ToString(),
+            StatusEnum = claim.Status,
+            SubmittedAtUtc = claim.SubmittedAtUtc,
+            PublicDocumentsUrl = publicDocumentsUrl,
+            QrCodeToken = claim.QrCodeToken ?? string.Empty,
+            IsFullyApproved = isApproved,
+            IsRejected = isRejected,
+            HasMarks = claim.MarksSubmission is not null,
+            HasAttendance = claim.Attendance is not null,
+            Marks = claim.MarksSubmission is null
+                ? null
+                : new MarksViewModel
+                {
+                    Reference = claim.MarksSubmission.SubmissionReference,
+                    FileName = claim.MarksSubmission.FileName,
+                    Status = claim.MarksSubmission.Status.ToString(),
+                    SignedBy = claim.MarksSubmission.ReviewedByManagementId.HasValue
+                        ? "Management"
+                        : "Exam Office",
+                    SignedAtUtc = claim.MarksSubmission.SignedAtUtc
+                },
+            Attendance = claim.Attendance is null
+                ? null
+                : new AttendanceViewModel
+                {
+                    MisReference = claim.Attendance.MisReference,
+                    TotalSessions = claim.Attendance.TotalSessions,
+                    AttendedSessions = claim.Attendance.AttendedSessions,
+                    RetrievedAtUtc = claim.Attendance.RetrievedAtUtc,
+                    Records = claim.Attendance.Records
+                        .OrderBy(r => r.SessionDate)
+                        .Select(r => new AttendanceRecordViewModel
+                        {
+                            SessionDate = r.SessionDate,
+                            SessionTitle = r.SessionTitle,
+                            Attended = r.Attended
+                        })
+                        .ToList()
+                }
+        };
     }
 
     public sealed class ClaimDetailsViewModel
     {
         public int Id { get; init; }
-
         public string Reference { get; init; } = string.Empty;
-
         public string ContractReference { get; init; } = string.Empty;
-
         public string CourseCode { get; init; } = string.Empty;
-
         public string CourseTitle { get; init; } = string.Empty;
-
         public string AcademicYear { get; init; } = string.Empty;
-
         public string Campus { get; init; } = string.Empty;
-
         public decimal HoursClaimed { get; init; }
-
         public string Description { get; init; } = string.Empty;
-
         public string Status { get; init; } = string.Empty;
-
+        public ClaimStatus StatusEnum { get; init; }
         public DateTime? SubmittedAtUtc { get; init; }
-
         public string? PublicDocumentsUrl { get; init; }
-
         public string QrCodeToken { get; init; } = string.Empty;
-
         public bool IsFullyApproved { get; init; }
-
         public bool IsRejected { get; init; }
-
         public bool HasMarks { get; init; }
-
         public bool HasAttendance { get; init; }
-
         public MarksViewModel? Marks { get; init; }
-
         public AttendanceViewModel? Attendance { get; init; }
     }
 
     public sealed class MarksViewModel
     {
         public string Reference { get; init; } = string.Empty;
-
         public string FileName { get; init; } = string.Empty;
-
         public string Status { get; init; } = string.Empty;
-
         public string SignedBy { get; init; } = string.Empty;
-
         public DateTime? SignedAtUtc { get; init; }
     }
 
     public sealed class AttendanceViewModel
     {
         public string MisReference { get; init; } = string.Empty;
-
         public int TotalSessions { get; init; }
-
         public int AttendedSessions { get; init; }
-
         public DateTime? RetrievedAtUtc { get; init; }
-
         public List<AttendanceRecordViewModel> Records { get; init; } = new();
     }
 
     public sealed class AttendanceRecordViewModel
     {
         public DateTime SessionDate { get; init; }
-
         public string SessionTitle { get; init; } = string.Empty;
-
         public bool Attended { get; init; }
     }
 }
